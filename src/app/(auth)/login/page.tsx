@@ -49,7 +49,7 @@ export default function LoginPage() {
               />
             </div>
 
-            <Button formAction={login} className="mt-2 h-12 w-full rounded-xl bg-gold text-navy font-bold text-lg transition-all hover:bg-gold/90 hover:shadow-[0_0_15px_rgba(255,215,0,0.4)]">
+            <Button type="submit" formAction={login} className="mt-2 h-12 w-full rounded-xl bg-gold text-navy font-bold text-lg transition-all hover:bg-gold/90 hover:shadow-[0_0_15px_rgba(255,215,0,0.4)]">
               Sign In
             </Button>
           </form>
