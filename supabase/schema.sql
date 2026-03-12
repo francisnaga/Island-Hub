@@ -13,6 +13,8 @@ CREATE TABLE profiles (
   is_verified BOOLEAN DEFAULT false,
   rating NUMERIC(3, 2) DEFAULT 0 CHECK (rating >= 0 AND rating <= 5),
   rating_count INTEGER DEFAULT 0,
+  follower_count INTEGER DEFAULT 0,
+  following_count INTEGER DEFAULT 0,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -203,6 +205,21 @@ CREATE POLICY "Users can view own notifications." ON notifications FOR SELECT US
 CREATE POLICY "System can insert notifications." ON notifications FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update own (mark read)." ON notifications FOR UPDATE USING (auth.uid() = user_id);
 
+-- 12. Saved Items (Bookmarking)
+CREATE TABLE saved_items (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  item_id UUID NOT NULL, -- Generic ID, can be house, service, or marketplace item
+  item_type TEXT NOT NULL, -- 'house', 'service', 'marketplace'
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(user_id, item_id)
+);
+
+ALTER TABLE saved_items ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view own saved items." ON saved_items FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can save items." ON saved_items FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can unsave items." ON saved_items FOR DELETE USING (auth.uid() = user_id);
+
 -- Helpers
 CREATE OR REPLACE FUNCTION update_profile_rating()
 RETURNS TRIGGER AS $$
@@ -239,3 +256,23 @@ CREATE TRIGGER listings_updated_at BEFORE UPDATE ON listings FOR EACH ROW EXECUT
 CREATE TRIGGER services_updated_at BEFORE UPDATE ON services FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 CREATE TRIGGER marketplace_items_updated_at BEFORE UPDATE ON marketplace_items FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 CREATE TRIGGER requests_updated_at BEFORE UPDATE ON requests FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
+
+-- Follow count trigger
+CREATE OR REPLACE FUNCTION update_follow_counts()
+RETURNS TRIGGER AS $$
+BEGIN
+  IF TG_OP = 'INSERT' THEN
+    UPDATE profiles SET following_count = following_count + 1 WHERE id = NEW.follower_id;
+    UPDATE profiles SET follower_count = follower_count + 1 WHERE id = NEW.following_id;
+  ELSIF TG_OP = 'DELETE' THEN
+    UPDATE profiles SET following_count = following_count - 1 WHERE id = OLD.follower_id;
+    UPDATE profiles SET follower_count = follower_count - 1 WHERE id = OLD.following_id;
+  END IF;
+  RETURN NULL;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_follow_counts_trigger
+AFTER INSERT OR DELETE ON follows
+FOR EACH ROW EXECUTE FUNCTION update_follow_counts();
+

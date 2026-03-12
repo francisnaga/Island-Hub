@@ -1,12 +1,15 @@
 import Image from "next/image"
 import Link from "next/link"
 import { ReactNode } from "react"
+import { Zap } from "lucide-react"
 
 interface ServiceCardProps {
   id: string
   title: string
-  subtitle: string
-  icon: ReactNode
+  price?: number
+  category?: string
+  subtitle?: string
+  icon?: ReactNode
   imageUrl?: string
   bgColor?: string
 }
@@ -14,11 +17,14 @@ interface ServiceCardProps {
 export function ServiceCard({
   id,
   title,
+  price,
+  category,
   subtitle,
   icon,
   imageUrl,
   bgColor = "bg-midnight",
 }: ServiceCardProps) {
+  const displaySubtitle = subtitle || category || "Premium Service"
   return (
     <Link
       href={`/services/${id}`}
@@ -43,7 +49,7 @@ export function ServiceCard({
       <div className="relative z-10 p-5 flex flex-col gap-3">
         {/* Icon box */}
         <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-black/40 backdrop-blur-sm text-white border border-white/10">
-          {icon}
+          {icon || <Zap className="h-5 w-5 text-gold" />}
         </div>
 
         {/* Text */}
@@ -51,9 +57,14 @@ export function ServiceCard({
           <h3 className="text-xl font-black italic uppercase tracking-wider text-white">
             {title}
           </h3>
-          <p className="text-[10px] font-bold tracking-widest text-white/70 uppercase">
-            {subtitle}
-          </p>
+          <div className="flex items-center justify-between mt-1">
+             <p className="text-[10px] font-bold tracking-widest text-white/70 uppercase">
+               {displaySubtitle}
+             </p>
+             {price !== undefined && (
+                <p className="text-sm font-black text-gold">₦{price.toLocaleString()}</p>
+             )}
+          </div>
         </div>
       </div>
     </Link>
