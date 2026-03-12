@@ -1,39 +1,28 @@
-'use client'
-
-import { useState } from "react"
 import Link from "next/link"
-import { MapPin, Plus, AlertCircle, Clock } from "lucide-react"
+import { MapPin, Plus, AlertCircle, Clock, Loader2 } from "lucide-react"
 import { Button } from "@/components/ui/button"
+import { createBrowserClient } from "@supabase/ssr"
 import { cn } from "@/lib/utils"
 
-// Mock Data
-const MOCK_ITEMS = [
-  {
-    id: "lf1",
-    title: "Lost iPhone 13 Pro Max",
-    description: "I lost my blue iPhone around the Engineering block. It has a transparent case. Please contact me if found.",
-    location: "Engineering Block",
-    type: "lost",
-    author: "Jane Smith",
-    timeAgo: "2 hours ago"
-  },
-  {
-    id: "lf2",
-    title: "Found a Set of Keys",
-    description: "Found a bunch of keys with a red lanyard near the library entrance. Dropped it at the security post.",
-    location: "Library Entrance",
-    type: "found",
-    author: "Admin Security",
-    timeAgo: "1 day ago"
-  }
-]
-
-export default function LostFoundPage() {
-  const [filter, setFilter] = useState<"all" | "lost" | "found">("all")
-
-  const filteredItems = MOCK_ITEMS.filter(item => 
-    filter === "all" ? true : item.type === filter
+export default async function LostFoundPage({ searchParams }: { searchParams: { type?: string } }) {
+  const supabase = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
+
+  const filterType = searchParams.type || 'all'
+
+  let query = supabase
+    .from('lost_found')
+    .select('*, profiles(full_name)')
+    .gte('expires_at', new Date().toISOString())
+    .order('created_at', { ascending: false })
+
+  if (filterType !== 'all') {
+    query = query.eq('type', filterType)
+  }
+
+  const { data: items, error } = await query
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-6 container mx-auto pb-20 max-w-4xl">
@@ -60,12 +49,12 @@ export default function LostFoundPage() {
       {/* Filters */}
       <div className="flex items-center gap-3">
         {(["all", "lost", "found"] as const).map(type => (
-          <button
+          <Link
             key={type}
-            onClick={() => setFilter(type)}
+            href={`/lost-found?type=${type}`}
             className={cn(
               "px-5 py-2 rounded-full text-xs font-bold uppercase tracking-wider transition-all border",
-              filter === type
+              filterType === type
                 ? type === "lost" ? "bg-red-500 text-white border-red-500" 
                   : type === "found" ? "bg-green-500 text-white border-green-500" 
                   : "bg-white text-navy border-white"
@@ -73,57 +62,57 @@ export default function LostFoundPage() {
             )}
           >
             {type}
-          </button>
+          </Link>
         ))}
       </div>
 
       {/* List */}
-      <div className="flex flex-col gap-4">
-        {filteredItems.map(item => (
-           <div key={item.id} className="relative bg-[#121212] border border-white/10 rounded-2xl p-5 overflow-hidden transition-all hover:bg-white/5">
-              
-              {/* Type indicator line */}
-              <div className={cn(
-                "absolute left-0 top-0 bottom-0 w-1.5",
-                item.type === "lost" ? "bg-red-500" : "bg-green-500"
-              )} />
-              
-              <div className="pl-2">
-                <div className="flex items-center justify-between mb-3">
-                  <span className={cn(
-                    "text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-sm",
-                    item.type === "lost" ? "bg-red-500/10 text-red-500" : "bg-green-500/10 text-green-500"
-                  )}>
-                    {item.type}
-                  </span>
-                  <span className="text-xs text-white/40 flex items-center gap-1 font-medium">
-                    <Clock className="h-3 w-3" /> {item.timeAgo}
-                  </span>
-                </div>
+      {items && items.length > 0 ? (
+        <div className="flex flex-col gap-4">
+          {items.map(item => (
+            <Link href={`/lost-found/${item.id}`} key={item.id} className="relative bg-[#121212] border border-white/10 rounded-2xl p-5 overflow-hidden transition-all hover:bg-white/5">
                 
-                <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
-                <p className="text-white/70 text-sm mb-4 leading-relaxed">{item.description}</p>
+                {/* Type indicator line */}
+                <div className={cn(
+                  "absolute left-0 top-0 bottom-0 w-1.5",
+                  item.type === "lost" ? "bg-red-500" : "bg-green-500"
+                )} />
                 
-                <div className="flex items-center justify-between pt-4 border-t border-white/5 text-sm">
-                  <span className="flex items-center gap-1.5 text-white/50">
-                    <MapPin className="h-4 w-4" />
-                    {item.location}
-                  </span>
-                  <span className="font-semibold text-white/60">
-                    {item.author}
-                  </span>
+                <div className="pl-2">
+                  <div className="flex items-center justify-between mb-3">
+                    <span className={cn(
+                      "text-[10px] font-extrabold uppercase tracking-widest px-2.5 py-1 rounded-sm",
+                      item.type === "lost" ? "bg-red-500/10 text-red-500" : "bg-green-500/10 text-green-500"
+                    )}>
+                      {item.type}
+                    </span>
+                    <span className="text-xs text-white/40 flex items-center gap-1 font-medium">
+                      <Clock className="h-3 w-3" /> {new Date(item.created_at).toLocaleDateString()}
+                    </span>
+                  </div>
+                  
+                  <h3 className="text-lg font-bold text-white mb-2">{item.title}</h3>
+                  <p className="text-white/70 text-sm mb-4 leading-relaxed line-clamp-2">{item.description}</p>
+                  
+                  <div className="flex items-center justify-between pt-4 border-t border-white/5 text-sm">
+                    <span className="flex items-center gap-1.5 text-white/50">
+                      <MapPin className="h-4 w-4" />
+                      {item.location}
+                    </span>
+                    <span className="font-semibold text-white/60">
+                      {(item.profiles as any)?.full_name || 'Anonymous'}
+                    </span>
+                  </div>
                 </div>
-              </div>
-           </div>
-        ))}
-
-        {filteredItems.length === 0 && (
-          <div className="py-20 text-center text-white/50 flex items-center justify-center flex-col gap-3">
-             <AlertCircle className="h-10 w-10 text-white/20" />
-             <p>No items found matching this filter.</p>
-          </div>
-        )}
-      </div>
+            </Link>
+          ))}
+        </div>
+      ) : (
+        <div className="py-20 text-center text-white/50 flex items-center justify-center flex-col gap-3">
+           <AlertCircle className="h-10 w-10 text-white/20" />
+           <p>No items found matching this filter.</p>
+        </div>
+      )}
 
     </div>
   )
