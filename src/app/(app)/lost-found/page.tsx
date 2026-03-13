@@ -1,28 +1,35 @@
 import Link from "next/link"
-import { MapPin, Plus, AlertCircle, Clock, Loader2 } from "lucide-react"
+export const dynamic = "force-dynamic"
+import { MapPin, Plus, AlertCircle, Clock } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createBrowserClient } from "@supabase/ssr"
 import { cn } from "@/lib/utils"
+import { SearchInput } from "@/components/ui/SearchInput"
 
-export default async function LostFoundPage({ searchParams }: { searchParams: { type?: string } }) {
+export default async function LostFoundPage({ searchParams }: { searchParams: { type?: string, q?: string } }) {
+  const queryText = searchParams?.q || ''
+  const filterType = searchParams?.type || 'all'
+
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const filterType = searchParams.type || 'all'
-
-  let query = supabase
+  let dbQuery = supabase
     .from('lost_found')
     .select('*, profiles(full_name)')
     .gte('expires_at', new Date().toISOString())
     .order('created_at', { ascending: false })
 
   if (filterType !== 'all') {
-    query = query.eq('type', filterType)
+    dbQuery = dbQuery.eq('type', filterType)
   }
 
-  const { data: items, error } = await query
+  if (queryText) {
+    dbQuery = dbQuery.ilike('title', `%${queryText}%`)
+  }
+
+  const { data: items, error } = await dbQuery
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-6 container mx-auto pb-20 max-w-4xl">
@@ -45,6 +52,8 @@ export default async function LostFoundPage({ searchParams }: { searchParams: { 
           </Button>
         </Link>
       </div>
+
+      <SearchInput placeholder="Search reports..." className="mb-2" />
 
       {/* Filters */}
       <div className="flex items-center gap-3">

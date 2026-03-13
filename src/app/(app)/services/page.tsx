@@ -1,19 +1,29 @@
 import Link from "next/link"
-import { Sparkles, Plus, Zap, Loader2 } from "lucide-react"
+export const dynamic = "force-dynamic"
+import { Sparkles, Plus, Zap } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createBrowserClient } from "@supabase/ssr"
 import { ServiceCard } from "@/components/cards/ServiceCard"
+import { SearchInput } from "@/components/ui/SearchInput"
 
-export default async function ServicesPage() {
+export default async function ServicesPage({ searchParams }: { searchParams: { q?: string } }) {
+  const query = searchParams?.q || ''
+  
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data: services, error } = await supabase
+  let dbQuery = supabase
     .from('services')
     .select('*, profiles(full_name, badge)')
     .order('created_at', { ascending: false })
+
+  if (query) {
+    dbQuery = dbQuery.ilike('name', `%${query}%`)
+  }
+
+  const { data: services, error } = await dbQuery
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-6 container mx-auto pb-20">
@@ -36,6 +46,8 @@ export default async function ServicesPage() {
           </Button>
         </Link>
       </div>
+
+      <SearchInput placeholder="Search services..." className="mb-4" />
 
       {/* Grid */}
       {services && services.length > 0 ? (

@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { createBrowserClient } from "@supabase/ssr"
 import { useRouter } from "next/navigation"
+import { ModeToggle } from "./ModeToggle"
 
 export function TopBar() {
   const router = useRouter()
@@ -52,6 +53,7 @@ export function TopBar() {
 
         {/* Right: Actions */}
         <div className="flex items-center gap-2 sm:gap-4">
+          <ModeToggle />
           {/* Mobile Search Icon */}
           <Button variant="ghost" size="icon" className="md:hidden text-white/70 hover:text-white rounded-full">
             <Search className="h-5 w-5" />

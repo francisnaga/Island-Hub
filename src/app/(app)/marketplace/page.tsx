@@ -1,18 +1,28 @@
 import Link from "next/link"
-import { ShoppingBag, Plus, Star, Loader2 } from "lucide-react"
+export const dynamic = "force-dynamic"
+import { ShoppingBag, Plus, Star } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createBrowserClient } from "@supabase/ssr"
+import { SearchInput } from "@/components/ui/SearchInput"
 
-export default async function MarketplacePage() {
+export default async function MarketplacePage({ searchParams }: { searchParams: { q?: string } }) {
+  const query = searchParams?.q || ''
+  
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data: items, error } = await supabase
+  let dbQuery = supabase
     .from('marketplace_items')
     .select('*, profiles(full_name, rating)')
     .order('created_at', { ascending: false })
+
+  if (query) {
+    dbQuery = dbQuery.ilike('name', `%${query}%`)
+  }
+
+  const { data: items, error } = await dbQuery
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-6 container mx-auto pb-20">
@@ -35,6 +45,8 @@ export default async function MarketplacePage() {
           </Button>
         </Link>
       </div>
+
+      <SearchInput placeholder="Search items by name..." className="mb-4" />
 
       {/* Grid */}
       {items && items.length > 0 ? (

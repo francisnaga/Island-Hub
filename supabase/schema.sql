@@ -1,6 +1,7 @@
 -- Custom Types
 CREATE TYPE user_role AS ENUM ('student', 'vendor', 'admin');
 CREATE TYPE verification_badge AS ENUM ('none', 'blue', 'gold');
+CREATE TYPE lost_found_type AS ENUM ('lost', 'found');
 
 -- 1. Profiles Table (extends auth.users)
 CREATE TABLE profiles (
@@ -15,6 +16,7 @@ CREATE TABLE profiles (
   rating_count INTEGER DEFAULT 0,
   follower_count INTEGER DEFAULT 0,
   following_count INTEGER DEFAULT 0,
+  allows_messages BOOLEAN DEFAULT true,
   created_at TIMESTAMPTZ DEFAULT NOW(),
   updated_at TIMESTAMPTZ DEFAULT NOW()
 );
@@ -25,7 +27,60 @@ CREATE POLICY "Public profiles are viewable by everyone." ON profiles FOR SELECT
 CREATE POLICY "Users can insert their own profile." ON profiles FOR INSERT WITH CHECK (auth.uid() = id);
 CREATE POLICY "Users can update own profile." ON profiles FOR UPDATE USING (auth.uid() = id);
 
--- 2. Houses
+-- 2. Conversations & Messaging
+CREATE TABLE conversations (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  participant_one UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  participant_two UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  last_message_at TIMESTAMPTZ DEFAULT NOW(),
+  created_at TIMESTAMPTZ DEFAULT NOW(),
+  UNIQUE(participant_one, participant_two)
+);
+
+ALTER TABLE conversations ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view their own conversations." ON conversations FOR SELECT USING (auth.uid() = participant_one OR auth.uid() = participant_two);
+CREATE POLICY "Users can start conversations." ON conversations FOR INSERT WITH CHECK (auth.uid() = participant_one OR auth.uid() = participant_two);
+
+CREATE TABLE messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  conversation_id UUID REFERENCES conversations(id) ON DELETE CASCADE,
+  sender_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
+  body TEXT NOT NULL,
+  is_read BOOLEAN DEFAULT false,
+  created_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+ALTER TABLE messages ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users can view messages in their conversations." ON messages FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM conversations 
+    WHERE id = messages.conversation_id 
+    AND (participant_one = auth.uid() OR participant_two = auth.uid())
+  )
+);
+CREATE POLICY "Users can send messages if recipient allows." ON messages FOR INSERT WITH CHECK (
+  auth.uid() = sender_id AND
+  EXISTS (
+    SELECT 1 FROM conversations c
+    JOIN profiles p ON (p.id = CASE WHEN c.participant_one = auth.uid() THEN c.participant_two ELSE c.participant_one END)
+    WHERE c.id = messages.conversation_id AND p.allows_messages = true
+  )
+);
+
+-- Update last_message_at on conversation
+CREATE OR REPLACE FUNCTION update_conversation_timestamp()
+RETURNS TRIGGER AS $$
+BEGIN
+  UPDATE conversations SET last_message_at = NEW.created_at WHERE id = NEW.conversation_id;
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER update_conversation_timestamp_trigger
+AFTER INSERT ON messages
+FOR EACH ROW EXECUTE FUNCTION update_conversation_timestamp();
+
+-- 3. Houses
 CREATE TABLE listings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -45,7 +100,7 @@ CREATE POLICY "Verified users can insert listings." ON listings FOR INSERT WITH 
 CREATE POLICY "Users can update own listings." ON listings FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own listings." ON listings FOR DELETE USING (auth.uid() = user_id);
 
--- 3. Services
+-- 4. Services
 CREATE TABLE services (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -64,7 +119,7 @@ CREATE POLICY "Verified users/vendors can insert services." ON services FOR INSE
 CREATE POLICY "Users can update own services." ON services FOR UPDATE USING (auth.uid() = vendor_id);
 CREATE POLICY "Users can delete own services." ON services FOR DELETE USING (auth.uid() = vendor_id);
 
--- 4. Marketplace Items
+-- 5. Marketplace Items
 CREATE TABLE marketplace_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   name TEXT NOT NULL,
@@ -83,7 +138,7 @@ CREATE POLICY "Verified users can insert items." ON marketplace_items FOR INSERT
 CREATE POLICY "Users can update own items." ON marketplace_items FOR UPDATE USING (auth.uid() = seller_id);
 CREATE POLICY "Users can delete own items." ON marketplace_items FOR DELETE USING (auth.uid() = seller_id);
 
--- 5. Requests
+-- 6. Requests
 CREATE TABLE requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -101,7 +156,7 @@ CREATE POLICY "Any authenticated user can insert requests." ON requests FOR INSE
 CREATE POLICY "Users can update own requests." ON requests FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own requests." ON requests FOR DELETE USING (auth.uid() = user_id);
 
--- 6. Request Replies
+-- 7. Request Replies
 CREATE TABLE request_replies (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   request_id UUID REFERENCES requests(id) ON DELETE CASCADE,
@@ -116,9 +171,7 @@ CREATE POLICY "Any authenticated user can reply." ON request_replies FOR INSERT 
 CREATE POLICY "Users can update own replies." ON request_replies FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own replies." ON request_replies FOR DELETE USING (auth.uid() = user_id);
 
--- 7. Lost and Found
-CREATE TYPE lost_found_type AS ENUM ('lost', 'found');
-
+-- 8. Lost and Found
 CREATE TABLE lost_found (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -137,7 +190,7 @@ CREATE POLICY "Authenticated users can insert." ON lost_found FOR INSERT WITH CH
 CREATE POLICY "Users can update own." ON lost_found FOR UPDATE USING (auth.uid() = user_id);
 CREATE POLICY "Users can delete own." ON lost_found FOR DELETE USING (auth.uid() = user_id);
 
--- 8. Announcements
+-- 9. Announcements
 CREATE TABLE announcements (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   title TEXT NOT NULL,
@@ -159,7 +212,7 @@ CREATE POLICY "Only admins can delete." ON announcements FOR DELETE USING (
   (SELECT role FROM profiles WHERE id = auth.uid()) = 'admin'
 );
 
--- 9. Follows
+-- 10. Follows
 CREATE TABLE follows (
   follower_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
   following_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -172,7 +225,7 @@ CREATE POLICY "Follows viewable by everyone." ON follows FOR SELECT USING (true)
 CREATE POLICY "Users can follow." ON follows FOR INSERT WITH CHECK (auth.uid() = follower_id);
 CREATE POLICY "Users can unfollow." ON follows FOR DELETE USING (auth.uid() = follower_id);
 
--- 10. Reviews/Ratings
+-- 11. Reviews/Ratings
 CREATE TABLE ratings (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   rater_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -189,7 +242,7 @@ CREATE POLICY "Users can rate." ON ratings FOR INSERT WITH CHECK (auth.uid() = r
 CREATE POLICY "Users can update rating." ON ratings FOR UPDATE USING (auth.uid() = rater_id);
 CREATE POLICY "Users can delete rating." ON ratings FOR DELETE USING (auth.uid() = rater_id);
 
--- 11. Notifications
+-- 12. Notifications
 CREATE TABLE notifications (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -205,7 +258,7 @@ CREATE POLICY "Users can view own notifications." ON notifications FOR SELECT US
 CREATE POLICY "System can insert notifications." ON notifications FOR INSERT WITH CHECK (true);
 CREATE POLICY "Users can update own (mark read)." ON notifications FOR UPDATE USING (auth.uid() = user_id);
 
--- 12. Saved Items (Bookmarking)
+-- 13. Saved Items (Bookmarking)
 CREATE TABLE saved_items (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id UUID REFERENCES profiles(id) ON DELETE CASCADE,
@@ -220,7 +273,7 @@ CREATE POLICY "Users can view own saved items." ON saved_items FOR SELECT USING 
 CREATE POLICY "Users can save items." ON saved_items FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can unsave items." ON saved_items FOR DELETE USING (auth.uid() = user_id);
 
--- Helpers
+-- TRIGGERS & FUNCTIONS
 CREATE OR REPLACE FUNCTION update_profile_rating()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -257,7 +310,6 @@ CREATE TRIGGER services_updated_at BEFORE UPDATE ON services FOR EACH ROW EXECUT
 CREATE TRIGGER marketplace_items_updated_at BEFORE UPDATE ON marketplace_items FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 CREATE TRIGGER requests_updated_at BEFORE UPDATE ON requests FOR EACH ROW EXECUTE FUNCTION handle_updated_at();
 
--- Follow count trigger
 CREATE OR REPLACE FUNCTION update_follow_counts()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -276,3 +328,16 @@ CREATE TRIGGER update_follow_counts_trigger
 AFTER INSERT OR DELETE ON follows
 FOR EACH ROW EXECUTE FUNCTION update_follow_counts();
 
+-- Trigger to create profile on signup
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER AS $$
+BEGIN
+  INSERT INTO public.profiles (id, full_name, role, is_verified)
+  VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data->>'full_name', NEW.email), 'student', true);
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+AFTER INSERT ON auth.users
+FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

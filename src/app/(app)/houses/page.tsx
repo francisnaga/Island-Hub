@@ -1,18 +1,28 @@
 import Link from "next/link"
-import { Building, Plus, MapPin, Loader2 } from "lucide-react"
+export const dynamic = "force-dynamic"
+import { Building, Plus, MapPin } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { createBrowserClient } from "@supabase/ssr"
+import { SearchInput } from "@/components/ui/SearchInput"
 
-export default async function HousesPage() {
+export default async function HousesPage({ searchParams }: { searchParams: { q?: string } }) {
+  const query = searchParams?.q || ''
+  
   const supabase = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   )
 
-  const { data: listings, error } = await supabase
+  let dbQuery = supabase
     .from('listings')
     .select('*')
     .order('created_at', { ascending: false })
+
+  if (query) {
+    dbQuery = dbQuery.ilike('title', `%${query}%`)
+  }
+
+  const { data: listings, error } = await dbQuery
 
   return (
     <div className="flex flex-col gap-6 p-4 pt-6 container mx-auto pb-20">
@@ -35,6 +45,8 @@ export default async function HousesPage() {
           </Button>
         </Link>
       </div>
+
+      <SearchInput placeholder="Search houses by name or location..." className="mb-4" />
 
       {/* Grid */}
       {listings && listings.length > 0 ? (

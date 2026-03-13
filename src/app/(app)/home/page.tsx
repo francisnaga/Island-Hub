@@ -4,6 +4,7 @@ import { ServiceCard } from "@/components/cards/ServiceCard"
 import { VendorCard } from "@/components/cards/VendorCard"
 import { HouseCard } from "@/components/cards/HouseCard"
 import { createBrowserClient } from "@supabase/ssr"
+import { cn } from "@/lib/utils"
 
 export default async function HomePage() {
   const supabase = createBrowserClient(
@@ -16,12 +17,14 @@ export default async function HomePage() {
     { data: services },
     { data: vendors },
     { data: houses },
-    { data: marketplace }
+    { data: marketplace },
+    { data: lostFound }
   ] = await Promise.all([
     supabase.from('services').select('*').limit(6).order('created_at', { ascending: false }),
     supabase.from('profiles').select('*').eq('role', 'vendor').order('rating', { ascending: false }).limit(4),
     supabase.from('listings').select('*').limit(3).order('created_at', { ascending: false }),
-    supabase.from('marketplace_items').select('*').limit(4).order('created_at', { ascending: false })
+    supabase.from('marketplace_items').select('*').limit(4).order('created_at', { ascending: false }),
+    supabase.from('lost_found').select('*').limit(4).order('created_at', { ascending: false })
   ])
 
   return (
@@ -117,6 +120,48 @@ export default async function HomePage() {
                 <p className="text-white/20 uppercase font-black text-xs tracking-[0.3em]">Fresh listings coming soon</p>
              </div>
            )}
+        </div>
+      </section>
+
+      {/* Lost & Found */}
+      <section className="container mx-auto px-4">
+        <div className="mb-6 flex items-center justify-between">
+          <h2 className="text-xl font-black italic uppercase tracking-tighter text-white flex items-center gap-2">
+            <Sparkles className="h-5 w-5 text-purple-400" />
+            Lost & Found
+          </h2>
+          <Link href="/lost-found" className="text-[10px] font-black uppercase tracking-[0.2em] text-white/30 hover:text-white flex items-center gap-1 transition-colors">
+            View All Reports <ArrowRight className="h-3 w-3" />
+          </Link>
+        </div>
+        
+        <div className="flex gap-4 overflow-x-auto pb-4 hide-scrollbar snap-x">
+          {lostFound && lostFound.length > 0 ? lostFound.map(item => (
+            <Link 
+              key={item.id} 
+              href={`/lost-found/${item.id}`} 
+              className="snap-start shrink-0 w-64 bg-white/5 border border-white/5 rounded-2xl overflow-hidden group hover:bg-white/10 transition-all"
+            >
+              <div 
+                className="h-32 bg-cover bg-center grayscale group-hover:grayscale-0 transition-all duration-500"
+                style={{ backgroundImage: `url('${item.image || 'https://images.unsplash.com/photo-1544816155-12df9643f363?q=80&w=400&auto=format&fit=crop'}')` }}
+              />
+              <div className="p-4">
+                <div className={cn(
+                  "inline-block px-2 py-0.5 rounded text-[10px] font-black uppercase mb-2",
+                  item.type === 'lost' ? "bg-red-500/20 text-red-400" : "bg-green-500/20 text-green-400"
+                )}>
+                  {item.type}
+                </div>
+                <h3 className="font-bold text-sm truncate text-white">{item.title}</h3>
+                <p className="text-white/40 text-xs truncate">{item.location}</p>
+              </div>
+            </Link>
+          )) : (
+            <div className="w-full py-8 text-center text-white/10 uppercase font-black text-xs border border-dashed border-white/10 rounded-2xl">
+              No recent reports
+            </div>
+          )}
         </div>
       </section>
 
