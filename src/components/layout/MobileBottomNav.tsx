@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Compass, ShoppingBag, CheckSquare, Home, Store } from 'lucide-react'
+import { Home, ShoppingBag, Bed, Scissors, Store } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
-  { href: '/', label: 'Home', icon: Compass, exact: true },
-  { href: '/marketplace', label: 'Shop', icon: ShoppingBag },
-  { href: '/fresher-kit', label: 'Fresher Kit', icon: CheckSquare },
-  { href: '/housing', label: 'Lodge', icon: Home },
+  { href: '/', label: 'Home', icon: Home, exact: true },
+  { href: '/marketplace', label: 'Market', icon: ShoppingBag },
+  { href: '/housing', label: 'Lodge', icon: Bed },
+  { href: '/services', label: 'Services', icon: Scissors },
   { href: '/vendors', label: 'Vendors', icon: Store },
 ]
 
@@ -32,7 +32,7 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile bottom navigation"
-      className="fixed bottom-0 inset-x-0 z-50 h-15 border-t border-border bg-card/95 backdrop-blur-md md:hidden"
+      className="fixed bottom-0 inset-x-0 z-50 h-16 border-t border-border bg-card/95 backdrop-blur-md md:hidden"
     >
       <div className="grid h-full grid-cols-5">
         {tabs.map((tab) => {
@@ -53,7 +53,7 @@ export function MobileBottomNav() {
               }}
               aria-current={active ? 'page' : undefined}
               className={cn(
-                'relative flex flex-col items-center justify-center gap-0.5 text-[11px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary',
+                'relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-primary',
                 active
                   ? 'text-primary font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
@@ -63,12 +63,13 @@ export function MobileBottomNav() {
                 <span className="absolute top-0 h-0.5 w-8 rounded-full bg-primary" />
               )}
               <Icon
+                strokeWidth={1.8}
                 className={cn(
-                  'h-4.5 w-4.5 shrink-0 transition-transform',
+                  'h-5 w-5 shrink-0 transition-transform',
                   isPending && 'animate-pulse scale-110'
                 )}
               />
-              <span className="truncate max-w-[68px]">{tab.label}</span>
+              <span className="truncate max-w-[68px] leading-tight">{tab.label}</span>
             </Link>
           )
         })}

@@ -12,6 +12,8 @@ import {
   Store,
   ArrowRight,
   CheckSquare,
+  ShoppingBag,
+  Bed,
 } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { VendorCard } from '@/components/cards/VendorCard'
@@ -140,6 +142,77 @@ export default async function HomePage() {
                   {item.label}
                 </Link>
               ))}
+            </div>
+
+            {/* 4 Gateway Doors: Market, Lodge, Services, Vendors */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-3.5 mt-3 border-t border-border/70">
+              <Link
+                href="/marketplace"
+                className="group flex items-center gap-2.5 p-2.5 rounded-xl border border-border/80 bg-muted/30 hover:border-foreground/30 hover:bg-muted/70 transition-all"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card border border-border text-foreground group-hover:border-foreground/30 transition-colors">
+                  <ShoppingBag className="h-4.5 w-4.5 stroke-[1.75]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                    Market
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    Cadet kits &amp; gear
+                  </p>
+                </div>
+              </Link>
+
+              <Link
+                href="/housing"
+                className="group flex items-center gap-2.5 p-2.5 rounded-xl border border-border/80 bg-muted/30 hover:border-foreground/30 hover:bg-muted/70 transition-all"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card border border-border text-foreground group-hover:border-foreground/30 transition-colors">
+                  <Bed className="h-4.5 w-4.5 stroke-[1.75]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                    Lodge
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    Rooms &amp; bedspaces
+                  </p>
+                </div>
+              </Link>
+
+              <Link
+                href="/services"
+                className="group flex items-center gap-2.5 p-2.5 rounded-xl border border-border/80 bg-muted/30 hover:border-foreground/30 hover:bg-muted/70 transition-all"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card border border-border text-foreground group-hover:border-foreground/30 transition-colors">
+                  <Scissors className="h-4.5 w-4.5 stroke-[1.75]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                    Services
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    Tailor, laundry &amp; cuts
+                  </p>
+                </div>
+              </Link>
+
+              <Link
+                href="/vendors"
+                className="group flex items-center gap-2.5 p-2.5 rounded-xl border border-border/80 bg-muted/30 hover:border-foreground/30 hover:bg-muted/70 transition-all"
+              >
+                <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-card border border-border text-foreground group-hover:border-foreground/30 transition-colors">
+                  <Store className="h-4.5 w-4.5 stroke-[1.75]" />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-bold text-foreground group-hover:text-primary transition-colors">
+                    Vendors
+                  </p>
+                  <p className="text-[10px] text-muted-foreground truncate">
+                    Verified storefronts
+                  </p>
+                </div>
+              </Link>
             </div>
           </form>
         </div>

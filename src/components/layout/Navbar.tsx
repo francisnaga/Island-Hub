@@ -56,11 +56,11 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
   const navLinks = [
     { href: '/', label: 'Home', exact: true },
-    { href: '/marketplace', label: 'Shop' },
-    { href: '/category/maritime-cadet-gear', label: 'Uniforms & Kits' },
-    { href: '/fresher-kit', label: 'Fresher Kit' },
+    { href: '/marketplace', label: 'Market' },
     { href: '/housing', label: 'Lodge' },
+    { href: '/services', label: 'Services' },
     { href: '/vendors', label: 'Vendors' },
+    { href: '/fresher-kit', label: 'Fresher Kit' },
     { href: '/safety', label: 'Safety' },
   ]
 

@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
+import { EmailSignInForm } from '@/components/auth/EmailSignInForm'
 import { JettyMark } from '@/components/brand/JettyMark'
 
 export default async function LoginPage({
@@ -27,7 +28,7 @@ export default async function LoginPage({
         </div>
 
         {/* Clean, Modern Linear-Grade Auth Container */}
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-7 shadow-xs space-y-5">
           <div className="flex flex-col items-center text-center space-y-3">
             <Link href="/" aria-label="Jetty Home" className="transition-transform hover:scale-105">
               <JettyMark size={42} className="h-10.5 w-10.5 shrink-0" />
@@ -38,7 +39,7 @@ export default async function LoginPage({
                 Vendor Portal
               </h1>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">
-                Sign in with Google to manage your storefront catalogue, prices, and stock across Okerenkoko &amp; Kurutie.
+                Sign in to manage your storefront catalogue, prices, and stock across Okerenkoko &amp; Kurutie.
               </p>
             </div>
           </div>
@@ -46,17 +47,23 @@ export default async function LoginPage({
           {sp.error && (
             <div className="rounded-xl border border-red-500/20 bg-red-500/10 p-3 text-xs font-medium text-red-600 dark:text-red-400">
               {sp.error === 'auth_callback_failed'
-                ? 'Google authentication could not be completed. Please try again.'
+                ? 'Authentication could not be completed. Please try with email link or ensure Google OAuth is configured in Supabase.'
                 : sp.error}
             </div>
           )}
 
-          {/* Google Sign In */}
-          <div className="space-y-3">
+          {/* Sign In Options */}
+          <div className="space-y-3.5">
             <GoogleSignInButton nextPath={nextPath} label="Continue with Google" />
-            <p className="text-[11px] text-center text-muted-foreground">
-              Instant sign in · No passwords required
-            </p>
+
+            <div className="relative flex items-center justify-center">
+              <span className="w-full border-t border-border" />
+              <span className="bg-card px-2.5 text-[10px] font-semibold text-muted-foreground uppercase tracking-wider relative">
+                or email link
+              </span>
+            </div>
+
+            <EmailSignInForm nextPath={nextPath} />
           </div>
 
           {/* Understated Merchant Capabilities */}
