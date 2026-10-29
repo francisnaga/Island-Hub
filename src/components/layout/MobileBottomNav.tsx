@@ -32,7 +32,8 @@ export function MobileBottomNav() {
   return (
     <nav
       aria-label="Mobile bottom navigation"
-      className="fixed bottom-0 inset-x-0 z-50 h-16 border-t border-border bg-card/95 backdrop-blur-md md:hidden"
+      className="fixed bottom-0 inset-x-0 z-50 h-[calc(60px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden transform-gpu will-change-transform"
+      style={{ transform: 'translate3d(0, 0, 0)' }}
     >
       <div className="grid h-full grid-cols-5">
         {tabs.map((tab) => {

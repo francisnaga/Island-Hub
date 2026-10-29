@@ -13,7 +13,7 @@ export default async function AppLayout({
   const { user, profile, vendor } = await getCurrentUserContext()
 
   return (
-    <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-clip flex-col bg-background text-foreground pb-15 md:pb-0">
+    <div className="flex min-h-screen w-full max-w-[100vw] overflow-x-clip flex-col bg-background text-foreground pb-[calc(68px+env(safe-area-inset-bottom,0px))] md:pb-0">
       <Suspense fallback={null}>
         <NavigationFeedback />
       </Suspense>

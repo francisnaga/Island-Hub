@@ -75,7 +75,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           className="flex items-center gap-2.5 shrink-0 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
         >
           <JettyMark size={32} className="h-8 w-8 shrink-0" />
-          <span className="text-xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none">
+          <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none font-[family-name:var(--font-bricolage)]">
             jetty
           </span>
         </Link>

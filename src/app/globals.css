@@ -7,8 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-inter);
-  --font-display: var(--font-space-grotesk);
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Bricolage Grotesque', 'Space Grotesk', system-ui, sans-serif;
   --font-mono: var(--font-geist-mono);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -34,7 +34,7 @@
   --color-jetty-gold: var(--jetty-gold);
   --color-jetty-ink: var(--jetty-ink);
   --color-teal: #0F6E6E;
-  --color-navy: #090D16;
+  --color-navy: #0A4F4F;
 
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
@@ -49,54 +49,78 @@
   --jetty-teal-deep: #0A4F4F;
   --jetty-teal-tint: #E6F2F2;
   --jetty-gold: #E8B84A;
-  --jetty-ink: #0F172A;
+  --jetty-ink: #0E1B1B;
 
-  --background: #F8FAFC;
-  --foreground: #0F172A;
+  --teal: #0F6E6E;
+  --teal-l: #17908D;
+  --deep: #0A4F4F;
+  --tint: #E6F2F2;
+  --gold: #E8B84A;
+  --gold-tint: #FBF1D6;
+  --ink: #0E1B1B;
+  --muted-text: #5B6B6B;
+  --bg: #F6FAFA;
+  --line: #DCE8E8;
+  --white: #ffffff;
+
+  --background: #F6FAFA;
+  --foreground: #0E1B1B;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #0E1B1B;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
+  --popover-foreground: #0E1B1B;
   --primary: #0F6E6E;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
+  --secondary: #E6F2F2;
+  --secondary-foreground: #0A4F4F;
+  --muted: #EEF4F4;
+  --muted-foreground: #5B6B6B;
   --accent: #E6F2F2;
   --accent-foreground: #0A4F4F;
   --destructive: #DC2626;
-  --border: #E2E8F0;
-  --input: #CBD5E1;
+  --border: #DCE8E8;
+  --input: #DCE8E8;
   --ring: #0F6E6E;
   --radius: 0.75rem;
 }
 
-/* ── True Carbon Black Professional Dark Mode (Linear / Raycast / Vercel Grade) ── */
+/* ── Dark Mode (Harbour Night / Deep Carbon Teal) ── */
 .dark {
   --jetty-teal: #14B8A6;
-  --jetty-teal-deep: #0D9488;
-  --jetty-teal-tint: #0F2023;
+  --jetty-teal-deep: #0A4F4F;
+  --jetty-teal-tint: #132A2A;
   --jetty-gold: #E8B84A;
-  --jetty-ink: #F7F8F8;
+  --jetty-ink: #E8F1F1;
 
-  --background: #08090A;
-  --foreground: #F7F8F8;
-  --card: #0F1013;
-  --card-foreground: #F7F8F8;
-  --popover: #0F1013;
-  --popover-foreground: #F7F8F8;
+  --teal: #0F6E6E;
+  --teal-l: #17908D;
+  --deep: #0A4F4F;
+  --tint: #132A2A;
+  --gold: #E8B84A;
+  --gold-tint: #2B2414;
+  --ink: #E8F1F1;
+  --muted-text: #9DB0B0;
+  --bg: #0B1414;
+  --line: #1F3333;
+  --white: #ffffff;
+
+  --background: #0B1414;
+  --foreground: #E8F1F1;
+  --card: #122020;
+  --card-foreground: #E8F1F1;
+  --popover: #122020;
+  --popover-foreground: #E8F1F1;
   --primary: #14B8A6;
-  --primary-foreground: #021716;
-  --secondary: #17181C;
-  --secondary-foreground: #E5E7EB;
-  --muted: #141518;
-  --muted-foreground: #8B909A;
-  --accent: #102628;
-  --accent-foreground: #2DD4BF;
+  --primary-foreground: #0B1414;
+  --secondary: #162929;
+  --secondary-foreground: #E8F1F1;
+  --muted: #162929;
+  --muted-foreground: #9DB0B0;
+  --accent: #132A2A;
+  --accent-foreground: #E8B84A;
   --destructive: #EF4444;
-  --border: #222429;
-  --input: #1C1D22;
+  --border: #1F3333;
+  --input: #1F3333;
   --ring: #14B8A6;
 }
 
@@ -117,6 +141,65 @@
   }
   html {
     @apply font-sans scroll-smooth;
+  }
+}
+
+/* ── View Transitions API: Expanding Circle Ripple Theme Switch ── */
+::view-transition-old(root),
+::view-transition-new(root) {
+  animation: none;
+  mix-blend-mode: normal;
+}
+::view-transition-old(root) {
+  z-index: 1;
+}
+::view-transition-new(root) {
+  z-index: 9999;
+}
+.dark::view-transition-old(root) {
+  z-index: 9999;
+}
+.dark::view-transition-new(root) {
+  z-index: 1;
+}
+
+/* ── Waterline Sweep & Flowing Animations ── */
+.sweep {
+  position: fixed;
+  top: 60px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(430px, 100%);
+  height: 8px;
+  z-index: 25;
+  pointer-events: none;
+  opacity: 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8'%3E%3Cpath d='M0 4q6-4 12 0t12 0' fill='none' stroke='%2317908D' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x;
+}
+.sweep.go {
+  animation: sweep 0.52s cubic-bezier(0.22, 0.8, 0.2, 1);
+}
+@keyframes sweep {
+  0% { clip-path: inset(0 100% 0 0); opacity: 1; }
+  70% { clip-path: inset(0 0 0 0); opacity: 1; }
+  100% { clip-path: inset(0 0 0 0); opacity: 0; }
+}
+
+@keyframes jetty-flow {
+  to {
+    background-position: -200% 0;
+  }
+}
+.skeleton-flow {
+  background: linear-gradient(90deg, var(--tint) 0%, #CDE5E5 50%, var(--tint) 100%);
+  background-size: 200% 100%;
+  animation: jetty-flow 1.6s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .skeleton-flow,
+  .sweep.go {
+    animation: none;
   }
 }
 

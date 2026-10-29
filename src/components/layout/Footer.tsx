@@ -17,7 +17,7 @@ export function Footer() {
               className="inline-flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
             >
               <JettyMark size={28} className="h-7 w-7 shrink-0" />
-              <span className="text-lg font-bold tracking-tight text-foreground lowercase leading-none">
+              <span className="text-lg font-bold tracking-tight text-foreground lowercase leading-none font-[family-name:var(--font-bricolage)]">
                 jetty
               </span>
             </Link>
