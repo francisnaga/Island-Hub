@@ -39,6 +39,29 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Convert legacy user_role enum on profiles.role to TEXT and migrate 'student' -> 'buyer'
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM information_schema.columns
+    WHERE table_schema = 'public' AND table_name = 'profiles' AND column_name = 'role'
+  ) THEN
+    DROP POLICY IF EXISTS "Public profiles are viewable by everyone." ON public.profiles;
+    DROP POLICY IF EXISTS "Users can insert their own profile." ON public.profiles;
+    DROP POLICY IF EXISTS "Users can update own profile." ON public.profiles;
+    ALTER TABLE public.profiles ALTER COLUMN role DROP DEFAULT;
+    ALTER TABLE public.profiles ALTER COLUMN role TYPE TEXT USING role::TEXT;
+    UPDATE public.profiles SET role = 'buyer' WHERE role = 'student' OR role IS NULL;
+    ALTER TABLE public.profiles ALTER COLUMN role SET DEFAULT 'buyer';
+    ALTER TABLE public.profiles DROP CONSTRAINT IF EXISTS profiles_role_check;
+    ALTER TABLE public.profiles ADD CONSTRAINT profiles_role_check CHECK (role IN ('buyer', 'vendor', 'admin'));
+  END IF;
+END $$;
+
+DROP TYPE IF EXISTS public.user_role CASCADE;
+DROP TYPE IF EXISTS public.verification_badge CASCADE;
+DROP TYPE IF EXISTS public.lost_found_type CASCADE;
+
 -- Ensure columns exist if upgrading an existing profiles table
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
 ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS avatar_url TEXT;
@@ -358,3 +381,21 @@ CREATE POLICY "Only admins can view and insert moderation logs."
   ON public.moderation_logs FOR ALL USING (
     (SELECT role FROM public.profiles WHERE id = auth.uid()) = 'admin'
   );
+
+-- 7. STORAGE BUCKET & POLICIES FOR PRODUCT IMAGES
+INSERT INTO storage.buckets (id, name, public, file_size_limit)
+VALUES ('product-images', 'product-images', true, 5242880)
+ON CONFLICT (id) DO UPDATE SET public = true, file_size_limit = 5242880;
+
+DROP POLICY IF EXISTS "Public can view product images" ON storage.objects;
+CREATE POLICY "Public can view product images"
+  ON storage.objects FOR SELECT USING (bucket_id = 'product-images');
+
+DROP POLICY IF EXISTS "Authenticated users can upload product images" ON storage.objects;
+CREATE POLICY "Authenticated users can upload product images"
+  ON storage.objects FOR INSERT WITH CHECK (bucket_id = 'product-images' AND auth.role() = 'authenticated');
+
+DROP POLICY IF EXISTS "Users can delete own product images" ON storage.objects;
+CREATE POLICY "Users can delete own product images"
+  ON storage.objects FOR DELETE USING (bucket_id = 'product-images' AND auth.uid() = owner);
+
