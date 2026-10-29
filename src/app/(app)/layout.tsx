@@ -1,21 +1,19 @@
-import { TopBar } from "@/components/layout/TopBar"
-import { BottomNav } from "@/components/layout/BottomNav"
+import { Navbar } from '@/components/layout/Navbar'
+import { Footer } from '@/components/layout/Footer'
+import { getCurrentUserContext } from '@/lib/queries'
 
-export default function AppLayout({
+export default async function AppLayout({
   children,
 }: {
   children: React.ReactNode
 }) {
-  return (
-    <div className="flex min-h-screen flex-col bg-navy text-white selection:bg-gold selection:text-navy">
-      <TopBar />
-      
-      {/* Main content area - pad bottom for mobile nav */}
-      <main className="flex-1 pb-20 md:pb-0">
-        {children}
-      </main>
+  const { user, profile, vendor } = await getCurrentUserContext()
 
-      <BottomNav />
+  return (
+    <div className="flex min-h-screen flex-col bg-[#FAF9F6] text-slate-900">
+      <Navbar user={user} profile={profile} vendor={vendor} />
+      <main className="flex-1">{children}</main>
+      <Footer />
     </div>
   )
 }

@@ -1,87 +1,141 @@
-import Link from "next/link"
-import { Anchor } from "lucide-react"
-import { signup } from "./actions"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
+import Link from 'next/link'
+import { Anchor, ArrowLeft } from 'lucide-react'
+import { signup } from './actions'
+import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 
-export default function RegisterPage() {
+export default async function RegisterPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string; next?: string }>
+}) {
+  const sp = await searchParams
+  const nextPath = sp.next || '/'
+
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-navy text-white selection:bg-gold selection:text-navy p-4 relative overflow-hidden">
-      {/* Background abstract */}
-      <div className="absolute top-0 right-0 -mr-40 -mt-40 h-[600px] w-[600px] rounded-full bg-ocean blur-[120px] opacity-40 mix-blend-screen pointer-events-none" />
-      <div className="absolute bottom-0 left-0 -ml-40 -mb-40 h-[600px] w-[600px] rounded-full bg-blue-900 blur-[120px] opacity-30 mix-blend-screen pointer-events-none" />
-
-      <div className="w-full max-w-md z-10 my-8">
-        <div className="mb-8 flex flex-col items-center">
-          <Link href="/" className="mb-6 flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-ocean to-blue-900 shadow-[0_0_20px_rgba(23,42,69,0.8)] border border-white/10 hover:scale-105 transition-transform">
-            <Anchor className="h-7 w-7 text-gold" />
+    <div className="min-h-screen flex flex-col justify-center items-center bg-[#FAF9F6] px-4 py-12 text-slate-900">
+      <div className="w-full max-w-md space-y-6">
+        <div className="flex items-center justify-between">
+          <Link
+            href="/"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"
+          >
+            <ArrowLeft className="h-3.5 w-3.5" />
+            Back to Marketplace
           </Link>
-          <h1 className="text-3xl font-extrabold tracking-tight mb-2">Join IslandHub</h1>
-          <p className="text-white/60 font-light text-center">Create your student account to get started.</p>
+          <span className="text-xs text-slate-500">Switch Buyer / Vendor anytime</span>
         </div>
 
-        <div className="rounded-3xl border border-white/10 bg-[#0A111F]/80 p-8 backdrop-blur-xl shadow-2xl">
-          <form className="flex flex-col gap-5">
-            
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="fullName" className="text-white/80 ml-1">Full Name</Label>
-              <Input
+        <div className="rounded-2xl border border-slate-200 bg-white p-7 sm:p-8 shadow-xs space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2">
+            <Link
+              href="/"
+              className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1E3A8A] text-white shadow-xs"
+            >
+              <Anchor className="h-6 w-6" />
+            </Link>
+            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
+              Create your IslandHub account
+            </h1>
+            <p className="text-xs text-slate-500 max-w-xs">
+              Use Google Sign-In for instant setup, or register with your email. You can switch between Consumer and Vendor modes at any time.
+            </p>
+          </div>
+
+          {sp.error && (
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-800">
+              {sp.error}
+            </div>
+          )}
+
+          {/* Primary Google Sign-In */}
+          <GoogleSignInButton nextPath={nextPath} label="Sign up with Google" />
+
+          <div className="relative flex items-center justify-center">
+            <div className="border-t border-slate-200 w-full" />
+            <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
+              or register with email
+            </span>
+            <div className="border-t border-slate-200 w-full" />
+          </div>
+
+          <form className="space-y-4">
+            <input type="hidden" name="next" value={nextPath} />
+            <div className="space-y-1.5">
+              <label htmlFor="fullName" className="block text-xs font-semibold text-slate-700">
+                Full Name
+              </label>
+              <input
                 id="fullName"
                 name="fullName"
                 type="text"
-                placeholder="John Doe"
+                placeholder="e.g. Tamaraere Pere"
                 required
-                className="h-12 rounded-xl border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none"
               />
             </div>
-            
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="matricNumber" className="text-white/80 ml-1">Matric Number</Label>
-              <Input
-                id="matricNumber"
-                name="matricNumber"
-                type="text"
-                placeholder="20/0045"
-                required
-                className="h-12 rounded-xl border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus:border-gold focus:ring-1 focus:ring-gold uppercase"
-              />
-            </div>
-            
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="email" className="text-white/80 ml-1">Email</Label>
-              <Input
+
+            <div className="space-y-1.5">
+              <label htmlFor="email" className="block text-xs font-semibold text-slate-700">
+                Email Address
+              </label>
+              <input
                 id="email"
                 name="email"
                 type="email"
-                placeholder="student@university.edu"
+                placeholder="you@example.com"
                 required
-                className="h-12 rounded-xl border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none"
               />
             </div>
-            
-            <div className="flex flex-col gap-2">
-              <Label htmlFor="password" className="text-white/80 ml-1">Password</Label>
-              <Input
+
+            <div className="space-y-1.5">
+              <label htmlFor="password" className="block text-xs font-semibold text-slate-700">
+                Password
+              </label>
+              <input
                 id="password"
                 name="password"
                 type="password"
+                minLength={6}
+                placeholder="At least 6 characters"
                 required
-                className="h-12 rounded-xl border-white/10 bg-white/5 px-4 text-white placeholder:text-white/20 focus:border-gold focus:ring-1 focus:ring-gold"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none"
               />
             </div>
 
-            <Button type="submit" formAction={signup} className="mt-4 h-12 w-full rounded-xl bg-gold text-navy font-bold text-lg transition-all hover:bg-gold/90 hover:shadow-[0_0_15px_rgba(255,215,0,0.4)]">
+            <div className="space-y-1.5">
+              <label htmlFor="initialMode" className="block text-xs font-semibold text-slate-700">
+                How are you starting today? (You can switch anytime)
+              </label>
+              <select
+                id="initialMode"
+                name="initialMode"
+                defaultValue="vendor"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+              >
+                <option value="vendor">Vendor Mode (Set up a shop & list products)</option>
+                <option value="buyer">Consumer / Buyer Mode (Browse & contact sellers)</option>
+              </select>
+            </div>
+
+            <button
+              type="submit"
+              formAction={signup}
+              className="w-full h-11 rounded-xl bg-[#1E3A8A] text-white font-semibold text-sm hover:bg-blue-900 transition-colors cursor-pointer"
+            >
               Create Account
-            </Button>
+            </button>
           </form>
 
-          <div className="mt-8 text-center text-sm text-white/60">
-            Already have an account?{" "}
-            <Link href="/login" className="font-semibold text-white hover:text-gold transition-colors underline underline-offset-4">
-               Log in
+          <p className="text-center text-xs text-slate-600 pt-2 border-t border-slate-100">
+            Already have an account?{' '}
+            <Link
+              href={`/login?next=${encodeURIComponent(nextPath)}`}
+              className="font-bold text-blue-800 hover:underline"
+            >
+              Sign in
             </Link>
-          </div>
+          </p>
         </div>
       </div>
     </div>

@@ -1,0 +1,366 @@
+import { Category, Product, Vendor } from './types'
+
+export const INITIAL_CATEGORIES: Category[] = [
+  {
+    id: 'cat-maritime-cadet-gear',
+    name: 'Maritime & Cadet Gear',
+    short_name: 'Cadet gear',
+    slug: 'maritime-cadet-gear',
+    description:
+      'Action rigs, safety boots, socks, uniform sets, headgear, belts, badges and other relevant student gear.',
+    icon: 'Anchor',
+    display_order: 1,
+    is_priority: true,
+    is_active: true,
+  },
+  {
+    id: 'cat-fashion-accessories',
+    name: 'Fashion & Accessories',
+    short_name: 'Footwear & Fashion',
+    slug: 'fashion-accessories',
+    description: 'Everyday clothing, footwear, bags, watches and accessories.',
+    icon: 'Shirt',
+    display_order: 2,
+    is_priority: false,
+    is_active: true,
+  },
+  {
+    id: 'cat-electronics-gadgets',
+    name: 'Electronics & Gadgets',
+    short_name: 'Electronics',
+    slug: 'electronics-gadgets',
+    description: 'Chargers, earphones, phones, power banks, laptops and accessories.',
+    icon: 'Laptop',
+    display_order: 3,
+    is_priority: false,
+    is_active: true,
+  },
+  {
+    id: 'cat-books-stationery',
+    name: 'Books & Stationery',
+    short_name: 'Books',
+    slug: 'books-stationery',
+    description:
+      'Textbooks, calculators, notebooks, drawing tools and other physical study supplies.',
+    icon: 'BookOpen',
+    display_order: 4,
+    is_priority: false,
+    is_active: true,
+  },
+  {
+    id: 'cat-hostel-daily-essentials',
+    name: 'Hostel & Daily Essentials',
+    short_name: 'Hostel essentials',
+    slug: 'hostel-daily-essentials',
+    description:
+      'Toiletries, bedding, storage items, buckets, cleaning supplies and basic household goods.',
+    icon: 'Home',
+    display_order: 5,
+    is_priority: false,
+    is_active: true,
+  },
+  {
+    id: 'cat-food-beauty-other',
+    name: 'Food, Beauty & Other',
+    short_name: 'More items',
+    slug: 'food-beauty-other',
+    description:
+      'Snacks, drinks, grooming and personal-care products, plus an “Other” category for products that do not fit elsewhere.',
+    icon: 'Package',
+    display_order: 6,
+    is_priority: false,
+    is_active: true,
+  },
+]
+
+// Coordinates for Nigeria Maritime University (NMU), Okerenkoko, Warri South West LGA, Delta State
+export const NMU_DEFAULT_COORDS = {
+  latitude: 5.6278,
+  longitude: 5.3915,
+  label: 'NMU Permanent Site / Okerenkoko, Delta State',
+}
+
+export const INITIAL_VENDORS: Vendor[] = [
+  {
+    id: 'vendor-cadet-quartermaster',
+    user_id: 'user-founder-vendor',
+    shop_name: 'NMU Cadet Quartermaster & Gear Supply',
+    slug: 'nmu-cadet-quartermaster',
+    description:
+      'Direct campus supplier of standard NMU cadet uniform accessories, steel-toe safety boots, complete action rigs, beret badges, and tactical belts in Okerenkoko.',
+    logo_url: null,
+    whatsapp_number: '2348030001122',
+    categories_offered: ['maritime-cadet-gear', 'fashion-accessories'],
+    pickup_options: 'Same-day pickup at Okerenkoko Campus Gate or Parade Ground Annex',
+    delivery_available: true,
+    delivery_coverage: 'All NMU hostels and Okerenkoko community',
+    verification_status: 'verified',
+    is_student: true,
+    department_or_business_info: 'Marine Engineering · Verified NMU Student Vendor',
+    latitude: 5.6284,
+    longitude: 5.3921,
+    location_type: 'shop',
+    location_visibility: 'exact',
+    location_label: 'Near NMU Main Campus Gate, Okerenkoko',
+    location_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 10).toISOString(),
+  },
+  {
+    id: 'vendor-creek-tech-hub',
+    user_id: 'user-tech-vendor',
+    shop_name: 'Okerenkoko Creek Tech & Power',
+    slug: 'okerenkoko-creek-tech',
+    description:
+      'High-capacity 20,000mAh–30,000mAh power banks, fast Type-C chargers, rechargeable study lamps, and scientific calculators for cadets.',
+    logo_url: null,
+    whatsapp_number: '2348140002233',
+    categories_offered: ['electronics-gadgets', 'books-stationery'],
+    pickup_options: 'Pickup at Hostel B Junction after lecture hours (4pm – 7pm)',
+    delivery_available: true,
+    delivery_coverage: 'Male & Female Hostels, Okerenkoko',
+    verification_status: 'verified',
+    is_student: true,
+    department_or_business_info: 'Nautical Science · Verified Student Seller',
+    latitude: 5.6269,
+    longitude: 5.3908,
+    location_type: 'pickup_point',
+    location_visibility: 'approximate',
+    location_label: 'Hostel B / Student Centre Area, NMU Okerenkoko',
+    location_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 8).toISOString(),
+  },
+  {
+    id: 'vendor-delta-hostel-mart',
+    user_id: 'user-hostel-vendor',
+    shop_name: 'Kurutie & Okerenkoko Hostel Essentials',
+    slug: 'kurutie-okerenkoko-essentials',
+    description:
+      'Mattresses, mosquito nets, heavy-duty water buckets, rechargeable clip fans, and engineering drawing boards for new and returning students.',
+    logo_url: null,
+    whatsapp_number: '2349020003344',
+    categories_offered: ['hostel-daily-essentials', 'books-stationery', 'food-beauty-other'],
+    pickup_options: 'Pickup at Okerenkoko Jetty Road Store',
+    delivery_available: true,
+    delivery_coverage: 'Direct delivery to NMU hostels on request',
+    verification_status: 'verified',
+    is_student: false,
+    department_or_business_info: 'Local Community Merchant · Okerenkoko Jetty Road',
+    latitude: 5.6255,
+    longitude: 5.3895,
+    location_type: 'shop',
+    location_visibility: 'exact',
+    location_label: 'Okerenkoko Jetty Road, Warri South West',
+    location_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 6).toISOString(),
+  },
+]
+
+export const INITIAL_PRODUCTS: Product[] = [
+  {
+    id: 'prod-safety-boots-steel-toe',
+    vendor_id: 'vendor-cadet-quartermaster',
+    category_id: 'cat-maritime-cadet-gear',
+    title: 'Heavy-Duty Cadet Steel-Toe Safety Boots (Black)',
+    slug: 'heavy-duty-cadet-steel-toe-safety-boots',
+    description:
+      'Oil-resistant, slip-resistant steel-toe safety boots suitable for NMU workshop practicals, parade inspection, and marine engineering lab sessions. Durable leather upper with cushioned ankle support.',
+    price: 18500,
+    condition: 'new',
+    stock_status: 'available',
+    stock_quantity: 14,
+    images: [
+      'https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {
+      sizes: ['40', '41', '42', '43', '44', '45'],
+      colors: ['Black'],
+    },
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 5).toISOString(),
+    vendor: INITIAL_VENDORS[0],
+    category: INITIAL_CATEGORIES[0],
+  },
+  {
+    id: 'prod-complete-action-rig-navy',
+    vendor_id: 'vendor-cadet-quartermaster',
+    category_id: 'cat-maritime-cadet-gear',
+    title: 'Standard NMU Cadet Action Rig Set (Dark Navy)',
+    slug: 'standard-nmu-cadet-action-rig-set',
+    description:
+      'Complete dark-navy cadet action rig set tailored to NMU dress regulations. Breathable cotton-twill weave, reinforced shoulder epaulette loops, and matching belt loops.',
+    price: 22000,
+    condition: 'new',
+    stock_status: 'available',
+    stock_quantity: 10,
+    images: [
+      'https://images.unsplash.com/photo-1617137984095-74e4e5e3613f?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {
+      sizes: ['S', 'M', 'L', 'XL', 'XXL'],
+      colors: ['Dark Navy'],
+    },
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 4).toISOString(),
+    vendor: INITIAL_VENDORS[0],
+    category: INITIAL_CATEGORIES[0],
+  },
+  {
+    id: 'prod-cadet-beret-epaulettes-pack',
+    vendor_id: 'vendor-cadet-quartermaster',
+    category_id: 'cat-maritime-cadet-gear',
+    title: 'Cadet Beret, Cap Badge & White Inspection Gloves Pack',
+    slug: 'cadet-beret-cap-badge-white-gloves-pack',
+    description:
+      'Essential headgear and parade dress kit including wool navy beret, metallic anchor cap badge, and a pair of white ceremonial parade gloves.',
+    price: 7500,
+    condition: 'new',
+    stock_status: 'available',
+    stock_quantity: 20,
+    images: [
+      'https://images.unsplash.com/photo-1576871337622-98d48d1cf531?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {
+      sizes: ['56cm', '57cm', '58cm', '59cm'],
+      colors: ['Navy / White'],
+    },
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 3).toISOString(),
+    vendor: INITIAL_VENDORS[0],
+    category: INITIAL_CATEGORIES[0],
+  },
+  {
+    id: 'prod-cadet-wool-boot-socks-3pack',
+    vendor_id: 'vendor-cadet-quartermaster',
+    category_id: 'cat-maritime-cadet-gear',
+    title: 'Heavy Cushion Long Cadet Boot Socks (Pack of 3)',
+    slug: 'heavy-cushion-long-cadet-boot-socks-3pack',
+    description:
+      'Thick anti-blister cotton-blend long socks designed for steel-toe safety boots and parade drills.',
+    price: 3500,
+    condition: 'new',
+    stock_status: 'low_stock',
+    stock_quantity: 4,
+    images: [
+      'https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {
+      sizes: ['Free Size (40–45)'],
+      colors: ['Black', 'Navy Blue'],
+    },
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+    vendor: INITIAL_VENDORS[0],
+    category: INITIAL_CATEGORIES[0],
+  },
+  {
+    id: 'prod-oraimo-30000mah-powerbank',
+    vendor_id: 'vendor-creek-tech-hub',
+    category_id: 'cat-electronics-gadgets',
+    title: '30,000mAh Fast-Charge Power Bank with LED Torch',
+    slug: '30000mah-fast-charge-power-bank-led-torch',
+    description:
+      'High-capacity 30,000mAh power bank built for hostel life in Okerenkoko. Features dual USB-A outputs, Type-C PD input/output, digital percentage display, and built-in emergency LED lamp.',
+    price: 24000,
+    condition: 'new',
+    stock_status: 'available',
+    stock_quantity: 8,
+    images: [
+      'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {
+      colors: ['Black'],
+    },
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 2).toISOString(),
+    vendor: INITIAL_VENDORS[1],
+    category: INITIAL_CATEGORIES[2],
+  },
+  {
+    id: 'prod-casio-fx991es-plus-calculator',
+    vendor_id: 'vendor-creek-tech-hub',
+    category_id: 'cat-books-stationery',
+    title: 'Casio fx-991ES Plus Scientific Calculator (2nd Edition)',
+    slug: 'casio-fx-991es-plus-scientific-calculator',
+    description:
+      'Non-programmable scientific calculator with 417 functions for Marine Engineering, Nautical Science, and Maritime Transport exams.',
+    price: 14500,
+    condition: 'new',
+    stock_status: 'available',
+    stock_quantity: 12,
+    images: [
+      'https://images.unsplash.com/photo-1587145820266-a5951ee6f620?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {},
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 24 * 1).toISOString(),
+    vendor: INITIAL_VENDORS[1],
+    category: INITIAL_CATEGORIES[3],
+  },
+  {
+    id: 'prod-a2-engineering-drawing-board',
+    vendor_id: 'vendor-delta-hostel-mart',
+    category_id: 'cat-books-stationery',
+    title: 'A2 Engineering Drawing Board + Tee-Square & Set Squares',
+    slug: 'a2-engineering-drawing-board-tee-square',
+    description:
+      'Smooth A2 technical drawing board with acrylic edge tee-square, 30/60 and 45-degree set squares, and carry bag for 100L & 200L engineering courses.',
+    price: 16000,
+    condition: 'like_new',
+    stock_status: 'available',
+    stock_quantity: 5,
+    images: [
+      'https://images.unsplash.com/photo-1513519245088-0e12902e5a38?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {},
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+    vendor: INITIAL_VENDORS[2],
+    category: INITIAL_CATEGORIES[3],
+  },
+  {
+    id: 'prod-rechargeable-hostel-standing-fan',
+    vendor_id: 'vendor-delta-hostel-mart',
+    category_id: 'cat-hostel-daily-essentials',
+    title: 'Rechargeable 12-Inch Hostel Table Fan with USB Port',
+    slug: 'rechargeable-12-inch-hostel-table-fan',
+    description:
+      'Quiet 3-speed rechargeable fan with replaceable 6V battery, night LED light, and AC/DC charging support.',
+    price: 26500,
+    condition: 'new',
+    stock_status: 'available',
+    stock_quantity: 6,
+    images: [
+      'https://images.unsplash.com/photo-1618941716939-553df3c6c278?auto=format&fit=crop&w=900&q=80',
+    ],
+    variants: {
+      colors: ['White'],
+    },
+    status: 'approved',
+    last_confirmed_at: new Date().toISOString(),
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    vendor: INITIAL_VENDORS[2],
+    category: INITIAL_CATEGORIES[4],
+  },
+]
+
+/**
+ * Strips exact latitude/longitude when vendor privacy is not 'exact' or when location_type is 'delivery_only'
+ * so private residential/hostel coordinates are never leaked to the public client.
+ */
+export function sanitizePublicVendor(vendor: Vendor): Vendor {
+  if (vendor.location_visibility !== 'exact' || vendor.location_type === 'delivery_only') {
+    return {
+      ...vendor,
+      latitude: null,
+      longitude: null,
+    }
+  }
+  return vendor
+}

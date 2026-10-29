@@ -32,12 +32,12 @@ export function SearchInput({ placeholder = "Search...", className }: SearchInpu
   return (
     <div className={className}>
       <div className="relative group">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-white/20 transition-colors group-focus-within:text-gold" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground transition-colors group-focus-within:text-gold" />
         <Input
           defaultValue={searchParams.get('q')?.toString()}
           onChange={(e) => handleSearch(e.target.value)}
           placeholder={placeholder}
-          className="h-11 w-full rounded-2xl border-white/5 bg-white/5 pl-10 pr-4 text-sm text-white focus:border-gold/30 focus:ring-1 focus:ring-gold/30 transition-all placeholder:text-white/20"
+          className="h-11 w-full rounded-2xl border-border bg-muted pl-10 pr-4 text-sm text-foreground focus:border-gold/30 focus:ring-1 focus:ring-gold/30 transition-all placeholder:text-muted-foreground/50 shadow-inner"
         />
       </div>
     </div>

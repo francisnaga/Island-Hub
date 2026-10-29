@@ -15,7 +15,7 @@ export async function updateSession(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -32,40 +32,51 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const pathname = request.nextUrl.pathname
+
+  // Legacy route redirect
+  if (pathname === '/home') {
+    const url = request.nextUrl.clone()
+    url.pathname = '/'
+    return NextResponse.redirect(url)
+  }
+
   const isAuthRoute = pathname.startsWith('/login') || pathname.startsWith('/register')
-  const isProtectedRoute = 
-    pathname.startsWith('/home') || 
-    pathname.startsWith('/houses') || 
-    pathname.startsWith('/services') || 
-    pathname.startsWith('/marketplace') || 
-    pathname.startsWith('/requests') || 
-    pathname.startsWith('/lost-found') || 
-    pathname.startsWith('/vendors') || 
-    pathname.startsWith('/profile') || 
-    pathname.startsWith('/announcements') || 
-    pathname.startsWith('/notifications')
-    
+  // Only account, vendor management, and admin routes require authentication.
+  // Browsing products, categories, vendor storefronts, and safety pages is 100% public.
+  const isProtectedRoute =
+    pathname.startsWith('/vendor/dashboard') ||
+    pathname.startsWith('/vendor/products') ||
+    pathname.startsWith('/vendor/apply') ||
+    pathname.startsWith('/profile')
+
   const isAdminRoute = pathname.startsWith('/admin')
 
   if (!user && (isProtectedRoute || isAdminRoute)) {
     const url = request.nextUrl.clone()
     url.pathname = '/login'
+    url.searchParams.set('next', pathname)
     return NextResponse.redirect(url)
   }
 
   if (user && isAuthRoute) {
+    const nextPath = request.nextUrl.searchParams.get('next') || '/'
     const url = request.nextUrl.clone()
-    url.pathname = '/home'
+    url.pathname = nextPath
+    url.search = ''
     return NextResponse.redirect(url)
   }
 
   if (isAdminRoute && user) {
-     const { data: profile } = await supabase.from('profiles').select('role').eq('id', user.id).single()
-     if (profile?.role !== 'admin') {
-         const url = request.nextUrl.clone()
-         url.pathname = '/home'
-         return NextResponse.redirect(url)
-     }
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single()
+    if (profile?.role !== 'admin') {
+      const url = request.nextUrl.clone()
+      url.pathname = '/'
+      return NextResponse.redirect(url)
+    }
   }
 
   return supabaseResponse
