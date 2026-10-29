@@ -87,23 +87,26 @@ export function ProductCard({ product }: ProductCardProps) {
             <span />
           )}
 
-          {product.stock_status === 'out_of_stock' ? (
+          {product.stock_status === 'out_of_stock' && (
             <span className="rounded-md bg-slate-950/85 px-2 py-0.5 text-[10px] font-semibold text-white">
               Sold out
             </span>
-          ) : hasValidLowStock ? (
-            <span className="rounded-md bg-amber-500/95 px-2 py-0.5 text-[10px] font-bold text-slate-950">
-              {product.stock_quantity} left
-            </span>
-          ) : null}
+          )}
         </div>
       </div>
 
       {/* 2. Clean 3-Line Visual Body: Price -> Title -> Seller */}
       <div className="flex flex-1 min-w-0 flex-col justify-between p-3 sm:p-3.5 gap-1.5">
         <div className="space-y-1 min-w-0">
-          <div className="text-sm sm:text-base font-extrabold text-foreground tracking-tight">
-            {formatNaira(product.price)}
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="text-sm sm:text-base font-extrabold text-foreground tracking-tight">
+              {formatNaira(product.price)}
+            </div>
+            {hasValidLowStock && (
+              <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 shrink-0">
+                Only {product.stock_quantity} left
+              </span>
+            )}
           </div>
 
           <h3 className="text-xs sm:text-sm font-medium text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors leading-snug">

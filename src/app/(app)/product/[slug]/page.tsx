@@ -90,51 +90,38 @@ export default async function ProductDetailPage({
     '/products/cadet-action-rig-navy.jpg'
   const primaryIsVideo = isVideoMedia(primaryMedia)
 
-  return (
-    <div className="py-5 sm:py-8 md:py-10 min-w-0">
-      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-6 sm:space-y-8 min-w-0">
-        {/* Compact Mobile-Safe Breadcrumb + Actions */}
-        <div className="flex items-center justify-between gap-2 min-w-0">
-          <nav aria-label="Breadcrumb" className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0 overflow-hidden">
-            <Link
-              href="/marketplace"
-              className="inline-flex items-center gap-1 hover:text-foreground font-medium shrink-0"
-            >
-              <ArrowLeft className="h-3.5 w-3.5" />
-              <span>Marketplace</span>
-            </Link>
-            {product.category && (
-              <>
-                <span className="shrink-0">/</span>
-                <Link
-                  href={`/category/${product.category.slug}`}
-                  className="hover:text-foreground truncate max-w-[140px] sm:max-w-none"
-                >
-                  {product.category.name}
-                </Link>
-              </>
-            )}
-          </nav>
+  const isFoodOrService =
+    product.listing_type === 'food' ||
+    product.listing_type === 'service' ||
+    categorySlug === 'food-beauty-other' ||
+    categorySlug === 'campus-services'
 
-          <div className="flex items-center gap-2 shrink-0">
+  return (
+    <div className="py-5 sm:py-8 md:py-10 pb-24 md:pb-12 min-w-0">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 sm:space-y-6 min-w-0">
+        {/* Clean Back Bar + Share Action */}
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <Link
+            href="/marketplace"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+          >
+            <ArrowLeft className="h-4 w-4" />
+            <span>Marketplace</span>
+          </Link>
+
+          <div className="flex items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                `Found this on Jetty — ${product.title} at ₦${product.price.toLocaleString('en-NG')}\n\nhttps://jetty.ng/product/${product.slug || product.id}`
+                `Found this on Jetty — ${product.title} (₦${product.price.toLocaleString('en-NG')})\nhttps://jetty.ng/product/${product.slug || product.id}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-              title="Share this product on WhatsApp"
+              aria-label="Share on WhatsApp"
+              title="Share on WhatsApp"
+              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-2xs"
             >
-              <Share2 className="h-3.5 w-3.5 text-[#0F6E6E]" />
-              <span>Share</span>
+              <Share2 className="h-4 w-4 text-primary" />
             </a>
-            <ReportListingModal
-              targetType="product"
-              productId={product.id}
-              vendorId={product.vendor_id}
-              targetName={product.title}
-            />
           </div>
         </div>
 
@@ -187,15 +174,17 @@ export default async function ProductDetailPage({
                 {product.category && (
                   <Link
                     href={`/category/${product.category.slug}`}
-                    className="inline-flex items-center gap-1 rounded-md bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-2.5 py-1 text-xs font-semibold text-[#0A4F4F] dark:text-[#E8B84A]"
+                    className="inline-flex items-center gap-1 rounded-md bg-accent border border-primary/25 px-2.5 py-1 text-xs font-semibold text-accent-foreground"
                   >
                     <Tag className="h-3 w-3" />
                     {product.category.name}
                   </Link>
                 )}
-                <span className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
-                  {conditionLabels[product.condition] || product.condition}
-                </span>
+                {!isFoodOrService && product.condition && (
+                  <span className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+                    {conditionLabels[product.condition] || product.condition}
+                  </span>
+                )}
                 <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs text-muted-foreground">
                   <Clock className="h-3 w-3" />
                   {daysConfirmed === 0
@@ -218,8 +207,8 @@ export default async function ProductDetailPage({
               </h1>
 
               {product.listing_type === 'food' && (product.food_lead_time || product.food_allergen_info) && (
-                <div className="rounded-xl border border-[#0F6E6E]/25 bg-[#E6F2F2]/60 dark:bg-[#132A2A] p-3.5 space-y-1.5 text-xs">
-                  <p className="font-bold uppercase tracking-wider text-[#0F6E6E] dark:text-[#E8B84A]">
+                <div className="rounded-xl border border-primary/25 bg-accent/60 p-3.5 space-y-1.5 text-xs">
+                  <p className="font-bold uppercase tracking-wider text-primary">
                     Made-to-Order Food &amp; Drink Details
                   </p>
                   {product.food_lead_time && (
@@ -228,16 +217,16 @@ export default async function ProductDetailPage({
                     </p>
                   )}
                   {product.food_allergen_info && (
-                    <p className="text-muted-foreground">
-                      <span className="font-semibold text-foreground">Ingredients / Allergen Notice:</span> {product.food_allergen_info}
+                    <p className="text-foreground/90">
+                      <span className="font-bold text-foreground">Ingredients &amp; Freshness Notice:</span> {product.food_allergen_info}
                     </p>
                   )}
                 </div>
               )}
 
               {product.listing_type === 'service' && (product.service_turnaround || product.service_area) && (
-                <div className="rounded-xl border border-[#0F6E6E]/25 bg-[#E6F2F2]/60 dark:bg-[#132A2A] p-3.5 space-y-1.5 text-xs">
-                  <p className="font-bold uppercase tracking-wider text-[#0F6E6E] dark:text-[#E8B84A]">
+                <div className="rounded-xl border border-primary/25 bg-accent/60 p-3.5 space-y-1.5 text-xs">
+                  <p className="font-bold uppercase tracking-wider text-primary">
                     Campus Service Details
                   </p>
                   {product.service_turnaround && (
@@ -246,24 +235,10 @@ export default async function ProductDetailPage({
                     </p>
                   )}
                   {product.service_area && (
-                    <p className="text-muted-foreground">
+                    <p className="text-foreground/90">
                       <span className="font-semibold text-foreground">Service Coverage Area:</span> {product.service_area}
                     </p>
                   )}
-                </div>
-              )}
-
-              {product.tags && product.tags.length > 0 && (
-                <div className="flex flex-wrap items-center gap-1.5">
-                  {product.tags.map((tag) => (
-                    <Link
-                      key={tag}
-                      href={`/marketplace?q=${encodeURIComponent(tag)}`}
-                      className="rounded-md border border-border bg-muted/60 px-2 py-0.5 text-[11px] text-muted-foreground hover:text-foreground hover:border-[#0F6E6E]"
-                    >
-                      #{tag}
-                    </Link>
-                  ))}
                 </div>
               )}
 
@@ -285,50 +260,52 @@ export default async function ProductDetailPage({
             {/* Vendor Identity Card */}
             {product.vendor && (
               <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3.5">
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/15 text-[#0F6E6E] dark:text-[#E8B84A]">
-                    {product.vendor.logo_url ? (
-                      <img
-                        src={product.vendor.logo_url}
-                        alt={`${product.vendor.shop_name} logo`}
-                        className="h-full w-full rounded-xl object-cover"
-                      />
-                    ) : (
-                      <Store className="h-5 w-5" />
-                    )}
-                  </div>
-                  <div className="min-w-0 space-y-1">
-                    <div className="flex items-start gap-1.5 min-w-0">
-                      <Link
-                        href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                        className="text-sm sm:text-base font-bold text-foreground hover:text-[#0F6E6E] transition-colors leading-snug"
-                      >
-                        {product.vendor.shop_name}
-                      </Link>
-                      {product.vendor.verification_status === 'verified' && (
-                        <BadgeCheck
-                          className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5"
-                          aria-label="Verified Vendor"
+                <div className="flex items-center justify-between gap-3 min-w-0">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted border border-border text-foreground font-bold text-sm overflow-hidden">
+                      {product.vendor.logo_url ? (
+                        <img
+                          src={product.vendor.logo_url}
+                          alt={`${product.vendor.shop_name} logo`}
+                          className="h-full w-full object-cover"
                         />
+                      ) : (
+                        <span>{product.vendor.shop_name.slice(0, 2).toUpperCase()}</span>
                       )}
                     </div>
-                    <div className="flex flex-wrap items-center gap-1.5">
-                      <span className="inline-flex items-center rounded-md bg-muted px-2 py-0.5 text-[11px] font-semibold text-foreground">
-                        {getSellerDistinctionLabel(product.vendor)}
-                      </span>
-                      <span className="text-xs text-muted-foreground">
-                        {product.vendor.verification_status === 'verified'
-                          ? 'Verified Jetty vendor'
-                          : 'Pending verification'}
-                      </span>
+                    <div className="min-w-0">
+                      <div className="flex items-center gap-1 min-w-0">
+                        <Link
+                          href={`/vendors/${product.vendor.slug || product.vendor.id}`}
+                          className="text-sm font-bold text-foreground hover:text-primary transition-colors truncate"
+                        >
+                          {product.vendor.shop_name}
+                        </Link>
+                        {product.vendor.verification_status === 'verified' && (
+                          <BadgeCheck
+                            className="h-4 w-4 text-primary shrink-0"
+                            aria-label="Verified Vendor"
+                          />
+                        )}
+                      </div>
+                      <p className="text-xs text-muted-foreground truncate">
+                        {getSellerDistinctionLabel(product.vendor)} · {product.vendor.campus || 'Okerenkoko'}
+                      </p>
                     </div>
                   </div>
+
+                  <Link
+                    href={`/vendors/${product.vendor.slug || product.vendor.id}`}
+                    className="inline-flex h-8 items-center px-3 rounded-lg border border-border text-xs font-semibold text-foreground hover:bg-muted transition-colors shrink-0"
+                  >
+                    Visit Store
+                  </Link>
                 </div>
 
                 {product.vendor.location_visibility !== 'hidden' &&
                   product.vendor.location_label && (
-                    <div className="flex items-start gap-1.5 text-xs text-muted-foreground">
-                      <MapPin className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
+                    <div className="flex items-start gap-1.5 text-xs text-muted-foreground pt-2 border-t border-border/60">
+                      <MapPin className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
                       <span>
                         <strong className="text-foreground">Pickup landmark:</strong>{' '}
                         {product.vendor.location_label}
@@ -336,22 +313,14 @@ export default async function ProductDetailPage({
                     </div>
                   )}
 
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
-                  {product.vendor.description}
-                </p>
-
-                <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-muted-foreground truncate">
-                    {product.vendor.verification_status === 'verified'
-                      ? 'Identity & WhatsApp checked by Jetty'
-                      : 'Unverified seller — inspect before paying'}
-                  </span>
-                  <Link
-                    href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                    className="text-xs font-bold text-[#0F6E6E] dark:text-[#E8B84A] hover:underline shrink-0"
-                  >
-                    Visit Store →
-                  </Link>
+                {/* Quiet Report Link */}
+                <div className="pt-2 border-t border-border/60 flex justify-end">
+                  <ReportListingModal
+                    targetType="product"
+                    productId={product.id}
+                    vendorId={product.vendor_id}
+                    targetName={product.title}
+                  />
                 </div>
               </div>
             )}

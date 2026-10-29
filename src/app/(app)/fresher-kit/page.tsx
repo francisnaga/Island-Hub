@@ -1,56 +1,55 @@
 import Link from 'next/link'
-import { CheckCircle2, ShoppingBag, ArrowRight, AlertTriangle } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
+import { FresherKitClient, KitSection } from './FresherKitClient'
 
 export const dynamic = 'force-dynamic'
 
-const kitSections = [
+const kitSections: KitSection[] = [
   {
     title: 'Cadet Uniform & Gear',
     priority: true,
-    note: 'Commonly needed from Week 1 of resumption.',
+    note: 'Required from Week 1 of resumption.',
     items: [
-      { name: 'Action Rig (White)', note: 'Full set: shirt + trousers' },
-      { name: 'Safety Boots (Steel-toe)', note: 'Black, polishable, steel-toe cap' },
-      { name: 'Black Socks (6 pairs)', note: 'Ankle or crew length, plain black' },
-      { name: 'Black Belt', note: 'Plain, no logos' },
-      { name: 'Beret (NMU colour)', note: 'Confirm colour with your faculty' },
-      { name: 'Name Badges & Pins', note: 'Engraved with your name & matric no' },
-      { name: 'Shoulder Boards / Epaulettes', note: 'Confirm rank with your department' },
+      { id: 'action-rig', name: 'Action Rig (Navy / White)', note: 'Regulation cadet action rig set', searchQuery: 'action rig' },
+      { id: 'safety-boots', name: 'Safety Boots (Steel-toe)', note: 'Black, polishable, heavy-duty', searchQuery: 'safety boots' },
+      { id: 'black-socks', name: 'Black Boot Socks (Pack)', note: 'Ankle/crew length, plain black', searchQuery: 'socks' },
+      { id: 'black-belt', name: 'Plain Black Belt', note: 'Standard regulation width, no logos', searchQuery: 'belt' },
+      { id: 'cadet-beret', name: 'Cadet Beret & Cap Badge', note: 'Confirm color with your faculty', searchQuery: 'beret' },
+      { id: 'name-badge', name: 'Name Badges & Pins', note: 'Engraved with your matric number', searchQuery: 'nameplate' },
+      { id: 'epaulettes', name: 'Shoulder Boards / Epaulettes', note: 'Confirm rank with your department', searchQuery: 'cadet' },
     ],
   },
   {
     title: 'Electronics & Gadgets',
     priority: false,
     items: [
-      { name: 'Scientific Calculator', note: 'Casio FX-991ES Plus or similar' },
-      { name: 'Power Bank (10,000mAh+)', note: 'Power cuts are frequent in hostels' },
-      { name: 'Earphones / Earbuds', note: 'Durable wired or wireless' },
-      { name: 'Phone Charger (spare)', note: 'Always keep a backup charger' },
-      { name: 'Extension Cable (3-socket)', note: 'With surge protection' },
+      { id: 'calc', name: 'Scientific Calculator', note: 'Casio fx-991ES Plus or similar', searchQuery: 'calculator' },
+      { id: 'powerbank', name: 'Power Bank (10,000mAh+)', note: 'Fast charging for frequent power cuts', searchQuery: 'power bank' },
+      { id: 'earphones', name: 'Earphones / Earbuds', note: 'Durable wired or wireless', searchQuery: 'earphone' },
+      { id: 'charger', name: 'Phone Charger (spare)', note: 'Keep a backup cable in your locker', searchQuery: 'charger' },
+      { id: 'extension', name: 'Extension Cable (Surge Protected)', note: 'For hostel study desks', searchQuery: 'extension' },
     ],
   },
   {
-    title: 'Textbooks & Stationery',
+    title: 'Textbooks & Engineering Tools',
     priority: false,
     items: [
-      { name: 'Engineering Drawing Set', note: 'Compass, set squares, protractor' },
-      { name: 'A4 Notebooks (10)', note: 'Hard cover preferred' },
-      { name: 'Course Textbooks', note: 'Get your faculty handbook first' },
-      { name: 'Blue & Black Pens (pack)', note: 'Ballpoint, exam-grade' },
-      { name: 'Pencils & Eraser Set', note: 'For technical drawing' },
+      { id: 'drawing-board', name: 'A2 Technical Drawing Board', note: 'With T-square and set squares', searchQuery: 'drawing board' },
+      { id: 'drawing-set', name: 'Engineering Mathematical Set', note: 'Compass, dividers, protractor', searchQuery: 'drawing' },
+      { id: 'notebooks', name: 'A4 Hardcover Notebooks (10)', note: 'For lecture notes and tutorials', searchQuery: 'notebook' },
+      { id: 'pens-pencils', name: 'Exam-Grade Pens & Drawing Pencils', note: 'Ballpoint 0.7mm and 2H/2B pencils', searchQuery: 'pen' },
     ],
   },
   {
-    title: 'Hostel & Daily Essentials',
+    title: 'Hostel & Riverine Living Essentials',
     priority: false,
     items: [
-      { name: 'Padlock (heavy duty)', note: 'For locker and room door' },
-      { name: 'Bedsheet & Pillowcase Set', note: 'Single/twin size for hostel bunks' },
-      { name: 'Towels (2)', note: 'Bath + face towel' },
-      { name: 'Plastic Storage Box', note: 'Under-bed storage for uniform & kit' },
-      { name: 'Bucket & Basin', note: 'Water supply can be intermittent' },
-      { name: 'Mosquito Net / Repellent', note: 'Essential in riverine hostels' },
-      { name: 'Toiletries & Soap', note: 'Stock up on arrival' },
+      { id: 'table-fan', name: 'Rechargeable Hostel Table Fan', note: 'Built-in battery with LED night light', searchQuery: 'fan' },
+      { id: 'padlock', name: 'Heavy-Duty Brass Padlocks (2)', note: 'For room door and wardrobe locker', searchQuery: 'padlock' },
+      { id: 'bedding', name: 'Bedsheet & Pillowcase Set', note: 'Standard single bunk mattress size', searchQuery: 'bedsheet' },
+      { id: 'mosquito-net', name: 'Mosquito Net & Insect Spray', note: 'Essential in Delta riverine hostels', searchQuery: 'mosquito' },
+      { id: 'bucket-basin', name: 'Heavy-Duty Water Bucket & Basin', note: 'For water collection and laundry', searchQuery: 'bucket' },
+      { id: 'towels', name: 'Bath & Hand Towels', note: 'Quick-drying cotton towels', searchQuery: 'towel' },
     ],
   },
 ]
@@ -68,7 +67,7 @@ export default async function FresherKitPage() {
               NMU Fresher Kit ({totalItems} items)
             </h1>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Tap any item to find it on Jetty · Confirm official faculty requirements on resumption
+              Interactive preparation checklist · Progress saves automatically to your device
             </p>
           </div>
           <Link
@@ -81,45 +80,10 @@ export default async function FresherKitPage() {
         </div>
       </section>
 
-      {/* Checklist */}
-      <section className="py-6 sm:py-10">
-        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-6 sm:space-y-8">
-          {kitSections.map((section) => (
-            <div key={section.title} className="space-y-3">
-              <div className="flex flex-wrap items-center gap-2">
-                <h2 className="text-base sm:text-lg font-bold text-foreground">{section.title}</h2>
-                {section.priority && (
-                  <span className="rounded-md bg-[#E8B84A]/25 border border-[#E8B84A]/50 px-2 py-0.5 text-[10px] font-bold text-[#0E1B1B] dark:text-[#E8B84A] uppercase tracking-wider">
-                    Priority
-                  </span>
-                )}
-                {section.note && (
-                  <span className="text-xs text-muted-foreground">{section.note}</span>
-                )}
-              </div>
-
-              <div className="rounded-xl border border-border bg-card overflow-hidden divide-y divide-border">
-                {section.items.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between gap-3 px-3.5 sm:px-5 py-3.5 hover:bg-muted/30 transition-colors min-w-0">
-                    <div className="flex items-start gap-3 min-w-0">
-                      <CheckCircle2 className="h-4.5 w-4.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
-                      <div className="min-w-0">
-                        <p className="text-xs sm:text-sm font-semibold text-foreground">{item.name}</p>
-                        <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">{item.note}</p>
-                      </div>
-                    </div>
-                    <Link
-                      href={`/marketplace?q=${encodeURIComponent(item.name.split(' ')[0])}`}
-                      className="shrink-0 rounded-lg border border-border bg-muted/50 px-2.5 py-1.5 text-xs font-semibold text-[#0F6E6E] dark:text-[#E8B84A] hover:bg-[#E6F2F2] dark:hover:bg-[#132A2A] flex items-center gap-1"
-                    >
-                      <span>Find</span>
-                      <ArrowRight className="h-3 w-3" />
-                    </Link>
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
+      {/* Interactive Checklist Component */}
+      <section className="py-2 sm:py-6 pb-12">
+        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4">
+          <FresherKitClient sections={kitSections} />
         </div>
       </section>
 

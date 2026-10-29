@@ -52,29 +52,30 @@ export function buildProductWhatsAppUrl(params: WhatsAppProductInquiryParams): {
     }
   }
 
-  const lines: string[] = ['Hi, I found this item on Jetty.']
-  lines.push(`Product: ${params.productTitle}`)
-  lines.push(`Price shown: ${formatNaira(params.price)}`)
+  const qty = params.quantity || 1
+  const total = formatNaira(params.price * qty)
 
-  const variantParts: string[] = []
-  if (params.selectedSize) variantParts.push(`Size: ${params.selectedSize}`)
-  if (params.selectedColor) variantParts.push(`Colour: ${params.selectedColor}`)
-  if (variantParts.length > 0) {
-    lines.push(variantParts.join(' · '))
-  }
+  const variantList: string[] = []
+  if (params.selectedSize) variantList.push(`Size: ${params.selectedSize}`)
+  if (params.selectedColor) variantList.push(`Colour: ${params.selectedColor}`)
+  const variantStr = variantList.length > 0 ? ` (${variantList.join(', ')})` : ''
 
-  lines.push(`Quantity: ${params.quantity || 1}`)
+  const lines: string[] = [
+    `Hi! I want to order from your Jetty store:`,
+    `• ${params.productTitle}${variantStr}`,
+    `• Qty: ${qty} · Total: ${total}`,
+  ]
 
   if (params.productUrl) {
-    lines.push(`Link: ${params.productUrl}`)
+    lines.push(`• Link: ${params.productUrl}`)
   }
 
   if (params.askingLocation) {
-    lines.push('Is it currently available? Please share your pickup point or delivery arrangement.')
+    lines.push('\nIs it available? Please let me know your campus pickup landmark or delivery details.')
   } else if (params.requestLivePhoto) {
-    lines.push('Is it available? Please also share a live photo of the item and confirm where I can pick it up.')
+    lines.push('\nIs this in stock? Please share a quick photo and confirm pickup/delivery.')
   } else {
-    lines.push('Is it available? Where can I pick it up?')
+    lines.push('\nIs it currently available for pickup or delivery?')
   }
 
   const message = lines.join('\n')

@@ -24,6 +24,11 @@ export function MobileBottomNav() {
 
   const activePath = pendingHref || pathname
 
+  // Hide on product detail pages so the dedicated sticky buy bar has the entire mobile screen
+  if (pathname.startsWith('/product/')) {
+    return null
+  }
+
   return (
     <nav
       aria-label="Mobile bottom navigation"
