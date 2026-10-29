@@ -27,11 +27,11 @@ export const metadata: Metadata = {
   manifest: "/manifest.json",
   icons: {
     icon: [
-      { url: "/jetty-favicon.svg", type: "image/svg+xml" },
-      { url: "/jetty-icon-192.png", sizes: "192x192", type: "image/png" },
-      { url: "/jetty-icon-512.png", sizes: "512x512", type: "image/png" },
+      { url: "/jetty-favicon.svg?v=2", type: "image/svg+xml" },
+      { url: "/jetty-icon-192.png?v=2", sizes: "192x192", type: "image/png" },
+      { url: "/jetty-icon-512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
-    apple: [{ url: "/jetty-icon-192.png", sizes: "192x192", type: "image/png" }],
+    apple: [{ url: "/jetty-icon-192.png?v=2", sizes: "192x192", type: "image/png" }],
   },
 };
 
@@ -43,7 +43,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link rel="icon" type="image/svg+xml" href="/jetty-favicon.svg" />
+        <link rel="icon" type="image/svg+xml" href="/jetty-favicon.svg?v=2" />
       </head>
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans min-h-screen flex flex-col bg-background text-foreground antialiased`}

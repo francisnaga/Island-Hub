@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
+import { JettyMark } from '@/components/brand/JettyMark'
 
 export default async function LoginPage({
   searchParams,
@@ -28,13 +29,7 @@ export default async function LoginPage({
           <div className="flex flex-col items-center text-center space-y-2.5">
             {/* Official Jetty Mark + Wordmark */}
             <Link href="/" className="inline-flex items-center gap-2.5 py-1">
-              <img
-                src="/jetty-mark.svg"
-                alt="Jetty"
-                width={36}
-                height={36}
-                className="h-9 w-9 shrink-0"
-              />
+              <JettyMark size={36} className="h-9 w-9 shrink-0" />
               <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none">
                 jetty
               </span>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
+import { JettyMark } from '@/components/brand/JettyMark'
 
 export function NavigationFeedback() {
   const pathname = usePathname()
@@ -71,11 +72,8 @@ export function NavigationFeedback() {
         aria-live="polite"
         className="fixed top-16 left-1/2 -translate-x-1/2 z-[90] inline-flex items-center gap-2 rounded-full border border-border bg-card/95 px-3.5 py-1.5 shadow-lg backdrop-blur-md pointer-events-none animate-in fade-in zoom-in-95 duration-150"
       >
-        <img
-          src="/jetty-mark.svg"
-          alt=""
-          width={20}
-          height={20}
+        <JettyMark
+          size={20}
           className="h-5 w-5 rounded-md animate-spin"
           style={{ animationDuration: '1.1s' }}
         />

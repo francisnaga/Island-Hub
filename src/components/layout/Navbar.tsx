@@ -19,6 +19,7 @@ import { isAdminEmail, UserProfile, Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { DarkModeToggle } from './DarkModeToggle'
+import { JettyMark } from '@/components/brand/JettyMark'
 
 interface NavbarProps {
   user: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
@@ -71,15 +72,9 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
         <Link
           href="/"
           aria-label="Jetty — NMU Campus Marketplace Home"
-          className="flex items-center gap-2.5 shrink-0 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E] rounded-lg"
+          className="flex items-center gap-2.5 shrink-0 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
         >
-          <img
-            src="/jetty-mark.svg"
-            alt=""
-            width={32}
-            height={32}
-            className="h-8 w-8 shrink-0"
-          />
+          <JettyMark size={32} className="h-8 w-8 shrink-0" />
           <span className="text-xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none">
             jetty
           </span>

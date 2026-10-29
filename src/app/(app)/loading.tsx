@@ -1,14 +1,13 @@
+import { JettyMark } from '@/components/brand/JettyMark'
+
 export default function AppPageLoading() {
   return (
     <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 py-10 space-y-6 animate-in fade-in duration-150">
       {/* Centered Jetty brand mark pulse */}
       <div className="flex flex-col items-center justify-center py-6 gap-2.5">
         <div className="relative flex h-12 w-12 items-center justify-center rounded-2xl bg-card border border-border shadow-xs">
-          <img
-            src="/jetty-mark.svg"
-            alt="Loading Jetty"
-            width={32}
-            height={32}
+          <JettyMark
+            size={32}
             className="h-8 w-8 rounded-lg animate-pulse"
           />
         </div>

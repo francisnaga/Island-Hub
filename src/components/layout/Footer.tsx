@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { MapPin, ExternalLink } from 'lucide-react'
 import { NagaLogo } from '@/components/brand/NagaLogo'
+import { JettyMark } from '@/components/brand/JettyMark'
 
 export function Footer() {
   return (
@@ -15,13 +16,7 @@ export function Footer() {
               aria-label="Jetty — NMU Campus Marketplace Home"
               className="inline-flex items-center gap-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
             >
-              <img
-                src="/jetty-mark.svg"
-                alt=""
-                width={28}
-                height={28}
-                className="h-7 w-7 shrink-0"
-              />
+              <JettyMark size={28} className="h-7 w-7 shrink-0" />
               <span className="text-lg font-bold tracking-tight text-foreground lowercase leading-none">
                 jetty
               </span>
