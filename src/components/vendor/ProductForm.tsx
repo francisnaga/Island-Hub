@@ -130,6 +130,12 @@ export function ProductForm({
 
   const [submitting, setSubmitting] = useState(false)
 
+  // Category Request Modal State
+  const [reqCategoryModalOpen, setReqCategoryModalOpen] = useState(false)
+  const [requestedCategoryName, setRequestedCategoryName] = useState('')
+  const [requestedCategoryDesc, setRequestedCategoryDesc] = useState('')
+  const [submittingCategoryReq, setSubmittingCategoryReq] = useState(false)
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -208,6 +214,37 @@ export function ProductForm({
 
   const handleRemoveImage = (index: number) => {
     setImages((prev) => prev.filter((_, idx) => idx !== index))
+  }
+
+  const handleRequestCategory = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!requestedCategoryName.trim()) return
+    setSubmittingCategoryReq(true)
+    try {
+      const supabase = createClient()
+      const { error } = await supabase.from('category_requests').insert({
+        vendor_id: vendor.id,
+        vendor_name: vendor.shop_name,
+        vendor_whatsapp: vendor.whatsapp_number,
+        name: requestedCategoryName.trim(),
+        description: requestedCategoryDesc.trim() || null,
+        status: 'pending',
+      })
+      if (error) {
+        toast.error(error.message)
+        return
+      }
+      toast.success(
+        `Category request for "${requestedCategoryName}" submitted! Admin (Francis Naga) will review and approve it shortly.`
+      )
+      setRequestedCategoryName('')
+      setRequestedCategoryDesc('')
+      setReqCategoryModalOpen(false)
+    } catch {
+      toast.error('Failed to submit category request')
+    } finally {
+      setSubmittingCategoryReq(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -407,9 +444,18 @@ export function ProductForm({
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Category *
-              </label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-xs font-semibold text-foreground">
+                  Category *
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setReqCategoryModalOpen(true)}
+                  className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                >
+                  + Request New
+                </button>
+              </div>
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
@@ -716,6 +762,76 @@ export function ProductForm({
           </button>
         </div>
       </form>
+
+      {/* Category Request Modal */}
+      {reqCategoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/70 backdrop-blur-xs animate-in fade-in">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 space-y-4 shadow-xl">
+            <div className="flex items-center justify-between border-b border-border/60 pb-3">
+              <h3 className="text-base font-bold text-foreground">
+                Request a New Category
+              </h3>
+              <button
+                type="button"
+                onClick={() => setReqCategoryModalOpen(false)}
+                className="rounded-lg p-1 text-muted-foreground hover:bg-muted"
+              >
+                <X className="h-5 w-5" />
+              </button>
+            </div>
+
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Don&apos;t see a category that matches your product, meal, or service? Submit your request to the Admin (Francis Naga) and it will be created upon review.
+            </p>
+
+            <form onSubmit={handleRequestCategory} className="space-y-3.5">
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Proposed Category Name *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={requestedCategoryName}
+                  onChange={(e) => setRequestedCategoryName(e.target.value)}
+                  placeholder="e.g. Photography &amp; Video, Barbing, Pastries"
+                  className="w-full h-10 rounded-xl border border-input bg-background px-3 text-xs text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Description / Examples
+                </label>
+                <textarea
+                  rows={2}
+                  value={requestedCategoryDesc}
+                  onChange={(e) => setRequestedCategoryDesc(e.target.value)}
+                  placeholder="What items or services will you list in this category?"
+                  className="w-full rounded-xl border border-input bg-background p-3 text-xs text-foreground focus:outline-none focus:border-primary"
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setReqCategoryModalOpen(false)}
+                  className="h-9 px-4 rounded-xl border border-border text-xs font-semibold text-muted-foreground hover:bg-muted"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingCategoryReq}
+                  className="h-9 px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 disabled:opacity-50"
+                >
+                  {submittingCategoryReq ? 'Submitting...' : 'Submit Request'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

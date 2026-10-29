@@ -73,7 +73,7 @@ export default async function FresherKitPage() {
           </div>
           <Link
             href="/category/maritime-cadet-gear"
-            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0 self-start sm:self-auto"
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 self-start sm:self-auto"
           >
             <ShoppingBag className="h-3.5 w-3.5" />
             Shop Cadet Gear
@@ -136,7 +136,7 @@ export default async function FresherKitPage() {
             <div className="flex flex-wrap gap-2.5 shrink-0">
               <Link
                 href="/category/maritime-cadet-gear"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0F6E6E] px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
+                className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity"
               >
                 <ShoppingBag className="h-4 w-4" />
                 Shop Cadet Gear

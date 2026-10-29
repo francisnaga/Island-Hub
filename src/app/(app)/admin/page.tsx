@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUserContext, getPublicCategories } from '@/lib/queries'
 import { INITIAL_PRODUCTS, INITIAL_VENDORS } from '@/lib/marketplace-data'
-import { isAdminEmail, ModerationLog, Product, ReportRecord, Vendor } from '@/lib/types'
+import { isAdminEmail, ModerationLog, Product, ReportRecord, Vendor, CategoryRequest } from '@/lib/types'
 import { AdminDashboardClient } from './AdminDashboardClient'
 
 export const dynamic = 'force-dynamic'
@@ -22,11 +22,12 @@ export default async function AdminDashboardPage() {
   let products: Product[] = INITIAL_PRODUCTS
   let reports: ReportRecord[] = []
   let logs: ModerationLog[] = []
+  let categoryRequests: CategoryRequest[] = []
   const categories = await getPublicCategories()
 
   try {
     const supabase = await createClient()
-    const [vRes, pRes, rRes, lRes] = await Promise.all([
+    const [vRes, pRes, rRes, lRes, crRes] = await Promise.all([
       supabase.from('vendors').select('*').order('created_at', { ascending: false }),
       supabase
         .from('products')
@@ -41,12 +42,17 @@ export default async function AdminDashboardPage() {
         .select('*')
         .order('created_at', { ascending: false })
         .limit(30),
+      supabase
+        .from('category_requests')
+        .select('*')
+        .order('created_at', { ascending: false }),
     ])
 
     if (vRes.data && vRes.data.length > 0) vendors = vRes.data as Vendor[]
     if (pRes.data && pRes.data.length > 0) products = pRes.data as Product[]
     if (rRes.data) reports = rRes.data as ReportRecord[]
     if (lRes.data) logs = lRes.data as ModerationLog[]
+    if (crRes.data) categoryRequests = crRes.data as CategoryRequest[]
   } catch {
     // Graceful fallback if DB tables are unreachable
   }
@@ -60,6 +66,7 @@ export default async function AdminDashboardPage() {
           initialProducts={products}
           initialReports={reports}
           initialCategories={categories}
+          initialCategoryRequests={categoryRequests}
           initialLogs={logs}
         />
       </div>

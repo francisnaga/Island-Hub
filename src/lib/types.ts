@@ -48,6 +48,18 @@ export interface Category {
   is_active: boolean
 }
 
+export interface CategoryRequest {
+  id: string
+  vendor_id?: string | null
+  vendor_name?: string | null
+  vendor_whatsapp?: string | null
+  name: string
+  description?: string | null
+  suggested_icon?: string | null
+  status: 'pending' | 'approved' | 'rejected'
+  created_at: string
+}
+
 export interface Vendor {
   id: string
   user_id: string

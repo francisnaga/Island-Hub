@@ -38,16 +38,16 @@ export function Footer() {
             <Link href="/category/maritime-cadet-gear" className="hover:text-foreground transition-colors">
               Cadet Gear
             </Link>
-            <Link href="/vendors" className="hover:text-foreground transition-colors">
-              Vendors
-            </Link>
-            <Link href="/services" className="hover:text-foreground transition-colors">
-              Services
+            <Link href="/housing" className="hover:text-foreground transition-colors">
+              Lodge
             </Link>
             <Link href="/fresher-kit" className="hover:text-foreground transition-colors">
               Fresher Kit
             </Link>
-            <Link href="/vendor/apply" className="hover:text-foreground transition-colors text-primary font-semibold">
+            <Link href="/vendors" className="hover:text-foreground transition-colors">
+              Vendors
+            </Link>
+            <Link href="/vendor/apply" className="hover:text-foreground transition-colors font-semibold">
               Sell on Jetty
             </Link>
             <Link href="/safety" className="hover:text-foreground transition-colors">

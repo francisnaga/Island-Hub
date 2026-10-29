@@ -22,6 +22,7 @@ import {
 import { createClient } from '@/lib/supabase/client'
 import {
   Category,
+  CategoryRequest,
   ModerationLog,
   Product,
   ProductApprovalStatus,
@@ -39,6 +40,7 @@ interface AdminDashboardClientProps {
   initialProducts: Product[]
   initialReports: ReportRecord[]
   initialCategories: Category[]
+  initialCategoryRequests?: CategoryRequest[]
   initialLogs: ModerationLog[]
 }
 
@@ -48,6 +50,7 @@ export function AdminDashboardClient({
   initialProducts,
   initialReports,
   initialCategories,
+  initialCategoryRequests = [],
   initialLogs,
 }: AdminDashboardClientProps) {
   const router = useRouter()
@@ -55,6 +58,7 @@ export function AdminDashboardClient({
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [reports, setReports] = useState<ReportRecord[]>(initialReports)
   const [categories, setCategories] = useState<Category[]>(initialCategories)
+  const [categoryRequests, setCategoryRequests] = useState<CategoryRequest[]>(initialCategoryRequests)
   const [logs, setLogs] = useState<ModerationLog[]>(initialLogs)
 
   const [activeTab, setActiveTab] = useState<
@@ -489,6 +493,75 @@ export function AdminDashboardClient({
       toast.success('Category added!')
     } finally {
       setCreatingCat(false)
+    }
+  }
+
+  // Handle Vendor Category Requests
+  const handleApproveCategoryRequest = async (req: CategoryRequest) => {
+    setBusyId(req.id)
+    try {
+      const supabase = createClient()
+      const slug =
+        req.name
+          .toLowerCase()
+          .replace(/[^a-z0-9]+/g, '-')
+          .replace(/^-+|-+$/g, '')
+
+      const { data: newCat, error: catError } = await supabase
+        .from('categories')
+        .insert({
+          name: req.name.trim(),
+          short_name: req.name.trim(),
+          slug,
+          description: req.description || `Browse ${req.name} on Jetty`,
+          display_order: categories.length + 1,
+          is_priority: false,
+          is_active: true,
+        })
+        .select('*')
+        .single()
+
+      if (catError) {
+        toast.error(catError.message)
+        return
+      }
+
+      await supabase
+        .from('category_requests')
+        .update({ status: 'approved' })
+        .eq('id', req.id)
+
+      if (newCat) {
+        setCategories((prev) => [...prev, newCat as Category])
+      }
+      setCategoryRequests((prev) =>
+        prev.map((r) => (r.id === req.id ? { ...r, status: 'approved' } : r))
+      )
+      await recordLog('category_approved', 'category', req.id, req.name)
+      toast.success(`Category "${req.name}" approved and live across Jetty!`)
+      router.refresh()
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  const handleRejectCategoryRequest = async (req: CategoryRequest) => {
+    setBusyId(req.id)
+    try {
+      const supabase = createClient()
+      await supabase
+        .from('category_requests')
+        .update({ status: 'rejected' })
+        .eq('id', req.id)
+
+      setCategoryRequests((prev) =>
+        prev.map((r) => (r.id === req.id ? { ...r, status: 'rejected' } : r))
+      )
+      await recordLog('category_rejected', 'category', req.id, req.name)
+      toast.info(`Category request for "${req.name}" rejected`)
+      router.refresh()
+    } finally {
+      setBusyId(null)
     }
   }
 
@@ -999,39 +1072,126 @@ export function AdminDashboardClient({
 
       {/* Tab 4: Categories Manager */}
       {activeTab === 'categories' && (
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-          <div className="lg:col-span-7 space-y-3">
-            {categories.map((cat) => (
-              <div
-                key={cat.id}
-                className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-4"
-              >
-                <div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-bold text-foreground">
-                      {cat.name}
+        <div className="space-y-6">
+          {/* Vendor Category Requests Section */}
+          <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
+            <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
+              <div>
+                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
+                  <span>Vendor Category Requests</span>
+                  {categoryRequests.filter((r) => r.status === 'pending').length > 0 && (
+                    <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[10px] font-bold text-amber-300">
+                      {categoryRequests.filter((r) => r.status === 'pending').length} pending
                     </span>
-                    <span className="text-xs text-muted-foreground">/{cat.slug}</span>
-                    {cat.is_priority && (
-                      <span className="rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-2 py-0.5 text-[10px] font-bold text-[#0A4F4F]">
-                        Priority
-                      </span>
+                  )}
+                </h3>
+                <p className="text-xs text-muted-foreground mt-0.5">
+                  When vendors request new categories from their dashboard, review and grant them here.
+                </p>
+              </div>
+            </div>
+
+            {categoryRequests.length > 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                {categoryRequests.map((req) => (
+                  <div
+                    key={req.id}
+                    className="rounded-xl border border-border bg-muted/40 p-4 space-y-2.5 flex flex-col justify-between"
+                  >
+                    <div className="space-y-1.5">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="text-sm font-bold text-foreground">{req.name}</span>
+                        <span
+                          className={cn(
+                            'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase',
+                            req.status === 'approved'
+                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
+                              : req.status === 'rejected'
+                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
+                              : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                          )}
+                        >
+                          {req.status}
+                        </span>
+                      </div>
+                      {req.description && (
+                        <p className="text-xs text-muted-foreground">{req.description}</p>
+                      )}
+                      {(req.vendor_name || req.vendor_whatsapp) && (
+                        <p className="text-[11px] text-muted-foreground">
+                          From: <strong className="text-foreground">{req.vendor_name || 'Vendor'}</strong>
+                          {req.vendor_whatsapp ? ` (${req.vendor_whatsapp})` : ''}
+                        </p>
+                      )}
+                    </div>
+
+                    {req.status === 'pending' && (
+                      <div className="pt-2 border-t border-border/60 flex items-center gap-2">
+                        <button
+                          type="button"
+                          disabled={busyId === req.id}
+                          onClick={() => handleApproveCategoryRequest(req)}
+                          className="flex-1 inline-flex h-9 items-center justify-center rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 cursor-pointer transition-opacity"
+                        >
+                          Approve &amp; Create Category
+                        </button>
+                        <button
+                          type="button"
+                          disabled={busyId === req.id}
+                          onClick={() => handleRejectCategoryRequest(req)}
+                          className="inline-flex h-9 items-center justify-center px-3 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+                        >
+                          Reject
+                        </button>
+                      </div>
                     )}
                   </div>
-                  <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
-                </div>
+                ))}
               </div>
-            ))}
+            ) : (
+              <div className="rounded-xl border border-dashed border-border bg-background/50 p-6 text-center text-xs text-muted-foreground">
+                No category requests from vendors yet.
+              </div>
+            )}
           </div>
 
-          <form
-            onSubmit={handleCreateCategory}
-            className="lg:col-span-5 rounded-2xl border border-border bg-card p-5 space-y-4"
-          >
-            <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-              <Plus className="h-4 w-4 text-[#0F6E6E]" />
-              Add New Marketplace Category
-            </h3>
+          {/* Existing Categories & Direct Creator Form */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            <div className="lg:col-span-7 space-y-3">
+              <h3 className="text-sm font-bold text-foreground">
+                Active Categories ({categories.length})
+              </h3>
+              {categories.map((cat) => (
+                <div
+                  key={cat.id}
+                  className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-4"
+                >
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="text-sm font-bold text-foreground">
+                        {cat.name}
+                      </span>
+                      <span className="text-xs text-muted-foreground">/{cat.slug}</span>
+                      {cat.is_priority && (
+                        <span className="rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-2 py-0.5 text-[10px] font-bold text-[#0A4F4F] dark:text-[#E8B84A]">
+                          Priority
+                        </span>
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <form
+              onSubmit={handleCreateCategory}
+              className="lg:col-span-5 rounded-2xl border border-border bg-card p-5 space-y-4"
+            >
+              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
+                <Plus className="h-4 w-4 text-[#0F6E6E]" />
+                Add New Marketplace Category
+              </h3>
 
             <div>
               <label className="block text-xs font-semibold text-foreground mb-1">
@@ -1087,13 +1247,14 @@ export function AdminDashboardClient({
             <button
               type="submit"
               disabled={creatingCat}
-              className="w-full h-10 rounded-xl bg-[#0F6E6E] text-white text-xs font-bold hover:bg-[#0A4F4F] cursor-pointer"
+              className="w-full h-10 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 cursor-pointer transition-opacity"
             >
               {creatingCat ? 'Adding...' : 'Create Category'}
             </button>
           </form>
         </div>
-      )}
+      </div>
+    )}
 
       {/* Tab 5: Moderation Audit Logs */}
       {activeTab === 'logs' && (

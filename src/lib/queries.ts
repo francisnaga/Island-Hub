@@ -5,7 +5,7 @@ import {
   INITIAL_VENDORS,
   sanitizePublicVendor,
 } from './marketplace-data'
-import { Category, isAdminEmail, Product, UserProfile, Vendor } from './types'
+import { Category, CategoryRequest, isAdminEmail, Product, UserProfile, Vendor } from './types'
 
 export async function getPublicCategories(): Promise<Category[]> {
   try {
@@ -490,5 +490,44 @@ export async function getCurrentUserContext(): Promise<{
     }
   } catch {
     return { user: null, profile: null, vendor: null }
+  }
+}
+
+export async function getCategoryRequests(): Promise<CategoryRequest[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('category_requests')
+      .select('*')
+      .order('created_at', { ascending: false })
+    if (!error && data) {
+      return data as CategoryRequest[]
+    }
+  } catch {
+    // fallback
+  }
+  return []
+}
+
+export async function submitCategoryRequest(payload: {
+  vendor_id?: string | null
+  vendor_name?: string | null
+  vendor_whatsapp?: string | null
+  name: string
+  description?: string | null
+  suggested_icon?: string | null
+}): Promise<{ success: boolean; error?: string }> {
+  try {
+    const supabase = await createClient()
+    const { error } = await supabase
+      .from('category_requests')
+      .insert({
+        ...payload,
+        status: 'pending',
+      })
+    if (error) return { success: false, error: error.message }
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Failed to submit' }
   }
 }

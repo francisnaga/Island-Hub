@@ -103,7 +103,7 @@ export default async function HomePage() {
               </div>
               <button
                 type="submit"
-                className="h-11 px-4 sm:px-5 rounded-xl bg-primary text-primary-foreground font-semibold text-xs sm:text-sm hover:opacity-90 transition-opacity shrink-0 cursor-pointer"
+                className="h-11 px-5 rounded-xl bg-foreground text-background font-semibold text-xs sm:text-sm hover:opacity-90 transition-opacity shrink-0 cursor-pointer"
               >
                 Search
               </button>
@@ -114,10 +114,10 @@ export default async function HomePage() {
               {[
                 { label: 'Safety boots', href: '/marketplace?q=safety+boots' },
                 { label: 'Action rigs', href: '/marketplace?q=action+rig' },
+                { label: 'Lodge & Rooms', href: '/housing' },
                 { label: 'Calculators', href: '/marketplace?q=calculator' },
-                { label: 'Fruit bowls', href: '/marketplace?q=fruit' },
+                { label: 'Meals & Treats', href: '/marketplace?category=food-beauty-other' },
                 { label: 'Fresher Kit', href: '/fresher-kit' },
-                { label: 'Services', href: '/services' },
               ].map((item) => (
                 <Link
                   key={item.label}
@@ -264,19 +264,19 @@ export default async function HomePage() {
           </Link>
 
           <Link
-            href="/services"
+            href="/housing"
             className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/60 transition-colors"
           >
             <div className="flex items-center gap-3 min-w-0">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
-                <Wrench className="h-5 w-5" />
+                <Home className="h-5 w-5" />
               </div>
               <div className="min-w-0">
                 <h3 className="text-sm font-bold text-foreground group-hover:text-primary truncate">
-                  Campus Services
+                  Campus Lodges &amp; Bedspaces
                 </h3>
                 <p className="text-xs text-muted-foreground truncate">
-                  Tailoring, barbing, laundry &amp; food
+                  Hostels &amp; self-contain rooms near NMU
                 </p>
               </div>
             </div>
@@ -285,10 +285,10 @@ export default async function HomePage() {
 
           <Link
             href="/vendor/apply"
-            className="group flex items-center justify-between rounded-2xl border border-primary/30 bg-accent/60 p-4 hover:border-primary transition-colors"
+            className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/60 transition-colors"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-primary text-primary-foreground">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-foreground text-background">
                 <Store className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -300,7 +300,7 @@ export default async function HomePage() {
                 </p>
               </div>
             </div>
-            <ArrowRight className="h-4 w-4 shrink-0 text-primary" />
+            <ArrowRight className="h-4 w-4 shrink-0 text-foreground group-hover:translate-x-0.5 transition-transform" />
           </Link>
         </div>
       </section>

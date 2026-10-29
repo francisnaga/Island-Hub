@@ -1,58 +1,298 @@
 import Link from 'next/link'
-import { ShieldCheck, AlertTriangle, ArrowLeft, ShoppingBag } from 'lucide-react'
+import {
+  Home,
+  MapPin,
+  MessageCircle,
+  BadgeCheck,
+  AlertTriangle,
+  Building2,
+  Users,
+  ShieldCheck,
+  CheckCircle2,
+} from 'lucide-react'
+import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
-export default async function HousingPage() {
+interface LodgeListing {
+  id: string
+  title: string
+  room_type: 'self_contain' | 'single_room' | 'bedspace'
+  room_type_label: string
+  campus: 'Okerenkoko' | 'Kurutie'
+  price: number
+  period: string
+  location_label: string
+  distance_hint: string
+  image: string
+  features: string[]
+  whatsapp_number: string
+  contact_name: string
+  is_verified: boolean
+}
+
+const LODGE_LISTINGS: LodgeListing[] = [
+  {
+    id: 'lodge-1',
+    title: 'Modern Tiled Self-Contain with Private Bath',
+    room_type: 'self_contain',
+    room_type_label: 'Self-Contain',
+    campus: 'Okerenkoko',
+    price: 85000,
+    period: 'per session',
+    location_label: 'Near Permanent Site Gate, Okerenkoko',
+    distance_hint: '5 mins walk to lecture halls',
+    image: '/products/lodge-self-contain-okerenkoko.jpg',
+    features: ['Private Bathroom', 'Tiled Floor', 'Running Water', 'Prepaid Meter'],
+    whatsapp_number: '2349130436032',
+    contact_name: 'Elder Tari (Lodge Caretaker)',
+    is_verified: true,
+  },
+  {
+    id: 'lodge-2',
+    title: 'Spacious Single Room in Quiet Student Compound',
+    room_type: 'single_room',
+    room_type_label: 'Single Room',
+    campus: 'Kurutie',
+    price: 45000,
+    period: 'per session',
+    location_label: 'Kurutie Take-off Campus Junction',
+    distance_hint: '3 mins walk to campus gate',
+    image: '/products/lodge-single-room-kurutie.jpg',
+    features: ['Well Ventilated', 'Shared Bath (Clean)', 'Fenced & Gated', 'Borehole Water'],
+    whatsapp_number: '2349130436032',
+    contact_name: 'Kurutie Campus Accommodations',
+    is_verified: true,
+  },
+  {
+    id: 'lodge-3',
+    title: '2-Student Shared Bedspace with Storage Lockers',
+    room_type: 'bedspace',
+    room_type_label: 'Shared Bedspace',
+    campus: 'Okerenkoko',
+    price: 25000,
+    period: 'per student / session',
+    location_label: 'Behind NMU Maritime Academy Quarters',
+    distance_hint: '7 mins walk to jetty & classrooms',
+    image: '/products/lodge-shared-room-okerenkoko.jpg',
+    features: ['Mattress Included', 'Bedside Locker', 'Security Light', 'Budget Friendly'],
+    whatsapp_number: '2349130436032',
+    contact_name: 'Senior Cadet Preye',
+    is_verified: true,
+  },
+]
+
+export default async function HousingPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ campus?: string; type?: string }>
+}) {
+  const sp = await searchParams
+  const selectedCampus = sp.campus || 'all'
+  const selectedType = sp.type || 'all'
+
+  const filteredLodges = LODGE_LISTINGS.filter((item) => {
+    if (selectedCampus !== 'all' && item.campus.toLowerCase() !== selectedCampus.toLowerCase()) {
+      return false
+    }
+    if (selectedType !== 'all' && item.room_type !== selectedType) {
+      return false
+    }
+    return true
+  })
+
   return (
-    <div className="py-8 sm:py-14 min-w-0">
-      <div className="container mx-auto max-w-2xl px-4 space-y-6">
-        <Link
-          href="/"
-          className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
-        >
-          <ArrowLeft className="h-3.5 w-3.5" />
-          Back to Jetty Marketplace
-        </Link>
-
-        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 space-y-4">
-          <div className="inline-flex h-11 w-11 items-center justify-center rounded-xl bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-300">
-            <ShieldCheck className="h-6 w-6" />
-          </div>
-
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            Housing &amp; Bedspace Listings Deferred for Launch
-          </h1>
-
-          <p className="text-sm text-muted-foreground leading-relaxed">
-            To protect Nigeria Maritime University (NMU) students from unverified agents, advance inspection fees, and accommodation scams in Okerenkoko and Kurutie, Jetty is not publishing public housing or bedspace offers during initial launch.
-          </p>
-
-          <div className="rounded-xl border border-amber-300 dark:border-amber-800 bg-amber-50/80 dark:bg-amber-950/40 p-4 flex items-start gap-2.5 text-xs text-amber-950 dark:text-amber-200">
-            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
-            <div className="space-y-1">
-              <p className="font-bold">Campus Accommodation Safety Reminder</p>
-              <p className="leading-relaxed">
-                Never pay inspection fees, agent registration fees, or advance rent before physically inspecting a room in Okerenkoko or Kurutie and verifying the property owner in person.
-              </p>
+    <div className="py-5 sm:py-8 min-w-0">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 sm:space-y-6 min-w-0">
+        {/* Header & Post Lodge Action */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+                Lodge &amp; Bedspaces
+              </h1>
+              <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+                {filteredLodges.length} available
+              </span>
             </div>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Off-campus student hostels and bedspaces across Okerenkoko &amp; Kurutie
+            </p>
           </div>
 
-          <div className="pt-3 border-t border-border flex flex-wrap gap-3">
-            <Link
-              href="/marketplace"
-              className="inline-flex h-11 items-center gap-2 rounded-xl bg-[#0F6E6E] px-5 text-xs sm:text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
-            >
-              <ShoppingBag className="h-4 w-4" />
-              Browse Cadet Gear &amp; Hostel Supplies
-            </Link>
-            <Link
-              href="/fresher-kit"
-              className="inline-flex h-11 items-center rounded-xl border border-border bg-background px-4 text-xs sm:text-sm font-semibold text-foreground hover:bg-muted transition-colors"
-            >
-              View NMU Fresher Kit Checklist
-            </Link>
+          <Link
+            href="/vendor/apply"
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 self-start sm:self-auto"
+          >
+            <Building2 className="h-3.5 w-3.5" />
+            <span>List a Room or Bedspace</span>
+          </Link>
+        </div>
+
+        {/* Safety Banner */}
+        <div className="rounded-xl border border-amber-500/30 bg-amber-500/10 p-3 sm:p-3.5 flex items-start gap-2.5 text-xs text-amber-200">
+          <AlertTriangle className="h-4 w-4 text-amber-400 shrink-0 mt-0.5" />
+          <div className="space-y-0.5">
+            <span className="font-bold text-amber-300">Safety First: </span>
+            <span>
+              Always inspect the room in person and confirm the caretaker before paying rent. Legitimate landlords around NMU do not charge inspection fees.
+            </span>
           </div>
+        </div>
+
+        {/* Filter Pills */}
+        <div className="flex flex-wrap items-center gap-2 pt-1 border-b border-border/60 pb-3">
+          {/* Campus filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {[
+              { id: 'all', label: 'All Campuses' },
+              { id: 'okerenkoko', label: 'Okerenkoko' },
+              { id: 'kurutie', label: 'Kurutie' },
+            ].map((c) => {
+              const active = selectedCampus.toLowerCase() === c.id
+              return (
+                <Link
+                  key={c.id}
+                  href={`/housing?campus=${c.id}${selectedType !== 'all' ? `&type=${selectedType}` : ''}`}
+                  className={cn(
+                    'h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors',
+                    active
+                      ? 'bg-foreground text-background'
+                      : 'border border-border bg-card text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {c.label}
+                </Link>
+              )
+            })}
+          </div>
+
+          <div className="hidden sm:block h-4 w-px bg-border mx-1" />
+
+          {/* Room type filters */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+            {[
+              { id: 'all', label: 'All Types' },
+              { id: 'self_contain', label: 'Self-Contain' },
+              { id: 'single_room', label: 'Single Room' },
+              { id: 'bedspace', label: 'Bedspace' },
+            ].map((t) => {
+              const active = selectedType === t.id
+              return (
+                <Link
+                  key={t.id}
+                  href={`/housing?type=${t.id}${selectedCampus !== 'all' ? `&campus=${selectedCampus}` : ''}`}
+                  className={cn(
+                    'h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors',
+                    active
+                      ? 'bg-primary text-primary-foreground'
+                      : 'border border-border bg-card text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  {t.label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Visual Lodge Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {filteredLodges.map((lodge) => {
+            const waText = encodeURIComponent(
+              `Hi ${lodge.contact_name}! 👋 I saw your lodge listing "${lodge.title}" (₦${lodge.price.toLocaleString('en-NG')} ${lodge.period}) on Jetty. I would like to schedule an in-person room inspection.`
+            )
+            const waUrl = `https://wa.me/${lodge.whatsapp_number}?text=${waText}`
+
+            return (
+              <div
+                key={lodge.id}
+                className="group flex flex-col justify-between rounded-2xl border border-border bg-card overflow-hidden transition-all hover:border-primary/60 hover:shadow-lg"
+              >
+                {/* Visual Image */}
+                <div className="relative aspect-4/3 w-full bg-muted overflow-hidden">
+                  <img
+                    src={lodge.image}
+                    alt={lodge.title}
+                    loading="lazy"
+                    decoding="async"
+                    className="h-full w-full object-cover transition-transform duration-300 group-hover:scale-105"
+                  />
+                  <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between pointer-events-none">
+                    <span className="rounded-md bg-slate-950/85 backdrop-blur-xs border border-white/10 px-2.5 py-0.5 text-[11px] font-bold text-white">
+                      {lodge.room_type_label}
+                    </span>
+                    <span className="rounded-md bg-primary/95 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                      {lodge.campus}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Details Body */}
+                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3.5">
+                  <div className="space-y-2">
+                    <div className="flex items-baseline gap-1">
+                      <span className="text-lg sm:text-xl font-extrabold text-foreground tracking-tight">
+                        ₦{lodge.price.toLocaleString('en-NG')}
+                      </span>
+                      <span className="text-xs text-muted-foreground font-medium">
+                        / {lodge.period}
+                      </span>
+                    </div>
+
+                    <h2 className="text-sm sm:text-base font-bold text-foreground leading-snug line-clamp-2">
+                      {lodge.title}
+                    </h2>
+
+                    <div className="space-y-1 text-xs text-muted-foreground pt-1">
+                      <div className="flex items-center gap-1.5 truncate">
+                        <MapPin className="h-3.5 w-3.5 text-primary shrink-0" />
+                        <span className="truncate">{lodge.location_label}</span>
+                      </div>
+                      <div className="text-[11px] text-muted-foreground pl-5">
+                        {lodge.distance_hint}
+                      </div>
+                    </div>
+
+                    {/* Features list */}
+                    <div className="flex flex-wrap gap-1.5 pt-2">
+                      {lodge.features.map((f) => (
+                        <span
+                          key={f}
+                          className="rounded-md border border-border bg-muted/60 px-2 py-0.5 text-[10px] font-medium text-foreground/80"
+                        >
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Actions & WhatsApp Contact */}
+                  <div className="pt-3 border-t border-border/70 space-y-2">
+                    <div className="flex items-center justify-between text-xs">
+                      <span className="text-muted-foreground truncate">{lodge.contact_name}</span>
+                      {lodge.is_verified && (
+                        <span className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold shrink-0">
+                          <BadgeCheck className="h-3.5 w-3.5" />
+                          Verified
+                        </span>
+                      )}
+                    </div>
+
+                    <a
+                      href={waUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white text-xs font-bold hover:opacity-90 transition-opacity"
+                    >
+                      <MessageCircle className="h-4 w-4 shrink-0" />
+                      <span>Inspect Room on WhatsApp</span>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            )
+          })}
         </div>
       </div>
     </div>

@@ -47,7 +47,7 @@ export default async function VendorsDirectoryPage({
 
           <Link
             href="/vendor/apply"
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
           >
             <Store className="h-3.5 w-3.5" />
             <span>Open Store</span>
@@ -98,7 +98,7 @@ export default async function VendorsDirectoryPage({
               </div>
               <button
                 type="submit"
-                className="h-10 px-4 rounded-xl bg-[#0F6E6E] text-white text-xs font-semibold hover:bg-[#0A4F4F] shrink-0 cursor-pointer"
+                className="h-10 px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 shrink-0 cursor-pointer transition-opacity"
               >
                 Search
               </button>

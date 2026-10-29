@@ -3,14 +3,14 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Compass, ShoppingBag, Anchor, CheckSquare, Store } from 'lucide-react'
+import { Compass, ShoppingBag, CheckSquare, Home, Store } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 const tabs = [
   { href: '/', label: 'Home', icon: Compass, exact: true },
   { href: '/marketplace', label: 'Shop', icon: ShoppingBag },
-  { href: '/category/maritime-cadet-gear', label: 'Cadet Gear', icon: Anchor },
   { href: '/fresher-kit', label: 'Fresher Kit', icon: CheckSquare },
+  { href: '/housing', label: 'Lodge', icon: Home },
   { href: '/vendors', label: 'Vendors', icon: Store },
 ]
 

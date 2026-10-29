@@ -56,12 +56,12 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
   const navLinks = [
     { href: '/', label: 'Home', exact: true },
-    { href: '/marketplace', label: 'Marketplace' },
+    { href: '/marketplace', label: 'Shop' },
     { href: '/category/maritime-cadet-gear', label: 'Cadet Gear' },
     { href: '/fresher-kit', label: 'Fresher Kit' },
+    { href: '/housing', label: 'Lodge' },
     { href: '/vendors', label: 'Vendors' },
-    { href: '/services', label: 'Services' },
-    { href: '/safety', label: 'Safety & Policies' },
+    { href: '/safety', label: 'Safety' },
   ]
 
   return (
@@ -196,7 +196,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               </Link>
               <Link
                 href="/vendor/apply"
-                className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-4 text-xs sm:text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-foreground text-background px-4 text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
               >
                 <Store className="h-4 w-4" />
                 Become a Vendor
@@ -226,7 +226,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           ) : (
             <Link
               href="/vendor/apply"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
+              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-foreground text-background px-3 text-xs font-semibold hover:opacity-90 transition-opacity"
             >
               <Store className="h-3.5 w-3.5" />
               <span>Sell</span>
@@ -358,7 +358,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 <Link
                   href="/vendor/apply"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 rounded-lg bg-[#0F6E6E] py-2.5 text-xs font-semibold text-white min-h-10"
+                  className="flex items-center justify-center gap-1.5 rounded-lg bg-foreground text-background py-2.5 text-xs font-semibold hover:opacity-90 transition-opacity min-h-10"
                 >
                   <Store className="h-4 w-4" />
                   Become a Vendor

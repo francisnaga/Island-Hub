@@ -86,7 +86,7 @@ export default async function ServicesPage() {
           </div>
           <Link
             href="/vendor/apply"
-            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
           >
             <Store className="h-3.5 w-3.5" />
             List a Service
