@@ -73,23 +73,24 @@ export default async function ServicesPage() {
 
   return (
     <div className="min-w-0">
-      {/* Header */}
-      <section className="border-b border-border bg-card py-6 sm:py-10">
-        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4">
-          <div className="max-w-2xl space-y-3">
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-[1.12] text-foreground">
-              Campus Services around NMU
+      {/* Compact Header */}
+      <section className="py-5 sm:py-7">
+        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 flex items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+              Campus Services
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              Jetty only publishes service providers whose identity, campus location, and WhatsApp contact details have been verified. We do not display unverified phone numbers.
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Tailoring, printing, laundry, barbing &amp; food across Okerenkoko &amp; Kurutie
             </p>
-            <div className="rounded-xl border border-border bg-muted/60 px-4 py-3 text-xs text-muted-foreground flex items-start gap-2.5">
-              <ShieldCheck className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
-              <span>
-                <strong className="text-foreground">Verification policy:</strong> Are you a tailor, barber, print operator, or laundry provider in Okerenkoko or Kurutie? Apply below for free verification to list your service here.
-              </span>
-            </div>
           </div>
+          <Link
+            href="/vendor/apply"
+            className="inline-flex h-10 items-center gap-1.5 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
+          >
+            <Store className="h-3.5 w-3.5" />
+            List a Service
+          </Link>
         </div>
       </section>
 

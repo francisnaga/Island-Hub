@@ -60,21 +60,24 @@ export default async function FresherKitPage() {
 
   return (
     <div className="min-w-0">
-      {/* Header */}
-      <section className="border-b border-border bg-card py-6 sm:py-10">
-        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4">
-          <div className="max-w-2xl space-y-2.5">
-            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-[1.12] text-foreground">
-              Getting ready for NMU? Find your cadet essentials in one place.
+      {/* Compact Header */}
+      <section className="py-5 sm:py-7">
+        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+              NMU Fresher Kit ({totalItems} items)
             </h1>
-            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
-              {totalItems} commonly needed items for new NMU students across Okerenkoko and Kurutie. Tap any item to see vendors who stock it on Jetty.
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Tap any item to find it on Jetty · Confirm official faculty requirements on resumption
             </p>
-            <div className="flex items-start gap-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-3.5 py-2.5 text-xs text-amber-800 dark:text-amber-300">
-              <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
-              <span>Community-compiled checklist. Always verify your department&apos;s official requirements on resumption.</span>
-            </div>
           </div>
+          <Link
+            href="/category/maritime-cadet-gear"
+            className="inline-flex h-10 items-center gap-2 rounded-xl bg-primary px-4 text-xs font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0 self-start sm:self-auto"
+          >
+            <ShoppingBag className="h-3.5 w-3.5" />
+            Shop Cadet Gear
+          </Link>
         </div>
       </section>
 

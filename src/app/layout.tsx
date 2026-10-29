@@ -17,7 +17,7 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#0F6E6E",
+  themeColor: "#090D16",
 };
 
 export const metadata: Metadata = {
@@ -48,7 +48,7 @@ export default function RootLayout({
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans min-h-screen flex flex-col bg-background text-foreground antialiased`}
       >
-        <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+        <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
           <Toaster position="top-center" richColors closeButton />
         </ThemeProvider>

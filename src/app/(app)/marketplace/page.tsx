@@ -60,25 +60,20 @@ export default async function MarketplacePage({
   return (
     <div className="py-5 sm:py-8 md:py-10 min-w-0">
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 min-w-0">
-        {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-border pb-4 sm:pb-5">
+        {/* Compact Header */}
+        <div className="flex items-center justify-between gap-3">
           <div className="min-w-0">
-            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-              {activeCategoryObj ? activeCategoryObj.name : 'Marketplace'}
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+              {activeCategoryObj ? activeCategoryObj.name : 'Shop'}
             </h1>
-            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
-              {activeCategoryObj
-                ? activeCategoryObj.description
-                : 'Browse available products across NMU Okerenkoko & Kurutie and order on WhatsApp.'}
-            </p>
           </div>
 
           <Link
             href="/vendor/apply"
-            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors shrink-0"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-3.5 py-2 text-xs font-semibold text-foreground hover:bg-muted transition-colors shrink-0"
           >
-            <Store className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
-            Sell Your Products
+            <Store className="h-3.5 w-3.5 text-primary" />
+            Sell on Jetty
           </Link>
         </div>
 
