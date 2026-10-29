@@ -36,7 +36,7 @@ export function Footer() {
               Shop
             </Link>
             <Link href="/category/maritime-cadet-gear" className="hover:text-foreground transition-colors">
-              Cadet Gear
+              Uniforms &amp; Kits
             </Link>
             <Link href="/housing" className="hover:text-foreground transition-colors">
               Lodge

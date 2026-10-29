@@ -7,6 +7,58 @@ import {
 } from './marketplace-data'
 import { Category, CategoryRequest, isAdminEmail, Product, UserProfile, Vendor } from './types'
 
+const CATEGORY_METADATA_OVERRIDES: Record<string, Partial<Category>> = {
+  'maritime-cadet-gear': {
+    name: 'Uniforms & Cadet Kits',
+    short_name: 'Uniforms & Kits',
+    description:
+      'Regulation action rigs, ceremonial parade uniforms, steel-toe boots, parade shoes, berets with gold anchor badge, officer belts, socks, and NMU customized tracksuits & PT kits.',
+    icon: 'Shield',
+  },
+  'electronics-gadgets': {
+    name: 'Electronics & Power',
+    short_name: 'Electronics',
+    description:
+      'Rechargeable hostel table fans, high-capacity power banks, surge extension sockets, fast chargers, and study lamps.',
+    icon: 'Zap',
+  },
+  'books-stationery': {
+    name: 'Study & Engineering Tools',
+    short_name: 'Study Tools',
+    description:
+      'Casio scientific calculators, A2 drawing boards, T-squares, technical drawing sets, and maritime engineering textbooks.',
+    icon: 'BookOpen',
+  },
+  'hostel-daily-essentials': {
+    name: 'Hostel & Room Living',
+    short_name: 'Hostel Living',
+    description:
+      'Hostel bedsheets, heavy-duty security padlocks, plastic storage boxes, mosquito nets, water buckets, and room supplies.',
+    icon: 'Home',
+  },
+  'food-beauty-other': {
+    name: 'Meals, Drinks & Treats',
+    short_name: 'Meals & Treats',
+    description:
+      'Fresh fruit salad bowls, freshly prepared campus meals, pastries, smoothies, and cold bottled beverages.',
+    icon: 'Coffee',
+  },
+  'campus-services': {
+    name: 'Campus Services & Tailoring',
+    short_name: 'Services',
+    description:
+      'Cadet uniform tailoring & alteration, laundry pressing, barbing, student printing, and device repair.',
+    icon: 'Scissors',
+  },
+  'fashion-accessories': {
+    name: 'Civilian Wear & Fashion',
+    short_name: 'Civilian Wear',
+    description:
+      'Everyday civilian clothing, footwear, casual tees, bags, and non-uniform accessories.',
+    icon: 'Shirt',
+  },
+}
+
 export async function getPublicCategories(): Promise<Category[]> {
   try {
     const supabase = await createClient()
@@ -17,7 +69,10 @@ export async function getPublicCategories(): Promise<Category[]> {
       .order('display_order', { ascending: true })
 
     if (!error && data && data.length > 0) {
-      return data as Category[]
+      return (data as Category[]).map((cat) => ({
+        ...cat,
+        ...(CATEGORY_METADATA_OVERRIDES[cat.slug] || {}),
+      }))
     }
   } catch {
     // Fallback to initial categories if DB is unreachable
@@ -315,6 +370,12 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
           (item.vendor.verification_status === 'verified' && !item.vendor.is_paused))
     ).map((item) => ({
       ...item,
+      category: item.category
+        ? {
+            ...item.category,
+            ...(CATEGORY_METADATA_OVERRIDES[item.category.slug] || {}),
+          }
+        : undefined,
       vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
     }))
 
@@ -395,6 +456,12 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
       }
       return {
         ...p,
+        category: p.category
+          ? {
+              ...p.category,
+              ...(CATEGORY_METADATA_OVERRIDES[p.category.slug] || {}),
+            }
+          : undefined,
         vendor: p.vendor ? sanitizePublicVendor(p.vendor) : undefined,
       }
     }

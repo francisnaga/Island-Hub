@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { BadgeCheck, Sparkles } from 'lucide-react'
+import { BadgeCheck } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { formatNaira } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
@@ -79,8 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
         {/* Minimal Status / Featured Pill */}
         <div className="absolute top-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none">
           {product.is_featured ? (
-            <span className="inline-flex items-center gap-1 rounded-md bg-slate-950/80 backdrop-blur-xs border border-white/15 px-2 py-0.5 text-[10px] font-bold text-[#E8B84A]">
-              <Sparkles className="h-2.5 w-2.5" />
+            <span className="inline-flex items-center rounded-md bg-slate-950/80 backdrop-blur-xs border border-white/15 px-2 py-0.5 text-[10px] font-semibold text-slate-200">
               Featured
             </span>
           ) : (

@@ -13,12 +13,12 @@ import {
   Clock,
   Share2,
   Building2,
-  Sparkles,
   PauseCircle,
   Calendar,
 } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
-import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
+import { getSellerTypeLabel } from '@/components/cards/VendorCard'
+import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import {
@@ -172,8 +172,7 @@ export default async function VendorStorefrontPage({
                 <div className="absolute inset-0 opacity-20 dark:opacity-30 bg-[radial-gradient(var(--primary)_1px,transparent_1px)] [background-size:16px_16px]" />
                 
                 {vendor.is_featured && (
-                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 inline-flex items-center gap-1.5 rounded-full bg-background/80 dark:bg-card/90 backdrop-blur-md border border-border px-3 py-1 text-xs font-bold text-foreground shadow-xs">
-                    <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 inline-flex items-center gap-1.5 rounded-full bg-background/90 dark:bg-card/90 backdrop-blur-md border border-border px-3 py-1 text-xs font-semibold text-foreground shadow-2xs">
                     <span>Featured Storefront</span>
                   </div>
                 )}
@@ -192,7 +191,12 @@ export default async function VendorStorefrontPage({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span>{getVendorInitials(vendor.shop_name)}</span>
+                        <WavyAvatar
+                          name={vendor.shop_name}
+                          seed={vendor.id || vendor.slug}
+                          className="h-full w-full"
+                          size={112}
+                        />
                       )}
                     </div>
 

@@ -27,7 +27,7 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   title: "Jetty | NMU Campus Marketplace (Okerenkoko & Kurutie)",
   description:
-    "Jetty is the campus marketplace for Nigeria Maritime University (NMU), covering Okerenkoko and Kurutie. Discover cadet gear, housing, campus services, electronics, and daily essentials.",
+    "Jetty is the sovereign campus marketplace for Nigeria Maritime University (NMU), covering Okerenkoko and Kurutie. Discover uniforms & cadet kits, lodges & bedspaces, campus services, electronics, and daily essentials.",
   manifest: "/manifest.json",
   icons: {
     icon: [

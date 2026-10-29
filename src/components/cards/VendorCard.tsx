@@ -2,13 +2,13 @@ import Link from 'next/link'
 import {
   BadgeCheck,
   Ban,
-  Sparkles,
   Building2,
   PauseCircle,
   ArrowRight,
 } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
+import { WavyAvatar } from '@/components/brand/WavyAvatar'
 
 interface VendorCardProps {
   vendor: Vendor
@@ -88,10 +88,10 @@ export function VendorCard({ vendor }: VendorCardProps) {
         <div className="flex items-center gap-3 min-w-0">
           <div
             className={cn(
-              'flex h-12 w-12 shrink-0 items-center justify-center rounded-full border font-bold text-sm tracking-tight overflow-hidden',
+              'flex h-12 w-12 shrink-0 items-center justify-center rounded-full border overflow-hidden shadow-2xs',
               isBanned
                 ? 'bg-red-950/60 border-red-500/40 text-red-300'
-                : 'bg-muted border-border text-foreground'
+                : 'border-border/60 bg-muted'
             )}
           >
             {vendor.logo_url ? (
@@ -106,15 +106,19 @@ export function VendorCard({ vendor }: VendorCardProps) {
                 )}
               />
             ) : (
-              <span>{getVendorInitials(vendor.shop_name)}</span>
+              <WavyAvatar
+                name={vendor.shop_name}
+                seed={vendor.id || vendor.slug}
+                className={cn('h-full w-full', isBanned && 'grayscale opacity-60')}
+              />
             )}
           </div>
 
           <div className="min-w-0 flex-1">
-            <div className="flex items-center gap-1 min-w-0">
+            <div className="flex items-center gap-1.5 min-w-0">
               <h3
                 className={cn(
-                  'text-sm sm:text-base font-bold truncate transition-colors leading-snug',
+                  'text-sm sm:text-base font-bold line-clamp-2 transition-colors leading-snug',
                   isBanned
                     ? 'text-red-400 line-through'
                     : 'text-foreground group-hover:text-primary'
@@ -133,13 +137,10 @@ export function VendorCard({ vendor }: VendorCardProps) {
                   Pending
                 </span>
               )}
-              {!isBanned && vendor.is_featured && (
-                <Sparkles className="h-3 w-3 text-[#E8B84A] shrink-0" />
-              )}
             </div>
 
-            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5 truncate">
-              <span className="font-medium text-foreground/80 flex items-center gap-1">
+            <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5">
+              <span className="font-medium text-foreground/80 flex items-center gap-1 shrink-0">
                 {vendor.seller_type === 'business' && (
                   <Building2 className="h-3 w-3 text-primary shrink-0" />
                 )}
@@ -152,14 +153,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
         </div>
 
         {/* Strict Short Offer / Services Line */}
-        <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed">
+        <p className="text-xs text-muted-foreground line-clamp-2 leading-relaxed">
           {shortOffer}
         </p>
       </div>
 
       {/* Clean Bottom Action Row */}
       <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
-        <span className="text-[11px]">Tap to view storefront &amp; listings</span>
+        <span className="text-[11px]">View storefront &amp; listings</span>
         <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
       </div>
     </Link>

@@ -9,12 +9,14 @@ import {
   ArrowLeft,
   Package,
   Share2,
+  MessageCircle,
   CameraOff,
   MapPin,
 } from 'lucide-react'
 import { ProductOrderBox } from '@/components/marketplace/ProductOrderBox'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ProductCard } from '@/components/cards/ProductCard'
+import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import {
   getPublicProductBySlugOrId,
   getPublicProducts,
@@ -112,15 +114,17 @@ export default async function ProductDetailPage({
           <div className="flex items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                `Found this on Jetty — ${product.title} (₦${product.price.toLocaleString('en-NG')})\nhttps://jetty.ng/product/${product.slug || product.id}`
+                `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ₦${product.price.toLocaleString('en-NG')} · ${product.vendor?.campus || 'NMU'}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Share on WhatsApp"
               title="Share on WhatsApp"
-              className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-2xs"
+              className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-2xs"
             >
-              <Share2 className="h-4 w-4 text-primary" />
+              <MessageCircle className="h-3.5 w-3.5 text-[#25D366]" />
+              <span className="hidden sm:inline">Share on WhatsApp</span>
+              <span className="sm:hidden">Share</span>
             </a>
           </div>
         </div>
@@ -262,7 +266,7 @@ export default async function ProductDetailPage({
               <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3.5">
                 <div className="flex items-center justify-between gap-3 min-w-0">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted border border-border text-foreground font-bold text-sm overflow-hidden">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-muted border border-border text-foreground font-bold text-sm overflow-hidden shadow-2xs">
                       {product.vendor.logo_url ? (
                         <img
                           src={product.vendor.logo_url}
@@ -270,14 +274,18 @@ export default async function ProductDetailPage({
                           className="h-full w-full object-cover"
                         />
                       ) : (
-                        <span>{product.vendor.shop_name.slice(0, 2).toUpperCase()}</span>
+                        <WavyAvatar
+                          name={product.vendor.shop_name}
+                          seed={product.vendor.id || product.vendor.slug}
+                          className="h-full w-full"
+                        />
                       )}
                     </div>
                     <div className="min-w-0">
                       <div className="flex items-center gap-1 min-w-0">
                         <Link
                           href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                          className="text-sm font-bold text-foreground hover:text-primary transition-colors truncate"
+                          className="text-sm font-bold text-foreground hover:text-primary transition-colors line-clamp-2 leading-snug"
                         >
                           {product.vendor.shop_name}
                         </Link>

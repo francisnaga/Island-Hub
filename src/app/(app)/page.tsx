@@ -1,17 +1,17 @@
 import Link from 'next/link'
 import {
-  Anchor,
-  Search,
-  Shirt,
-  Laptop,
+  Shield,
+  Zap,
   BookOpen,
   Home,
+  Coffee,
+  Scissors,
+  Shirt,
   Package,
+  Search,
   Store,
   ArrowRight,
-  Wrench,
   CheckSquare,
-  Utensils,
 } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { VendorCard } from '@/components/cards/VendorCard'
@@ -24,14 +24,25 @@ import {
 export const dynamic = 'force-dynamic'
 
 const categoryIconMap: Record<string, React.ComponentType<{ className?: string }>> = {
-  Anchor,
-  Shirt,
-  Laptop,
+  Shield,
+  Zap,
   BookOpen,
   Home,
+  Coffee,
+  Scissors,
+  Shirt,
+  Anchor: Shield,
+  Laptop: Zap,
+  Utensils: Coffee,
+  Wrench: Scissors,
+  'maritime-cadet-gear': Shield,
+  'electronics-gadgets': Zap,
+  'books-stationery': BookOpen,
+  'hostel-daily-essentials': Home,
+  'food-beauty-other': Coffee,
+  'campus-services': Scissors,
+  'fashion-accessories': Shirt,
   Package,
-  Utensils,
-  Wrench,
 }
 
 export default async function HomePage() {
@@ -112,8 +123,10 @@ export default async function HomePage() {
             {/* Quick Tap Pills */}
             <div className="mt-3 flex items-center gap-1.5 overflow-x-auto no-scrollbar pb-0.5 text-xs">
               {[
+                { label: 'Uniforms & Kits', href: '/category/maritime-cadet-gear' },
                 { label: 'Safety boots', href: '/marketplace?q=safety+boots' },
                 { label: 'Action rigs', href: '/marketplace?q=action+rig' },
+                { label: 'Tracksuits & PT', href: '/marketplace?q=tracksuit' },
                 { label: 'Lodge & Rooms', href: '/housing' },
                 { label: 'Calculators', href: '/marketplace?q=calculator' },
                 { label: 'Meals & Treats', href: '/marketplace?category=food-beauty-other' },
@@ -132,35 +145,42 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 2. Compact Visual Category Grid */}
+      {/* 2. Minimalist Claude Code / Linear Style Category Grid */}
       <section className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-            Categories
-          </h2>
+          <div>
+            <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+              Categories
+            </h2>
+            <p className="text-xs text-muted-foreground hidden sm:block">
+              Organized catalog for NMU cadets and campus residents
+            </p>
+          </div>
           <Link
             href="/marketplace"
-            className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"
+            className="text-xs font-semibold text-muted-foreground hover:text-foreground flex items-center gap-1 transition-colors"
           >
-            All ({allProducts.length}) <ArrowRight className="h-3.5 w-3.5" />
+            <span>Browse Catalog ({allProducts.length})</span>
+            <ArrowRight className="h-3 w-3" />
           </Link>
         </div>
 
-        <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 sm:gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 sm:gap-3">
           {activeCategoriesWithStock.map((cat) => {
-            const IconComp = categoryIconMap[cat.icon] || Package
+            const IconComp =
+              categoryIconMap[cat.icon] || categoryIconMap[cat.slug] || Package
             const count = categoryCounts.get(cat.slug) || 0
             return (
               <Link
                 key={cat.id}
                 href={`/category/${cat.slug}`}
-                className="group flex flex-col items-center justify-center text-center rounded-2xl border border-border bg-card p-3 sm:p-4 hover:border-primary/60 transition-all gap-2"
+                className="group flex flex-col items-center justify-center text-center rounded-xl border border-border/75 bg-card p-3 sm:p-3.5 hover:border-foreground/30 hover:bg-muted/30 transition-all gap-2 shadow-2xs"
               >
-                <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-accent text-primary group-hover:scale-105 transition-transform">
-                  <IconComp className="h-5 w-5" />
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-muted/50 text-foreground group-hover:border-primary/50 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                  <IconComp className="h-4.5 w-4.5 stroke-[1.65]" />
                 </div>
-                <div className="min-w-0 w-full">
-                  <div className="text-xs font-bold text-foreground truncate group-hover:text-primary">
+                <div className="min-w-0 w-full space-y-0.5">
+                  <div className="text-xs font-semibold text-foreground truncate group-hover:text-primary transition-colors">
                     {cat.short_name || cat.name}
                   </div>
                   <div className="text-[10px] text-muted-foreground">
@@ -173,13 +193,18 @@ export default async function HomePage() {
         </div>
       </section>
 
-      {/* 3. Featured Cadet Gear */}
+      {/* 3. Featured Uniforms & Cadet Kits */}
       {featuredCadetProducts.length > 0 && (
         <section className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-3">
           <div className="flex items-center justify-between gap-2">
-            <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-              Cadet Gear
-            </h2>
+            <div>
+              <h2 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+                Uniforms &amp; Cadet Kits
+              </h2>
+              <p className="text-xs text-muted-foreground">
+                Action rigs, boots, berets, officer belts &amp; tracksuits
+              </p>
+            </div>
             <Link
               href="/category/maritime-cadet-gear"
               className="text-xs font-semibold text-primary hover:underline flex items-center gap-1"

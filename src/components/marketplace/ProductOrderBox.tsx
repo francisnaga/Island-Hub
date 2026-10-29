@@ -10,6 +10,7 @@ import {
   ShieldCheck,
   Minus,
   Plus,
+  Share2,
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { Product } from '@/lib/types'
@@ -307,6 +308,19 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
             </a>
           )}
 
+          {/* Share with Friends on WhatsApp (Desktop) */}
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ${formatNaira(totalPrice)} · ${vendor?.campus || 'NMU'}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
+            )}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full h-11 rounded-xl border border-border bg-background text-foreground hover:bg-muted font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
+          >
+            <Share2 className="h-4 w-4 text-[#25D366]" />
+            <span>Share with friends on WhatsApp</span>
+          </a>
+
           {vendor && vendor.location_type !== 'delivery_only' && (
             <>
               {directionsUrl ? (
@@ -359,22 +373,37 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
           </p>
         </div>
 
-        {whatsappResult.valid ? (
+        <div className="flex items-center gap-2 shrink-0">
           <a
-            href={whatsappResult.url}
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ${formatNaira(totalPrice)} · ${vendor?.campus || 'NMU'}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
+            )}`}
             target="_blank"
             rel="noopener noreferrer"
-            className={cn(
-              'inline-flex h-11 items-center justify-center gap-2 rounded-xl px-5 text-xs font-bold text-white shadow-sm transition-opacity shrink-0',
-              isOutOfStock ? 'bg-slate-700 hover:bg-slate-800' : 'bg-[#25D366] hover:opacity-90'
-            )}
+            aria-label="Share with friends on WhatsApp"
+            title="Share with friends on WhatsApp"
+            className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-border bg-card text-foreground hover:bg-muted transition-colors shadow-2xs"
           >
-            <MessageCircle className="h-4.5 w-4.5" />
-            <span>{isOutOfStock ? 'Notify When Ready' : 'Order on WhatsApp'}</span>
+            <Share2 className="h-4.5 w-4.5 text-[#25D366]" />
           </a>
-        ) : (
-          <span className="text-xs text-red-500 font-semibold">Contact unavailable</span>
-        )}
+
+          {whatsappResult.valid ? (
+            <a
+              href={whatsappResult.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className={cn(
+                'inline-flex h-11 items-center justify-center gap-2 rounded-xl px-4 sm:px-5 text-xs font-bold text-white shadow-sm transition-opacity shrink-0',
+                isOutOfStock ? 'bg-slate-700 hover:bg-slate-800' : 'bg-[#25D366] hover:opacity-90'
+              )}
+            >
+              <MessageCircle className="h-4.5 w-4.5" />
+              <span>{isOutOfStock ? 'Notify When Ready' : 'Order on WhatsApp'}</span>
+            </a>
+          ) : (
+            <span className="text-xs text-red-500 font-semibold">Contact unavailable</span>
+          )}
+        </div>
       </div>
     </>
   )

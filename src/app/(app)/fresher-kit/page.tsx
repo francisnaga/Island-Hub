@@ -103,7 +103,7 @@ export default async function FresherKitPage() {
                 className="inline-flex items-center gap-2 rounded-xl bg-foreground text-background px-4 sm:px-5 py-2.5 text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity"
               >
                 <ShoppingBag className="h-4 w-4" />
-                Shop Cadet Gear
+                Shop Uniforms &amp; Kits
               </Link>
               <Link
                 href="/marketplace"
