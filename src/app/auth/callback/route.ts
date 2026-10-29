@@ -15,21 +15,25 @@ export async function GET(request: Request) {
       const user = data.user
       const admin = isAdminEmail(user.email)
 
-      await supabase.from('profiles').upsert(
-        {
-          id: user.id,
-          full_name:
-            user.user_metadata?.full_name ||
-            user.user_metadata?.name ||
-            user.email?.split('@')[0] ||
-            'Jetty Seller',
-          email: user.email,
-          avatar_url:
-            user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
-          ...(admin ? { role: 'admin' } : {}),
-        },
-        { onConflict: 'id' }
-      )
+      try {
+        await supabase.from('profiles').upsert(
+          {
+            id: user.id,
+            full_name:
+              user.user_metadata?.full_name ||
+              user.user_metadata?.name ||
+              user.email?.split('@')[0] ||
+              'Jetty Seller',
+            email: user.email,
+            avatar_url:
+              user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+            ...(admin ? { role: 'admin' } : {}),
+          },
+          { onConflict: 'id' }
+        )
+      } catch (profileErr) {
+        console.error('Error auto-syncing profile during auth callback:', profileErr)
+      }
 
       const redirectTarget =
         admin && (next === '/' || next === '/vendor/dashboard')

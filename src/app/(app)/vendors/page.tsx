@@ -10,18 +10,21 @@ export const dynamic = 'force-dynamic'
 export default async function VendorsDirectoryPage({
   searchParams,
 }: {
-  searchParams: Promise<{ q?: string; campus?: string; category?: string }>
+  searchParams: Promise<{ q?: string; campus?: string; category?: string; filter?: string }>
 }) {
   const sp = await searchParams
   const query = sp.q || ''
   const campus = sp.campus || 'all'
   const category = sp.category || 'all'
+  const filter = sp.filter || 'verified' // 'verified' | 'all'
+  const isVerifiedOnly = filter !== 'all'
 
   const [vendors, categories] = await Promise.all([
     getPublicVendors({
       query,
       campus,
       category,
+      verifiedOnly: isVerifiedOnly,
     }),
     getPublicCategories(),
   ])
@@ -32,27 +35,91 @@ export default async function VendorsDirectoryPage({
     { id: 'Kurutie', label: 'Kurutie' },
   ]
 
+  const buildUrl = (overrides: { filter?: string; campus?: string; category?: string; q?: string }) => {
+    const nextFilter = overrides.filter !== undefined ? overrides.filter : filter
+    const nextCampus = overrides.campus !== undefined ? overrides.campus : campus
+    const nextCategory = overrides.category !== undefined ? overrides.category : category
+    const nextQuery = overrides.q !== undefined ? overrides.q : query
+
+    const params = new URLSearchParams()
+    if (nextFilter && nextFilter !== 'verified') params.set('filter', nextFilter)
+    if (nextCampus && nextCampus !== 'all') params.set('campus', nextCampus)
+    if (nextCategory && nextCategory !== 'all') params.set('category', nextCategory)
+    if (nextQuery) params.set('q', nextQuery)
+
+    const str = params.toString()
+    return `/vendors${str ? `?${str}` : ''}`
+  }
+
   return (
     <div className="py-5 sm:py-8 md:py-10 min-w-0">
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 min-w-0">
-        {/* Compact Header */}
-        <div className="flex items-center justify-between gap-3">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-              Verified Vendors ({vendors.length})
-            </h1>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Okerenkoko &amp; Kurutie · Direct WhatsApp storefronts
-            </p>
+        {/* Compact Header & Pill Switch */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center justify-between sm:block gap-2">
+            <div>
+              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+                {isVerifiedOnly ? 'Verified Vendors' : 'All Vendors'} ({vendors.length})
+              </h1>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                Okerenkoko &amp; Kurutie · Direct WhatsApp storefronts
+              </p>
+            </div>
+
+            <Link
+              href="/vendor/apply"
+              className="sm:hidden inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-3 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
+            >
+              <Store className="h-3.5 w-3.5" />
+              <span>Sell</span>
+            </Link>
           </div>
 
-          <Link
-            href="/vendor/apply"
-            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
-          >
-            <Store className="h-3.5 w-3.5" />
-            <span>Open Store</span>
-          </Link>
+          <div className="flex items-center justify-between sm:justify-end gap-2.5">
+            {/* Pill Switch for Verified vs All Vendors */}
+            <div
+              role="radiogroup"
+              aria-label="Filter vendors by verification status"
+              className="inline-flex p-1 rounded-xl bg-muted border border-border shadow-2xs"
+            >
+              <Link
+                href={buildUrl({ filter: 'verified' })}
+                role="radio"
+                aria-checked={isVerifiedOnly}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all',
+                  isVerifiedOnly
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <BadgeCheck className="h-3.5 w-3.5" />
+                <span>Verified</span>
+              </Link>
+              <Link
+                href={buildUrl({ filter: 'all' })}
+                role="radio"
+                aria-checked={!isVerifiedOnly}
+                className={cn(
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all',
+                  !isVerifiedOnly
+                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                <Store className="h-3.5 w-3.5" />
+                <span>All Vendors</span>
+              </Link>
+            </div>
+
+            <Link
+              href="/vendor/apply"
+              className="hidden sm:inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
+            >
+              <Store className="h-3.5 w-3.5" />
+              <span>Open Store</span>
+            </Link>
+          </div>
         </div>
 
         {/* Founder Account Spotlight Card */}
@@ -127,7 +194,7 @@ export default async function VendorsDirectoryPage({
                 return (
                   <Link
                     key={c.id}
-                    href={`/vendors?campus=${c.id}${category !== 'all' ? `&category=${category}` : ''}${query ? `&q=${encodeURIComponent(query)}` : ''}`}
+                    href={buildUrl({ campus: c.id })}
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors',
                       active
@@ -143,6 +210,7 @@ export default async function VendorsDirectoryPage({
 
             {/* Search Input */}
             <form action="/vendors" method="GET" className="flex gap-2 w-full md:w-80 min-w-0">
+              {filter !== 'verified' && <input type="hidden" name="filter" value={filter} />}
               {campus !== 'all' && <input type="hidden" name="campus" value={campus} />}
               {category !== 'all' && <input type="hidden" name="category" value={category} />}
               <div className="relative flex-1 min-w-0">
@@ -167,7 +235,7 @@ export default async function VendorsDirectoryPage({
           {/* Category Filter Chips */}
           <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-border/60">
             <Link
-              href={`/vendors?campus=${campus}${query ? `&q=${encodeURIComponent(query)}` : ''}`}
+              href={buildUrl({ category: 'all' })}
               className={cn(
                 'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold border transition-colors',
                 category === 'all'
@@ -182,7 +250,7 @@ export default async function VendorsDirectoryPage({
               return (
                 <Link
                   key={cat.slug}
-                  href={`/vendors?campus=${campus}&category=${cat.slug}${query ? `&q=${encodeURIComponent(query)}` : ''}`}
+                  href={buildUrl({ category: cat.slug })}
                   className={cn(
                     'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold border transition-colors',
                     active

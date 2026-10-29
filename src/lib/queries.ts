@@ -33,12 +33,16 @@ export async function getPublicVendors(options?: {
   featuredOnly?: boolean
 }): Promise<Vendor[]> {
   const hasSearchQuery = Boolean(options?.query?.trim())
+  const verifiedOnly = options?.verifiedOnly !== false
 
-  let list: Vendor[] = INITIAL_VENDORS.filter((v) =>
-    hasSearchQuery
-      ? v.verification_status === 'verified' || v.verification_status === 'suspended'
-      : v.verification_status === 'verified'
-  )
+  let list: Vendor[] = INITIAL_VENDORS.filter((v) => {
+    if (verifiedOnly) {
+      return hasSearchQuery
+        ? v.verification_status === 'verified' || v.verification_status === 'suspended'
+        : v.verification_status === 'verified'
+    }
+    return v.verification_status !== 'rejected'
+  })
 
   try {
     const supabase = await createClient()
@@ -48,11 +52,14 @@ export async function getPublicVendors(options?: {
       .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
 
-    // If user is searching by name, include suspended (banned) vendors so they can see the Banned status on their profile
-    if (hasSearchQuery) {
-      dbQuery = dbQuery.in('verification_status', ['verified', 'suspended'])
+    if (verifiedOnly) {
+      if (hasSearchQuery) {
+        dbQuery = dbQuery.in('verification_status', ['verified', 'suspended'])
+      } else {
+        dbQuery = dbQuery.eq('verification_status', 'verified')
+      }
     } else {
-      dbQuery = dbQuery.eq('verification_status', 'verified')
+      dbQuery = dbQuery.neq('verification_status', 'rejected')
     }
 
     if (options?.featuredOnly) {

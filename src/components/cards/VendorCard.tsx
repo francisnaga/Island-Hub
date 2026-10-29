@@ -128,6 +128,11 @@ export function VendorCard({ vendor }: VendorCardProps) {
                   aria-label="Verified Vendor"
                 />
               )}
+              {!isBanned && vendor.verification_status === 'pending' && (
+                <span className="inline-flex items-center rounded-full bg-amber-500/15 border border-amber-500/30 px-1.5 py-0.5 text-[9px] font-semibold text-amber-500 shrink-0">
+                  Pending
+                </span>
+              )}
               {!isBanned && vendor.is_featured && (
                 <Sparkles className="h-3 w-3 text-[#E8B84A] shrink-0" />
               )}

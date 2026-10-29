@@ -35,7 +35,16 @@ export function GoogleSignInButton({
       })
 
       if (error) {
-        toast.error(error.message)
+        if (
+          error.message?.toLowerCase().includes('unsupported provider') ||
+          error.message?.toLowerCase().includes('not enabled')
+        ) {
+          toast.error(
+            'Google Sign-In is not enabled yet in your Supabase dashboard (Authentication > Providers > Google).'
+          )
+        } else {
+          toast.error(error.message)
+        }
         setLoading(false)
       }
     } catch {
