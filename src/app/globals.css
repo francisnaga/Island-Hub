@@ -26,8 +26,16 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
-  --color-teal: #0EA5B7;
-  --color-navy: #0F172A;
+
+  /* Jetty Official Brand Tokens */
+  --color-jetty-teal: var(--jetty-teal);
+  --color-jetty-teal-deep: var(--jetty-teal-deep);
+  --color-jetty-teal-tint: var(--jetty-teal-tint);
+  --color-jetty-gold: var(--jetty-gold);
+  --color-jetty-ink: var(--jetty-ink);
+  --color-teal: #0F6E6E;
+  --color-navy: #0E1B1B;
+
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -35,49 +43,61 @@
   --radius-2xl: calc(var(--radius) * 1.8);
 }
 
-/* ── Light mode (default) ── */
+/* ── Light mode (default) — Jetty Brand Tokens ── */
 :root {
-  --background: #F7F6F2;
-  --foreground: #0F172A;
+  --jetty-teal: #0F6E6E;
+  --jetty-teal-deep: #0A4F4F;
+  --jetty-teal-tint: #E6F2F2;
+  --jetty-gold: #E8B84A;
+  --jetty-ink: #0E1B1B;
+
+  --background: #F7F9F9;
+  --foreground: #0E1B1B;
   --card: #FFFFFF;
-  --card-foreground: #0F172A;
+  --card-foreground: #0E1B1B;
   --popover: #FFFFFF;
-  --popover-foreground: #0F172A;
-  --primary: #0EA5B7;
+  --popover-foreground: #0E1B1B;
+  --primary: #0F6E6E;
   --primary-foreground: #FFFFFF;
-  --secondary: #F1F5F9;
-  --secondary-foreground: #0F172A;
-  --muted: #F1F5F9;
-  --muted-foreground: #64748B;
-  --accent: #ECFEFF;
-  --accent-foreground: #0E7490;
+  --secondary: #E6F2F2;
+  --secondary-foreground: #0E1B1B;
+  --muted: #EFF5F5;
+  --muted-foreground: #475B5B;
+  --accent: #E6F2F2;
+  --accent-foreground: #0A4F4F;
   --destructive: #DC2626;
-  --border: #E2E8F0;
-  --input: #CBD5E1;
-  --ring: #0EA5B7;
+  --border: #DCE6E6;
+  --input: #C6D6D6;
+  --ring: #0F6E6E;
   --radius: 0.625rem;
 }
 
-/* ── Dark mode ── */
+/* ── Dark mode — Jetty Deep Surfaces ── */
 .dark {
-  --background: #0B1220;
-  --foreground: #F1F5F9;
-  --card: #111A2E;
-  --card-foreground: #F1F5F9;
-  --popover: #111A2E;
-  --popover-foreground: #F1F5F9;
-  --primary: #22D3EE;
-  --primary-foreground: #0B1220;
-  --secondary: #1E2A3A;
-  --secondary-foreground: #CBD5E1;
-  --muted: #1E2A3A;
-  --muted-foreground: #94A3B8;
-  --accent: #164E63;
-  --accent-foreground: #67E8F9;
+  --jetty-teal: #0F6E6E;
+  --jetty-teal-deep: #0A4F4F;
+  --jetty-teal-tint: #132A2A;
+  --jetty-gold: #E8B84A;
+  --jetty-ink: #F1F7F7;
+
+  --background: #071212;
+  --foreground: #F1F7F7;
+  --card: #0C1D1D;
+  --card-foreground: #F1F7F7;
+  --popover: #0C1D1D;
+  --popover-foreground: #F1F7F7;
+  --primary: #0F6E6E;
+  --primary-foreground: #FFFFFF;
+  --secondary: #132A2A;
+  --secondary-foreground: #D1E3E3;
+  --muted: #132A2A;
+  --muted-foreground: #8BA8A8;
+  --accent: #132A2A;
+  --accent-foreground: #E8B84A;
   --destructive: #EF4444;
-  --border: #1E2A3A;
-  --input: #1E2A3A;
-  --ring: #22D3EE;
+  --border: #1A3535;
+  --input: #1A3535;
+  --ring: #0F6E6E;
 }
 
 @layer base {
@@ -85,7 +105,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-teal-600/15 selection:text-slate-900 dark:selection:text-slate-100;
+    @apply bg-background text-foreground antialiased selection:bg-[#0F6E6E]/15 selection:text-[#0E1B1B] dark:selection:text-white;
   }
   html {
     @apply font-sans scroll-smooth;

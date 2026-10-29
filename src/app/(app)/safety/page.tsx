@@ -16,26 +16,26 @@ export default function SafetyAndHelpPage() {
       <div className="container mx-auto max-w-4xl px-4 space-y-10">
         {/* Header */}
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-900">
-            <ShieldCheck className="h-4 w-4 text-blue-700" />
+          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F]">
+            <ShieldCheck className="h-4 w-4 text-[#0F6E6E]" />
             NMU & Okerenkoko Buyer & Seller Guide
           </div>
           <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-slate-900">
             How Buying Works, Safety & Policies
           </h1>
           <p className="text-base text-slate-600 leading-relaxed">
-            IslandHub Marketplace connects students at Nigeria Maritime University (NMU) and the Okerenkoko community with verified local vendors. Please review how orders, payments, and verification work.
+            Jetty connects students at Nigeria Maritime University (NMU) and the Okerenkoko community with verified local vendors. Please review how orders, payments, and verification work.
           </p>
         </div>
 
         {/* Step-by-step Buying Flow */}
         <section className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 space-y-6">
           <h2 className="text-xl font-bold text-slate-900">
-            1. The IslandHub Buying Experience
+            1. The Jetty Buying Experience
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             <div className="rounded-xl bg-[#FAF9F6] border border-slate-200/80 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-blue-800">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#0F6E6E]">
                 <BadgeCheck className="h-4 w-4" />
                 Step 1: Browse & Compare
               </div>
@@ -45,17 +45,17 @@ export default function SafetyAndHelpPage() {
             </div>
 
             <div className="rounded-xl bg-[#FAF9F6] border border-slate-200/80 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-blue-800">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#0F6E6E]">
                 <MessageCircle className="h-4 w-4" />
                 Step 2: Message on WhatsApp
               </div>
               <p className="text-xs text-slate-600 leading-relaxed">
-                Tap <strong>Message Vendor on WhatsApp</strong>. IslandHub opens a prefilled chat with the product name, price, selected size/colour, and quantity.
+                Tap <strong>Message Vendor on WhatsApp</strong>. Jetty opens a prefilled chat with the product name, price, selected size/colour, and quantity.
               </p>
             </div>
 
             <div className="rounded-xl bg-[#FAF9F6] border border-slate-200/80 p-4 space-y-2">
-              <div className="flex items-center gap-2 text-xs font-bold uppercase text-blue-800">
+              <div className="flex items-center gap-2 text-xs font-bold uppercase text-[#0F6E6E]">
                 <MapPin className="h-4 w-4" />
                 Step 3: Inspect & Pay Directly
               </div>
@@ -74,7 +74,7 @@ export default function SafetyAndHelpPage() {
               Direct Vendor Payments (No Escrow)
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
-              IslandHub is a product discovery and vendor contact platform. <strong>We do not collect, hold, or process buyer payments on the website.</strong>
+              Jetty is a product discovery and vendor contact platform. <strong>We do not collect, hold, or process buyer payments on the website.</strong>
             </p>
             <ul className="space-y-1.5 text-xs text-slate-600 list-disc pl-4">
               <li>Never send advance bank transfers to an unknown seller before seeing the item.</li>
@@ -85,11 +85,11 @@ export default function SafetyAndHelpPage() {
 
           <section className="rounded-2xl border border-slate-200 bg-white p-6 space-y-3">
             <div className="flex items-center gap-2 text-sm font-bold text-slate-900">
-              <BadgeCheck className="h-5 w-5 text-blue-700 shrink-0" />
+              <BadgeCheck className="h-5 w-5 text-[#0F6E6E] shrink-0" />
               What the Verified Vendor Badge Means
             </div>
             <p className="text-xs text-slate-600 leading-relaxed">
-              When a storefront shows <strong>Verified Vendor</strong>, it means the IslandHub team has checked the seller&apos;s identity (such as student ID or local shop presence) and confirmed their WhatsApp contact details.
+              When a storefront shows <strong>Verified Vendor</strong>, it means the Jetty team has checked the seller&apos;s identity (such as student ID or local shop presence) and confirmed their WhatsApp contact details.
             </p>
             <p className="text-xs text-slate-600 leading-relaxed">
               Verification helps deter anonymous scammers, but it does not replace inspecting your item at pickup. If a vendor misleads buyers or repeatedly lists unavailable items, their account will be suspended.
@@ -112,7 +112,7 @@ export default function SafetyAndHelpPage() {
             <div className="shrink-0">
               <ReportListingModal
                 targetType="vendor"
-                targetName="General IslandHub Marketplace Report"
+                targetName="General Jetty Report"
               />
             </div>
           </div>
@@ -121,7 +121,7 @@ export default function SafetyAndHelpPage() {
             <span>Want to become a verified seller on campus?</span>
             <Link
               href="/vendor/apply"
-              className="inline-flex items-center gap-1.5 font-bold text-blue-800 hover:underline"
+              className="inline-flex items-center gap-1.5 font-bold text-[#0F6E6E] hover:underline"
             >
               <Store className="h-3.5 w-3.5" />
               Apply for a Vendor Storefront →

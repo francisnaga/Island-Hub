@@ -82,7 +82,7 @@ export default async function ProductDetailPage({
             {/* WhatsApp Share Button */}
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                `🛒 Found this on IslandHub — ${product.title} at ₦${product.price.toLocaleString('en-NG')}\n\nCheck it out: https://islandhub.ng/product/${product.slug || product.id}`
+                `🛒 Found this on Jetty — ${product.title} at ₦${product.price.toLocaleString('en-NG')}\n\nCheck it out: https://jetty.ng/product/${product.slug || product.id}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -145,9 +145,9 @@ export default async function ProductDetailPage({
                 {product.category && (
                   <Link
                     href={`/category/${product.category.slug}`}
-                    className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-900"
+                    className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F]"
                   >
-                    <Tag className="h-3 w-3 text-blue-700" />
+                    <Tag className="h-3 w-3 text-[#0F6E6E]" />
                     {product.category.name}
                   </Link>
                 )}
@@ -197,7 +197,7 @@ export default async function ProductDetailPage({
               <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-blue-50 border border-blue-100 text-[#1E3A8A]">
+                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E6F2F2] border border-[#0F6E6E]/15 text-[#0F6E6E]">
                       {product.vendor.logo_url ? (
                         <img
                           src={product.vendor.logo_url}
@@ -212,20 +212,20 @@ export default async function ProductDetailPage({
                       <div className="flex items-center gap-1.5">
                         <Link
                           href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                          className="text-base font-bold text-slate-900 hover:text-blue-800 transition-colors"
+                          className="text-base font-bold text-slate-900 hover:text-[#0F6E6E] transition-colors"
                         >
                           {product.vendor.shop_name}
                         </Link>
                         {product.vendor.verification_status === 'verified' && (
                           <BadgeCheck
-                            className="h-4 w-4 text-blue-700 shrink-0"
+                            className="h-4 w-4 text-[#0F6E6E] shrink-0"
                             aria-label="Verified Vendor"
                           />
                         )}
                       </div>
                       <p className="text-xs text-slate-500">
                         {product.vendor.verification_status === 'verified'
-                          ? 'Sold by a verified IslandHub vendor'
+                          ? 'Sold by a verified Jetty vendor'
                           : 'Pending verification'}
                       </p>
                     </div>
@@ -242,7 +242,7 @@ export default async function ProductDetailPage({
                   </span>
                   <Link
                     href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                    className="text-xs font-bold text-blue-800 hover:underline shrink-0"
+                    className="text-xs font-bold text-[#0F6E6E] hover:underline shrink-0"
                   >
                     Visit Storefront →
                   </Link>
@@ -262,7 +262,7 @@ export default async function ProductDetailPage({
               {product.category && (
                 <Link
                   href={`/category/${product.category.slug}`}
-                  className="text-xs font-semibold text-blue-800 hover:underline"
+                  className="text-xs font-semibold text-[#0F6E6E] hover:underline"
                 >
                   View all in category →
                 </Link>

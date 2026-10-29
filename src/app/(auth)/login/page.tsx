@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Anchor, ArrowLeft, Store } from 'lucide-react'
+import { ArrowLeft, Store } from 'lucide-react'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 
 export default async function LoginPage({
@@ -25,19 +25,26 @@ export default async function LoginPage({
         </div>
 
         <div className="rounded-2xl border border-border bg-card p-7 sm:p-8 shadow-xs space-y-6">
-          <div className="flex flex-col items-center text-center space-y-2">
-            <Link
-              href="/"
-              className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs"
-            >
-              <Anchor className="h-6 w-6" />
+          <div className="flex flex-col items-center text-center space-y-3">
+            {/* Official Jetty Mark + Wordmark */}
+            <Link href="/" className="inline-flex items-center gap-2.5 py-1">
+              <img
+                src="/jetty-mark.svg"
+                alt="Jetty"
+                width={40}
+                height={40}
+                className="h-10 w-10 shrink-0"
+              />
+              <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none">
+                jetty
+              </span>
             </Link>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-accent border border-primary/20 px-3 py-1 text-xs font-semibold text-accent-foreground">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F] dark:text-[#E8B84A]">
               <Store className="h-3.5 w-3.5" />
               Vendor Sign In
             </div>
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
-              Sell on IslandHub
+              Sell on Jetty
             </h1>
             <p className="text-xs text-muted-foreground max-w-xs">
               Sign in with Google to manage your vendor storefront. Buyers never need to sign in — just browse and contact vendors on WhatsApp.
@@ -59,23 +66,23 @@ export default async function LoginPage({
             <p className="text-xs font-semibold text-foreground">Why sign in?</p>
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#0F6E6E] shrink-0" />
                 Manage your product listings, prices and stock status
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                Set your shop location & WhatsApp contact details
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#0F6E6E] shrink-0" />
+                Set your shop landmark &amp; WhatsApp contact details
               </li>
               <li className="flex items-start gap-2">
-                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
-                Apply for Verified & Featured status
+                <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#0F6E6E] shrink-0" />
+                Get verified by the Jetty team for free
               </li>
             </ul>
           </div>
 
           <p className="text-center text-xs text-muted-foreground border-t border-border pt-4">
             Just here to shop?{' '}
-            <Link href="/marketplace" className="font-bold text-primary hover:underline">
+            <Link href="/marketplace" className="font-bold text-[#0F6E6E] dark:text-[#E8B84A] hover:underline">
               Browse the marketplace →
             </Link>
           </p>

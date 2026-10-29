@@ -232,14 +232,14 @@ export function VendorApplyForm({
 
       {/* Header */}
       <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-900">
-          <Store className="h-3.5 w-3.5 text-blue-700" />
+        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F]">
+          <Store className="h-3.5 w-3.5 text-[#0F6E6E]" />
           NMU & Okerenkoko Seller Onboarding
         </div>
         <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
           {existingVendor
             ? 'Update Your Vendor Storefront'
-            : 'Apply to Sell on IslandHub'}
+            : 'Apply to Sell on Jetty'}
         </h1>
         <p className="text-sm text-slate-600 leading-relaxed">
           Set up your shop name, WhatsApp ordering number, product categories, and pickup pin. Once approved, your storefront appears in the verified directory and you manage your own inventory.
@@ -264,7 +264,7 @@ export function VendorApplyForm({
                 value={shopName}
                 onChange={(e) => setShopName(e.target.value)}
                 placeholder="e.g. NMU Cadet Quartermaster & Gear"
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
 
@@ -278,7 +278,7 @@ export function VendorApplyForm({
                 value={whatsappNumber}
                 onChange={(e) => setWhatsappNumber(e.target.value)}
                 placeholder="e.g. 08031234567 or +2348031234567"
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
               <p className="text-[11px] text-slate-500 mt-1">
                 Buyers will tap a button to message this number directly on WhatsApp.
@@ -296,7 +296,7 @@ export function VendorApplyForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Describe the products you stock (e.g. steel-toe safety boots, complete action rigs, beret badges, power banks, hostel essentials)..."
-              className="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
 
@@ -309,7 +309,7 @@ export function VendorApplyForm({
               <select
                 value={isStudent ? 'student' : 'local_shop'}
                 onChange={(e) => setIsStudent(e.target.value === 'student')}
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               >
                 <option value="student">NMU Student Seller</option>
                 <option value="local_shop">
@@ -334,7 +334,7 @@ export function VendorApplyForm({
                     ? 'e.g. Marine Engineering · 300L'
                     : 'e.g. Okerenkoko Jetty Road Opposite Main Market'
                 }
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </div>
@@ -355,7 +355,7 @@ export function VendorApplyForm({
                     className={cn(
                       'rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-colors cursor-pointer',
                       selected
-                        ? 'border-[#1E3A8A] bg-blue-50 text-[#1E3A8A]'
+                        ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0F6E6E]'
                         : 'border-slate-200 bg-white text-slate-600 hover:border-slate-300'
                     )}
                   >
@@ -374,7 +374,7 @@ export function VendorApplyForm({
         {/* Lightweight Verification Notice & Submit */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="flex items-start gap-2.5 text-xs text-slate-600 max-w-xl">
-            <ShieldCheck className="h-5 w-5 text-blue-700 shrink-0 mt-0.5" />
+            <ShieldCheck className="h-5 w-5 text-[#0F6E6E] shrink-0 mt-0.5" />
             <p className="leading-relaxed">
               <strong>Lightweight Verification:</strong> We check your identity and WhatsApp contact details (one-time student check or shop check) before displaying the Verified Vendor badge. We do not retain copies of student IDs.
             </p>
@@ -383,7 +383,7 @@ export function VendorApplyForm({
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-xl bg-[#1E3A8A] px-6 py-3 text-sm font-bold text-white hover:bg-blue-900 transition-colors shrink-0 cursor-pointer disabled:opacity-50"
+            className="rounded-xl bg-[#0F6E6E] px-6 py-3 text-sm font-bold text-white hover:bg-[#0A4F4F] transition-colors shrink-0 cursor-pointer disabled:opacity-50"
           >
             {submitting
               ? 'Saving Storefront...'

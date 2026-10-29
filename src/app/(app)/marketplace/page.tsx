@@ -63,7 +63,7 @@ export default async function MarketplacePage({
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-6">
           <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-blue-800 mb-1">
+            <p className="text-xs font-bold uppercase tracking-wider text-[#0F6E6E] mb-1">
               NMU & Okerenkoko Catalogue
             </p>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -80,7 +80,7 @@ export default async function MarketplacePage({
             href="/vendor/apply"
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors self-start sm:self-auto"
           >
-            <Store className="h-4 w-4 text-blue-700" />
+            <Store className="h-4 w-4 text-[#0F6E6E]" />
             Sell Your Products
           </Link>
         </div>
@@ -123,7 +123,7 @@ export default async function MarketplacePage({
             </p>
             <Link
               href="/marketplace"
-              className="inline-flex items-center justify-center rounded-xl bg-[#1E3A8A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-blue-900 transition-colors"
+              className="inline-flex items-center justify-center rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
             >
               Reset All Filters
             </Link>
@@ -151,7 +151,7 @@ export default async function MarketplacePage({
                 className={cn(
                   'inline-flex h-10 w-10 items-center justify-center rounded-lg border text-xs font-bold transition-colors',
                   p === page
-                    ? 'border-[#1E3A8A] bg-[#1E3A8A] text-white'
+                    ? 'border-[#0F6E6E] bg-[#0F6E6E] text-white'
                     : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
                 )}
               >

@@ -283,8 +283,8 @@ export function VendorDashboardClient({
       <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-2xs">
         <div className="space-y-1.5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-xs font-semibold text-blue-900">
-              <Store className="h-3.5 w-3.5 text-blue-700" />
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-2.5 py-0.5 text-xs font-semibold text-[#0A4F4F]">
+              <Store className="h-3.5 w-3.5 text-[#0F6E6E]" />
               Vendor Dashboard
             </span>
 
@@ -318,13 +318,13 @@ export function VendorDashboardClient({
             href={`/vendors/${vendor.slug || vendor.id}`}
             className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50 transition-colors"
           >
-            <ExternalLink className="h-3.5 w-3.5 text-blue-700" />
+            <ExternalLink className="h-3.5 w-3.5 text-[#0F6E6E]" />
             View Public Storefront
           </Link>
 
           <Link
             href="/vendor/products/new"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#1E3A8A] px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-900 transition-colors"
+            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0A4F4F] transition-colors"
           >
             <Plus className="h-4 w-4" />
             Add New Product
@@ -380,7 +380,7 @@ export function VendorDashboardClient({
               className={cn(
                 'inline-flex items-center gap-1.5 shrink-0 rounded-t-xl px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer',
                 active
-                  ? 'border-[#1E3A8A] text-[#1E3A8A] bg-white'
+                  ? 'border-[#0F6E6E] text-[#0F6E6E] bg-white'
                   : 'border-transparent text-slate-600 hover:text-slate-900'
               )}
             >
@@ -396,14 +396,14 @@ export function VendorDashboardClient({
         activeTab === 'pending_review' ||
         activeTab === 'out_of_stock') && (
         <div className="space-y-4">
-          <div className="rounded-xl bg-blue-50/60 border border-blue-200/80 px-4 py-2.5 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
+          <div className="rounded-xl bg-[#E6F2F2]/60 border border-[#0F6E6E]/25 px-4 py-2.5 text-xs text-slate-700 flex flex-wrap items-center justify-between gap-2">
             <span>
               <strong>Tip:</strong> Updating a product&apos;s <strong>price</strong> or{' '}
               <strong>stock status</strong> saves immediately. Changing photos or title sends the item back to the review queue.
             </span>
             <Link
               href="/vendor/products/new"
-              className="font-bold text-blue-800 hover:underline"
+              className="font-bold text-[#0F6E6E] hover:underline"
             >
               + Add Product
             </Link>
@@ -437,7 +437,7 @@ export function VendorDashboardClient({
                         <div className="flex flex-wrap items-center gap-2">
                           <Link
                             href={`/product/${product.slug || product.id}`}
-                            className="text-sm font-bold text-slate-900 hover:text-blue-800"
+                            className="text-sm font-bold text-slate-900 hover:text-[#0F6E6E]"
                           >
                             {product.title}
                           </Link>
@@ -479,13 +479,13 @@ export function VendorDashboardClient({
                                 min={0}
                                 value={draftPrice}
                                 onChange={(e) => setDraftPrice(e.target.value)}
-                                className="w-28 h-8 rounded-lg border border-blue-400 px-2.5 text-xs font-bold text-slate-900"
+                                className="w-28 h-8 rounded-lg border border-[#0F6E6E] px-2.5 text-xs font-bold text-slate-900"
                               />
                               <button
                                 type="button"
                                 onClick={() => handleSaveInlinePrice(product.id)}
                                 disabled={busyProductId === product.id}
-                                className="h-8 px-2.5 rounded-lg bg-[#1E3A8A] text-white text-xs font-semibold cursor-pointer"
+                                className="h-8 px-2.5 rounded-lg bg-[#0F6E6E] text-white text-xs font-semibold cursor-pointer"
                               >
                                 Save
                               </button>
@@ -508,7 +508,7 @@ export function VendorDashboardClient({
                                   setEditingPriceId(product.id)
                                   setDraftPrice(String(product.price))
                                 }}
-                                className="text-[11px] font-semibold text-blue-700 hover:underline cursor-pointer"
+                                className="text-[11px] font-semibold text-[#0F6E6E] hover:underline cursor-pointer"
                               >
                                 Change price
                               </button>
@@ -593,7 +593,7 @@ export function VendorDashboardClient({
               </p>
               <Link
                 href="/vendor/products/new"
-                className="inline-flex items-center gap-1.5 rounded-xl bg-[#1E3A8A] px-5 py-2.5 text-xs font-bold text-white hover:bg-blue-900"
+                className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0A4F4F]"
               >
                 <Plus className="h-4 w-4" />
                 Add Your First Product
@@ -611,7 +611,7 @@ export function VendorDashboardClient({
             <button
               type="submit"
               disabled={savingLocation}
-              className="inline-flex items-center gap-2 rounded-xl bg-[#1E3A8A] px-6 py-3 text-sm font-bold text-white hover:bg-blue-900 transition-colors cursor-pointer disabled:opacity-50"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#0F6E6E] px-6 py-3 text-sm font-bold text-white hover:bg-[#0A4F4F] transition-colors cursor-pointer disabled:opacity-50"
             >
               <CheckCircle2 className="h-4 w-4" />
               {savingLocation ? 'Saving Location...' : 'Save Location & Privacy Settings'}
@@ -645,7 +645,7 @@ export function VendorDashboardClient({
                 required
                 value={shopName}
                 onChange={(e) => setShopName(e.target.value)}
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
 
@@ -658,7 +658,7 @@ export function VendorDashboardClient({
                 required
                 value={whatsappNumber}
                 onChange={(e) => setWhatsappNumber(e.target.value)}
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </div>
@@ -672,7 +672,7 @@ export function VendorDashboardClient({
               value={deptInfo}
               onChange={(e) => setDeptInfo(e.target.value)}
               placeholder="e.g. Marine Engineering · Verified Student Seller"
-              className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+              className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
 
@@ -685,7 +685,7 @@ export function VendorDashboardClient({
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
 
@@ -693,7 +693,7 @@ export function VendorDashboardClient({
             <button
               type="submit"
               disabled={savingSettings}
-              className="rounded-xl bg-[#1E3A8A] px-6 py-2.5 text-xs font-bold text-white hover:bg-blue-900 transition-colors cursor-pointer disabled:opacity-50"
+              className="rounded-xl bg-[#0F6E6E] px-6 py-2.5 text-xs font-bold text-white hover:bg-[#0A4F4F] transition-colors cursor-pointer disabled:opacity-50"
             >
               {savingSettings ? 'Saving...' : 'Save Store Settings'}
             </button>

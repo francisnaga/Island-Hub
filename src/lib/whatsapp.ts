@@ -51,7 +51,7 @@ export function buildProductWhatsAppUrl(params: WhatsAppProductInquiryParams): {
     }
   }
 
-  const lines: string[] = ['Hi, I found this item on IslandHub.']
+  const lines: string[] = ['Hi, I found this item on Jetty.']
   lines.push(`Product: ${params.productTitle}`)
   lines.push(`Price shown: ${formatNaira(params.price)}`)
 
@@ -96,7 +96,7 @@ export function buildVendorStoreWhatsAppUrl(params: {
   }
 
   const lines = [
-    `Hi ${params.shopName}, I found your storefront on IslandHub Marketplace.`,
+    `Hi ${params.shopName}, I found your storefront on Jetty.`,
     params.storeUrl ? `Store link: ${params.storeUrl}` : '',
     'I would like to make an enquiry about your products.',
   ].filter(Boolean)

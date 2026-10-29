@@ -55,8 +55,8 @@ export default async function CategoryPage({
           <div className="space-y-2 max-w-2xl">
             <div className="flex items-center gap-2">
               {activeCategory.is_priority && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-blue-900">
-                  <Anchor className="h-3 w-3 text-blue-700" />
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#0A4F4F]">
+                  <Anchor className="h-3 w-3 text-[#0F6E6E]" />
                   Priority NMU Category
                 </span>
               )}
@@ -86,7 +86,7 @@ export default async function CategoryPage({
                 name="q"
                 defaultValue={sp.q || ''}
                 placeholder={`Search in ${activeCategory.short_name || activeCategory.name}...`}
-                className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-300 bg-slate-50/70 text-sm text-slate-900 focus:bg-white focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-300 bg-slate-50/70 text-sm text-slate-900 focus:bg-white focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </form>
@@ -102,8 +102,8 @@ export default async function CategoryPage({
                 className={cn(
                   'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-colors',
                   cat.slug === activeCategory.slug
-                    ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
+                    ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
+                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#0F6E6E]/40'
                 )}
               >
                 {cat.name}
@@ -126,7 +126,7 @@ export default async function CategoryPage({
                 className={cn(
                   'rounded-lg px-2.5 py-1 font-medium border',
                   (sp.sort || 'newest') === s.key
-                    ? 'border-blue-300 bg-blue-50 text-blue-900 font-semibold'
+                    ? 'border-[#0F6E6E]/40 bg-[#E6F2F2] text-[#0A4F4F] font-semibold'
                     : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
                 )}
               >
@@ -162,7 +162,7 @@ export default async function CategoryPage({
               </Link>
               <Link
                 href="/vendor/apply"
-                className="inline-flex items-center justify-center rounded-xl bg-[#1E3A8A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-blue-900"
+                className="inline-flex items-center justify-center rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
               >
                 Sell in {activeCategory.short_name || activeCategory.name}
               </Link>

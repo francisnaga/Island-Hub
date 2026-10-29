@@ -26,8 +26,8 @@ export default async function VendorsDirectoryPage({
         {/* Header */}
         <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
           <div className="space-y-2 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-blue-50 border border-blue-200 px-3 py-1 text-xs font-semibold text-blue-900">
-              <ShieldCheck className="h-3.5 w-3.5 text-blue-700" />
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F]">
+              <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E]" />
               NMU & Okerenkoko Seller Directory
             </div>
             <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
@@ -41,7 +41,7 @@ export default async function VendorsDirectoryPage({
           <div className="flex flex-col sm:flex-row gap-3 shrink-0">
             <Link
               href="/vendor/apply"
-              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1E3A8A] px-5 py-3 text-xs font-semibold text-white hover:bg-blue-900 transition-colors"
+              className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#0F6E6E] px-5 py-3 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
             >
               <Store className="h-4 w-4" />
               Become a Vendor
@@ -57,8 +57,8 @@ export default async function VendorsDirectoryPage({
               className={cn(
                 'rounded-full px-4 py-1.5 text-xs font-semibold border transition-colors',
                 tab === 'verified'
-                  ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
+                  ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-[#0F6E6E]/40'
               )}
             >
               Verified Vendors
@@ -68,8 +68,8 @@ export default async function VendorsDirectoryPage({
               className={cn(
                 'rounded-full px-4 py-1.5 text-xs font-semibold border transition-colors',
                 tab === 'all'
-                  ? 'bg-[#1E3A8A] text-white border-[#1E3A8A]'
-                  : 'bg-white text-slate-700 border-slate-200 hover:border-blue-300'
+                  ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
+                  : 'bg-white text-slate-700 border-slate-200 hover:border-[#0F6E6E]/40'
               )}
             >
               All Storefronts
@@ -85,12 +85,12 @@ export default async function VendorsDirectoryPage({
                 name="q"
                 defaultValue={query}
                 placeholder="Search shops or pickup area..."
-                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-10 pl-9 pr-3 rounded-xl border border-slate-300 bg-white text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
             <button
               type="submit"
-              className="h-10 px-4 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-blue-900 cursor-pointer"
+              className="h-10 px-4 rounded-xl bg-slate-900 text-white text-xs font-semibold hover:bg-[#0A4F4F] cursor-pointer"
             >
               Search
             </button>
@@ -111,13 +111,13 @@ export default async function VendorsDirectoryPage({
               No matching vendor storefronts found
             </h3>
             <p className="text-xs text-slate-500 mt-1 mb-5">
-              Try clearing your search query or apply to open your own storefront on IslandHub.
+              Try clearing your search query or apply to open your own storefront on Jetty.
             </p>
             <Link
               href="/vendor/apply"
-              className="inline-flex items-center justify-center rounded-xl bg-[#1E3A8A] px-5 py-2.5 text-xs font-semibold text-white hover:bg-blue-900"
+              className="inline-flex items-center justify-center rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
             >
-              Apply to Sell on IslandHub
+              Apply to Sell on Jetty
             </Link>
           </div>
         )}

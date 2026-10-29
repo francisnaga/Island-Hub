@@ -83,7 +83,7 @@ export default async function FresherKitPage() {
                 NMU Fresher Kit Checklist
               </h1>
               <p className="text-base text-muted-foreground leading-relaxed">
-                {totalItems} essential items every new NMU student needs before Week 1. Find where to buy each item on IslandHub.
+                {totalItems} essential items every new NMU student needs before Week 1. Find where to buy each item on Jetty.
               </p>
               <div className="flex items-start gap-2 rounded-xl bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 px-4 py-3 text-xs text-amber-800 dark:text-amber-300">
                 <AlertTriangle className="h-3.5 w-3.5 shrink-0 mt-0.5" />
@@ -122,7 +122,7 @@ export default async function FresherKitPage() {
                         href={`/marketplace?q=${encodeURIComponent(item.name.split(' ')[0])}`}
                         className="shrink-0 text-xs font-semibold text-primary hover:underline flex items-center gap-1"
                       >
-                        Find on IslandHub
+                        Find on Jetty
                         <ArrowRight className="h-3 w-3" />
                       </Link>
                     </div>

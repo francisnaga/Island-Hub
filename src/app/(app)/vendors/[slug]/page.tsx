@@ -69,7 +69,7 @@ export default async function VendorStorefrontPage({
         <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 space-y-6 shadow-2xs">
           <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
             <div className="flex flex-col sm:flex-row sm:items-start gap-4 max-w-3xl">
-              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-blue-50 border border-blue-100 text-[#1E3A8A]">
+              <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#E6F2F2] border border-[#0F6E6E]/15 text-[#0F6E6E]">
                 {vendor.logo_url ? (
                   <img
                     src={vendor.logo_url}
@@ -77,7 +77,7 @@ export default async function VendorStorefrontPage({
                     className="h-full w-full rounded-2xl object-cover"
                   />
                 ) : (
-                  <Store className="h-8 w-8 text-blue-800" />
+                  <Store className="h-8 w-8 text-[#0F6E6E]" />
                 )}
               </div>
 
@@ -87,8 +87,8 @@ export default async function VendorStorefrontPage({
                     {vendor.shop_name}
                   </h1>
                   {vendor.verification_status === 'verified' ? (
-                    <span className="inline-flex items-center gap-1 rounded-full bg-blue-50 border border-blue-200 px-3 py-0.5 text-xs font-semibold text-blue-900">
-                      <BadgeCheck className="h-3.5 w-3.5 text-blue-700" />
+                    <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-0.5 text-xs font-semibold text-[#0A4F4F]">
+                      <BadgeCheck className="h-3.5 w-3.5 text-[#0F6E6E]" />
                       Verified Vendor
                     </span>
                   ) : (
@@ -132,7 +132,7 @@ export default async function VendorStorefrontPage({
                   rel="noopener noreferrer"
                   className="inline-flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-5 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors"
                 >
-                  <Navigation className="h-4 w-4 text-blue-700" />
+                  <Navigation className="h-4 w-4 text-[#0F6E6E]" />
                   Get Directions (Google Maps)
                 </a>
               )}
@@ -143,7 +143,7 @@ export default async function VendorStorefrontPage({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-5 border-t border-slate-100 text-xs">
             <div className="rounded-xl bg-[#FAF9F6] border border-slate-200/80 p-3.5 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-slate-900">
-                <MapPin className="h-3.5 w-3.5 text-blue-700" />
+                <MapPin className="h-3.5 w-3.5 text-[#0F6E6E]" />
                 Pickup / Location
               </div>
               {vendor.location_type === 'delivery_only' ? (
@@ -165,7 +165,7 @@ export default async function VendorStorefrontPage({
 
             <div className="rounded-xl bg-[#FAF9F6] border border-slate-200/80 p-3.5 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-slate-900">
-                <Truck className="h-3.5 w-3.5 text-blue-700" />
+                <Truck className="h-3.5 w-3.5 text-[#0F6E6E]" />
                 Collection & Delivery Options
               </div>
               <p className="text-slate-600">
@@ -176,13 +176,13 @@ export default async function VendorStorefrontPage({
               </p>
             </div>
 
-            <div className="rounded-xl bg-blue-50/50 border border-blue-200/70 p-3.5 space-y-1">
+            <div className="rounded-xl bg-[#E6F2F2]/50 border border-[#0F6E6E]/25/70 p-3.5 space-y-1">
               <div className="flex items-center gap-1.5 font-bold text-blue-950">
-                <ShieldCheck className="h-3.5 w-3.5 text-blue-700" />
+                <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E]" />
                 Verification Notice
               </div>
               <p className="text-slate-600 leading-relaxed">
-                A verified badge means IslandHub checked this vendor&apos;s identity and contact details. Confirm availability and inspect items before paying.
+                A verified badge means Jetty checked this vendor&apos;s identity and contact details. Confirm availability and inspect items before paying.
               </p>
             </div>
           </div>

@@ -104,7 +104,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
               className="h-14 w-14 rounded-2xl object-cover border border-slate-200"
             />
           ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-blue-50 border border-blue-200 text-[#1E3A8A]">
+            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E6F2F2] border border-[#0F6E6E]/25 text-[#0F6E6E]">
               <UserCircle className="h-8 w-8" />
             </div>
           )}
@@ -131,11 +131,11 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
         <div className="flex items-center justify-between gap-2">
           <div>
             <h2 className="text-base font-bold text-slate-900 flex items-center gap-2">
-              <ArrowLeftRight className="h-4 w-4 text-blue-700" />
+              <ArrowLeftRight className="h-4 w-4 text-[#0F6E6E]" />
               Switch Profile Mode (Consumer ↔ Vendor)
             </h2>
             <p className="text-xs text-slate-600 mt-0.5">
-              Use one IslandHub account to browse and buy items as a student consumer, or switch to Vendor Mode to manage your shop, products, and pickup pin.
+              Use one Jetty account to browse and buy items as a student consumer, or switch to Vendor Mode to manage your shop, products, and pickup pin.
             </p>
           </div>
         </div>
@@ -147,7 +147,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
             className={cn(
               'flex flex-col items-start rounded-xl border p-4 text-left transition-all cursor-pointer',
               activeMode === 'buyer'
-                ? 'border-[#1E3A8A] bg-blue-50/70 ring-1 ring-[#1E3A8A]'
+                ? 'border-[#0F6E6E] bg-[#E6F2F2]/70 ring-1 ring-[#0F6E6E]'
                 : 'border-slate-200 bg-white hover:border-slate-300'
             )}
           >
@@ -155,11 +155,11 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
               <ShoppingBag
                 className={cn(
                   'h-5 w-5',
-                  activeMode === 'buyer' ? 'text-[#1E3A8A]' : 'text-slate-500'
+                  activeMode === 'buyer' ? 'text-[#0F6E6E]' : 'text-slate-500'
                 )}
               />
               {activeMode === 'buyer' && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#1E3A8A] px-2.5 py-0.5 text-[10px] font-bold text-white">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#0F6E6E] px-2.5 py-0.5 text-[10px] font-bold text-white">
                   <CheckCircle2 className="h-3 w-3" /> Active Mode
                 </span>
               )}
@@ -178,7 +178,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
             className={cn(
               'flex flex-col items-start rounded-xl border p-4 text-left transition-all cursor-pointer',
               activeMode === 'vendor'
-                ? 'border-[#1E3A8A] bg-blue-50/70 ring-1 ring-[#1E3A8A]'
+                ? 'border-[#0F6E6E] bg-[#E6F2F2]/70 ring-1 ring-[#0F6E6E]'
                 : 'border-slate-200 bg-white hover:border-slate-300'
             )}
           >
@@ -186,11 +186,11 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
               <Store
                 className={cn(
                   'h-5 w-5',
-                  activeMode === 'vendor' ? 'text-[#1E3A8A]' : 'text-slate-500'
+                  activeMode === 'vendor' ? 'text-[#0F6E6E]' : 'text-slate-500'
                 )}
               />
               {activeMode === 'vendor' && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#1E3A8A] px-2.5 py-0.5 text-[10px] font-bold text-white">
+                <span className="inline-flex items-center gap-1 rounded-full bg-[#0F6E6E] px-2.5 py-0.5 text-[10px] font-bold text-white">
                   <CheckCircle2 className="h-3 w-3" /> Active Mode
                 </span>
               )}
@@ -208,7 +208,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
         <div className="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-3">
           {vendor ? (
             <div className="flex items-center gap-2 text-xs text-slate-700">
-              <BadgeCheck className="h-4 w-4 text-blue-700" />
+              <BadgeCheck className="h-4 w-4 text-[#0F6E6E]" />
               <span>
                 Storefront: <strong>{vendor.shop_name}</strong> ({vendor.verification_status})
               </span>
@@ -230,7 +230,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
                 </Link>
                 <Link
                   href="/vendor/dashboard"
-                  className="rounded-lg bg-[#1E3A8A] px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
+                  className="rounded-lg bg-[#0F6E6E] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
                 >
                   Open Vendor Dashboard →
                 </Link>
@@ -238,7 +238,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
             ) : (
               <Link
                 href="/vendor/apply"
-                className="rounded-lg bg-[#1E3A8A] px-4 py-2 text-xs font-semibold text-white hover:bg-blue-900"
+                className="rounded-lg bg-[#0F6E6E] px-4 py-2 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
               >
                 Set Up Vendor Storefront →
               </Link>
@@ -284,7 +284,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
               type="text"
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+              className="w-full h-10 rounded-lg border border-slate-300 px-3 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
           <div>
@@ -304,7 +304,7 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
           <button
             type="submit"
             disabled={saving}
-            className="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white hover:bg-blue-900 transition-colors cursor-pointer disabled:opacity-50"
+            className="rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors cursor-pointer disabled:opacity-50"
           >
             {saving ? 'Saving...' : 'Save Account Details'}
           </button>

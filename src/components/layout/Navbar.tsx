@@ -4,7 +4,6 @@ import { useState, useTransition } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
-  Anchor,
   Search,
   Store,
   ShieldCheck,
@@ -75,7 +74,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           toast.success('Switched to Vendor Mode')
           router.push('/vendor/dashboard')
         } else {
-          toast.info('Complete your vendor profile to start selling on IslandHub')
+          toast.info('Complete your vendor profile to start selling on Jetty')
           router.push('/vendor/apply')
         }
       } else {
@@ -97,27 +96,28 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   const navLinks = [
     { href: '/marketplace', label: 'Marketplace' },
     { href: '/category/maritime-cadet-gear', label: 'Cadet Gear', highlight: true },
+    { href: '/fresher-kit', label: 'Fresher Kit' },
     { href: '/services', label: 'Services', icon: Wrench },
     { href: '/housing', label: 'Housing', icon: Home },
     { href: '/vendors', label: 'Vendors' },
-    { href: '/safety', label: 'Safety & Help' },
+    { href: '/safety', label: 'Safety' },
   ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md">
       {/* Top announcement bar */}
-      <div className="bg-slate-900 dark:bg-slate-950 text-slate-200 text-xs py-1.5 px-4">
+      <div className="bg-[#0A4F4F] text-white/90 text-xs py-1.5 px-4">
         <div className="container mx-auto max-w-7xl flex items-center justify-between gap-2">
           <p className="truncate font-medium">
-            <span className="text-teal-400 font-semibold">NMU & Okerenkoko Marketplace</span> · Browse freely, compare prices & order directly on WhatsApp.
+            <span className="text-[#E8B84A] font-semibold">Jetty · NMU Campus Marketplace</span> · Okerenkoko &amp; Kurutie · Browse freely &amp; order on WhatsApp.
           </p>
           <div className="hidden sm:flex items-center gap-4 shrink-0">
             <Link href="/safety" className="hover:text-white transition-colors flex items-center gap-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-teal-400" />
+              <ShieldCheck className="h-3.5 w-3.5 text-[#E8B84A]" />
               How to Buy Safely
             </Link>
             {!vendor && (
-              <Link href="/vendor/apply" className="text-teal-300 hover:text-white font-semibold transition-colors">
+              <Link href="/vendor/apply" className="text-[#E8B84A] hover:text-white font-semibold transition-colors">
                 Become a Vendor →
               </Link>
             )}
@@ -127,37 +127,36 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
       {/* Main Navigation Row */}
       <div className="container mx-auto max-w-7xl px-4 h-16 flex items-center justify-between gap-4">
-        {/* Brand Logo */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0 group">
-          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-sm transition-opacity group-hover:opacity-90">
-            <Anchor className="h-5 w-5" />
-          </div>
-          <div className="flex flex-col">
-            <span className="text-lg font-bold tracking-tight text-foreground leading-none">
-              IslandHub
-            </span>
-            <span className="text-[10px] font-medium text-muted-foreground tracking-wide">
-              NMU · OKERENKOKO
-            </span>
-          </div>
+        {/* Official Jetty Brand Lockup: 32px mark + live lowercase "jetty" wordmark with 10px gap */}
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 py-1 pr-2">
+          <img
+            src="/jetty-mark.svg"
+            alt="Jetty"
+            width={32}
+            height={32}
+            className="h-8 w-8 shrink-0"
+          />
+          <span className="text-xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none">
+            jetty
+          </span>
         </Link>
 
         {/* Quick Search Bar (Desktop) */}
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md mx-4">
+        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-sm mx-2">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search safety boots, action rigs, power banks..."
-              className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-muted/60 text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/15 transition-all"
+              placeholder="Search safety boots, action rigs, housing..."
+              className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-muted/60 text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none focus:ring-2 focus:ring-[#0F6E6E]/15 transition-all"
             />
           </div>
         </form>
 
         {/* Desktop Links */}
-        <nav className="hidden lg:flex items-center gap-1">
+        <nav className="hidden lg:flex items-center gap-0.5">
           {navLinks.map((link) => {
             const isActive =
               pathname === link.href ||
@@ -167,11 +166,11 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 key={link.href}
                 href={link.href}
                 className={cn(
-                  'px-3 py-2 rounded-lg text-sm font-medium transition-colors',
+                  'px-2.5 py-2 rounded-lg text-sm font-medium transition-colors',
                   isActive
-                    ? 'bg-accent text-accent-foreground font-semibold'
+                    ? 'bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white font-semibold'
                     : 'text-muted-foreground hover:text-foreground hover:bg-muted/70',
-                  link.highlight && !isActive && 'text-primary font-semibold'
+                  link.highlight && !isActive && 'text-[#0F6E6E] dark:text-[#E8B84A] font-semibold'
                 )}
               >
                 {link.label}
@@ -186,7 +185,6 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
           {user ? (
             <>
-              {/* Consumer <-> Vendor Mode Switcher Pill */}
               <button
                 type="button"
                 onClick={handleSwitchMode}
@@ -195,11 +193,11 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 className={cn(
                   'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-semibold transition-all cursor-pointer',
                   activeMode === 'vendor'
-                    ? 'border-primary/30 bg-accent text-accent-foreground hover:bg-accent/80'
+                    ? 'border-[#0F6E6E]/30 bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white'
                     : 'border-border bg-muted text-muted-foreground hover:bg-muted/80'
                 )}
               >
-                <ArrowLeftRight className="h-3.5 w-3.5 text-primary" />
+                <ArrowLeftRight className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
                 <span>{activeMode === 'vendor' ? 'Vendor Mode' : 'Buyer Mode'}</span>
               </button>
 
@@ -209,20 +207,20 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-lg px-3.5 py-2 text-xs font-semibold transition-colors',
                     pathname.startsWith('/vendor/dashboard')
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
                       : 'border border-border bg-card text-foreground hover:bg-muted'
                   )}
                 >
-                  <Store className="h-3.5 w-3.5 text-primary" />
+                  <Store className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
                   My Shop
                 </Link>
               ) : (
                 <Link
                   href="/vendor/apply"
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-primary/30 bg-accent/50 px-3.5 py-2 text-xs font-semibold text-accent-foreground hover:bg-accent transition-colors"
+                  className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
                 >
                   <Store className="h-3.5 w-3.5" />
-                  Sell on IslandHub
+                  Sell on Jetty
                 </Link>
               )}
 
@@ -232,11 +230,11 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   className={cn(
                     'inline-flex items-center gap-1.5 rounded-lg px-3 py-2 text-xs font-semibold transition-colors',
                     pathname.startsWith('/admin')
-                      ? 'bg-slate-900 text-white dark:bg-slate-100 dark:text-slate-900'
-                      : 'border border-amber-300 bg-amber-50 text-amber-900 hover:bg-amber-100 dark:border-amber-700 dark:bg-amber-950/50 dark:text-amber-300'
+                      ? 'bg-[#0A4F4F] text-white'
+                      : 'border border-[#E8B84A] bg-[#E8B84A]/15 text-foreground hover:bg-[#E8B84A]/25'
                   )}
                 >
-                  <ShieldAlert className="h-3.5 w-3.5" />
+                  <ShieldAlert className="h-3.5 w-3.5 text-[#0A4F4F] dark:text-[#E8B84A]" />
                   Admin Queue
                 </Link>
               )}
@@ -250,13 +248,12 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               </Link>
             </>
           ) : (
-            /* Unauthenticated: only show Sell button, no Sign In */
             <Link
               href="/vendor/apply"
-              className="inline-flex items-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity"
+              className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-4 py-2 text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
             >
               <Store className="h-4 w-4" />
-              Sell on IslandHub
+              Sell on Jetty
             </Link>
           )}
         </div>
@@ -271,7 +268,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               disabled={isPending}
               className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
             >
-              <ArrowLeftRight className="h-3 w-3 text-primary" />
+              <ArrowLeftRight className="h-3 w-3 text-[#0F6E6E]" />
               {activeMode === 'vendor' ? 'Vendor' : 'Buyer'}
             </button>
           )}
@@ -297,7 +294,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search boots, rigs, electronics..."
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-muted text-sm text-foreground focus:bg-card focus:border-primary focus:outline-none"
+                className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-muted text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </form>
@@ -311,7 +308,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 className={cn(
                   'px-3 py-2.5 rounded-lg text-sm font-medium',
                   pathname === link.href
-                    ? 'bg-accent text-accent-foreground font-semibold'
+                    ? 'bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white font-semibold'
                     : 'text-foreground hover:bg-muted'
                 )}
               >
@@ -336,7 +333,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                       setMobileMenuOpen(false)
                       handleSwitchMode()
                     }}
-                    className="inline-flex items-center gap-1 rounded-md bg-primary px-2.5 py-1.5 text-xs font-semibold text-primary-foreground"
+                    className="inline-flex items-center gap-1 rounded-md bg-[#0F6E6E] px-2.5 py-1.5 text-xs font-semibold text-white"
                   >
                     <ArrowLeftRight className="h-3 w-3" />
                     Switch to {activeMode === 'buyer' ? 'Vendor' : 'Buyer'}
@@ -347,7 +344,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   <Link
                     href="/vendor/dashboard"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-primary py-2.5 text-sm font-semibold text-primary-foreground"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-2.5 text-sm font-semibold text-white"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     Vendor Dashboard
@@ -356,7 +353,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   <Link
                     href="/vendor/apply"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-accent border border-primary/20 py-2.5 text-sm font-semibold text-accent-foreground"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#E6F2F2] border border-[#0F6E6E]/20 py-2.5 text-sm font-semibold text-[#0A4F4F]"
                   >
                     <Store className="h-4 w-4" />
                     Apply to Become a Vendor
@@ -367,7 +364,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   <Link
                     href="/admin"
                     onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-amber-50 border border-amber-300 py-2.5 text-sm font-semibold text-amber-900 dark:bg-amber-950/50 dark:border-amber-700 dark:text-amber-300"
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#E8B84A]/15 border border-[#E8B84A] py-2.5 text-sm font-semibold text-foreground"
                   >
                     <ShieldAlert className="h-4 w-4" />
                     Admin Moderation Queue
@@ -381,7 +378,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                     className="flex items-center justify-center gap-1.5 rounded-lg border border-border py-2 text-xs font-semibold text-foreground"
                   >
                     <UserCircle className="h-4 w-4" />
-                    Profile & Role
+                    Profile &amp; Role
                   </Link>
                   <button
                     type="button"
@@ -397,14 +394,13 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 </div>
               </>
             ) : (
-              /* No sign-in for buyers — vendor apply only */
               <Link
                 href="/vendor/apply"
                 onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-lg bg-primary py-3 text-sm font-semibold text-primary-foreground"
+                className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-3 text-sm font-semibold text-white hover:bg-[#0A4F4F]"
               >
                 <Store className="h-4 w-4" />
-                Sell on IslandHub
+                Sell on Jetty
               </Link>
             )}
           </div>

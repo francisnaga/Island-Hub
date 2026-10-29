@@ -113,7 +113,7 @@ export default async function ServicesPage() {
                 Tailoring, laundry, barbing, printing, food and more — all from trusted providers on and around campus. Contact any vendor directly on WhatsApp.
               </p>
               <p className="text-xs text-muted-foreground bg-muted rounded-lg px-4 py-2.5 border border-border">
-                <strong className="text-foreground">Note:</strong> These are individual service providers, not IslandHub employees. Always confirm pricing and availability before ordering.
+                <strong className="text-foreground">Note:</strong> These are individual service providers, not Jetty employees. Always confirm pricing and availability before ordering.
               </p>
             </div>
           </div>
@@ -168,7 +168,7 @@ export default async function ServicesPage() {
                     </div>
 
                     <a
-                      href={`https://wa.me/${service.whatsapp}?text=${encodeURIComponent(`Hi! I found your ${service.name} service on IslandHub. I'd like to enquire about pricing and availability.`)}`}
+                      href={`https://wa.me/${service.whatsapp}?text=${encodeURIComponent(`Hi! I found your ${service.name} service on Jetty. I'd like to enquire about pricing and availability.`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"

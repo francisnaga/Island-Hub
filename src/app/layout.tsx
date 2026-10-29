@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter, Space_Grotesk } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
@@ -16,10 +16,23 @@ const spaceGrotesk = Space_Grotesk({
   variable: "--font-space-grotesk",
 });
 
+export const viewport: Viewport = {
+  themeColor: "#0F6E6E",
+};
+
 export const metadata: Metadata = {
-  title: "IslandHub Marketplace | NMU & Okerenkoko Campus Marketplace",
+  title: "Jetty | NMU Campus Marketplace (Okerenkoko & Kurutie)",
   description:
-    "Discover maritime & cadet gear, safety boots, action rigs, electronics, books, and daily essentials from verified vendors around Nigeria Maritime University (NMU), Okerenkoko.",
+    "Jetty is the campus marketplace for Nigeria Maritime University (NMU), covering Okerenkoko and Kurutie. Discover cadet gear, housing, campus services, electronics, and daily essentials.",
+  manifest: "/manifest.json",
+  icons: {
+    icon: [
+      { url: "/jetty-favicon.svg", type: "image/svg+xml" },
+      { url: "/jetty-icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/jetty-icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/jetty-icon-192.png", sizes: "192x192", type: "image/png" }],
+  },
 };
 
 export default function RootLayout({
@@ -29,6 +42,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="icon" type="image/svg+xml" href="/jetty-favicon.svg" />
+      </head>
       <body
         className={`${inter.variable} ${spaceGrotesk.variable} font-sans min-h-screen flex flex-col bg-background text-foreground antialiased`}
       >

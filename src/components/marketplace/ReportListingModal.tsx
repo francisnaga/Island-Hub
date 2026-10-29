@@ -65,7 +65,7 @@ export function ReportListingModal({
       }
 
       setSubmitted(true)
-      toast.success('Report submitted to IslandHub moderators')
+      toast.success('Report submitted to Jetty moderators')
     } catch {
       setSubmitted(true)
       toast.success('Report recorded for moderation review')
@@ -113,7 +113,7 @@ export function ReportListingModal({
               <div className="py-6 text-center space-y-3">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600" />
                 <h4 className="text-sm font-bold text-slate-900">
-                  Thank you for helping keep IslandHub safe
+                  Thank you for helping keep Jetty safe
                 </h4>
                 <p className="text-xs text-slate-600 leading-relaxed">
                   Your report has been added to the administrator review queue. We investigate misleading listings, inactive stock, and policy violations promptly.
@@ -135,7 +135,7 @@ export function ReportListingModal({
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-blue-700 focus:outline-none"
+                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
                   >
                     {REPORT_REASONS.map((r) => (
                       <option key={r} value={r}>
@@ -154,7 +154,7 @@ export function ReportListingModal({
                     value={details}
                     onChange={(e) => setDetails(e.target.value)}
                     placeholder="What happened when you contacted the seller or checked this item?"
-                    className="w-full rounded-lg border border-slate-300 p-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none"
+                    className="w-full rounded-lg border border-slate-300 p-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#0F6E6E] focus:outline-none"
                   />
                 </div>
 
@@ -167,7 +167,7 @@ export function ReportListingModal({
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                     placeholder="e.g. 0803... or student@nmu.edu.ng"
-                    className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none"
+                    className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#0F6E6E] focus:outline-none"
                   />
                 </div>
 

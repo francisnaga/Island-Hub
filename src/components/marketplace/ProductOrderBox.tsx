@@ -37,7 +37,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
   const currentUrl =
     typeof window !== 'undefined'
       ? window.location.href
-      : `https://islandhub.nmu/product/${product.slug || product.id}`
+      : `https://jetty.ng/product/${product.slug || product.id}`
 
   const whatsappResult = buildProductWhatsAppUrl({
     whatsappNumber: vendor?.whatsapp_number || '',
@@ -117,7 +117,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 className={cn(
                   'min-w-[44px] rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
                   selectedSize === size
-                    ? 'border-[#1E3A8A] bg-blue-50 text-[#1E3A8A] ring-1 ring-[#1E3A8A]'
+                    ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0F6E6E] ring-1 ring-[#0F6E6E]'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                 )}
               >
@@ -143,7 +143,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 className={cn(
                   'rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer',
                   selectedColor === color
-                    ? 'border-[#1E3A8A] bg-blue-50 text-[#1E3A8A] ring-1 ring-[#1E3A8A]'
+                    ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0F6E6E] ring-1 ring-[#0F6E6E]'
                     : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
                 )}
               >
@@ -187,12 +187,12 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
             <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
               {vendor.location_type === 'delivery_only' ? (
                 <>
-                  <Truck className="h-4 w-4 text-blue-700 shrink-0" />
+                  <Truck className="h-4 w-4 text-[#0F6E6E] shrink-0" />
                   <span>Delivery-Only Vendor</span>
                 </>
               ) : (
                 <>
-                  <MapPin className="h-4 w-4 text-blue-700 shrink-0" />
+                  <MapPin className="h-4 w-4 text-[#0F6E6E] shrink-0" />
                   <span>Pickup & Collection Area</span>
                 </>
               )}
@@ -229,7 +229,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
           )}
 
           {vendor.delivery_available && vendor.location_type !== 'delivery_only' && (
-            <p className="text-[11px] text-blue-800 font-medium pt-1 border-t border-slate-200/70">
+            <p className="text-[11px] text-[#0F6E6E] font-medium pt-1 border-t border-slate-200/70">
               ✓ Campus/hostel delivery also available ({vendor.delivery_coverage || 'NMU & Okerenkoko'})
             </p>
           )}
@@ -272,7 +272,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 rel="noopener noreferrer"
                 className="w-full h-11 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
               >
-                <Navigation className="h-4 w-4 text-blue-700" />
+                <Navigation className="h-4 w-4 text-[#0F6E6E]" />
                 Get Directions on Google Maps
               </a>
             ) : (
@@ -283,7 +283,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                   rel="noopener noreferrer"
                   className="w-full h-11 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
                 >
-                  <MapPin className="h-4 w-4 text-blue-700" />
+                  <MapPin className="h-4 w-4 text-[#0F6E6E]" />
                   Ask Vendor for Pickup Location
                 </a>
               )
@@ -295,7 +295,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
       {/* Buyer Safeguard Notice */}
       <div className="rounded-xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-1.5 text-[11px] text-slate-600">
         <div className="flex items-center gap-1.5 font-semibold text-slate-800">
-          <ShieldCheck className="h-3.5 w-3.5 text-blue-700 shrink-0" />
+          <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E] shrink-0" />
           Before you travel or pay:
         </div>
         <p className="leading-relaxed">

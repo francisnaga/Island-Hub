@@ -257,8 +257,8 @@ export function ProductForm({
       </div>
 
       {/* Moderation Rules Notice */}
-      <div className="rounded-xl border border-blue-200 bg-blue-50/60 p-4 flex items-start gap-2.5 text-xs text-slate-700">
-        <Info className="h-4 w-4 text-blue-700 shrink-0 mt-0.5" />
+      <div className="rounded-xl border border-[#0F6E6E]/25 bg-[#E6F2F2]/60 p-4 flex items-start gap-2.5 text-xs text-slate-700">
+        <Info className="h-4 w-4 text-[#0F6E6E] shrink-0 mt-0.5" />
         <div>
           <strong>How review works:</strong> New products and changes to product titles, categories, or photos enter the administrator review queue before appearing publicly. Routine updates to <strong>price, stock status, or sizes/colours</strong> on an already-approved product save immediately.
         </div>
@@ -278,7 +278,7 @@ export function ProductForm({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder="e.g. Heavy-Duty Cadet Steel-Toe Safety Boots (Black)"
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
 
@@ -289,7 +289,7 @@ export function ProductForm({
               <select
                 value={categoryId}
                 onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               >
                 {categories.map((cat) => (
                   <option key={cat.id} value={cat.id}>
@@ -313,7 +313,7 @@ export function ProductForm({
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
                 placeholder="e.g. 18500"
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
 
@@ -326,7 +326,7 @@ export function ProductForm({
                 onChange={(e) =>
                   setCondition(e.target.value as ProductCondition)
                 }
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               >
                 <option value="new">Brand New</option>
                 <option value="like_new">Like New</option>
@@ -342,7 +342,7 @@ export function ProductForm({
               <select
                 value={stockStatus}
                 onChange={(e) => setStockStatus(e.target.value as StockStatus)}
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               >
                 <option value="available">Available (In Stock)</option>
                 <option value="low_stock">Low Stock</option>
@@ -359,7 +359,7 @@ export function ProductForm({
                 min={0}
                 value={stockQuantity}
                 onChange={(e) => setStockQuantity(e.target.value)}
-                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-11 rounded-xl border border-slate-300 px-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </div>
@@ -374,7 +374,7 @@ export function ProductForm({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Include key specifications, material, what is included in the pack, and any helpful sizing notes..."
-              className="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 focus:border-blue-700 focus:outline-none"
+              className="w-full rounded-xl border border-slate-300 p-3.5 text-sm text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
         </div>
@@ -400,7 +400,7 @@ export function ProductForm({
                 value={sizesInput}
                 onChange={(e) => setSizesInput(e.target.value)}
                 placeholder="e.g. 40, 41, 42, 43, 44, 45  OR  S, M, L, XL"
-                className="w-full h-10 rounded-xl border border-slate-300 px-3.5 text-xs text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-10 rounded-xl border border-slate-300 px-3.5 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
 
@@ -413,7 +413,7 @@ export function ProductForm({
                 value={colorsInput}
                 onChange={(e) => setColorsInput(e.target.value)}
                 placeholder="e.g. Black, Dark Navy, White"
-                className="w-full h-10 rounded-xl border border-slate-300 px-3.5 text-xs text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="w-full h-10 rounded-xl border border-slate-300 px-3.5 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </div>
@@ -431,8 +431,8 @@ export function ProductForm({
           </div>
 
           <div className="flex flex-col sm:flex-row gap-3">
-            <label className="inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-blue-400 bg-blue-50/50 px-5 py-3 text-xs font-bold text-blue-900 hover:bg-blue-50 cursor-pointer shrink-0">
-              <Upload className="h-4 w-4 text-blue-700" />
+            <label className="inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-[#0F6E6E] bg-[#E6F2F2]/50 px-5 py-3 text-xs font-bold text-[#0A4F4F] hover:bg-[#E6F2F2] cursor-pointer shrink-0">
+              <Upload className="h-4 w-4 text-[#0F6E6E]" />
               {uploadingImage ? 'Uploading...' : 'Upload Photo from Device'}
               <input
                 type="file"
@@ -449,7 +449,7 @@ export function ProductForm({
                 value={imageUrlInput}
                 onChange={(e) => setImageUrlInput(e.target.value)}
                 placeholder="Or paste image URL (https://...)"
-                className="flex-1 h-11 rounded-xl border border-slate-300 px-3.5 text-xs text-slate-900 focus:border-blue-700 focus:outline-none"
+                className="flex-1 h-11 rounded-xl border border-slate-300 px-3.5 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
               />
               <button
                 type="button"
@@ -509,7 +509,7 @@ export function ProductForm({
           <button
             type="submit"
             disabled={submitting}
-            className="rounded-xl bg-[#1E3A8A] px-6 py-3 text-sm font-bold text-white hover:bg-blue-900 transition-colors cursor-pointer disabled:opacity-50"
+            className="rounded-xl bg-[#0F6E6E] px-6 py-3 text-sm font-bold text-white hover:bg-[#0A4F4F] transition-colors cursor-pointer disabled:opacity-50"
           >
             {submitting
               ? 'Saving Product...'

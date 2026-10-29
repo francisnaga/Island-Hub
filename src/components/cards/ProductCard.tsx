@@ -33,7 +33,7 @@ export function ProductCard({ product }: ProductCardProps) {
   return (
     <Link
       href={`/product/${product.slug || product.id}`}
-      className="group flex flex-col rounded-xl border border-slate-200/90 bg-white overflow-hidden transition-all hover:border-blue-300 hover:shadow-md"
+      className="group flex flex-col rounded-xl border border-slate-200/90 bg-white overflow-hidden transition-all hover:border-[#0F6E6E]/40 hover:shadow-md"
     >
       {/* Image Container */}
       <div className="relative aspect-4/3 w-full bg-slate-100 overflow-hidden">
@@ -77,7 +77,7 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* Content */}
       <div className="flex flex-1 flex-col justify-between p-4 gap-3">
         <div className="space-y-1">
-          <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 group-hover:text-blue-800 transition-colors leading-snug">
+          <h3 className="text-sm font-semibold text-slate-900 line-clamp-2 group-hover:text-[#0F6E6E] transition-colors leading-snug">
             {product.title}
           </h3>
 
@@ -103,7 +103,7 @@ export function ProductCard({ product }: ProductCardProps) {
             <span className="text-base font-bold text-slate-900 tracking-tight">
               {formatNaira(product.price)}
             </span>
-            <span className="text-[11px] font-medium text-blue-700 group-hover:underline">
+            <span className="text-[11px] font-medium text-[#0F6E6E] group-hover:underline">
               View prices →
             </span>
           </div>
@@ -116,7 +116,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 </span>
                 {product.vendor.verification_status === 'verified' && (
                   <BadgeCheck
-                    className="h-3.5 w-3.5 text-blue-700 shrink-0"
+                    className="h-3.5 w-3.5 text-[#0F6E6E] shrink-0"
                     aria-label="Verified Vendor"
                   />
                 )}

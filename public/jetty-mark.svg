@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96" width="96" height="96" role="img" aria-label="Jetty">
+  <title>Jetty</title>
+  <rect width="96" height="96" rx="24" fill="#0F6E6E"/>
+  <path d="M30 26 L68 26" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+  <path d="M54 26 L54 58 Q54 70 42 70 Q30 70 30 58" fill="none" stroke="#FFFFFF" stroke-width="10" stroke-linecap="round"/>
+  <path d="M18 82 q7 -6 14 0 t14 0 t14 0 t14 0" fill="none" stroke="#E8B84A" stroke-width="4" stroke-linecap="round"/>
+</svg>

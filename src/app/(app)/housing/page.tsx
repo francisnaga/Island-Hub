@@ -74,7 +74,7 @@ export default async function HousingPage() {
           <div className="container mx-auto max-w-7xl flex items-start gap-3">
             <AlertTriangle className="h-4 w-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
             <p className="text-xs text-amber-800 dark:text-amber-300 leading-relaxed">
-              <strong>Scam Warning:</strong> Never pay inspection fees, agent fees, or any advance payment to view a property. Always inspect in person before paying rent. IslandHub does not handle any housing payments.
+              <strong>Scam Warning:</strong> Never pay inspection fees, agent fees, or any advance payment to view a property. Always inspect in person before paying rent. Jetty does not handle any housing payments.
             </p>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default async function HousingPage() {
                 {
                   icon: BadgeCheck,
                   title: 'Verified Posters',
-                  body: 'Listings with a Verified badge are from vendors who have completed IslandHub identity verification.',
+                  body: 'Listings with a Verified badge are from vendors who have completed Jetty identity verification.',
                 },
               ].map((rule) => {
                 const Icon = rule.icon
@@ -180,7 +180,7 @@ export default async function HousingPage() {
 
                   <div className="flex flex-col gap-2 sm:w-44 shrink-0 justify-end sm:justify-start sm:items-end">
                     <a
-                      href={`https://wa.me/${listing.contact}?text=${encodeURIComponent(`Hi! I saw your housing listing on IslandHub: "${listing.title}". I'd like to enquire about viewing the property.`)}`}
+                      href={`https://wa.me/${listing.contact}?text=${encodeURIComponent(`Hi! I saw your housing listing on Jetty: "${listing.title}". I'd like to enquire about viewing the property.`)}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] px-4 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity w-full"
