@@ -1,8 +1,5 @@
 import Link from 'next/link'
 import { Wrench, Scissors, Shirt, BookOpen, Camera, Printer, Utensils, MessageCircle, BadgeCheck, ArrowRight } from 'lucide-react'
-import { Navbar } from '@/components/layout/Navbar'
-import { Footer } from '@/components/layout/Footer'
-import { getCurrentUserContext } from '@/lib/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -87,126 +84,107 @@ const services = [
 ]
 
 export default async function ServicesPage() {
-  const userContext = await getCurrentUserContext()
-
   return (
-    <div className="flex min-h-screen flex-col bg-background text-foreground">
-      <Navbar
-        user={userContext.user}
-        profile={userContext.profile}
-        vendor={userContext.vendor}
-      />
-
-      <main className="flex-1">
-        {/* Hero */}
-        <section className="border-b border-border bg-card py-10 md:py-14">
-          <div className="container mx-auto max-w-7xl px-4">
-            <div className="max-w-2xl space-y-3">
-              <div className="inline-flex items-center gap-2 rounded-full border border-primary/30 bg-accent px-3 py-1 text-xs font-semibold text-accent-foreground">
-                <Wrench className="h-3.5 w-3.5" />
-                Campus Services Directory
-              </div>
-              <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight leading-[1.12]">
-                Services around NMU & Okerenkoko
-              </h1>
-              <p className="text-base text-muted-foreground leading-relaxed">
-                Tailoring, laundry, barbing, printing, food and more — all from trusted providers on and around campus. Contact any vendor directly on WhatsApp.
-              </p>
-              <p className="text-xs text-muted-foreground bg-muted rounded-lg px-4 py-2.5 border border-border">
-                <strong className="text-foreground">Note:</strong> These are individual service providers, not Jetty employees. Always confirm pricing and availability before ordering.
-              </p>
-            </div>
+    <div className="min-w-0">
+      {/* Header */}
+      <section className="border-b border-border bg-card py-6 sm:py-10">
+        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4">
+          <div className="max-w-2xl space-y-2.5">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight leading-[1.12] text-foreground">
+              Services around NMU &amp; Okerenkoko
+            </h1>
+            <p className="text-sm sm:text-base text-muted-foreground leading-relaxed">
+              Tailoring, laundry, barbing, printing, food and more — all from trusted providers on and around campus. Contact any vendor directly on WhatsApp.
+            </p>
           </div>
-        </section>
+        </div>
+      </section>
 
-        {/* Services Grid */}
-        <section className="py-10">
-          <div className="container mx-auto max-w-7xl px-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {services.map((service) => {
-                const Icon = service.icon
-                return (
-                  <div
-                    key={service.id}
-                    className="rounded-xl border border-border bg-card p-5 flex flex-col justify-between gap-4 hover:border-primary/40 hover:shadow-sm transition-all"
-                  >
-                    <div className="space-y-3">
-                      <div className="flex items-start justify-between gap-3">
-                        <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-accent text-accent-foreground shrink-0">
-                          <Icon className="h-5 w-5" />
-                        </div>
-                        {service.verified && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 border border-primary/20 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider shrink-0">
-                            <BadgeCheck className="h-3 w-3" />
-                            Verified
-                          </span>
-                        )}
+      {/* Services Grid */}
+      <section className="py-6 sm:py-10">
+        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+            {services.map((service) => {
+              const Icon = service.icon
+              return (
+                <div
+                  key={service.id}
+                  className="rounded-xl border border-border bg-card p-4 sm:p-5 flex flex-col justify-between gap-4 hover:border-[#0F6E6E]/40 hover:shadow-sm transition-all min-w-0"
+                >
+                  <div className="space-y-3 min-w-0">
+                    <div className="flex items-start justify-between gap-3">
+                      <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0F6E6E] dark:text-[#E8B84A] shrink-0">
+                        <Icon className="h-5 w-5" />
                       </div>
+                      {service.verified && (
+                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/20 px-2 py-0.5 text-[10px] font-bold text-[#0F6E6E] dark:text-[#E8B84A] uppercase tracking-wider shrink-0">
+                          <BadgeCheck className="h-3 w-3" />
+                          Verified
+                        </span>
+                      )}
+                    </div>
 
-                      <div>
-                        <h2 className="text-base font-bold text-foreground">{service.name}</h2>
-                        <p className="text-sm text-muted-foreground mt-1 leading-relaxed">{service.description}</p>
+                    <div>
+                      <h2 className="text-base font-bold text-foreground">{service.name}</h2>
+                      <p className="text-xs sm:text-sm text-muted-foreground mt-1 leading-relaxed">{service.description}</p>
+                    </div>
+
+                    <div className="space-y-1.5 text-xs text-muted-foreground">
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-foreground">Price range</span>
+                        <span>{service.priceRange}</span>
                       </div>
-
-                      <div className="space-y-1.5 text-xs text-muted-foreground">
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-foreground">Price range</span>
-                          <span>{service.priceRange}</span>
-                        </div>
-                        <div className="flex items-center justify-between">
-                          <span className="font-medium text-foreground">Turnaround</span>
-                          <span>{service.turnaround}</span>
-                        </div>
-                      </div>
-
-                      <div className="space-y-1 text-xs">
-                        <p className="font-medium text-foreground">Providers:</p>
-                        {service.providers.map((p) => (
-                          <p key={p} className="text-muted-foreground">• {p}</p>
-                        ))}
+                      <div className="flex items-center justify-between gap-2">
+                        <span className="font-medium text-foreground">Turnaround</span>
+                        <span>{service.turnaround}</span>
                       </div>
                     </div>
 
-                    <a
-                      href={`https://wa.me/${service.whatsapp}?text=${encodeURIComponent(`Hi! I found your ${service.name} service on Jetty. I'd like to enquire about pricing and availability.`)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center justify-center gap-2 rounded-xl bg-[#25D366] py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Enquire on WhatsApp
-                    </a>
+                    <div className="space-y-1 text-xs">
+                      <p className="font-medium text-foreground">Providers:</p>
+                      {service.providers.map((p) => (
+                        <p key={p} className="text-muted-foreground truncate">• {p}</p>
+                      ))}
+                    </div>
                   </div>
-                )
-              })}
-            </div>
-          </div>
-        </section>
 
-        {/* Offer your service CTA */}
-        <section className="py-10 border-t border-border bg-card">
-          <div className="container mx-auto max-w-7xl px-4">
-            <div className="rounded-2xl border border-primary/20 bg-accent/30 p-8 flex flex-col sm:flex-row items-center justify-between gap-6">
-              <div className="space-y-2">
-                <h2 className="text-xl font-bold text-foreground">Offer a service on campus?</h2>
-                <p className="text-sm text-muted-foreground max-w-lg">
-                  List your tailoring, laundry, barbing, or any other service here. It's free to get listed — apply as a vendor and choose "Service" as your listing type.
-                </p>
-              </div>
-              <Link
-                href="/vendor/apply"
-                className="inline-flex items-center gap-2 rounded-xl bg-primary px-6 py-3 text-sm font-semibold text-primary-foreground hover:opacity-90 transition-opacity shrink-0"
-              >
-                <Wrench className="h-4 w-4" />
-                List My Service
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-            </div>
+                  <a
+                    href={`https://wa.me/${service.whatsapp}?text=${encodeURIComponent(`Hi! I found your ${service.name} service on Jetty. I'd like to enquire about pricing and availability.`)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center gap-2 rounded-xl bg-[#16A34A] py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-green-700 transition-colors"
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                    Enquire on WhatsApp
+                  </a>
+                </div>
+              )
+            })}
           </div>
-        </section>
-      </main>
+        </div>
+      </section>
 
-      <Footer />
+      {/* Offer your service CTA */}
+      <section className="py-8 sm:py-10 border-t border-border bg-card">
+        <div className="container mx-auto max-w-7xl px-3.5 sm:px-4">
+          <div className="rounded-2xl border border-border bg-muted/40 p-5 sm:p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-6">
+            <div className="space-y-1.5">
+              <h2 className="text-lg sm:text-xl font-bold text-foreground">Offer a service on campus?</h2>
+              <p className="text-xs sm:text-sm text-muted-foreground max-w-lg">
+                List your tailoring, laundry, barbing, or printing service on Jetty for free.
+              </p>
+            </div>
+            <Link
+              href="/vendor/apply"
+              className="inline-flex items-center gap-2 rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs sm:text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors shrink-0"
+            >
+              <Wrench className="h-4 w-4" />
+              List My Service
+              <ArrowRight className="h-4 w-4" />
+            </Link>
+          </div>
+        </div>
+      </section>
     </div>
   )
 }

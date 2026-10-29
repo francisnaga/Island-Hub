@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { Anchor, ArrowLeft, Package, Search } from 'lucide-react'
+import { ArrowLeft, Package, Search } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { getPublicCategories, getPublicProducts } from '@/lib/queries'
 import { cn } from '@/lib/utils'
@@ -35,40 +35,33 @@ export default async function CategoryPage({
   })
 
   return (
-    <div className="py-8 md:py-10">
-      <div className="container mx-auto max-w-7xl px-4 space-y-6">
+    <div className="py-5 sm:py-8 md:py-10 min-w-0">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 min-w-0">
         {/* Breadcrumb */}
-        <div className="flex items-center gap-2 text-xs text-slate-500">
-          <Link href="/" className="hover:text-slate-900">
+        <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0">
+          <Link href="/" className="hover:text-foreground shrink-0">
             Home
           </Link>
           <span>/</span>
-          <Link href="/marketplace" className="hover:text-slate-900">
+          <Link href="/marketplace" className="hover:text-foreground shrink-0">
             Marketplace
           </Link>
           <span>/</span>
-          <span className="font-semibold text-slate-900">{activeCategory.name}</span>
+          <span className="font-semibold text-foreground truncate">{activeCategory.name}</span>
         </div>
 
-        {/* Category Header Banner */}
-        <div className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-2 max-w-2xl">
+        {/* Category Header Banner (No Eyebrow Pill Slop) */}
+        <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="space-y-1.5 max-w-2xl min-w-0">
             <div className="flex items-center gap-2">
-              {activeCategory.is_priority && (
-                <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider text-[#0A4F4F]">
-                  <Anchor className="h-3 w-3 text-[#0F6E6E]" />
-                  Priority NMU Category
-                </span>
-              )}
-              <span className="text-xs font-medium text-slate-500">
-                {totalCount} available listing{totalCount === 1 ? '' : 's'}
+              <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+                {activeCategory.name}
+              </h1>
+              <span className="text-xs font-medium text-muted-foreground shrink-0">
+                ({totalCount})
               </span>
             </div>
-
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-              {activeCategory.name}
-            </h1>
-            <p className="text-sm text-slate-600 leading-relaxed">
+            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
               {activeCategory.description}
             </p>
           </div>
@@ -77,46 +70,48 @@ export default async function CategoryPage({
           <form
             action={`/category/${activeCategory.slug}`}
             method="GET"
-            className="w-full md:w-80 shrink-0"
+            className="w-full md:w-76 shrink-0"
           >
             <div className="relative">
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
               <input
                 type="search"
                 name="q"
                 defaultValue={sp.q || ''}
                 placeholder={`Search in ${activeCategory.short_name || activeCategory.name}...`}
-                className="w-full h-11 pl-10 pr-4 rounded-xl border border-slate-300 bg-slate-50/70 text-sm text-slate-900 focus:bg-white focus:border-[#0F6E6E] focus:outline-none"
+                className="w-full h-10 sm:h-11 pl-10 pr-4 rounded-xl border border-input bg-background text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </form>
         </div>
 
-        {/* Category Switcher Tabs */}
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          <div className="flex items-center gap-2 overflow-x-auto pb-1">
-            {categories.map((cat) => (
-              <Link
-                key={cat.slug}
-                href={`/category/${cat.slug}`}
-                className={cn(
-                  'shrink-0 rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-colors',
-                  cat.slug === activeCategory.slug
-                    ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
-                    : 'bg-white text-slate-700 border-slate-200 hover:border-[#0F6E6E]/40'
-                )}
-              >
-                {cat.name}
-              </Link>
-            ))}
+        {/* Category Switcher Tabs & Sort (Contained Horizontal Scroll) */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
+          <div className="w-full sm:flex-1 min-w-0 overflow-x-auto no-scrollbar pb-1">
+            <div className="flex items-center gap-1.5 w-max">
+              {categories.map((cat) => (
+                <Link
+                  key={cat.slug}
+                  href={`/category/${cat.slug}`}
+                  className={cn(
+                    'shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors',
+                    cat.slug === activeCategory.slug
+                      ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
+                      : 'bg-card text-foreground border-border hover:border-[#0F6E6E]/40'
+                  )}
+                >
+                  {cat.short_name || cat.name}
+                </Link>
+              ))}
+            </div>
           </div>
 
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-500 font-medium">Sort:</span>
+          <div className="flex items-center gap-1.5 text-xs shrink-0 overflow-x-auto no-scrollbar">
+            <span className="text-muted-foreground font-medium shrink-0">Sort:</span>
             {[
               { key: 'newest', label: 'Newest' },
-              { key: 'price_asc', label: 'Price: Low–High' },
-              { key: 'price_desc', label: 'Price: High–Low' },
+              { key: 'price_asc', label: 'Low–High' },
+              { key: 'price_desc', label: 'High–Low' },
             ].map((s) => (
               <Link
                 key={s.key}
@@ -124,10 +119,10 @@ export default async function CategoryPage({
                   sp.q ? `&q=${encodeURIComponent(sp.q)}` : ''
                 }`}
                 className={cn(
-                  'rounded-lg px-2.5 py-1 font-medium border',
+                  'shrink-0 rounded-lg px-2.5 py-1 font-medium border',
                   (sp.sort || 'newest') === s.key
-                    ? 'border-[#0F6E6E]/40 bg-[#E6F2F2] text-[#0A4F4F] font-semibold'
-                    : 'border-slate-200 bg-white text-slate-600 hover:bg-slate-50'
+                    ? 'border-[#0F6E6E]/40 bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white font-semibold'
+                    : 'border-border bg-card text-muted-foreground hover:bg-muted'
                 )}
               >
                 {s.label}
@@ -136,26 +131,26 @@ export default async function CategoryPage({
           </div>
         </div>
 
-        {/* Product Grid */}
+        {/* Product Grid (2 columns on mobile) */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-14 text-center max-w-lg mx-auto my-8">
-            <Package className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-            <h3 className="text-lg font-bold text-slate-900">
+          <div className="rounded-2xl border border-dashed border-border bg-card p-10 sm:p-14 text-center max-w-lg mx-auto my-6">
+            <Package className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+            <h3 className="text-base sm:text-lg font-bold text-foreground">
               No listings in {activeCategory.name} yet
             </h3>
-            <p className="text-sm text-slate-600 mt-1 mb-5">
-              Do you sell items in this category around NMU or Okerenkoko? Apply as a vendor and list your products for students to discover.
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 mb-5">
+              Do you sell items in this category around NMU? Apply as a vendor and list your products.
             </p>
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex flex-wrap items-center justify-center gap-2.5">
               <Link
                 href="/marketplace"
-                className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-50"
+                className="inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-muted"
               >
                 <ArrowLeft className="h-3.5 w-3.5" />
                 All Listings

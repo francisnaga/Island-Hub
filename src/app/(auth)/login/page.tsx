@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, Store } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 
 export default async function LoginPage({
@@ -11,8 +11,8 @@ export default async function LoginPage({
   const nextPath = sp.next || '/vendor/dashboard'
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-background px-4 py-12 text-foreground">
-      <div className="w-full max-w-md space-y-6">
+    <div className="min-h-screen w-full max-w-[100vw] overflow-x-clip flex flex-col justify-center items-center bg-background px-4 py-10 text-foreground">
+      <div className="w-full max-w-md space-y-5">
         <div className="flex items-center justify-between">
           <Link
             href="/"
@@ -24,26 +24,22 @@ export default async function LoginPage({
           <span className="text-xs text-muted-foreground">No account needed to browse</span>
         </div>
 
-        <div className="rounded-2xl border border-border bg-card p-7 sm:p-8 shadow-xs space-y-6">
-          <div className="flex flex-col items-center text-center space-y-3">
+        <div className="rounded-2xl border border-border bg-card p-6 sm:p-8 shadow-xs space-y-6">
+          <div className="flex flex-col items-center text-center space-y-2.5">
             {/* Official Jetty Mark + Wordmark */}
             <Link href="/" className="inline-flex items-center gap-2.5 py-1">
               <img
                 src="/jetty-mark.svg"
                 alt="Jetty"
-                width={40}
-                height={40}
-                className="h-10 w-10 shrink-0"
+                width={36}
+                height={36}
+                className="h-9 w-9 shrink-0"
               />
               <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none">
                 jetty
               </span>
             </Link>
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F] dark:text-[#E8B84A]">
-              <Store className="h-3.5 w-3.5" />
-              Vendor Sign In
-            </div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground pt-1">
               Sell on Jetty
             </h1>
             <p className="text-xs text-muted-foreground max-w-xs">
@@ -63,7 +59,7 @@ export default async function LoginPage({
           <GoogleSignInButton nextPath={nextPath} label="Continue with Google" />
 
           <div className="rounded-xl bg-muted border border-border p-4 space-y-2">
-            <p className="text-xs font-semibold text-foreground">Why sign in?</p>
+            <p className="text-xs font-semibold text-foreground">Vendor benefits</p>
             <ul className="space-y-1 text-xs text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="mt-1 h-1.5 w-1.5 rounded-full bg-[#0F6E6E] shrink-0" />

@@ -6,7 +6,6 @@ import { usePathname, useRouter } from 'next/navigation'
 import {
   Search,
   Store,
-  ShieldCheck,
   Menu,
   X,
   UserCircle,
@@ -14,8 +13,6 @@ import {
   LogOut,
   ArrowLeftRight,
   ShieldAlert,
-  Wrench,
-  Home,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { UserProfile, Vendor } from '@/lib/types'
@@ -97,38 +94,18 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
     { href: '/marketplace', label: 'Marketplace' },
     { href: '/category/maritime-cadet-gear', label: 'Cadet Gear', highlight: true },
     { href: '/fresher-kit', label: 'Fresher Kit' },
-    { href: '/services', label: 'Services', icon: Wrench },
-    { href: '/housing', label: 'Housing', icon: Home },
+    { href: '/services', label: 'Services' },
+    { href: '/housing', label: 'Housing' },
     { href: '/vendors', label: 'Vendors' },
     { href: '/safety', label: 'Safety' },
   ]
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md">
-      {/* Top announcement bar */}
-      <div className="bg-[#0A4F4F] text-white/90 text-xs py-1.5 px-4">
-        <div className="container mx-auto max-w-7xl flex items-center justify-between gap-2">
-          <p className="truncate font-medium">
-            <span className="text-[#E8B84A] font-semibold">Jetty · NMU Campus Marketplace</span> · Okerenkoko &amp; Kurutie · Browse freely &amp; order on WhatsApp.
-          </p>
-          <div className="hidden sm:flex items-center gap-4 shrink-0">
-            <Link href="/safety" className="hover:text-white transition-colors flex items-center gap-1">
-              <ShieldCheck className="h-3.5 w-3.5 text-[#E8B84A]" />
-              How to Buy Safely
-            </Link>
-            {!vendor && (
-              <Link href="/vendor/apply" className="text-[#E8B84A] hover:text-white font-semibold transition-colors">
-                Become a Vendor →
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
-
       {/* Main Navigation Row */}
-      <div className="container mx-auto max-w-7xl px-4 h-16 flex items-center justify-between gap-4">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Official Jetty Brand Lockup: 32px mark + live lowercase "jetty" wordmark with 10px gap */}
-        <Link href="/" className="flex items-center gap-2.5 shrink-0 py-1 pr-2">
+        <Link href="/" className="flex items-center gap-2.5 shrink-0 py-1 pr-1">
           <img
             src="/jetty-mark.svg"
             alt="Jetty"
@@ -142,7 +119,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
         </Link>
 
         {/* Quick Search Bar (Desktop) */}
-        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-sm mx-2">
+        <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-sm mx-2 min-w-0">
           <div className="relative w-full">
             <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <input
@@ -179,7 +156,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           })}
         </nav>
 
-        {/* Right Actions */}
+        {/* Right Actions (Desktop) */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
           <DarkModeToggle />
 
@@ -258,25 +235,34 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           )}
         </div>
 
-        {/* Mobile: Dark Toggle + Hamburger */}
-        <div className="flex items-center gap-2 md:hidden">
-          <DarkModeToggle />
+        {/* Mobile Actions */}
+        <div className="flex items-center gap-1.5 md:hidden shrink-0">
+          {!user && (
+            <Link
+              href="/vendor/apply"
+              className="inline-flex h-9 items-center gap-1 rounded-lg bg-[#0F6E6E] px-3 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
+            >
+              <Store className="h-3.5 w-3.5" />
+              <span>Sell</span>
+            </Link>
+          )}
           {user && (
             <button
               type="button"
               onClick={handleSwitchMode}
               disabled={isPending}
-              className="inline-flex items-center gap-1 rounded-full border border-border bg-muted px-2.5 py-1 text-[11px] font-semibold text-muted-foreground"
+              className="inline-flex h-9 items-center gap-1 rounded-lg border border-border bg-muted px-2.5 text-[11px] font-semibold text-foreground"
             >
               <ArrowLeftRight className="h-3 w-3 text-[#0F6E6E]" />
               {activeMode === 'vendor' ? 'Vendor' : 'Buyer'}
             </button>
           )}
+          <DarkModeToggle />
           <button
             type="button"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle Menu"
-            className="inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted"
           >
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -285,7 +271,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
       {/* Mobile Drawer */}
       {mobileMenuOpen && (
-        <div className="border-t border-border bg-card px-4 pt-3 pb-6 md:hidden space-y-4 shadow-lg">
+        <div className="border-t border-border bg-card px-4 pt-3 pb-5 md:hidden space-y-3 shadow-lg">
           <form onSubmit={handleSearch}>
             <div className="relative">
               <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -294,22 +280,22 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search boots, rigs, electronics..."
-                className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-muted text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
+                className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-muted text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
           </form>
 
-          <nav className="flex flex-col space-y-1">
+          <nav className="grid grid-cols-2 gap-1.5">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
                 onClick={() => setMobileMenuOpen(false)}
                 className={cn(
-                  'px-3 py-2.5 rounded-lg text-sm font-medium',
+                  'px-3 py-2 rounded-lg text-xs font-medium',
                   pathname === link.href
                     ? 'bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white font-semibold'
-                    : 'text-foreground hover:bg-muted'
+                    : 'text-foreground bg-muted/40 hover:bg-muted'
                 )}
               >
                 {link.label}
@@ -317,93 +303,62 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             ))}
           </nav>
 
-          <div className="pt-3 border-t border-border flex flex-col gap-2">
-            {user ? (
-              <>
-                <div className="flex items-center justify-between px-3 py-2 rounded-lg bg-muted border border-border/80">
-                  <div>
-                    <p className="text-xs font-semibold text-foreground">{profile?.full_name}</p>
-                    <p className="text-[11px] text-muted-foreground">
-                      Current View: <span className="font-semibold capitalize">{activeMode}</span>
-                    </p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      handleSwitchMode()
-                    }}
-                    className="inline-flex items-center gap-1 rounded-md bg-[#0F6E6E] px-2.5 py-1.5 text-xs font-semibold text-white"
-                  >
-                    <ArrowLeftRight className="h-3 w-3" />
-                    Switch to {activeMode === 'buyer' ? 'Vendor' : 'Buyer'}
-                  </button>
-                </div>
+          {user && (
+            <div className="pt-2 border-t border-border flex flex-col gap-2">
+              {vendor ? (
+                <Link
+                  href="/vendor/dashboard"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-2.5 text-xs font-semibold text-white"
+                >
+                  <LayoutDashboard className="h-4 w-4" />
+                  Vendor Dashboard
+                </Link>
+              ) : (
+                <Link
+                  href="/vendor/apply"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#E6F2F2] border border-[#0F6E6E]/20 py-2.5 text-xs font-semibold text-[#0A4F4F]"
+                >
+                  <Store className="h-4 w-4" />
+                  Apply to Become a Vendor
+                </Link>
+              )}
 
-                {vendor ? (
-                  <Link
-                    href="/vendor/dashboard"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-2.5 text-sm font-semibold text-white"
-                  >
-                    <LayoutDashboard className="h-4 w-4" />
-                    Vendor Dashboard
-                  </Link>
-                ) : (
-                  <Link
-                    href="/vendor/apply"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-[#E6F2F2] border border-[#0F6E6E]/20 py-2.5 text-sm font-semibold text-[#0A4F4F]"
-                  >
-                    <Store className="h-4 w-4" />
-                    Apply to Become a Vendor
-                  </Link>
-                )}
+              {profile?.role === 'admin' && (
+                <Link
+                  href="/admin"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-2 rounded-lg bg-[#E8B84A]/15 border border-[#E8B84A] py-2.5 text-xs font-semibold text-foreground"
+                >
+                  <ShieldAlert className="h-4 w-4" />
+                  Admin Moderation Queue
+                </Link>
+              )}
 
-                {profile?.role === 'admin' && (
-                  <Link
-                    href="/admin"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-2 rounded-lg bg-[#E8B84A]/15 border border-[#E8B84A] py-2.5 text-sm font-semibold text-foreground"
-                  >
-                    <ShieldAlert className="h-4 w-4" />
-                    Admin Moderation Queue
-                  </Link>
-                )}
-
-                <div className="grid grid-cols-2 gap-2 pt-1">
-                  <Link
-                    href="/profile"
-                    onClick={() => setMobileMenuOpen(false)}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-border py-2 text-xs font-semibold text-foreground"
-                  >
-                    <UserCircle className="h-4 w-4" />
-                    Profile &amp; Role
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setMobileMenuOpen(false)
-                      handleSignOut()
-                    }}
-                    className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 py-2 text-xs font-semibold text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
-                  >
-                    <LogOut className="h-4 w-4" />
-                    Sign Out
-                  </button>
-                </div>
-              </>
-            ) : (
-              <Link
-                href="/vendor/apply"
-                onClick={() => setMobileMenuOpen(false)}
-                className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-3 text-sm font-semibold text-white hover:bg-[#0A4F4F]"
-              >
-                <Store className="h-4 w-4" />
-                Sell on Jetty
-              </Link>
-            )}
-          </div>
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/profile"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border py-2 text-xs font-semibold text-foreground"
+                >
+                  <UserCircle className="h-4 w-4" />
+                  Profile
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setMobileMenuOpen(false)
+                    handleSignOut()
+                  }}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 py-2 text-xs font-semibold text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400"
+                >
+                  <LogOut className="h-4 w-4" />
+                  Sign Out
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
     </header>

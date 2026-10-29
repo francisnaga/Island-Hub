@@ -280,14 +280,9 @@ export function VendorDashboardClient({
   return (
     <div className="space-y-6">
       {/* Top Vendor Header */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-5 shadow-2xs">
-        <div className="space-y-1.5">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 shadow-2xs min-w-0">
+        <div className="space-y-1.5 min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-2.5 py-0.5 text-xs font-semibold text-[#0A4F4F]">
-              <Store className="h-3.5 w-3.5 text-[#0F6E6E]" />
-              Vendor Dashboard
-            </span>
-
             {vendor.verification_status === 'verified' ? (
               <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2.5 py-0.5 text-xs font-semibold text-emerald-800">
                 <BadgeCheck className="h-3.5 w-3.5 text-emerald-600" />
@@ -346,7 +341,7 @@ export function VendorDashboardClient({
       )}
 
       {/* Navigation Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200">
+      <div className="flex items-center gap-1.5 w-full max-w-full overflow-x-auto no-scrollbar pb-1 border-b border-border">
         {[
           { id: 'all', label: `All Products (${products.length})`, icon: Package },
           {

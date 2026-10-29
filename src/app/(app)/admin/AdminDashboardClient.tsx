@@ -276,17 +276,13 @@ export function AdminDashboardClient({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="rounded-2xl border border-slate-200 bg-white p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 flex flex-col md:flex-row md:items-center justify-between gap-4 min-w-0">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-300 px-3 py-0.5 text-xs font-bold text-amber-950">
-            <ShieldAlert className="h-3.5 w-3.5 text-amber-700" />
-            Jetty Administrator Moderation Queue
-          </div>
-          <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-            Marketplace Review & Operations
+          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            Marketplace Review &amp; Operations
           </h1>
-          <p className="text-xs text-slate-600">
-            Verify vendors, approve new product listings, resolve buyer reports, and manage categories without editing code.
+          <p className="text-xs text-muted-foreground">
+            Verify vendors, approve new product listings, resolve buyer reports, and manage categories.
           </p>
         </div>
 
@@ -320,7 +316,7 @@ export function AdminDashboardClient({
       </div>
 
       {/* Tabs */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-1 border-b border-slate-200">
+      <div className="flex items-center gap-1.5 w-full max-w-full overflow-x-auto no-scrollbar pb-1 border-b border-border">
         {[
           {
             id: 'products',

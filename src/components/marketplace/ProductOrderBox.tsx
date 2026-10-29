@@ -70,31 +70,31 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
     : null
 
   return (
-    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6 shadow-2xs">
+    <div className="space-y-5 rounded-2xl border border-border bg-card p-4 sm:p-6 shadow-2xs min-w-0">
       {/* Price & Stock Header */}
-      <div className="flex flex-wrap items-baseline justify-between gap-3 pb-4 border-b border-slate-100">
+      <div className="flex flex-wrap items-baseline justify-between gap-2 pb-4 border-b border-border">
         <div>
-          <p className="text-xs font-medium text-slate-500">Displayed Price</p>
-          <div className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+          <p className="text-xs font-medium text-muted-foreground">Price</p>
+          <div className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
             {formatNaira(product.price)}
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           {product.stock_status === 'available' && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 border border-emerald-200 px-3 py-1 text-xs font-semibold text-emerald-800">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2.5 py-1 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
               <span className="h-2 w-2 rounded-full bg-emerald-500" />
               In Stock
             </span>
           )}
           {product.stock_status === 'low_stock' && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 border border-amber-200 px-3 py-1 text-xs font-semibold text-amber-800">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 dark:bg-amber-950/50 border border-amber-200 dark:border-amber-800 px-2.5 py-1 text-xs font-semibold text-amber-800 dark:text-amber-300">
               <span className="h-2 w-2 rounded-full bg-amber-500" />
               Low Stock
             </span>
           )}
           {product.stock_status === 'out_of_stock' && (
-            <span className="inline-flex items-center gap-1.5 rounded-full bg-slate-100 border border-slate-300 px-3 py-1 text-xs font-semibold text-slate-700">
+            <span className="inline-flex items-center gap-1.5 rounded-full bg-muted border border-border px-2.5 py-1 text-xs font-semibold text-muted-foreground">
               Out of Stock
             </span>
           )}
@@ -105,20 +105,20 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
       {sizes.length > 0 && (
         <div className="space-y-2">
           <div className="flex items-center justify-between text-xs">
-            <span className="font-semibold text-slate-700">Select Size</span>
-            <span className="text-slate-500">Included in WhatsApp inquiry</span>
+            <span className="font-semibold text-foreground">Select Size</span>
+            <span className="text-muted-foreground">Sent on WhatsApp</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {sizes.map((size) => (
               <button
                 key={size}
                 type="button"
                 onClick={() => setSelectedSize(size)}
                 className={cn(
-                  'min-w-[44px] rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
+                  'min-w-[42px] rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
                   selectedSize === size
-                    ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0F6E6E] ring-1 ring-[#0F6E6E]'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white ring-1 ring-[#0F6E6E]'
+                    : 'border-border bg-background text-foreground hover:border-[#0F6E6E]/40'
                 )}
               >
                 {size}
@@ -131,20 +131,20 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
       {/* Colour Selector (if applicable) */}
       {colors.length > 0 && (
         <div className="space-y-2">
-          <span className="block text-xs font-semibold text-slate-700">
+          <span className="block text-xs font-semibold text-foreground">
             Select Colour / Variant
           </span>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-1.5 sm:gap-2">
             {colors.map((color) => (
               <button
                 key={color}
                 type="button"
                 onClick={() => setSelectedColor(color)}
                 className={cn(
-                  'rounded-lg border px-3.5 py-2 text-xs font-semibold transition-all cursor-pointer',
+                  'rounded-lg border px-3 py-2 text-xs font-semibold transition-all cursor-pointer',
                   selectedColor === color
-                    ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0F6E6E] ring-1 ring-[#0F6E6E]'
-                    : 'border-slate-200 bg-white text-slate-700 hover:border-slate-300'
+                    ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white ring-1 ring-[#0F6E6E]'
+                    : 'border-border bg-background text-foreground hover:border-[#0F6E6E]/40'
                 )}
               >
                 {color}
@@ -156,23 +156,23 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
 
       {/* Quantity Selector */}
       <div className="flex items-center justify-between pt-1">
-        <span className="text-xs font-semibold text-slate-700">Quantity Needed</span>
-        <div className="inline-flex items-center rounded-lg border border-slate-200 bg-slate-50">
+        <span className="text-xs font-semibold text-foreground">Quantity</span>
+        <div className="inline-flex items-center rounded-lg border border-border bg-muted">
           <button
             type="button"
             onClick={() => setQuantity(Math.max(1, quantity - 1))}
-            className="h-9 w-9 flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
+            className="h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
             aria-label="Decrease quantity"
           >
             <Minus className="h-3.5 w-3.5" />
           </button>
-          <span className="w-10 text-center text-xs font-bold text-slate-900">
+          <span className="w-10 text-center text-xs font-bold text-foreground">
             {quantity}
           </span>
           <button
             type="button"
             onClick={() => setQuantity(Math.min(20, quantity + 1))}
-            className="h-9 w-9 flex items-center justify-center text-slate-600 hover:text-slate-900 cursor-pointer"
+            className="h-9 w-9 flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
             aria-label="Increase quantity"
           >
             <Plus className="h-3.5 w-3.5" />
@@ -182,9 +182,9 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
 
       {/* Pickup Location & Privacy Box */}
       {vendor && (
-        <div className="rounded-xl border border-slate-200 bg-[#FAF9F6] p-4 space-y-2">
+        <div className="rounded-xl border border-border bg-muted/50 p-3.5 sm:p-4 space-y-2">
           <div className="flex items-start justify-between gap-2">
-            <div className="flex items-center gap-1.5 text-xs font-bold text-slate-900">
+            <div className="flex items-center gap-1.5 text-xs font-bold text-foreground">
               {vendor.location_type === 'delivery_only' ? (
                 <>
                   <Truck className="h-4 w-4 text-[#0F6E6E] shrink-0" />
@@ -192,45 +192,39 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 </>
               ) : (
                 <>
-                  <MapPin className="h-4 w-4 text-[#0F6E6E] shrink-0" />
-                  <span>Pickup & Collection Area</span>
+                  <MapPin className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
+                  <span>Pickup &amp; Collection</span>
                 </>
               )}
             </div>
-            <span className="rounded-md bg-white border border-slate-200 px-2 py-0.5 text-[10px] font-semibold text-slate-600 capitalize">
+            <span className="rounded-md bg-card border border-border px-2 py-0.5 text-[10px] font-semibold text-muted-foreground capitalize shrink-0">
               {vendor.location_type.replace('_', ' ')}
             </span>
           </div>
 
           {vendor.location_type === 'delivery_only' ? (
-            <p className="text-xs text-slate-600 leading-relaxed">
+            <p className="text-xs text-muted-foreground leading-relaxed">
               <strong>Coverage:</strong>{' '}
               {vendor.delivery_coverage || 'Delivers across NMU hostels and Okerenkoko.'}
             </p>
           ) : vendor.location_visibility === 'hidden' ? (
-            <p className="text-xs text-slate-600 leading-relaxed">
-              This vendor keeps their residential/hostel location private. Tap{' '}
-              <strong>Ask vendor for pickup location</strong> below to arrange a campus meeting point.
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Private hostel/home location. Tap <strong>Ask vendor for pickup location</strong> below to arrange a campus meeting point.
             </p>
           ) : (
-            <div className="space-y-1 text-xs text-slate-600">
-              <p className="font-medium text-slate-800">
+            <div className="space-y-1 text-xs text-muted-foreground">
+              <p className="font-medium text-foreground">
                 {vendor.location_label || vendor.pickup_options}
               </p>
               {vendor.pickup_options && vendor.location_label !== vendor.pickup_options && (
                 <p>{vendor.pickup_options}</p>
               )}
-              {vendor.location_visibility === 'approximate' && (
-                <p className="text-[11px] text-slate-500">
-                  General area shown · Exact meeting spot is shared when you message the seller.
-                </p>
-              )}
             </div>
           )}
 
           {vendor.delivery_available && vendor.location_type !== 'delivery_only' && (
-            <p className="text-[11px] text-[#0F6E6E] font-medium pt-1 border-t border-slate-200/70">
-              ✓ Campus/hostel delivery also available ({vendor.delivery_coverage || 'NMU & Okerenkoko'})
+            <p className="text-[11px] text-[#0F6E6E] dark:text-[#E8B84A] font-medium pt-1 border-t border-border">
+              ✓ Campus delivery also available ({vendor.delivery_coverage || 'NMU & Okerenkoko'})
             </p>
           )}
         </div>
@@ -255,14 +249,13 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 : 'bg-[#16A34A] text-white hover:bg-green-700'
             )}
           >
-            <MessageCircle className="h-5 w-5" />
-            {isOutOfStock
-              ? 'Ask Vendor When Back in Stock on WhatsApp'
-              : 'Message Vendor on WhatsApp'}
+            <MessageCircle className="h-5 w-5 shrink-0" />
+            <span className="truncate">
+              {isOutOfStock ? 'Ask When Back in Stock' : 'Message Vendor on WhatsApp'}
+            </span>
           </a>
         )}
 
-        {/* Secondary Location Action based on visibility */}
         {vendor && vendor.location_type !== 'delivery_only' && (
           <>
             {directionsUrl ? (
@@ -270,9 +263,9 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 href={directionsUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+                className="w-full h-11 rounded-xl border border-border bg-background text-foreground hover:bg-muted font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
               >
-                <Navigation className="h-4 w-4 text-[#0F6E6E]" />
+                <Navigation className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
                 Get Directions on Google Maps
               </a>
             ) : (
@@ -281,9 +274,9 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                   href={askLocationWhatsappResult.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full h-11 rounded-xl border border-slate-300 bg-white text-slate-800 hover:bg-slate-50 font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
+                  className="w-full h-11 rounded-xl border border-border bg-background text-foreground hover:bg-muted font-semibold text-xs flex items-center justify-center gap-2 transition-colors"
                 >
-                  <MapPin className="h-4 w-4 text-[#0F6E6E]" />
+                  <MapPin className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
                   Ask Vendor for Pickup Location
                 </a>
               )
@@ -293,13 +286,13 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
       </div>
 
       {/* Buyer Safeguard Notice */}
-      <div className="rounded-xl bg-slate-50 border border-slate-200/80 p-3.5 space-y-1.5 text-[11px] text-slate-600">
-        <div className="flex items-center gap-1.5 font-semibold text-slate-800">
-          <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E] shrink-0" />
-          Before you travel or pay:
+      <div className="rounded-xl bg-muted/60 border border-border p-3 space-y-1 text-[11px] text-muted-foreground">
+        <div className="flex items-center gap-1.5 font-semibold text-foreground">
+          <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
+          Before you pay:
         </div>
         <p className="leading-relaxed">
-          Confirm current availability and pickup arrangements on WhatsApp first. Payments happen directly between you and the seller—inspect the item at pickup before paying.
+          Confirm stock on WhatsApp first. Inspect your item at pickup before paying the seller directly.
         </p>
       </div>
     </div>

@@ -52,45 +52,43 @@ export default async function ProductDetailPage({
   const daysConfirmed = daysSinceConfirmed(product.last_confirmed_at)
 
   return (
-    <div className="py-8 md:py-10">
-      <div className="container mx-auto max-w-7xl px-4 space-y-10">
-        {/* Breadcrumb */}
-        <div className="flex flex-wrap items-center justify-between gap-4">
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <Link href="/marketplace" className="inline-flex items-center gap-1 hover:text-slate-900 font-medium">
+    <div className="py-5 sm:py-8 md:py-10 min-w-0">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-6 sm:space-y-8 min-w-0">
+        {/* Compact Mobile-Safe Breadcrumb + Actions */}
+        <div className="flex items-center justify-between gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 text-xs text-muted-foreground min-w-0 overflow-hidden">
+            <Link
+              href="/marketplace"
+              className="inline-flex items-center gap-1 hover:text-foreground font-medium shrink-0"
+            >
               <ArrowLeft className="h-3.5 w-3.5" />
-              Marketplace
+              <span>Shop</span>
             </Link>
             {product.category && (
               <>
-                <span>/</span>
+                <span className="shrink-0">/</span>
                 <Link
                   href={`/category/${product.category.slug}`}
-                  className="hover:text-slate-900"
+                  className="hover:text-foreground truncate max-w-[120px] sm:max-w-none"
                 >
-                  {product.category.name}
+                  {product.category.short_name || product.category.name}
                 </Link>
               </>
             )}
-            <span>/</span>
-            <span className="text-slate-800 font-semibold truncate max-w-[220px]">
-              {product.title}
-            </span>
           </div>
 
-          <div className="flex items-center gap-2">
-            {/* WhatsApp Share Button */}
+          <div className="flex items-center gap-2 shrink-0">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                `🛒 Found this on Jetty — ${product.title} at ₦${product.price.toLocaleString('en-NG')}\n\nCheck it out: https://jetty.ng/product/${product.slug || product.id}`
+                `Found this on Jetty — ${product.title} at ₦${product.price.toLocaleString('en-NG')}\n\nhttps://jetty.ng/product/${product.slug || product.id}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 rounded-lg border border-[#25D366]/30 bg-[#25D366]/10 px-3 py-1.5 text-xs font-semibold text-[#128C7E] hover:bg-[#25D366]/20 transition-colors"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
               title="Share this product on WhatsApp"
             >
-              <Share2 className="h-3.5 w-3.5" />
-              Share
+              <Share2 className="h-3.5 w-3.5 text-[#0F6E6E]" />
+              <span>Share</span>
             </a>
             <ReportListingModal
               targetType="product"
@@ -102,12 +100,12 @@ export default async function ProductDetailPage({
         </div>
 
         {/* Main 2-Column Product Layout */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start min-w-0">
           {/* Left Column: Product Photos & Description (7 cols) */}
-          <div className="lg:col-span-7 space-y-6">
+          <div className="lg:col-span-7 space-y-4 sm:space-y-6 min-w-0">
             {/* Primary Image Gallery */}
-            <div className="rounded-2xl border border-slate-200 bg-white overflow-hidden">
-              <div className="aspect-4/3 w-full bg-slate-100 relative">
+            <div className="rounded-2xl border border-border bg-card overflow-hidden">
+              <div className="aspect-square sm:aspect-4/3 w-full bg-muted relative">
                 {product.images && product.images.length > 0 ? (
                   <img
                     src={product.images[0]}
@@ -115,18 +113,18 @@ export default async function ProductDetailPage({
                     className="h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="flex h-full w-full items-center justify-center text-slate-300">
+                  <div className="flex h-full w-full items-center justify-center text-muted-foreground/40">
                     <Package className="h-16 w-16" />
                   </div>
                 )}
               </div>
 
               {product.images && product.images.length > 1 && (
-                <div className="grid grid-cols-4 gap-2 p-3 border-t border-slate-100 bg-slate-50">
+                <div className="grid grid-cols-4 gap-2 p-2.5 sm:p-3 border-t border-border bg-muted/40">
                   {product.images.map((img, i) => (
                     <div
                       key={i}
-                      className="aspect-square rounded-lg border border-slate-200 overflow-hidden bg-white"
+                      className="aspect-square rounded-lg border border-border overflow-hidden bg-card"
                     >
                       <img
                         src={img}
@@ -140,48 +138,46 @@ export default async function ProductDetailPage({
             </div>
 
             {/* Product Details & Description Card */}
-            <div className="rounded-2xl border border-slate-200 bg-white p-6 space-y-5">
-              <div className="flex flex-wrap items-center gap-2">
+            <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 space-y-4">
+              <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
                 {product.category && (
                   <Link
                     href={`/category/${product.category.slug}`}
-                    className="inline-flex items-center gap-1 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F]"
+                    className="inline-flex items-center gap-1 rounded-md bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-2.5 py-1 text-xs font-semibold text-[#0A4F4F] dark:text-[#E8B84A]"
                   >
-                    <Tag className="h-3 w-3 text-[#0F6E6E]" />
-                    {product.category.name}
+                    <Tag className="h-3 w-3" />
+                    {product.category.short_name || product.category.name}
                   </Link>
                 )}
-                <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
-                  Condition: {conditionLabels[product.condition] || product.condition}
+                <span className="rounded-md bg-muted px-2.5 py-1 text-xs font-medium text-foreground">
+                  {conditionLabels[product.condition] || product.condition}
                 </span>
-                <span className="inline-flex items-center gap-1 rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-600">
-                  <Clock className="h-3 w-3 text-slate-500" />
+                <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2.5 py-1 text-xs text-muted-foreground">
+                  <Clock className="h-3 w-3" />
                   {daysConfirmed === 0
-                    ? 'Stock confirmed today'
-                    : `Stock confirmed ${daysConfirmed}d ago`}
+                    ? 'Confirmed today'
+                    : `Confirmed ${daysConfirmed}d ago`}
                 </span>
               </div>
 
               {stale && (
-                <div className="rounded-xl border border-amber-300 bg-amber-50 p-3.5 flex items-start gap-2.5 text-xs text-amber-900">
+                <div className="rounded-xl border border-amber-300 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800 p-3 flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200">
                   <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
                   <div>
-                    <strong>Availability check advised:</strong> This listing has not had its stock status re-confirmed in over 14 days. Message the vendor on WhatsApp to confirm it is still in stock.
+                    <strong>Availability check advised:</strong> Message the vendor on WhatsApp to confirm this item is still in stock.
                   </div>
                 </div>
               )}
 
-              <div>
-                <h1 className="text-xl sm:text-2xl font-bold text-slate-900 tracking-tight">
-                  {product.title}
-                </h1>
-              </div>
+              <h1 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
+                {product.title}
+              </h1>
 
-              <div className="space-y-2 pt-2 border-t border-slate-100">
-                <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                  Product Description
+              <div className="space-y-1.5 pt-2 border-t border-border">
+                <h2 className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                  Description
                 </h2>
-                <p className="text-sm text-slate-700 leading-relaxed whitespace-pre-line">
+                <p className="text-sm text-foreground/90 leading-relaxed whitespace-pre-line">
                   {product.description}
                 </p>
               </div>
@@ -189,62 +185,60 @@ export default async function ProductDetailPage({
           </div>
 
           {/* Right Column: Order Box & Vendor Summary (5 cols) */}
-          <div className="lg:col-span-5 space-y-5">
+          <div className="lg:col-span-5 space-y-4 sm:space-y-5 min-w-0">
             <ProductOrderBox product={product} />
 
             {/* Vendor Identity Card */}
             {product.vendor && (
-              <div className="rounded-2xl border border-slate-200 bg-white p-5 space-y-4">
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-[#E6F2F2] border border-[#0F6E6E]/15 text-[#0F6E6E]">
-                      {product.vendor.logo_url ? (
-                        <img
-                          src={product.vendor.logo_url}
-                          alt={product.vendor.shop_name}
-                          className="h-full w-full rounded-xl object-cover"
+              <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 space-y-3.5">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-xl bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/15 text-[#0F6E6E] dark:text-[#E8B84A]">
+                    {product.vendor.logo_url ? (
+                      <img
+                        src={product.vendor.logo_url}
+                        alt={product.vendor.shop_name}
+                        className="h-full w-full rounded-xl object-cover"
+                      />
+                    ) : (
+                      <Store className="h-5 w-5" />
+                    )}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="flex items-center gap-1 min-w-0">
+                      <Link
+                        href={`/vendors/${product.vendor.slug || product.vendor.id}`}
+                        className="text-sm sm:text-base font-bold text-foreground hover:text-[#0F6E6E] transition-colors truncate"
+                      >
+                        {product.vendor.shop_name}
+                      </Link>
+                      {product.vendor.verification_status === 'verified' && (
+                        <BadgeCheck
+                          className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0"
+                          aria-label="Verified Vendor"
                         />
-                      ) : (
-                        <Store className="h-6 w-6" />
                       )}
                     </div>
-                    <div>
-                      <div className="flex items-center gap-1.5">
-                        <Link
-                          href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                          className="text-base font-bold text-slate-900 hover:text-[#0F6E6E] transition-colors"
-                        >
-                          {product.vendor.shop_name}
-                        </Link>
-                        {product.vendor.verification_status === 'verified' && (
-                          <BadgeCheck
-                            className="h-4 w-4 text-[#0F6E6E] shrink-0"
-                            aria-label="Verified Vendor"
-                          />
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500">
-                        {product.vendor.verification_status === 'verified'
-                          ? 'Sold by a verified Jetty vendor'
-                          : 'Pending verification'}
-                      </p>
-                    </div>
+                    <p className="text-xs text-muted-foreground truncate">
+                      {product.vendor.verification_status === 'verified'
+                        ? 'Verified Jetty vendor'
+                        : 'Pending verification'}
+                    </p>
                   </div>
                 </div>
 
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-3">
                   {product.vendor.description}
                 </p>
 
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
-                  <span className="text-[11px] text-slate-500">
-                    Verified badge confirms seller contact details
+                <div className="pt-3 border-t border-border flex items-center justify-between gap-2">
+                  <span className="text-[11px] text-muted-foreground truncate">
+                    Identity &amp; WhatsApp verified
                   </span>
                   <Link
                     href={`/vendors/${product.vendor.slug || product.vendor.id}`}
-                    className="text-xs font-bold text-[#0F6E6E] hover:underline shrink-0"
+                    className="text-xs font-bold text-[#0F6E6E] dark:text-[#E8B84A] hover:underline shrink-0"
                   >
-                    Visit Storefront →
+                    Visit Store →
                   </Link>
                 </div>
               </div>
@@ -254,21 +248,21 @@ export default async function ProductDetailPage({
 
         {/* Related Products in Category */}
         {moreInCategory.length > 0 && (
-          <section className="pt-8 border-t border-slate-200 space-y-5">
-            <div className="flex items-center justify-between">
-              <h2 className="text-lg font-bold text-slate-900">
-                More in {product.category?.name || 'Marketplace'}
+          <section className="pt-6 border-t border-border space-y-4">
+            <div className="flex items-center justify-between gap-2">
+              <h2 className="text-base sm:text-lg font-bold text-foreground truncate">
+                More in {product.category?.short_name || product.category?.name || 'Marketplace'}
               </h2>
               {product.category && (
                 <Link
                   href={`/category/${product.category.slug}`}
-                  className="text-xs font-semibold text-[#0F6E6E] hover:underline"
+                  className="text-xs font-semibold text-[#0F6E6E] dark:text-[#E8B84A] hover:underline shrink-0"
                 >
-                  View all in category →
+                  View all →
                 </Link>
               )}
             </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
               {moreInCategory.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))}

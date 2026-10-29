@@ -58,68 +58,65 @@ export default async function MarketplacePage({
   }
 
   return (
-    <div className="py-8 md:py-10">
-      <div className="container mx-auto max-w-7xl px-4 space-y-6">
+    <div className="py-5 sm:py-8 md:py-10 min-w-0">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 min-w-0">
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-slate-200 pb-6">
-          <div>
-            <p className="text-xs font-bold uppercase tracking-wider text-[#0F6E6E] mb-1">
-              NMU & Okerenkoko Catalogue
-            </p>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
-              {activeCategoryObj ? activeCategoryObj.name : 'Marketplace Listings'}
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-border pb-4 sm:pb-5">
+          <div className="min-w-0">
+            <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+              {activeCategoryObj ? activeCategoryObj.name : 'Marketplace'}
             </h1>
-            <p className="text-sm text-slate-600 mt-1">
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1">
               {activeCategoryObj
                 ? activeCategoryObj.description
-                : 'Browse available products, compare prices across vendors, and order directly on WhatsApp.'}
+                : 'Browse available products across NMU Okerenkoko & Kurutie and order on WhatsApp.'}
             </p>
           </div>
 
           <Link
             href="/vendor/apply"
-            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-300 bg-white px-4 py-2.5 text-xs font-semibold text-slate-800 hover:bg-slate-50 transition-colors self-start sm:self-auto"
+            className="hidden sm:inline-flex items-center gap-1.5 rounded-xl border border-border bg-card px-4 py-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors shrink-0"
           >
-            <Store className="h-4 w-4 text-[#0F6E6E]" />
+            <Store className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
             Sell Your Products
           </Link>
         </div>
 
         {/* Filters */}
-        <Suspense fallback={<div className="h-24 rounded-xl bg-slate-100 animate-pulse" />}>
+        <Suspense fallback={<div className="h-20 rounded-xl bg-muted animate-pulse" />}>
           <MarketplaceFilters categories={categories} />
         </Suspense>
 
         {/* Results Count */}
-        <div className="flex items-center justify-between text-xs text-slate-500">
+        <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
           <span>
-            Showing <strong className="text-slate-900">{products.length}</strong> of{' '}
-            <strong className="text-slate-900">{totalCount}</strong> listing
+            Showing <strong className="text-foreground">{products.length}</strong> of{' '}
+            <strong className="text-foreground">{totalCount}</strong> listing
             {totalCount === 1 ? '' : 's'}
-            {params.q ? ` matching "${params.q}"` : ''}
+            {params.q ? ` for "${params.q}"` : ''}
           </span>
           {params.availability === 'all' && (
-            <span className="text-amber-700 font-medium">
-              Including out-of-stock products
+            <span className="text-amber-600 dark:text-amber-400 font-medium">
+              Including out-of-stock
             </span>
           )}
         </div>
 
-        {/* Product Grid */}
+        {/* Product Grid (2 columns on mobile) */}
         {products.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-5">
             {products.map((product) => (
               <ProductCard key={product.id} product={product} />
             ))}
           </div>
         ) : (
-          <div className="rounded-2xl border border-dashed border-slate-300 bg-white p-14 text-center max-w-lg mx-auto my-8">
-            <Package className="mx-auto h-12 w-12 text-slate-300 mb-3" />
-            <h3 className="text-lg font-bold text-slate-900">
+          <div className="rounded-2xl border border-dashed border-border bg-card p-10 sm:p-14 text-center max-w-lg mx-auto my-6">
+            <Package className="mx-auto h-10 w-10 text-muted-foreground mb-3" />
+            <h3 className="text-base sm:text-lg font-bold text-foreground">
               No matching products found
             </h3>
-            <p className="text-sm text-slate-600 mt-1 mb-5">
-              We couldn&apos;t find any available listings matching your current filters. Try clearing your search or browsing all categories.
+            <p className="text-xs sm:text-sm text-muted-foreground mt-1 mb-5">
+              We couldn&apos;t find any available listings matching your current filters.
             </p>
             <Link
               href="/marketplace"
@@ -132,13 +129,13 @@ export default async function MarketplacePage({
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="flex items-center justify-center gap-2 pt-6">
+          <div className="flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 pt-4">
             <Link
               href={page > 1 ? buildPageHref(page - 1) : '#'}
               aria-disabled={page <= 1}
               className={cn(
-                'inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors',
-                page <= 1 ? 'opacity-40 pointer-events-none' : 'hover:bg-slate-50'
+                'inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors',
+                page <= 1 ? 'opacity-40 pointer-events-none' : 'hover:bg-muted'
               )}
             >
               <ChevronLeft className="h-4 w-4" />
@@ -149,10 +146,10 @@ export default async function MarketplacePage({
                 key={p}
                 href={buildPageHref(p)}
                 className={cn(
-                  'inline-flex h-10 w-10 items-center justify-center rounded-lg border text-xs font-bold transition-colors',
+                  'inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border text-xs font-bold transition-colors',
                   p === page
                     ? 'border-[#0F6E6E] bg-[#0F6E6E] text-white'
-                    : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                    : 'border-border bg-card text-foreground hover:bg-muted'
                 )}
               >
                 {p}
@@ -163,8 +160,8 @@ export default async function MarketplacePage({
               href={page < totalPages ? buildPageHref(page + 1) : '#'}
               aria-disabled={page >= totalPages}
               className={cn(
-                'inline-flex h-10 w-10 items-center justify-center rounded-lg border border-slate-200 bg-white text-slate-700 transition-colors',
-                page >= totalPages ? 'opacity-40 pointer-events-none' : 'hover:bg-slate-50'
+                'inline-flex h-9 w-9 sm:h-10 sm:w-10 items-center justify-center rounded-lg border border-border bg-card text-foreground transition-colors',
+                page >= totalPages ? 'opacity-40 pointer-events-none' : 'hover:bg-muted'
               )}
             >
               <ChevronRight className="h-4 w-4" />

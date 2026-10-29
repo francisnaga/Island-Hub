@@ -231,12 +231,8 @@ export function VendorApplyForm({
       )}
 
       {/* Header */}
-      <div className="space-y-2">
-        <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] border border-[#0F6E6E]/25 px-3 py-1 text-xs font-semibold text-[#0A4F4F]">
-          <Store className="h-3.5 w-3.5 text-[#0F6E6E]" />
-          NMU & Okerenkoko Seller Onboarding
-        </div>
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">
+      <div className="space-y-1.5">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
           {existingVendor
             ? 'Update Your Vendor Storefront'
             : 'Apply to Sell on Jetty'}
