@@ -35,6 +35,7 @@ export interface WhatsAppProductInquiryParams {
   quantity?: number
   productUrl?: string
   askingLocation?: boolean
+  requestLivePhoto?: boolean
 }
 
 export function buildProductWhatsAppUrl(params: WhatsAppProductInquiryParams): {
@@ -70,6 +71,8 @@ export function buildProductWhatsAppUrl(params: WhatsAppProductInquiryParams): {
 
   if (params.askingLocation) {
     lines.push('Is it currently available? Please share your pickup point or delivery arrangement.')
+  } else if (params.requestLivePhoto) {
+    lines.push('Is it available? Please also share a live photo of the item and confirm where I can pick it up.')
   } else {
     lines.push('Is it available? Where can I pick it up?')
   }

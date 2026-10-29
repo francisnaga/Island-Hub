@@ -135,6 +135,21 @@ export function ProductForm({
       toast.error('Please enter a valid http:// or https:// image URL.')
       return
     }
+    const lowerUrl = url.toLowerCase()
+    const bannedStockDomains = [
+      'unsplash.com',
+      'pexels.com',
+      'pixabay.com',
+      'shutterstock.com',
+      'istockphoto.com',
+      'freepik.com',
+    ]
+    if (bannedStockDomains.some((domain) => lowerUrl.includes(domain))) {
+      toast.error(
+        'Generic stock photos are not allowed. Please upload an actual photo of the exact item you are selling.'
+      )
+      return
+    }
     setImages((prev) => [...prev, url])
     setImageUrlInput('')
   }

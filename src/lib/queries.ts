@@ -29,7 +29,9 @@ export async function getPublicVendors(options?: {
   query?: string
   verifiedOnly?: boolean
 }): Promise<Vendor[]> {
-  let list: Vendor[] = INITIAL_VENDORS
+  let list: Vendor[] = INITIAL_VENDORS.filter(
+    (v) => v.verification_status === 'verified'
+  )
   try {
     const supabase = await createClient()
     let dbQuery = supabase
@@ -50,7 +52,7 @@ export async function getPublicVendors(options?: {
       list = data as Vendor[]
     } else if (options?.query) {
       const q = options.query.toLowerCase()
-      list = INITIAL_VENDORS.filter(
+      list = list.filter(
         (v) =>
           v.shop_name.toLowerCase().includes(q) ||
           v.description.toLowerCase().includes(q) ||
@@ -60,7 +62,7 @@ export async function getPublicVendors(options?: {
   } catch {
     if (options?.query) {
       const q = options.query.toLowerCase()
-      list = INITIAL_VENDORS.filter(
+      list = list.filter(
         (v) =>
           v.shop_name.toLowerCase().includes(q) ||
           v.description.toLowerCase().includes(q) ||
@@ -105,18 +107,18 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
   }
 
   const fallbackVendor = INITIAL_VENDORS.find(
-    (v) => v.slug === slugOrId || v.id === slugOrId
+    (v) => (v.slug === slugOrId || v.id === slugOrId) && v.verification_status !== 'suspended'
   )
   if (!fallbackVendor) {
     return { vendor: null, products: [] }
   }
   const sanitized = sanitizePublicVendor(fallbackVendor)
-  const products = INITIAL_PRODUCTS.filter((p) => p.vendor_id === fallbackVendor.id).map(
-    (p) => ({
-      ...p,
-      vendor: sanitized,
-    })
-  )
+  const products = INITIAL_PRODUCTS.filter(
+    (p) => p.vendor_id === fallbackVendor.id && p.status === 'approved'
+  ).map((p) => ({
+    ...p,
+    vendor: sanitized,
+  }))
   return { vendor: sanitized, products }
 }
 
@@ -130,6 +132,44 @@ export interface ProductQueryFilters {
   sort?: 'newest' | 'price_asc' | 'price_desc' | 'relevance'
   limit?: number
   page?: number
+}
+
+function matchesSearchQuery(p: Product, rawQuery: string): boolean {
+  const needle = rawQuery.trim().toLowerCase()
+  if (!needle) return true
+
+  // Handle common campus synonym terms such as "coverall" -> action rig / uniform
+  const expandedTerms = [needle]
+  if (needle.includes('coverall') || needle.includes('overall')) {
+    expandedTerms.push('action rig', 'uniform')
+  }
+  if (needle.includes('shoe') || needle.includes('boot')) {
+    expandedTerms.push('safety boots', 'footwear')
+  }
+
+  const searchableText = [
+    p.title,
+    p.description,
+    p.category?.name,
+    p.category?.short_name,
+    p.category?.slug,
+    p.vendor?.shop_name,
+    p.vendor?.location_label,
+    p.vendor?.pickup_options,
+    ...(p.variants?.sizes || []),
+    ...(p.variants?.colors || []),
+    p.variants?.custom_label || '',
+    ...(p.tags || []),
+  ]
+    .filter(Boolean)
+    .join(' ')
+    .toLowerCase()
+
+  return expandedTerms.some((term) => {
+    if (searchableText.includes(term)) return true
+    const tokens = term.split(/\s+/).filter(Boolean)
+    return tokens.length > 1 && tokens.every((tok) => searchableText.includes(tok))
+  })
 }
 
 export async function getPublicProducts(filters: ProductQueryFilters = {}): Promise<{
@@ -162,10 +202,6 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
       query = query.in('stock_status', ['available', 'low_stock'])
     }
 
-    if (q.trim()) {
-      query = query.or(`title.ilike.%${q.trim()}%,description.ilike.%${q.trim()}%`)
-    }
-
     if (condition && condition !== 'all') {
       query = query.eq('condition', condition)
     }
@@ -188,35 +224,42 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     const { data, error } = await query
     if (!error && data && data.length > 0) {
       usedDatabase = true
-      productsList = (data as Product[]).map((item) => ({
-        ...item,
-        vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
-      }))
+      productsList = (data as Product[])
+        .filter((item) => !item.vendor || item.vendor.verification_status === 'verified')
+        .map((item) => ({
+          ...item,
+          vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
+        }))
+
+      if (q.trim()) {
+        productsList = productsList.filter((p) => matchesSearchQuery(p, q))
+      }
     }
   } catch {
     // Fallback to initial catalog
   }
 
   if (!usedDatabase) {
-    productsList = INITIAL_PRODUCTS.map((item) => ({
+    productsList = INITIAL_PRODUCTS.filter(
+      (item) =>
+        item.status === 'approved' &&
+        (!item.vendor || item.vendor.verification_status === 'verified')
+    ).map((item) => ({
       ...item,
       vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
     }))
 
     // Apply in-memory filters for initial catalog
     if (availability === 'available_only') {
-      productsList = productsList.filter((p) => p.stock_status !== 'out_of_stock')
+      productsList = productsList.filter(
+        (p) =>
+          (p.stock_status === 'available' || p.stock_status === 'low_stock') &&
+          (p.stock_quantity === null || p.stock_quantity === undefined || p.stock_quantity > 0)
+      )
     }
 
     if (q.trim()) {
-      const needle = q.trim().toLowerCase()
-      productsList = productsList.filter(
-        (p) =>
-          p.title.toLowerCase().includes(needle) ||
-          p.description.toLowerCase().includes(needle) ||
-          p.category?.name.toLowerCase().includes(needle) ||
-          p.vendor?.shop_name.toLowerCase().includes(needle)
-      )
+      productsList = productsList.filter((p) => matchesSearchQuery(p, q))
     }
 
     if (condition && condition !== 'all') {
@@ -238,7 +281,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     )
   }
 
-  // Sort if needed
+  // Sort strictly by requested order
   if (sort === 'price_asc') {
     productsList.sort((a, b) => a.price - b.price)
   } else if (sort === 'price_desc') {

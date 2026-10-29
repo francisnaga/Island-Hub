@@ -73,6 +73,9 @@ export function VendorDashboardClient({
   const pendingProducts = products.filter((p) => p.status === 'pending_review')
   const outOfStockProducts = products.filter((p) => p.stock_status === 'out_of_stock')
   const staleProducts = products.filter((p) => isListingStale(p.last_confirmed_at, 14))
+  const missingPhotoProducts = products.filter(
+    (p) => !p.images || p.images.length === 0 || p.needs_seller_photo
+  )
 
   const displayedProducts =
     activeTab === 'pending_review'
@@ -340,6 +343,19 @@ export function VendorDashboardClient({
         </div>
       )}
 
+      {/* Missing verified seller photos alert */}
+      {missingPhotoProducts.length > 0 && (
+        <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-start gap-2.5 text-xs text-amber-950">
+            <AlertTriangle className="h-4 w-4 text-amber-600 shrink-0 mt-0.5" />
+            <div>
+              <strong>{missingPhotoProducts.length} listing(s) flagged for seller photo upload:</strong>{' '}
+              Upload actual photos showing the real product, colour, model, pack quantity, and included accessories. Do not use unrelated stock images.
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Navigation Tabs */}
       <div className="flex items-center gap-1.5 w-full max-w-full overflow-x-auto no-scrollbar pb-1 border-b border-border">
         {[
@@ -455,6 +471,11 @@ export function VendorDashboardClient({
                           {product.status === 'suspended' && (
                             <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-bold text-slate-800">
                               Suspended
+                            </span>
+                          )}
+                          {(!product.images || product.images.length === 0) && (
+                            <span className="rounded-full bg-amber-100 border border-amber-300 px-2.5 py-0.5 text-[10px] font-bold text-amber-950">
+                              Flagged: Seller photo required
                             </span>
                           )}
                         </div>

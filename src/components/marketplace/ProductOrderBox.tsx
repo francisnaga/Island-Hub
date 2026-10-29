@@ -47,6 +47,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
     selectedColor: selectedColor || undefined,
     quantity,
     productUrl: currentUrl,
+    requestLivePhoto: !product.images || product.images.length === 0,
   })
 
   const askLocationWhatsappResult = buildProductWhatsAppUrl({

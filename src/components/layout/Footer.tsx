@@ -1,12 +1,18 @@
-'use client'
-
-import { useState } from 'react'
 import Link from 'next/link'
 import { ShieldCheck, Store, MapPin } from 'lucide-react'
 import { INITIAL_CATEGORIES } from '@/lib/marketplace-data'
 
+const LAUNCH_CATEGORY_SLUGS = new Set([
+  'maritime-cadet-gear',
+  'electronics-gadgets',
+  'books-stationery',
+  'hostel-daily-essentials',
+])
+
 export function Footer() {
-  const [nagaLogoLoaded, setNagaLogoLoaded] = useState(true)
+  const activeCategories = INITIAL_CATEGORIES.filter((cat) =>
+    LAUNCH_CATEGORY_SLUGS.has(cat.slug)
+  )
 
   return (
     <footer className="border-t border-border bg-card text-muted-foreground mt-auto">
@@ -14,10 +20,14 @@ export function Footer() {
         <div className="grid grid-cols-1 gap-8 md:grid-cols-4">
           {/* Brand Column */}
           <div className="space-y-3">
-            <Link href="/" className="inline-flex items-center gap-2.5 py-1 pr-2">
+            <Link
+              href="/"
+              aria-label="Jetty — NMU Campus Marketplace Home"
+              className="inline-flex items-center gap-2.5 py-1 pr-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E] rounded-lg"
+            >
               <img
                 src="/jetty-mark.svg"
-                alt="Jetty"
+                alt=""
                 width={32}
                 height={32}
                 className="h-8 w-8 shrink-0"
@@ -27,7 +37,7 @@ export function Footer() {
               </span>
             </Link>
             <p className="text-sm text-muted-foreground leading-relaxed">
-              The campus marketplace for Nigeria Maritime University (NMU), covering both Okerenkoko and Kurutie campuses. Buy &amp; sell cadet gear, find housing, and discover campus services.
+              The campus marketplace for Nigeria Maritime University (NMU), covering Okerenkoko and Kurutie. Browse cadet gear, electronics, books, and hostel essentials from verified local sellers.
             </p>
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground pt-1">
               <MapPin className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
@@ -35,13 +45,13 @@ export function Footer() {
             </div>
           </div>
 
-          {/* Categories */}
+          {/* Categories (Unified Taxonomy) */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">
-              Shop &amp; Explore
-            </h3>
+            <h2 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">
+              Shop Categories
+            </h2>
             <ul className="space-y-2 text-sm">
-              {INITIAL_CATEGORIES.map((cat) => (
+              {activeCategories.map((cat) => (
                 <li key={cat.slug}>
                   <Link
                     href={`/category/${cat.slug}`}
@@ -53,18 +63,26 @@ export function Footer() {
               ))}
               <li>
                 <Link
-                  href="/services"
+                  href="/marketplace"
                   className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors"
                 >
-                  Campus Services
+                  All Marketplace Listings
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/housing"
+                  href="/fresher-kit"
                   className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors"
                 >
-                  Housing &amp; Bedspaces
+                  NMU Fresher Kit Checklist
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href="/services"
+                  className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors"
+                >
+                  Campus Services Directory
                 </Link>
               </li>
             </ul>
@@ -72,17 +90,17 @@ export function Footer() {
 
           {/* For Vendors */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">
               For Vendors &amp; Sellers
-            </h3>
+            </h2>
             <ul className="space-y-2 text-sm">
               <li>
                 <Link
                   href="/vendor/apply"
-                  className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors flex items-center gap-1.5"
+                  className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors flex items-center gap-1.5 font-medium text-foreground"
                 >
                   <Store className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                  Apply to Become a Vendor
+                  Become a Vendor
                 </Link>
               </li>
               <li>
@@ -98,63 +116,78 @@ export function Footer() {
                   href="/vendors"
                   className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors"
                 >
-                  Browse Verified Stores
+                  Verified Vendor Storefronts
                 </Link>
               </li>
               <li>
                 <Link
-                  href="/fresher-kit"
+                  href="/safety#vendor-guidelines"
                   className="hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors"
                 >
-                  NMU Fresher Kit Checklist
+                  Vendor &amp; Photo Guidelines
                 </Link>
               </li>
             </ul>
           </div>
 
-          {/* Buyer Safety */}
+          {/* Safety, Trust & Legal Policies */}
           <div>
-            <h3 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">
-              Safety &amp; Policies
-            </h3>
-            <div className="rounded-xl border border-border bg-muted/60 p-3.5 space-y-2">
+            <h2 className="text-xs font-bold uppercase tracking-wider text-foreground mb-3">
+              Safety &amp; Legal Policies
+            </h2>
+            <div className="rounded-xl border border-border bg-muted/60 p-3.5 space-y-2 mb-3">
               <div className="flex items-center gap-1.5 text-xs font-semibold text-foreground">
                 <ShieldCheck className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
                 Direct Buyer–Seller Orders
               </div>
               <p className="text-xs text-muted-foreground leading-relaxed">
-                Jetty connects buyers with verified vendors via WhatsApp. Confirm item availability and inspect goods at pickup before completing payment.
+                Jetty connects buyers with approved vendors via WhatsApp. Confirm item size, condition, price, and availability before travelling or paying.
               </p>
-              <Link
-                href="/safety"
-                className="inline-block text-xs font-semibold text-[#0F6E6E] dark:text-[#E8B84A] hover:underline pt-1"
-              >
-                Read Safety &amp; Buying Guide →
-              </Link>
             </div>
+            <ul className="grid grid-cols-2 gap-x-3 gap-y-1.5 text-xs">
+              <li>
+                <Link href="/safety#buyer-safety" className="hover:text-foreground underline-offset-2 hover:underline">
+                  Safety &amp; Reporting
+                </Link>
+              </li>
+              <li>
+                <Link href="/safety#vendor-guidelines" className="hover:text-foreground underline-offset-2 hover:underline">
+                  Vendor Guidelines
+                </Link>
+              </li>
+              <li>
+                <Link href="/safety#privacy-policy" className="hover:text-foreground underline-offset-2 hover:underline">
+                  Privacy Policy
+                </Link>
+              </li>
+              <li>
+                <Link href="/safety#terms-of-use" className="hover:text-foreground underline-offset-2 hover:underline">
+                  Terms of Use
+                </Link>
+              </li>
+            </ul>
           </div>
         </div>
 
         <div className="mt-10 pt-6 border-t border-border flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-muted-foreground">
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-3">
             <p>© {new Date().getFullYear()} Jetty · NMU Okerenkoko &amp; Kurutie.</p>
-            <span className="hidden sm:inline text-border">·</span>
-            <div className="inline-flex items-center gap-2 text-muted-foreground/80">
-              {nagaLogoLoaded && (
-                <img
-                  src="/naga-logo.svg"
-                  alt="Naga"
-                  className="h-5 w-auto opacity-80"
-                  onError={() => setNagaLogoLoaded(false)}
-                />
-              )}
-              <span>Built by Naga</span>
-            </div>
+            <span className="text-border">·</span>
+            <span className="font-medium text-foreground/80">Built by Naga</span>
           </div>
-          <div className="flex items-center gap-4">
-            <Link href="/marketplace" className="hover:text-foreground">All Listings</Link>
-            <Link href="/vendors" className="hover:text-foreground">Vendors</Link>
-            <Link href="/safety" className="hover:text-foreground">Report an Issue</Link>
+          <div className="flex flex-wrap items-center gap-4">
+            <Link href="/safety#privacy-policy" className="hover:text-foreground">
+              Privacy Policy
+            </Link>
+            <Link href="/safety#terms-of-use" className="hover:text-foreground">
+              Terms of Use
+            </Link>
+            <Link href="/safety#vendor-guidelines" className="hover:text-foreground">
+              Vendor Guidelines
+            </Link>
+            <Link href="/safety#report" className="hover:text-foreground">
+              Report a Listing
+            </Link>
           </div>
         </div>
       </div>

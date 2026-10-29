@@ -77,6 +77,8 @@ export interface Product {
   stock_quantity?: number | null
   images: string[]
   variants?: ProductVariants | null
+  tags?: string[]
+  needs_seller_photo?: boolean
   status: ProductApprovalStatus
   rejection_reason?: string | null
   last_confirmed_at: string

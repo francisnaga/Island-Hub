@@ -71,15 +71,20 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             e.preventDefault()
             applyFilters()
           }}
+          role="search"
           className="flex-1 flex gap-2 min-w-0"
         >
           <div className="relative flex-1 min-w-0">
-            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <label htmlFor="marketplace-search-input" className="sr-only">
+              Search listings by name, category, size, or campus location
+            </label>
+            <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
             <input
+              id="marketplace-search-input"
               type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search boots, rigs, calculators..."
+              placeholder="Search boots, rigs, calculators, size 43..."
               className="w-full h-10 sm:h-11 pl-10 pr-3 rounded-xl border border-input bg-card text-sm text-foreground placeholder:text-muted-foreground focus:border-[#0F6E6E] focus:outline-none focus:ring-2 focus:ring-[#0F6E6E]/15"
             />
           </div>
@@ -87,7 +92,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             type="submit"
             className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold hover:bg-[#0A4F4F] transition-colors shrink-0 cursor-pointer"
           >
-            Search
+            Search listings
           </button>
         </form>
 
@@ -151,7 +156,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
                   : 'bg-card text-foreground border-border hover:border-[#0F6E6E]/40'
               )}
             >
-              {cat.short_name || cat.name}
+              {cat.name}
             </button>
           ))}
         </div>
