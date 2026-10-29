@@ -1,22 +1,10 @@
 'use server'
 
-import { revalidatePath } from 'next/cache'
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
 
-export async function login(formData: FormData) {
-  const supabase = await createClient()
-
-  const email = (formData.get('email') as string)?.trim()
-  const password = formData.get('password') as string
-  const next = (formData.get('next') as string) || '/'
-
-  const { error } = await supabase.auth.signInWithPassword({ email, password })
-
-  if (error) {
-    redirect(`/login?error=${encodeURIComponent(error.message)}&next=${encodeURIComponent(next)}`)
-  }
-
-  revalidatePath('/', 'layout')
-  redirect(next)
+// Email/password sign-in has been removed.
+// Vendors sign in exclusively via Google OAuth.
+// This file is kept to avoid breaking any cached imports.
+export async function login() {
+  redirect('/login')
 }

@@ -8,6 +8,7 @@ import {
   AlertTriangle,
   ArrowLeft,
   Package,
+  Share2,
 } from 'lucide-react'
 import { ProductOrderBox } from '@/components/marketplace/ProductOrderBox'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
@@ -77,12 +78,27 @@ export default async function ProductDetailPage({
             </span>
           </div>
 
-          <ReportListingModal
-            targetType="product"
-            productId={product.id}
-            vendorId={product.vendor_id}
-            targetName={product.title}
-          />
+          <div className="flex items-center gap-2">
+            {/* WhatsApp Share Button */}
+            <a
+              href={`https://wa.me/?text=${encodeURIComponent(
+                `🛒 Found this on IslandHub — ${product.title} at ₦${product.price.toLocaleString('en-NG')}\n\nCheck it out: https://islandhub.ng/product/${product.slug || product.id}`
+              )}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-[#25D366]/30 bg-[#25D366]/10 px-3 py-1.5 text-xs font-semibold text-[#128C7E] hover:bg-[#25D366]/20 transition-colors"
+              title="Share this product on WhatsApp"
+            >
+              <Share2 className="h-3.5 w-3.5" />
+              Share
+            </a>
+            <ReportListingModal
+              targetType="product"
+              productId={product.id}
+              vendorId={product.vendor_id}
+              targetName={product.title}
+            />
+          </div>
         </div>
 
         {/* Main 2-Column Product Layout */}

@@ -35,7 +35,7 @@ export async function getPublicVendors(options?: {
     let dbQuery = supabase
       .from('vendors')
       .select('*')
-      .in('verification_status', ['verified', 'pending'])
+      .eq('verification_status', 'verified')
       .order('created_at', { ascending: false })
 
     if (options?.verifiedOnly) {
