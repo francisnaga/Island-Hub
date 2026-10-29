@@ -168,9 +168,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 14,
-    // Misleading running-shoe stock image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/safety-boots-black.jpg'],
+    needs_seller_photo: false,
     variants: {
       sizes: ['40', '41', '42', '43', '44', '45'],
       colors: ['Black'],
@@ -194,9 +193,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 10,
-    // Misleading business-suit stock image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/cadet-action-rig-navy.jpg'],
+    needs_seller_photo: false,
     variants: {
       sizes: ['S', 'M', 'L', 'XL', 'XXL'],
       colors: ['Dark Navy'],
@@ -220,9 +218,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 20,
-    // Mismatched fashion hat stock image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/cadet-beret-gloves-pack.jpg'],
+    needs_seller_photo: false,
     variants: {
       sizes: ['56cm', '57cm', '58cm', '59cm'],
       colors: ['Navy / White'],
@@ -246,9 +243,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'low_stock',
     stock_quantity: 4,
-    // Mismatched patterned novelty sock image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/cadet-boot-socks-3pack.jpg'],
+    needs_seller_photo: false,
     variants: {
       sizes: ['Free Size (40–45)'],
       colors: ['Plain Black', 'Plain Navy'],
@@ -272,9 +268,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 8,
-    images: [
-      'https://images.unsplash.com/photo-1609091839311-d5365f9ff1c5?auto=format&fit=crop&w=900&q=80',
-    ],
+    images: ['/products/mi-power-bank-silver.jpg'],
+    needs_seller_photo: false,
     variants: {
       colors: ['Silver'],
     },
@@ -297,9 +292,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 12,
-    // Mismatched pink office calculator image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/casio-scientific-calculator.jpg'],
+    needs_seller_photo: false,
     variants: {
       colors: ['Black'],
     },
@@ -322,9 +316,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'like_new',
     stock_status: 'available',
     stock_quantity: 5,
-    // Mismatched wall-art stock image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/a2-drawing-board-set.jpg'],
+    needs_seller_photo: false,
     variants: {
       custom_label: 'A2 Board + Tee-Square + 2 Set Squares + Bag',
     },
@@ -347,9 +340,8 @@ export const INITIAL_PRODUCTS: Product[] = [
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 6,
-    // Mismatched black mini desk fan image removed; flagged for verified seller photo upload
-    images: [],
-    needs_seller_photo: true,
+    images: ['/products/rechargeable-table-fan-white.jpg'],
+    needs_seller_photo: false,
     variants: {
       colors: ['White'],
     },

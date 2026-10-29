@@ -41,6 +41,19 @@ function getSellerDistinctionLabel(vendor: Vendor): string {
   return vendor.is_student ? 'Student seller' : 'Local seller'
 }
 
+const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  'maritime-cadet-gear': '/products/cadet-action-rig-navy.jpg',
+  'electronics-gadgets': '/products/mi-power-bank-silver.jpg',
+  'books-stationery': '/products/casio-scientific-calculator.jpg',
+  'hostel-daily-essentials': '/products/rechargeable-table-fan-white.jpg',
+  'fashion-accessories': '/products/cadet-beret-gloves-pack.jpg',
+  'food-beauty-other': '/products/cadet-boot-socks-3pack.jpg',
+}
+
+function isVideoMedia(url: string): boolean {
+  return /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url)
+}
+
 export default async function ProductDetailPage({
   params,
 }: {
@@ -63,7 +76,12 @@ export default async function ProductDetailPage({
 
   const stale = isListingStale(product.last_confirmed_at, 14)
   const daysConfirmed = daysSinceConfirmed(product.last_confirmed_at)
-  const missingPhoto = !product.images || product.images.length === 0
+  const categorySlug = product.category?.slug || ''
+  const primaryMedia =
+    product.images?.[0] ||
+    CATEGORY_FALLBACK_IMAGES[categorySlug] ||
+    '/products/cadet-action-rig-navy.jpg'
+  const primaryIsVideo = isVideoMedia(primaryMedia)
 
   return (
     <div className="py-5 sm:py-8 md:py-10 min-w-0">
@@ -117,30 +135,24 @@ export default async function ProductDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-8 items-start min-w-0">
           {/* Left Column: Product Photos & Description (7 cols) */}
           <div className="lg:col-span-7 space-y-4 sm:space-y-6 min-w-0">
-            {/* Primary Image Gallery or Seller-Photo-Pending Placeholder */}
+            {/* Primary Image / Video Gallery */}
             <div className="rounded-2xl border border-border bg-card overflow-hidden">
               <div className="aspect-square sm:aspect-4/3 w-full bg-muted relative">
-                {!missingPhoto ? (
+                {primaryIsVideo ? (
+                  <video
+                    src={primaryMedia}
+                    controls
+                    playsInline
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
                   <img
-                    src={product.images[0]}
+                    src={primaryMedia}
                     alt={`${product.title} — sold by ${
                       product.vendor?.shop_name || 'verified seller on Jetty'
                     }`}
                     className="h-full w-full object-cover"
                   />
-                ) : (
-                  <div className="flex h-full w-full flex-col items-center justify-center p-6 text-center bg-gradient-to-b from-muted/40 to-muted">
-                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-card border border-border text-[#0F6E6E] dark:text-[#E8B84A] shadow-2xs mb-3">
-                      <Package className="h-7 w-7" />
-                    </div>
-                    <span className="inline-flex items-center gap-1.5 rounded-lg bg-amber-100 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-3 py-1 text-xs font-bold text-amber-950 dark:text-amber-200">
-                      <CameraOff className="h-3.5 w-3.5" />
-                      Seller photo pending verification
-                    </span>
-                    <p className="text-xs sm:text-sm text-muted-foreground max-w-md mt-2 leading-relaxed">
-                      This listing is flagged for the seller to upload an actual photo of the item. Request a live photo on WhatsApp before travelling or paying.
-                    </p>
-                  </div>
                 )}
               </div>
 

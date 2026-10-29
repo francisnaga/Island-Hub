@@ -2,14 +2,7 @@ import Link from 'next/link'
 import {
   BadgeCheck,
   MapPin,
-  Package,
   AlertTriangle,
-  Anchor,
-  Laptop,
-  BookOpen,
-  Home,
-  Shirt,
-  CameraOff,
   Clock,
 } from 'lucide-react'
 import { Product, Vendor } from '@/lib/types'
@@ -19,15 +12,6 @@ import { cn } from '@/lib/utils'
 interface ProductCardProps {
   product: Product
   offerCount?: number
-}
-
-const categoryIcons: Record<string, React.ComponentType<{ className?: string }>> = {
-  Anchor,
-  Laptop,
-  BookOpen,
-  Home,
-  Shirt,
-  Package,
 }
 
 function getSellerTypeBadge(vendor: Vendor): string {
@@ -40,12 +24,28 @@ function getSellerTypeBadge(vendor: Vendor): string {
   return vendor.is_student ? 'Student seller' : 'Local seller'
 }
 
+const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
+  'maritime-cadet-gear': '/products/cadet-action-rig-navy.jpg',
+  'electronics-gadgets': '/products/mi-power-bank-silver.jpg',
+  'books-stationery': '/products/casio-scientific-calculator.jpg',
+  'hostel-daily-essentials': '/products/rechargeable-table-fan-white.jpg',
+  'fashion-accessories': '/products/cadet-beret-gloves-pack.jpg',
+  'food-beauty-other': '/products/cadet-boot-socks-3pack.jpg',
+}
+
+function isVideoMedia(url: string): boolean {
+  return /\.(mp4|webm|mov|ogg)(\?.*)?$/i.test(url)
+}
+
 export function ProductCard({ product, offerCount = 1 }: ProductCardProps) {
-  const imageUrl = product.images?.[0] || ''
+  const categorySlug = product.category?.slug || ''
+  const mediaUrl =
+    product.images?.[0] ||
+    CATEGORY_FALLBACK_IMAGES[categorySlug] ||
+    '/products/cadet-action-rig-navy.jpg'
+  const isVideo = isVideoMedia(mediaUrl)
   const stale = isListingStale(product.last_confirmed_at, 14)
   const daysConfirmed = daysSinceConfirmed(product.last_confirmed_at)
-  const CategoryIcon =
-    (product.category?.icon && categoryIcons[product.category.icon]) || Package
 
   const hasValidLowStock =
     product.stock_status === 'low_stock' &&
@@ -88,11 +88,23 @@ export function ProductCard({ product, offerCount = 1 }: ProductCardProps) {
       }`}
       className="group flex min-w-0 flex-col rounded-xl border border-border bg-card overflow-hidden transition-all hover:border-[#0F6E6E]/60 hover:shadow-md focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]"
     >
-      {/* 1. Accurate Photo or Structured Seller-Photo-Pending Placeholder */}
+      {/* 1. Accurate Product Photo or Video */}
       <div className="relative aspect-4/3 w-full bg-muted overflow-hidden border-b border-border/60">
-        {imageUrl ? (
+        {isVideo ? (
+          <video
+            src={mediaUrl}
+            muted
+            loop
+            playsInline
+            autoPlay
+            className={cn(
+              'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
+              product.stock_status === 'out_of_stock' && 'opacity-60 grayscale'
+            )}
+          />
+        ) : (
           <img
-            src={imageUrl}
+            src={mediaUrl}
             alt={`${product.title}${
               product.variants?.colors?.length
                 ? ` (${product.variants.colors.join(', ')})`
@@ -104,19 +116,6 @@ export function ProductCard({ product, offerCount = 1 }: ProductCardProps) {
               product.stock_status === 'out_of_stock' && 'opacity-60 grayscale'
             )}
           />
-        ) : (
-          <div className="flex h-full w-full flex-col items-center justify-center p-3 sm:p-4 text-center bg-gradient-to-b from-muted/50 to-muted">
-            <div className="flex h-9 w-9 sm:h-11 sm:w-11 items-center justify-center rounded-xl bg-card border border-border text-[#0F6E6E] dark:text-[#E8B84A] shadow-2xs mb-2">
-              <CategoryIcon className="h-4.5 w-4.5 sm:h-5 sm:w-5" />
-            </div>
-            <span className="inline-flex items-center gap-1 rounded-md bg-amber-100/90 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-800 px-2 py-0.5 text-[10px] font-semibold text-amber-950 dark:text-amber-200">
-              <CameraOff className="h-3 w-3 shrink-0" />
-              Seller photo pending
-            </span>
-            <p className="text-[10px] sm:text-[11px] text-muted-foreground mt-1.5 line-clamp-2 max-w-[200px] leading-tight">
-              Ask vendor for live item photo on WhatsApp before pickup
-            </p>
-          </div>
         )}
 
         {/* Top Category & Stock Status Badges */}
