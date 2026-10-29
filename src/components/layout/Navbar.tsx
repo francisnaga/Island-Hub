@@ -226,7 +226,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           ) : (
             <Link
               href="/vendor/apply"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-foreground text-background px-3 text-xs font-semibold hover:opacity-90 transition-opacity"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-primary text-primary-foreground px-3 text-xs font-bold hover:opacity-90 transition-opacity shadow-sm"
             >
               <Store className="h-3.5 w-3.5" />
               <span>Sell</span>

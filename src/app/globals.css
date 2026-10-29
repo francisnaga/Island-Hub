@@ -72,31 +72,31 @@
   --radius: 0.75rem;
 }
 
-/* ── High-Conversion Professional Dark Mode (Obsidian Slate + Vibrant Teal) ── */
+/* ── True Carbon Black Professional Dark Mode (Linear / Raycast / Vercel Grade) ── */
 .dark {
   --jetty-teal: #14B8A6;
   --jetty-teal-deep: #0D9488;
-  --jetty-teal-tint: #112229;
+  --jetty-teal-tint: #0F2023;
   --jetty-gold: #E8B84A;
-  --jetty-ink: #F8FAFC;
+  --jetty-ink: #F7F8F8;
 
-  --background: #090D16;
-  --foreground: #F8FAFC;
-  --card: #111827;
-  --card-foreground: #F8FAFC;
-  --popover: #111827;
-  --popover-foreground: #F8FAFC;
+  --background: #08090A;
+  --foreground: #F7F8F8;
+  --card: #0F1013;
+  --card-foreground: #F7F8F8;
+  --popover: #0F1013;
+  --popover-foreground: #F7F8F8;
   --primary: #14B8A6;
-  --primary-foreground: #042F2E;
-  --secondary: #1E293B;
-  --secondary-foreground: #E2E8F0;
-  --muted: #161F30;
-  --muted-foreground: #94A3B8;
-  --accent: #132A2E;
+  --primary-foreground: #021716;
+  --secondary: #17181C;
+  --secondary-foreground: #E5E7EB;
+  --muted: #141518;
+  --muted-foreground: #8B909A;
+  --accent: #102628;
   --accent-foreground: #2DD4BF;
   --destructive: #EF4444;
-  --border: #1F2937;
-  --input: #1E293B;
+  --border: #222429;
+  --input: #1C1D22;
   --ring: #14B8A6;
 }
 

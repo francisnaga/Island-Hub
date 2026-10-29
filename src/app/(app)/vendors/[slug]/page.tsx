@@ -95,7 +95,7 @@ export default async function VendorStorefrontPage({
                 rel="noopener noreferrer"
                 className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
               >
-                <Share2 className="h-3.5 w-3.5 text-[#0F6E6E]" />
+                <Share2 className="h-3.5 w-3.5 text-primary" />
                 <span>Share Storefront</span>
               </a>
             )}
@@ -136,7 +136,7 @@ export default async function VendorStorefrontPage({
             <div className="pt-2 flex flex-wrap gap-3">
               <Link
                 href="/vendors"
-                className="inline-flex items-center gap-2 rounded-xl bg-[#0F6E6E] px-5 py-2.5 text-xs font-bold text-white hover:bg-[#0A4F4F]"
+                className="inline-flex items-center gap-2 rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground hover:opacity-90"
               >
                 Browse Verified Vendors
               </Link>
@@ -165,189 +165,184 @@ export default async function VendorStorefrontPage({
               </div>
             )}
 
-            {/* A. Storefront Identity & Summary Card */}
-            <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 md:p-8 space-y-6 shadow-2xs min-w-0">
-              <div className="flex flex-col lg:flex-row lg:items-start justify-between gap-6">
-                <div className="flex items-start gap-3.5 sm:gap-5 max-w-3xl min-w-0">
-                  <div className="flex h-14 w-14 sm:h-18 sm:w-18 shrink-0 items-center justify-center rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/20 text-[#0F6E6E] dark:text-[#E8B84A] font-extrabold text-lg sm:text-xl overflow-hidden">
-                    {vendor.logo_url ? (
-                      <img
-                        src={vendor.logo_url}
-                        alt={vendor.shop_name}
-                        className="h-full w-full object-cover"
-                      />
+            {/* Social-Style Storefront Profile Header */}
+            <div className="rounded-2xl border border-border bg-card overflow-hidden shadow-xs">
+              {/* Cover Backdrop Banner */}
+              <div className="relative h-28 sm:h-44 w-full bg-gradient-to-r from-primary/25 via-primary/10 to-accent/30 border-b border-border/80">
+                <div className="absolute inset-0 opacity-20 dark:opacity-30 bg-[radial-gradient(var(--primary)_1px,transparent_1px)] [background-size:16px_16px]" />
+                
+                {vendor.is_featured && (
+                  <div className="absolute top-3 right-3 sm:top-4 sm:right-4 inline-flex items-center gap-1.5 rounded-full bg-background/80 dark:bg-card/90 backdrop-blur-md border border-border px-3 py-1 text-xs font-bold text-foreground shadow-xs">
+                    <Sparkles className="h-3.5 w-3.5 text-amber-500" />
+                    <span>Featured Storefront</span>
+                  </div>
+                )}
+              </div>
+
+              {/* Profile Details (Overlapping Cover) */}
+              <div className="px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 space-y-5">
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                  {/* Avatar + Main Title */}
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 sm:gap-5 -mt-12 sm:-mt-16">
+                    <div className="relative flex h-22 w-22 sm:h-28 sm:w-28 shrink-0 items-center justify-center rounded-full border-4 border-card bg-muted text-foreground font-extrabold text-2xl sm:text-3xl overflow-hidden shadow-md">
+                      {vendor.logo_url ? (
+                        <img
+                          src={vendor.logo_url}
+                          alt={vendor.shop_name}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <span>{getVendorInitials(vendor.shop_name)}</span>
+                      )}
+                    </div>
+
+                    <div className="space-y-1 mb-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                          {vendor.shop_name}
+                        </h1>
+
+                        {vendor.verification_status === 'verified' ? (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 text-xs font-bold text-primary">
+                            <BadgeCheck className="h-4 w-4 text-primary" />
+                            Verified
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
+                            Pending approval
+                          </span>
+                        )}
+
+                        {vendor.seller_type === 'business' && vendor.business_verified && (
+                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
+                            <Building2 className="h-3.5 w-3.5" />
+                            Business
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+                        <span className="font-semibold text-foreground/85">
+                          {getSellerTypeLabel(vendor)}
+                        </span>
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-1 text-foreground/80">
+                          <MapPin className="h-3.5 w-3.5 text-primary" />
+                          {campusLabel}
+                        </span>
+                        {vendor.department_or_business_info && (
+                          <>
+                            <span>·</span>
+                            <span>{vendor.department_or_business_info}</span>
+                          </>
+                        )}
+                        <span>·</span>
+                        <span className="inline-flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Joined {memberSince}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Primary WhatsApp Action Button */}
+                  <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
+                    {whatsappStore.valid && (
+                      <a
+                        href={whatsappStore.url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 text-xs sm:text-sm font-bold text-white hover:opacity-90 transition-opacity shadow-sm"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        <span>Message on WhatsApp</span>
+                      </a>
+                    )}
+
+                    {directionsUrl && (
+                      <a
+                        href={directionsUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                      >
+                        <Navigation className="h-3.5 w-3.5 text-primary" />
+                        <span>Directions</span>
+                      </a>
+                    )}
+                  </div>
+                </div>
+
+                {/* Vendor Bio / What They Offer */}
+                <div className="max-w-3xl pt-1">
+                  <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed">
+                    {vendor.description}
+                  </p>
+                </div>
+
+                {/* Social Profile Details Strip (Landmark, Hours, Pickup, Trust) */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-4 border-t border-border/80 text-xs">
+                  <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-foreground">
+                      <MapPin className="h-3.5 w-3.5 text-primary" />
+                      Pickup Landmark
+                    </div>
+                    {vendor.location_type === 'delivery_only' ? (
+                      <p className="text-muted-foreground">
+                        Delivery-only vendor ({vendor.delivery_coverage || campusLabel})
+                      </p>
+                    ) : vendor.location_visibility === 'hidden' ? (
+                      <p className="text-muted-foreground">
+                        Private residential · Message on WhatsApp for campus meeting point
+                      </p>
                     ) : (
-                      <span>{getVendorInitials(vendor.shop_name)}</span>
+                      <p className="text-muted-foreground">
+                        {vendor.location_label}
+                        {vendor.location_visibility === 'approximate' &&
+                          ' (General area — confirm exact spot on WhatsApp)'}
+                      </p>
                     )}
                   </div>
 
-                  <div className="space-y-2 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-                        {vendor.shop_name}
-                      </h1>
-
-                      {vendor.verification_status === 'verified' ? (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-2.5 py-0.5 text-xs font-semibold text-[#0A4F4F] dark:text-[#E8B84A]">
-                          <BadgeCheck className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                          Verified vendor
-                        </span>
-                      ) : (
-                        <span className="inline-flex items-center rounded-md bg-amber-50 border border-amber-200 px-2.5 py-0.5 text-xs font-medium text-amber-800">
-                          Pending approval
-                        </span>
-                      )}
-
-                      {vendor.seller_type === 'business' && vendor.business_verified && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-emerald-50 dark:bg-emerald-950/50 border border-emerald-200 dark:border-emerald-800 px-2.5 py-0.5 text-xs font-semibold text-emerald-800 dark:text-emerald-300">
-                          <Building2 className="h-3.5 w-3.5" />
-                          Verified business
-                        </span>
-                      )}
-
-                      {vendor.is_featured && (
-                        <span className="inline-flex items-center gap-1 rounded-md bg-[#E8B84A]/20 border border-[#E8B84A]/50 px-2.5 py-0.5 text-xs font-bold text-foreground">
-                          <Sparkles className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                          Featured storefront
-                        </span>
-                      )}
+                  <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-foreground">
+                      <Truck className="h-3.5 w-3.5 text-primary" />
+                      Collection &amp; Delivery
                     </div>
-
-                    {/* Account Type, Campus & Member Since */}
-                    <div className="flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
-                      <span className="inline-flex items-center gap-1 rounded-md bg-muted px-2 py-0.5 font-semibold text-foreground">
-                        {getSellerTypeLabel(vendor)}
-                      </span>
-                      <span>·</span>
-                      <span>{campusLabel}</span>
-                      {vendor.department_or_business_info && (
-                        <>
-                          <span>·</span>
-                          <span>{vendor.department_or_business_info}</span>
-                        </>
-                      )}
-                      <span>·</span>
-                      <span className="inline-flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        Member since {memberSince}
-                      </span>
-                    </div>
-
-                    <p className="text-xs sm:text-sm text-foreground/90 leading-relaxed pt-0.5">
-                      {vendor.description}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Key Storefront Metrics + Primary Actions */}
-                <div className="flex flex-col gap-3 shrink-0 sm:min-w-[240px]">
-                  <div className="grid grid-cols-2 gap-2 text-center">
-                    <div className="rounded-xl border border-border bg-muted/40 px-3 py-2">
-                      <span className="block text-lg font-extrabold text-foreground">
-                        {products.length}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground font-medium">
-                        Active listings
-                      </span>
-                    </div>
-                    <div className="rounded-xl border border-border bg-muted/40 px-3 py-2">
-                      <span className="block text-sm font-extrabold text-foreground truncate">
-                        {campusLabel}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground font-medium">
-                        Pickup area
-                      </span>
-                    </div>
-                  </div>
-
-                  {whatsappStore.valid && (
-                    <a
-                      href={whatsappStore.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 rounded-xl bg-[#1F9D55] px-5 py-3 text-xs font-bold text-white hover:bg-[#188045] transition-colors"
-                    >
-                      <MessageCircle className="h-4 w-4" />
-                      Message Store on WhatsApp
-                    </a>
-                  )}
-
-                  {directionsUrl && (
-                    <a
-                      href={directionsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-background px-5 py-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-                    >
-                      <Navigation className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                      Get Directions (Google Maps)
-                    </a>
-                  )}
-                </div>
-              </div>
-
-              {/* C & D: Where They Operate + Trust & Activity Bar */}
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3 sm:gap-4 pt-4 border-t border-border text-xs">
-                <div className="rounded-xl bg-muted/50 border border-border p-3.5 space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-foreground">
-                    <MapPin className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                    Pickup Landmark
-                  </div>
-                  {vendor.location_type === 'delivery_only' ? (
                     <p className="text-muted-foreground">
-                      Delivery-only vendor ({vendor.delivery_coverage || campusLabel})
+                      {vendor.pickup_options || 'Contact seller for pickup times'}
+                      {vendor.delivery_available && vendor.delivery_coverage
+                        ? ` · Delivers to ${vendor.delivery_coverage}`
+                        : ''}
                     </p>
-                  ) : vendor.location_visibility === 'hidden' ? (
+                  </div>
+
+                  <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-foreground">
+                      <Clock className="h-3.5 w-3.5 text-primary" />
+                      Hours &amp; Activity
+                    </div>
                     <p className="text-muted-foreground">
-                      Private residential location · Message on WhatsApp for campus meeting point
+                      {vendor.opening_hours || 'Mon–Sat · Confirm on WhatsApp'}
                     </p>
-                  ) : (
-                    <p className="text-muted-foreground">
-                      {vendor.location_label}
-                      {vendor.location_visibility === 'approximate' &&
-                        ' (General area — confirm exact spot on WhatsApp)'}
+                    <p className="text-[11px] text-muted-foreground/80">
+                      {confirmedDays === 0
+                        ? 'Inventory active today'
+                        : `Active ${confirmedDays}d ago`}
                     </p>
-                  )}
-                </div>
-
-                <div className="rounded-xl bg-muted/50 border border-border p-3.5 space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-foreground">
-                    <Truck className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                    Collection &amp; Delivery
                   </div>
-                  <p className="text-muted-foreground">
-                    {vendor.pickup_options || 'Contact seller for pickup times'}
-                    {vendor.delivery_available && vendor.delivery_coverage
-                      ? ` · Delivers to ${vendor.delivery_coverage}`
-                      : ''}
-                  </p>
-                </div>
 
-                <div className="rounded-xl bg-muted/50 border border-border p-3.5 space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-foreground">
-                    <Clock className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                    Hours &amp; Activity
+                  <div className="rounded-xl bg-accent/40 border border-primary/20 p-3.5 space-y-1">
+                    <div className="flex items-center gap-1.5 font-bold text-foreground">
+                      <ShieldCheck className="h-3.5 w-3.5 text-primary" />
+                      Trust &amp; Verification
+                    </div>
+                    <p className="text-muted-foreground leading-relaxed">
+                      {vendor.verification_status === 'verified'
+                        ? 'Identity & WhatsApp verified by Jetty. Inspect items before paying.'
+                        : 'Pending verification. Meet at public campus landmark.'}
+                    </p>
                   </div>
-                  <p className="text-muted-foreground">
-                    {vendor.opening_hours || 'Mon–Sat · Confirm on WhatsApp'}
-                  </p>
-                  <p className="text-[11px] text-muted-foreground/80">
-                    {confirmedDays === 0
-                      ? 'Inventory confirmed today'
-                      : `Inventory confirmed ${confirmedDays}d ago`}
-                  </p>
-                </div>
-
-                <div className="rounded-xl bg-[#E6F2F2]/50 dark:bg-[#132A2A]/60 border border-[#0F6E6E]/25 p-3.5 space-y-1">
-                  <div className="flex items-center gap-1.5 font-bold text-foreground">
-                    <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                    Trust &amp; Verification
-                  </div>
-                  <p className="text-muted-foreground leading-relaxed">
-                    {vendor.verification_status === 'verified'
-                      ? 'Identity & WhatsApp number verified by Jetty. Always inspect items before paying.'
-                      : 'Pending verification. Always meet at a public campus landmark.'}
-                  </p>
                 </div>
               </div>
             </div>

@@ -1,12 +1,11 @@
 import Link from 'next/link'
 import {
   BadgeCheck,
-  MapPin,
   Ban,
   Sparkles,
   Building2,
   PauseCircle,
-  ArrowUpRight,
+  ArrowRight,
 } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
@@ -20,7 +19,7 @@ export function getSellerTypeLabel(vendor: Vendor): string {
     return vendor.business_verified ? 'Verified business' : 'Business'
   }
   if (vendor.seller_type === 'independent') {
-    return 'Independent seller'
+    return 'Independent'
   }
   if (vendor.seller_type === 'student' || vendor.is_student) {
     return 'Student seller'
@@ -39,6 +38,15 @@ export function getVendorInitials(name: string): string {
   return (words[0][0] + words[1][0]).toUpperCase()
 }
 
+// Strict word limit helper to keep profile cards perfectly neat and uniform
+function getShortOfferText(desc: string, maxWords = 9): string {
+  if (!desc) return 'Campus seller at NMU'
+  const clean = desc.trim().replace(/\s+/g, ' ')
+  const words = clean.split(' ')
+  if (words.length <= maxWords) return clean
+  return words.slice(0, maxWords).join(' ') + '…'
+}
+
 export function VendorCard({ vendor }: VendorCardProps) {
   const isBanned = vendor.verification_status === 'suspended'
   const isPaused = Boolean(vendor.is_paused) && !isBanned
@@ -48,17 +56,20 @@ export function VendorCard({ vendor }: VendorCardProps) {
       ? 'Okerenkoko & Kurutie'
       : vendor.campus || 'Okerenkoko'
 
+  const shortOffer = getShortOfferText(vendor.description)
+
   return (
     <Link
       href={`/vendors/${vendor.slug || vendor.id}`}
       className={cn(
-        'group flex min-w-0 flex-col justify-between rounded-2xl border p-4 transition-all',
+        'group flex min-w-0 flex-col justify-between rounded-2xl border p-4 sm:p-4.5 transition-all',
         isBanned
-          ? 'border-red-500/40 bg-red-950/20 hover:border-red-500/70'
-          : 'border-border bg-card hover:border-primary/60 hover:shadow-lg'
+          ? 'border-red-500/30 bg-red-950/20 hover:border-red-500/50'
+          : 'border-border bg-card hover:border-primary/50 hover:shadow-md'
       )}
     >
-      <div className="space-y-2.5 min-w-0">
+      <div className="space-y-3 min-w-0">
+        {/* Status Pills if Banned or Paused */}
         {isBanned && (
           <div className="flex items-center gap-1.5 rounded-lg bg-red-600 px-2.5 py-1 text-[11px] font-bold text-white">
             <Ban className="h-3.5 w-3.5 shrink-0" />
@@ -73,13 +84,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
           </div>
         )}
 
+        {/* Social Profile Header */}
         <div className="flex items-center gap-3 min-w-0">
           <div
             className={cn(
-              'flex h-11 w-11 shrink-0 items-center justify-center rounded-xl border font-bold text-sm tracking-tight overflow-hidden',
+              'flex h-12 w-12 shrink-0 items-center justify-center rounded-full border font-bold text-sm tracking-tight overflow-hidden',
               isBanned
                 ? 'bg-red-950/60 border-red-500/40 text-red-300'
-                : 'bg-accent border-primary/20 text-primary'
+                : 'bg-muted border-border text-foreground'
             )}
           >
             {vendor.logo_url ? (
@@ -102,7 +114,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
             <div className="flex items-center gap-1 min-w-0">
               <h3
                 className={cn(
-                  'text-sm font-bold truncate transition-colors',
+                  'text-sm sm:text-base font-bold truncate transition-colors leading-snug',
                   isBanned
                     ? 'text-red-400 line-through'
                     : 'text-foreground group-hover:text-primary'
@@ -117,14 +129,14 @@ export function VendorCard({ vendor }: VendorCardProps) {
                 />
               )}
               {!isBanned && vendor.is_featured && (
-                <Sparkles className="h-3.5 w-3.5 text-[#E8B84A] shrink-0" />
+                <Sparkles className="h-3 w-3 text-[#E8B84A] shrink-0" />
               )}
             </div>
 
             <div className="flex items-center gap-1.5 text-[11px] text-muted-foreground mt-0.5 truncate">
-              <span className="inline-flex items-center gap-1 font-medium text-foreground/80">
+              <span className="font-medium text-foreground/80 flex items-center gap-1">
                 {vendor.seller_type === 'business' && (
-                  <Building2 className="h-3 w-3 text-primary" />
+                  <Building2 className="h-3 w-3 text-primary shrink-0" />
                 )}
                 {getSellerTypeLabel(vendor)}
               </span>
@@ -132,23 +144,19 @@ export function VendorCard({ vendor }: VendorCardProps) {
               <span className="truncate">{campusLabel}</span>
             </div>
           </div>
-
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground group-hover:text-primary shrink-0 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
         </div>
 
+        {/* Strict Short Offer / Services Line */}
         <p className="text-xs text-muted-foreground line-clamp-1 leading-relaxed">
-          {isBanned
-            ? `Suspended: ${vendor.rejection_reason || 'Policy violation'}`
-            : vendor.description}
+          {shortOffer}
         </p>
       </div>
 
-      {!isBanned && vendor.location_label && vendor.location_visibility !== 'hidden' && (
-        <div className="mt-3 pt-2.5 border-t border-border/60 flex items-center gap-1.5 text-[11px] text-muted-foreground min-w-0">
-          <MapPin className="h-3 w-3 text-primary shrink-0" />
-          <span className="truncate">{vendor.location_label}</span>
-        </div>
-      )}
+      {/* Clean Bottom Action Row */}
+      <div className="mt-3.5 pt-2.5 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+        <span className="text-[11px]">Tap to view storefront &amp; listings</span>
+        <ArrowRight className="h-3.5 w-3.5 text-muted-foreground group-hover:text-primary group-hover:translate-x-0.5 transition-transform shrink-0" />
+      </div>
     </Link>
   )
 }
