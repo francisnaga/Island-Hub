@@ -1,6 +1,5 @@
 import Link from 'next/link'
-import { Anchor, ArrowLeft } from 'lucide-react'
-import { login } from './actions'
+import { Anchor, ArrowLeft, Store } from 'lucide-react'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 
 export default async function LoginPage({
@@ -9,103 +8,75 @@ export default async function LoginPage({
   searchParams: Promise<{ error?: string; next?: string }>
 }) {
   const sp = await searchParams
-  const nextPath = sp.next || '/'
+  const nextPath = sp.next || '/vendor/dashboard'
 
   return (
-    <div className="min-h-screen flex flex-col justify-center items-center bg-[#FAF9F6] px-4 py-12 text-slate-900">
+    <div className="min-h-screen flex flex-col justify-center items-center bg-background px-4 py-12 text-foreground">
       <div className="w-full max-w-md space-y-6">
         <div className="flex items-center justify-between">
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-600 hover:text-slate-900"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
             Back to Marketplace
           </Link>
-          <span className="text-xs text-slate-500">No account needed to browse</span>
+          <span className="text-xs text-muted-foreground">No account needed to browse</span>
         </div>
 
-        <div className="rounded-2xl border border-slate-200 bg-white p-7 sm:p-8 shadow-xs space-y-6">
+        <div className="rounded-2xl border border-border bg-card p-7 sm:p-8 shadow-xs space-y-6">
           <div className="flex flex-col items-center text-center space-y-2">
             <Link
               href="/"
-              className="flex h-12 w-12 items-center justify-center rounded-xl bg-[#1E3A8A] text-white shadow-xs"
+              className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-xs"
             >
               <Anchor className="h-6 w-6" />
             </Link>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-              Sign in to IslandHub
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-accent border border-primary/20 px-3 py-1 text-xs font-semibold text-accent-foreground">
+              <Store className="h-3.5 w-3.5" />
+              Vendor Sign In
+            </div>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
+              Sell on IslandHub
             </h1>
-            <p className="text-xs text-slate-500 max-w-xs">
-              Sign in with Google or email to manage your vendor storefront or switch between Consumer and Vendor modes.
+            <p className="text-xs text-muted-foreground max-w-xs">
+              Sign in with Google to manage your vendor storefront. Buyers never need to sign in — just browse and contact vendors on WhatsApp.
             </p>
           </div>
 
           {sp.error && (
-            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-800">
+            <div className="rounded-xl border border-red-200 bg-red-50 p-3 text-xs font-medium text-red-800 dark:border-red-800 dark:bg-red-950/30 dark:text-red-400">
               {sp.error === 'auth_callback_failed'
                 ? 'Google authentication could not be completed. Please try again.'
                 : sp.error}
             </div>
           )}
 
-          {/* Primary Google Sign-In */}
+          {/* Google-only Sign In */}
           <GoogleSignInButton nextPath={nextPath} label="Continue with Google" />
 
-          <div className="relative flex items-center justify-center">
-            <div className="border-t border-slate-200 w-full" />
-            <span className="bg-white px-3 text-[11px] font-semibold uppercase tracking-wider text-slate-400">
-              or email
-            </span>
-            <div className="border-t border-slate-200 w-full" />
+          <div className="rounded-xl bg-muted border border-border p-4 space-y-2">
+            <p className="text-xs font-semibold text-foreground">Why sign in?</p>
+            <ul className="space-y-1 text-xs text-muted-foreground">
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                Manage your product listings, prices and stock status
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                Set your shop location & WhatsApp contact details
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="mt-0.5 h-1.5 w-1.5 rounded-full bg-primary shrink-0" />
+                Apply for Verified & Featured status
+              </li>
+            </ul>
           </div>
 
-          <form className="space-y-4">
-            <input type="hidden" name="next" value={nextPath} />
-            <div className="space-y-1.5">
-              <label htmlFor="email" className="block text-xs font-semibold text-slate-700">
-                Email Address
-              </label>
-              <input
-                id="email"
-                name="email"
-                type="email"
-                placeholder="you@example.com"
-                required
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700/15"
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <label htmlFor="password" className="block text-xs font-semibold text-slate-700">
-                Password
-              </label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                className="w-full h-11 rounded-xl border border-slate-300 bg-white px-3.5 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-700/15"
-              />
-            </div>
-
-            <button
-              type="submit"
-              formAction={login}
-              className="w-full h-11 rounded-xl bg-[#1E3A8A] text-white font-semibold text-sm hover:bg-blue-900 transition-colors cursor-pointer"
-            >
-              Sign In with Email
-            </button>
-          </form>
-
-          <p className="text-center text-xs text-slate-600 pt-2 border-t border-slate-100">
-            New to IslandHub?{' '}
-            <Link
-              href={`/register?next=${encodeURIComponent(nextPath)}`}
-              className="font-bold text-blue-800 hover:underline"
-            >
-              Create an account
+          <p className="text-center text-xs text-muted-foreground border-t border-border pt-4">
+            Just here to shop?{' '}
+            <Link href="/marketplace" className="font-bold text-primary hover:underline">
+              Browse the marketplace →
             </Link>
           </p>
         </div>

@@ -7,7 +7,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-sans);
+  --font-sans: var(--font-inter);
+  --font-display: var(--font-space-grotesk);
   --font-mono: var(--font-geist-mono);
   --color-ring: var(--ring);
   --color-input: var(--input);
@@ -25,10 +26,8 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-teal: #0EA5B7;
   --color-navy: #0F172A;
-  --color-maritime: #1D4ED8;
-  --color-maritime-dark: #1E3A8A;
-  --color-warm: #FAF9F5;
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
@@ -36,26 +35,49 @@
   --radius-2xl: calc(var(--radius) * 1.8);
 }
 
+/* ── Light mode (default) ── */
 :root {
-  --background: #FAF9F6;
+  --background: #F7F6F2;
   --foreground: #0F172A;
   --card: #FFFFFF;
   --card-foreground: #0F172A;
   --popover: #FFFFFF;
   --popover-foreground: #0F172A;
-  --primary: #1E3A8A;
+  --primary: #0EA5B7;
   --primary-foreground: #FFFFFF;
   --secondary: #F1F5F9;
   --secondary-foreground: #0F172A;
   --muted: #F1F5F9;
-  --muted-foreground: #475569;
-  --accent: #EFF6FF;
-  --accent-foreground: #1E3A8A;
+  --muted-foreground: #64748B;
+  --accent: #ECFEFF;
+  --accent-foreground: #0E7490;
   --destructive: #DC2626;
   --border: #E2E8F0;
   --input: #CBD5E1;
-  --ring: #1D4ED8;
+  --ring: #0EA5B7;
   --radius: 0.625rem;
+}
+
+/* ── Dark mode ── */
+.dark {
+  --background: #0B1220;
+  --foreground: #F1F5F9;
+  --card: #111A2E;
+  --card-foreground: #F1F5F9;
+  --popover: #111A2E;
+  --popover-foreground: #F1F5F9;
+  --primary: #22D3EE;
+  --primary-foreground: #0B1220;
+  --secondary: #1E2A3A;
+  --secondary-foreground: #CBD5E1;
+  --muted: #1E2A3A;
+  --muted-foreground: #94A3B8;
+  --accent: #164E63;
+  --accent-foreground: #67E8F9;
+  --destructive: #EF4444;
+  --border: #1E2A3A;
+  --input: #1E2A3A;
+  --ring: #22D3EE;
 }
 
 @layer base {
@@ -63,7 +85,7 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground antialiased selection:bg-blue-600/15 selection:text-slate-900;
+    @apply bg-background text-foreground antialiased selection:bg-teal-600/15 selection:text-slate-900 dark:selection:text-slate-100;
   }
   html {
     @apply font-sans scroll-smooth;
