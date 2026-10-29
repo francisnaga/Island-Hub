@@ -14,6 +14,7 @@ import {
   BadgeCheck,
   Wrench,
   CheckSquare,
+  Utensils,
 } from 'lucide-react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
@@ -36,6 +37,8 @@ const categoryIconMap: Record<string, React.ComponentType<{ className?: string }
   BookOpen,
   Home,
   Package,
+  Utensils,
+  Wrench,
 }
 
 export default async function HomePage() {
@@ -352,8 +355,8 @@ export default async function HomePage() {
               </Link>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5 sm:gap-5">
-              {vendors.slice(0, 3).map((vendor) => (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-5">
+              {vendors.slice(0, 4).map((vendor) => (
                 <VendorCard key={vendor.id} vendor={vendor} />
               ))}
             </div>

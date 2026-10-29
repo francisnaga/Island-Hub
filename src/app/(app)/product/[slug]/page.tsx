@@ -32,13 +32,19 @@ const conditionLabels: Record<string, string> = {
 }
 
 function getSellerDistinctionLabel(vendor: Vendor): string {
+  if (vendor.seller_type === 'business') {
+    return vendor.business_verified ? 'Verified Business' : 'Local Business'
+  }
+  if (vendor.seller_type === 'independent') {
+    return 'Independent Seller'
+  }
+  if (vendor.seller_type === 'student' || vendor.is_student) {
+    return 'Student Seller'
+  }
   if (vendor.location_type === 'delivery_only') return 'Delivery only'
   if (vendor.location_type === 'pickup_point') return 'Campus pickup'
-  if (vendor.location_type === 'home_based') return 'Student seller'
-  if (vendor.location_type === 'shop') {
-    return vendor.is_student ? 'Student seller · Physical shop' : 'Physical shop'
-  }
-  return vendor.is_student ? 'Student seller' : 'Local seller'
+  if (vendor.location_type === 'shop') return 'Physical shop'
+  return 'Local seller'
 }
 
 const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
@@ -47,7 +53,8 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   'books-stationery': '/products/casio-scientific-calculator.jpg',
   'hostel-daily-essentials': '/products/rechargeable-table-fan-white.jpg',
   'fashion-accessories': '/products/cadet-beret-gloves-pack.jpg',
-  'food-beauty-other': '/products/cadet-boot-socks-3pack.jpg',
+  'food-beauty-other': '/products/fresh-fruit-salad-bowl.jpg',
+  'campus-services': '/products/cadet-uniform-tailoring.jpg',
 }
 
 function isVideoMedia(url: string): boolean {
@@ -209,6 +216,42 @@ export default async function ProductDetailPage({
               <h1 className="text-lg sm:text-2xl font-bold text-foreground tracking-tight leading-snug">
                 {product.title}
               </h1>
+
+              {product.listing_type === 'food' && (product.food_lead_time || product.food_allergen_info) && (
+                <div className="rounded-xl border border-[#0F6E6E]/25 bg-[#E6F2F2]/60 dark:bg-[#132A2A] p-3.5 space-y-1.5 text-xs">
+                  <p className="font-bold uppercase tracking-wider text-[#0F6E6E] dark:text-[#E8B84A]">
+                    Made-to-Order Food &amp; Drink Details
+                  </p>
+                  {product.food_lead_time && (
+                    <p className="text-foreground">
+                      <span className="font-semibold">Preparation / Delivery Lead Time:</span> {product.food_lead_time}
+                    </p>
+                  )}
+                  {product.food_allergen_info && (
+                    <p className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">Ingredients / Allergen Notice:</span> {product.food_allergen_info}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              {product.listing_type === 'service' && (product.service_turnaround || product.service_area) && (
+                <div className="rounded-xl border border-[#0F6E6E]/25 bg-[#E6F2F2]/60 dark:bg-[#132A2A] p-3.5 space-y-1.5 text-xs">
+                  <p className="font-bold uppercase tracking-wider text-[#0F6E6E] dark:text-[#E8B84A]">
+                    Campus Service Details
+                  </p>
+                  {product.service_turnaround && (
+                    <p className="text-foreground">
+                      <span className="font-semibold">Estimated Turnaround:</span> {product.service_turnaround}
+                    </p>
+                  )}
+                  {product.service_area && (
+                    <p className="text-muted-foreground">
+                      <span className="font-semibold text-foreground">Service Coverage Area:</span> {product.service_area}
+                    </p>
+                  )}
+                </div>
+              )}
 
               {product.tags && product.tags.length > 0 && (
                 <div className="flex flex-wrap items-center gap-1.5">

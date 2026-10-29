@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUserContext, getPublicCategories } from '@/lib/queries'
-import { ModerationLog, Product, ReportRecord, Vendor } from '@/lib/types'
+import { INITIAL_PRODUCTS, INITIAL_VENDORS } from '@/lib/marketplace-data'
+import { isAdminEmail, ModerationLog, Product, ReportRecord, Vendor } from '@/lib/types'
 import { AdminDashboardClient } from './AdminDashboardClient'
 
 export const dynamic = 'force-dynamic'
@@ -13,12 +14,12 @@ export default async function AdminDashboardPage() {
     redirect('/login?next=/admin')
   }
 
-  if (profile.role !== 'admin') {
+  if (profile.role !== 'admin' && !isAdminEmail(user.email)) {
     redirect('/')
   }
 
-  let vendors: Vendor[] = []
-  let products: Product[] = []
+  let vendors: Vendor[] = INITIAL_VENDORS
+  let products: Product[] = INITIAL_PRODUCTS
   let reports: ReportRecord[] = []
   let logs: ModerationLog[] = []
   const categories = await getPublicCategories()
@@ -42,17 +43,17 @@ export default async function AdminDashboardPage() {
         .limit(30),
     ])
 
-    if (vRes.data) vendors = vRes.data as Vendor[]
-    if (pRes.data) products = pRes.data as Product[]
+    if (vRes.data && vRes.data.length > 0) vendors = vRes.data as Vendor[]
+    if (pRes.data && pRes.data.length > 0) products = pRes.data as Product[]
     if (rRes.data) reports = rRes.data as ReportRecord[]
     if (lRes.data) logs = lRes.data as ModerationLog[]
   } catch {
-    // Graceful fallback if DB tables are not yet migrated
+    // Graceful fallback if DB tables are unreachable
   }
 
   return (
-    <div className="py-8 md:py-10">
-      <div className="container mx-auto max-w-7xl px-4">
+    <div className="py-6 sm:py-8 md:py-10 min-w-0">
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 min-w-0">
         <AdminDashboardClient
           adminId={user.id}
           initialVendors={vendors}

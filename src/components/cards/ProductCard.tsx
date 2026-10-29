@@ -30,7 +30,8 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   'books-stationery': '/products/casio-scientific-calculator.jpg',
   'hostel-daily-essentials': '/products/rechargeable-table-fan-white.jpg',
   'fashion-accessories': '/products/cadet-beret-gloves-pack.jpg',
-  'food-beauty-other': '/products/cadet-boot-socks-3pack.jpg',
+  'food-beauty-other': '/products/fresh-fruit-salad-bowl.jpg',
+  'campus-services': '/products/cadet-uniform-tailoring.jpg',
 }
 
 function isVideoMedia(url: string): boolean {
@@ -71,6 +72,8 @@ export function ProductCard({ product, offerCount = 1 }: ProductCardProps) {
   }
 
   const variantSummary = [
+    product.food_lead_time || '',
+    product.service_turnaround || '',
     product.variants?.sizes?.length
       ? `Sizes: ${product.variants.sizes.join(', ')}`
       : '',

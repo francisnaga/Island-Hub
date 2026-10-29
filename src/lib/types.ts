@@ -2,12 +2,27 @@ export type UserRole = 'buyer' | 'vendor' | 'admin'
 export type ActiveMode = 'buyer' | 'vendor'
 
 export type VendorVerificationStatus = 'pending' | 'verified' | 'rejected' | 'suspended'
+export type SellerType = 'student' | 'independent' | 'business'
+export type CampusArea = 'Okerenkoko' | 'Kurutie' | 'Both'
 export type LocationType = 'shop' | 'pickup_point' | 'home_based' | 'delivery_only'
 export type LocationVisibility = 'exact' | 'approximate' | 'hidden'
 
 export type ProductCondition = 'new' | 'like_new' | 'good' | 'fair'
 export type StockStatus = 'available' | 'low_stock' | 'out_of_stock'
-export type ProductApprovalStatus = 'pending_review' | 'approved' | 'rejected' | 'suspended'
+export type ListingType = 'product' | 'food' | 'service'
+export type ProductApprovalStatus =
+  | 'pending_review'
+  | 'approved'
+  | 'rejected'
+  | 'suspended'
+  | 'archived'
+
+export const ADMIN_EMAILS = ['efobifrancis53@gmail.com']
+
+export function isAdminEmail(email?: string | null): boolean {
+  if (!email) return false
+  return ADMIN_EMAILS.includes(email.trim().toLowerCase())
+}
 
 export interface UserProfile {
   id: string
@@ -16,6 +31,7 @@ export interface UserProfile {
   avatar_url?: string | null
   role: UserRole
   active_mode: ActiveMode
+  is_demo?: boolean
   created_at: string
   updated_at?: string
 }
@@ -47,6 +63,17 @@ export interface Vendor {
   verification_status: VendorVerificationStatus
   rejection_reason?: string | null
   is_student: boolean
+  seller_type?: SellerType
+  business_name?: string | null
+  business_verified?: boolean
+  campus?: CampusArea
+  opening_hours?: string | null
+  is_paused?: boolean
+  pause_reason?: string | null
+  is_featured?: boolean
+  is_demo?: boolean
+  whatsapp_clicks?: number
+  store_views?: number
   department_or_business_info?: string | null
   latitude?: number | null
   longitude?: number | null
@@ -81,6 +108,15 @@ export interface Product {
   needs_seller_photo?: boolean
   status: ProductApprovalStatus
   rejection_reason?: string | null
+  listing_type?: ListingType
+  is_featured?: boolean
+  is_demo?: boolean
+  whatsapp_clicks?: number
+  views_count?: number
+  service_turnaround?: string | null
+  service_area?: string | null
+  food_lead_time?: string | null
+  food_allergen_info?: string | null
   last_confirmed_at: string
   created_at: string
   updated_at?: string

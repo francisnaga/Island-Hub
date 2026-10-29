@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { isAdminEmail } from '@/lib/types'
 
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
@@ -11,8 +12,9 @@ export async function GET(request: Request) {
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 
     if (!error && data.user) {
-      // Ensure profile record exists with Google user metadata
       const user = data.user
+      const admin = isAdminEmail(user.email)
+
       await supabase.from('profiles').upsert(
         {
           id: user.id,
@@ -20,15 +22,21 @@ export async function GET(request: Request) {
             user.user_metadata?.full_name ||
             user.user_metadata?.name ||
             user.email?.split('@')[0] ||
-            'NMU Member',
+            'Jetty Seller',
           email: user.email,
           avatar_url:
             user.user_metadata?.avatar_url || user.user_metadata?.picture || null,
+          ...(admin ? { role: 'admin' } : {}),
         },
         { onConflict: 'id' }
       )
 
-      return NextResponse.redirect(`${origin}${next}`)
+      const redirectTarget =
+        admin && (next === '/' || next === '/vendor/dashboard')
+          ? '/admin'
+          : next
+
+      return NextResponse.redirect(`${origin}${redirectTarget}`)
     }
   }
 

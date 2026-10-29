@@ -5,7 +5,7 @@ import {
   INITIAL_VENDORS,
   sanitizePublicVendor,
 } from './marketplace-data'
-import { Category, Product, UserProfile, Vendor } from './types'
+import { Category, isAdminEmail, Product, UserProfile, Vendor } from './types'
 
 export async function getPublicCategories(): Promise<Category[]> {
   try {
@@ -20,7 +20,7 @@ export async function getPublicCategories(): Promise<Category[]> {
       return data as Category[]
     }
   } catch {
-    // Fallback to initial categories if DB is unreachable or not yet migrated
+    // Fallback to initial categories if DB is unreachable
   }
   return INITIAL_CATEGORIES
 }
@@ -28,50 +28,77 @@ export async function getPublicCategories(): Promise<Category[]> {
 export async function getPublicVendors(options?: {
   query?: string
   verifiedOnly?: boolean
+  campus?: string
+  category?: string
+  featuredOnly?: boolean
 }): Promise<Vendor[]> {
-  let list: Vendor[] = INITIAL_VENDORS.filter(
-    (v) => v.verification_status === 'verified'
+  const hasSearchQuery = Boolean(options?.query?.trim())
+
+  let list: Vendor[] = INITIAL_VENDORS.filter((v) =>
+    hasSearchQuery
+      ? v.verification_status === 'verified' || v.verification_status === 'suspended'
+      : v.verification_status === 'verified'
   )
+
   try {
     const supabase = await createClient()
     let dbQuery = supabase
       .from('vendors')
       .select('*')
-      .eq('verification_status', 'verified')
+      .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
 
-    if (options?.verifiedOnly) {
+    // If user is searching by name, include suspended (banned) vendors so they can see the Banned status on their profile
+    if (hasSearchQuery) {
+      dbQuery = dbQuery.in('verification_status', ['verified', 'suspended'])
+    } else {
       dbQuery = dbQuery.eq('verification_status', 'verified')
     }
-    if (options?.query) {
-      dbQuery = dbQuery.ilike('shop_name', `%${options.query}%`)
+
+    if (options?.featuredOnly) {
+      dbQuery = dbQuery.eq('is_featured', true)
     }
 
     const { data, error } = await dbQuery
     if (!error && data && data.length > 0) {
       list = data as Vendor[]
-    } else if (options?.query) {
-      const q = options.query.toLowerCase()
-      list = list.filter(
-        (v) =>
-          v.shop_name.toLowerCase().includes(q) ||
-          v.description.toLowerCase().includes(q) ||
-          v.location_label.toLowerCase().includes(q)
-      )
     }
   } catch {
-    if (options?.query) {
-      const q = options.query.toLowerCase()
-      list = list.filter(
-        (v) =>
-          v.shop_name.toLowerCase().includes(q) ||
-          v.description.toLowerCase().includes(q) ||
-          v.location_label.toLowerCase().includes(q)
-      )
-    }
+    // Fallback to initial vendors
+  }
+
+  if (hasSearchQuery && options?.query) {
+    const q = options.query.trim().toLowerCase()
+    list = list.filter(
+      (v) =>
+        v.shop_name.toLowerCase().includes(q) ||
+        (v.business_name && v.business_name.toLowerCase().includes(q)) ||
+        v.description.toLowerCase().includes(q) ||
+        v.location_label.toLowerCase().includes(q)
+    )
+  }
+
+  if (options?.campus && options.campus !== 'all') {
+    const targetCampus = options.campus.toLowerCase()
+    list = list.filter((v) => {
+      const c = (v.campus || 'Okerenkoko').toLowerCase()
+      return c === 'both' || c === targetCampus
+    })
+  }
+
+  if (options?.category && options.category !== 'all') {
+    list = list.filter((v) => v.categories_offered?.includes(options.category!))
+  }
+
+  if (options?.featuredOnly) {
+    list = list.filter((v) => Boolean(v.is_featured) && v.verification_status === 'verified')
   }
 
   return list.map(sanitizePublicVendor)
+}
+
+function isUuidString(val: string): boolean {
+  return /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(val)
 }
 
 export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
@@ -80,26 +107,37 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
 }> {
   try {
     const supabase = await createClient()
-    const { data: vendorData } = await supabase
-      .from('vendors')
-      .select('*')
-      .or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
-      .neq('verification_status', 'suspended')
-      .maybeSingle()
+    let vQuery = supabase.from('vendors').select('*')
+    if (isUuidString(slugOrId)) {
+      vQuery = vQuery.or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
+    } else {
+      vQuery = vQuery.eq('slug', slugOrId)
+    }
+    const { data: vendorData } = await vQuery.maybeSingle()
 
     if (vendorData) {
+      const v = vendorData as Vendor
+      const sanitized = sanitizePublicVendor(v)
+
+      // If vendor is banned/suspended, return the vendor profile (so user sees BANNED notice) but hide all their items
+      if (v.verification_status === 'suspended' || v.verification_status === 'rejected') {
+        return { vendor: sanitized, products: [] }
+      }
+
       const { data: prodData } = await supabase
         .from('products')
         .select('*, category:categories(*), vendor:vendors(*)')
-        .eq('vendor_id', vendorData.id)
+        .eq('vendor_id', v.id)
         .eq('status', 'approved')
+        .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
 
-      const sanitized = sanitizePublicVendor(vendorData as Vendor)
-      const products = ((prodData as Product[]) || []).map((p) => ({
-        ...p,
-        vendor: sanitized,
-      }))
+      const products = ((prodData as Product[]) || [])
+        .filter((p) => p.images && p.images.length > 0 && !p.needs_seller_photo)
+        .map((p) => ({
+          ...p,
+          vendor: sanitized,
+        }))
       return { vendor: sanitized, products }
     }
   } catch {
@@ -107,14 +145,24 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
   }
 
   const fallbackVendor = INITIAL_VENDORS.find(
-    (v) => (v.slug === slugOrId || v.id === slugOrId) && v.verification_status !== 'suspended'
+    (v) => v.slug === slugOrId || v.id === slugOrId
   )
   if (!fallbackVendor) {
     return { vendor: null, products: [] }
   }
   const sanitized = sanitizePublicVendor(fallbackVendor)
+  if (
+    fallbackVendor.verification_status === 'suspended' ||
+    fallbackVendor.verification_status === 'rejected'
+  ) {
+    return { vendor: sanitized, products: [] }
+  }
   const products = INITIAL_PRODUCTS.filter(
-    (p) => p.vendor_id === fallbackVendor.id && p.status === 'approved'
+    (p) =>
+      p.vendor_id === fallbackVendor.id &&
+      p.status === 'approved' &&
+      p.images &&
+      p.images.length > 0
   ).map((p) => ({
     ...p,
     vendor: sanitized,
@@ -138,7 +186,6 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
   const needle = rawQuery.trim().toLowerCase()
   if (!needle) return true
 
-  // Handle common campus synonym terms such as "coverall" -> action rig / uniform
   const expandedTerms = [needle]
   if (needle.includes('coverall') || needle.includes('overall')) {
     expandedTerms.push('action rig', 'uniform')
@@ -218,14 +265,25 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     } else if (sort === 'price_desc') {
       query = query.order('price', { ascending: false })
     } else {
-      query = query.order('created_at', { ascending: false })
+      query = query
+        .order('is_featured', { ascending: false })
+        .order('created_at', { ascending: false })
     }
 
     const { data, error } = await query
     if (!error && data && data.length > 0) {
       usedDatabase = true
+      // Strictly exclude items from unverified/suspended/banned vendors or items missing approved photos
       productsList = (data as Product[])
-        .filter((item) => !item.vendor || item.vendor.verification_status === 'verified')
+        .filter(
+          (item) =>
+            item.status === 'approved' &&
+            item.images &&
+            item.images.length > 0 &&
+            !item.needs_seller_photo &&
+            (!item.vendor ||
+              (item.vendor.verification_status === 'verified' && !item.vendor.is_paused))
+        )
         .map((item) => ({
           ...item,
           vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
@@ -243,13 +301,16 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     productsList = INITIAL_PRODUCTS.filter(
       (item) =>
         item.status === 'approved' &&
-        (!item.vendor || item.vendor.verification_status === 'verified')
+        item.images &&
+        item.images.length > 0 &&
+        !item.needs_seller_photo &&
+        (!item.vendor ||
+          (item.vendor.verification_status === 'verified' && !item.vendor.is_paused))
     ).map((item) => ({
       ...item,
       vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
     }))
 
-    // Apply in-memory filters for initial catalog
     if (availability === 'available_only') {
       productsList = productsList.filter(
         (p) =>
@@ -274,22 +335,23 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     }
   }
 
-  // Filter by category slug or id if provided
   if (category && category !== 'all') {
     productsList = productsList.filter(
       (p) => p.category?.slug === category || p.category_id === category
     )
   }
 
-  // Sort strictly by requested order
   if (sort === 'price_asc') {
     productsList.sort((a, b) => a.price - b.price)
   } else if (sort === 'price_desc') {
     productsList.sort((a, b) => b.price - a.price)
   } else {
-    productsList.sort(
-      (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-    )
+    productsList.sort((a, b) => {
+      if (Boolean(b.is_featured) !== Boolean(a.is_featured)) {
+        return b.is_featured ? 1 : -1
+      }
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    })
   }
 
   const totalCount = productsList.length
@@ -305,14 +367,25 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
 export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Product | null> {
   try {
     const supabase = await createClient()
-    const { data, error } = await supabase
+    let pQuery = supabase
       .from('products')
       .select('*, category:categories(*), vendor:vendors(*)')
-      .or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
-      .maybeSingle()
+    if (isUuidString(slugOrId)) {
+      pQuery = pQuery.or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
+    } else {
+      pQuery = pQuery.eq('slug', slugOrId)
+    }
+    const { data, error } = await pQuery.maybeSingle()
 
     if (!error && data) {
       const p = data as Product
+      // Do not serve archived/suspended/rejected products or products from banned vendors on the public route
+      if (
+        p.status !== 'approved' ||
+        (p.vendor && p.vendor.verification_status === 'suspended')
+      ) {
+        return null
+      }
       return {
         ...p,
         vendor: p.vendor ? sanitizePublicVendor(p.vendor) : undefined,
@@ -323,7 +396,8 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
   }
 
   const found = INITIAL_PRODUCTS.find((p) => p.slug === slugOrId || p.id === slugOrId)
-  if (!found) return null
+  if (!found || found.status !== 'approved') return null
+  if (found.vendor && found.vendor.verification_status === 'suspended') return null
   return {
     ...found,
     vendor: found.vendor ? sanitizePublicVendor(found.vendor) : undefined,
@@ -331,7 +405,7 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
 }
 
 export async function getCurrentUserContext(): Promise<{
-  user: { id: string; email?: string } | null
+  user: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
   profile: UserProfile | null
   vendor: Vendor | null
 }> {
@@ -345,43 +419,72 @@ export async function getCurrentUserContext(): Promise<{
       return { user: null, profile: null, vendor: null }
     }
 
+    const adminByEmail = isAdminEmail(user.email)
+    const googleName =
+      user.user_metadata?.full_name ||
+      user.user_metadata?.name ||
+      user.email?.split('@')[0] ||
+      'Jetty Seller'
+    const googleAvatar =
+      user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+
     const [{ data: profileData }, { data: vendorData }] = await Promise.all([
       supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
       supabase.from('vendors').select('*').eq('user_id', user.id).maybeSingle(),
     ])
 
+    // Auto-promote efobifrancis53@gmail.com to admin in DB if not yet set
+    if (adminByEmail && (!profileData || profileData.role !== 'admin')) {
+      try {
+        await supabase.from('profiles').upsert(
+          {
+            id: user.id,
+            full_name: profileData?.full_name || googleName,
+            email: user.email,
+            avatar_url: profileData?.avatar_url || googleAvatar,
+            role: 'admin',
+            active_mode: 'vendor',
+          },
+          { onConflict: 'id' }
+        )
+      } catch {
+        // Ignore if RLS or network issue
+      }
+    }
+
+    const resolvedRole: UserProfile['role'] = adminByEmail
+      ? 'admin'
+      : profileData?.role === 'admin'
+      ? 'admin'
+      : 'vendor'
+
     const profile: UserProfile = profileData
       ? {
           id: profileData.id,
-          full_name:
-            profileData.full_name ||
-            user.user_metadata?.full_name ||
-            user.email?.split('@')[0] ||
-            'NMU Member',
+          full_name: profileData.full_name || googleName,
           email: profileData.email || user.email,
-          avatar_url: profileData.avatar_url || user.user_metadata?.avatar_url,
-          role:
-            profileData.role === 'student'
-              ? 'buyer'
-              : (profileData.role as UserProfile['role']) || 'buyer',
-          active_mode:
-            (profileData.active_mode as UserProfile['active_mode']) ||
-            (profileData.role === 'vendor' ? 'vendor' : 'buyer'),
+          avatar_url: profileData.avatar_url || googleAvatar,
+          role: resolvedRole,
+          active_mode: 'vendor',
           created_at: profileData.created_at || new Date().toISOString(),
         }
       : {
           id: user.id,
-          full_name:
-            user.user_metadata?.full_name || user.email?.split('@')[0] || 'NMU Member',
+          full_name: googleName,
           email: user.email,
-          avatar_url: user.user_metadata?.avatar_url,
-          role: 'buyer',
-          active_mode: 'buyer',
+          avatar_url: googleAvatar,
+          role: resolvedRole,
+          active_mode: 'vendor',
           created_at: new Date().toISOString(),
         }
 
     return {
-      user: { id: user.id, email: user.email },
+      user: {
+        id: user.id,
+        email: user.email,
+        full_name: googleName,
+        avatar_url: googleAvatar,
+      },
       profile,
       vendor: (vendorData as Vendor) || null,
     }

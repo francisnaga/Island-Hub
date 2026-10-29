@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useTransition } from 'react'
+import { useState } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -8,20 +8,20 @@ import {
   Store,
   Menu,
   X,
-  UserCircle,
   LayoutDashboard,
   LogOut,
-  ArrowLeftRight,
   ShieldAlert,
+  ExternalLink,
+  LogIn,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { UserProfile, Vendor } from '@/lib/types'
+import { isAdminEmail, UserProfile, Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { DarkModeToggle } from './DarkModeToggle'
 
 interface NavbarProps {
-  user: { id: string; email?: string } | null
+  user: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
   profile: UserProfile | null
   vendor: Vendor | null
 }
@@ -31,10 +31,9 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   const router = useRouter()
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  const [activeMode, setActiveMode] = useState<'buyer' | 'vendor'>(
-    profile?.active_mode || (vendor ? 'vendor' : 'buyer')
-  )
-  const [isPending, startTransition] = useTransition()
+
+  const isAdmin =
+    profile?.role === 'admin' || isAdminEmail(user?.email) || isAdminEmail(profile?.email)
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault()
@@ -44,42 +43,6 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
     }
     router.push(`/marketplace?q=${encodeURIComponent(searchQuery.trim())}`)
     setMobileMenuOpen(false)
-  }
-
-  const handleSwitchMode = async () => {
-    if (!user) {
-      router.push('/login?next=/vendor/apply')
-      return
-    }
-
-    const targetMode = activeMode === 'buyer' ? 'vendor' : 'buyer'
-    setActiveMode(targetMode)
-
-    startTransition(async () => {
-      try {
-        const supabase = createClient()
-        await supabase
-          .from('profiles')
-          .update({ active_mode: targetMode })
-          .eq('id', user.id)
-      } catch {
-        // Ignore if column not yet migrated
-      }
-
-      if (targetMode === 'vendor') {
-        if (vendor) {
-          toast.success('Switched to Vendor Mode')
-          router.push('/vendor/dashboard')
-        } else {
-          toast.info('Complete your vendor profile to start selling on Jetty')
-          router.push('/vendor/apply')
-        }
-      } else {
-        toast.success('Switched to Consumer (Buyer) View')
-        router.push('/marketplace')
-      }
-      router.refresh()
-    })
   }
 
   const handleSignOut = async () => {
@@ -104,7 +67,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md">
       {/* Main Navigation Row */}
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Official Jetty Brand Lockup: 32px mark + live lowercase "jetty" wordmark with 10px gap */}
+        {/* Official Jetty Brand Lockup: 32px mark + live lowercase "jetty" wordmark */}
         <Link
           href="/"
           aria-label="Jetty — NMU Campus Marketplace Home"
@@ -134,13 +97,13 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               type="search"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search safety boots, action rigs, calculators..."
+              placeholder="Search safety boots, action rigs, fruit salad..."
               className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-muted/60 text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none focus:ring-2 focus:ring-[#0F6E6E]/15 transition-all"
             />
           </div>
         </form>
 
-        {/* Desktop Links — Only the actual current page is highlighted */}
+        {/* Desktop Links */}
         <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5">
           {navLinks.map((link) => {
             const isActive = link.exact
@@ -164,106 +127,115 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           })}
         </nav>
 
-        {/* Right Actions (Desktop) */}
+        {/* Right Actions (Desktop) — No Buyer/Vendor mode toggle; public site is already the buyer experience */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
           <DarkModeToggle />
 
           {user ? (
             <>
-              <button
-                type="button"
-                onClick={handleSwitchMode}
-                disabled={isPending}
-                title="Switch between Buyer (Consumer) and Vendor view"
-                className={cn(
-                  'inline-flex h-10 items-center gap-1.5 rounded-lg border px-3 text-xs font-semibold transition-all cursor-pointer focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]',
-                  activeMode === 'vendor'
-                    ? 'border-[#0F6E6E]/30 bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white'
-                    : 'border-border bg-muted text-muted-foreground hover:bg-muted/80'
-                )}
-              >
-                <ArrowLeftRight className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                <span>{activeMode === 'vendor' ? 'Vendor Mode' : 'Buyer Mode'}</span>
-              </button>
-
-              {vendor ? (
-                <Link
-                  href="/vendor/dashboard"
-                  className={cn(
-                    'inline-flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-xs font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]',
-                    pathname.startsWith('/vendor/dashboard')
-                      ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
-                      : 'border border-border bg-card text-foreground hover:bg-muted'
-                  )}
-                >
-                  <Store className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                  Vendor Dashboard
-                </Link>
-              ) : (
-                <Link
-                  href="/vendor/apply"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]"
-                >
-                  <Store className="h-3.5 w-3.5" />
-                  Become a Vendor
-                </Link>
-              )}
-
-              {profile?.role === 'admin' && (
+              {isAdmin && (
                 <Link
                   href="/admin"
                   className={cn(
-                    'inline-flex h-10 items-center gap-1.5 rounded-lg px-3 text-xs font-semibold transition-colors',
+                    'inline-flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-xs font-bold transition-colors',
                     pathname.startsWith('/admin')
                       ? 'bg-[#0A4F4F] text-white'
                       : 'border border-[#E8B84A] bg-[#E8B84A]/15 text-foreground hover:bg-[#E8B84A]/25'
                   )}
                 >
-                  <ShieldAlert className="h-3.5 w-3.5 text-[#0A4F4F] dark:text-[#E8B84A]" />
-                  Admin Queue
+                  <ShieldAlert className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                  Admin Console
                 </Link>
               )}
 
-              <Link
-                href="/profile"
-                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-foreground hover:bg-muted transition-colors"
+              {vendor ? (
+                <>
+                  <Link
+                    href={`/vendors/${vendor.slug || vendor.id}`}
+                    className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  >
+                    <ExternalLink className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                    My Storefront
+                  </Link>
+                  <Link
+                    href="/vendor/dashboard"
+                    className={cn(
+                      'inline-flex h-10 items-center gap-1.5 rounded-lg px-3.5 text-xs font-semibold transition-colors',
+                      pathname.startsWith('/vendor/dashboard')
+                        ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
+                        : 'border border-border bg-card text-foreground hover:bg-muted'
+                    )}
+                  >
+                    <LayoutDashboard className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                    Manage Shop
+                  </Link>
+                </>
+              ) : (
+                <Link
+                  href="/vendor/apply"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
+                >
+                  <Store className="h-3.5 w-3.5" />
+                  Create Storefront
+                </Link>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSignOut}
+                title="Sign out"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border px-3 text-xs font-medium text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
               >
-                <UserCircle className="h-4 w-4 text-muted-foreground" />
-                <span className="max-w-[90px] truncate">{profile?.full_name || 'Profile'}</span>
-              </Link>
+                <LogOut className="h-3.5 w-3.5" />
+                <span className="hidden xl:inline">Sign Out</span>
+              </button>
             </>
           ) : (
-            <Link
-              href="/vendor/apply"
-              className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-4 text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]"
-            >
-              <Store className="h-4 w-4" />
-              Become a Vendor
-            </Link>
+            <>
+              <Link
+                href="/login"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              >
+                <LogIn className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                Vendor Sign In
+              </Link>
+              <Link
+                href="/vendor/apply"
+                className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-4 text-xs sm:text-sm font-semibold text-white hover:bg-[#0A4F4F] transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]"
+              >
+                <Store className="h-4 w-4" />
+                Become a Vendor
+              </Link>
+            </>
           )}
         </div>
 
-        {/* Mobile Actions (Minimum 40x40px touch targets) */}
+        {/* Mobile Actions */}
         <div className="flex items-center gap-1.5 md:hidden shrink-0">
-          {!user && (
+          {user && isAdmin ? (
+            <Link
+              href="/admin"
+              className="inline-flex h-10 items-center gap-1 rounded-lg border border-[#E8B84A] bg-[#E8B84A]/15 px-2.5 text-xs font-bold text-foreground"
+            >
+              <ShieldAlert className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+              <span>Admin</span>
+            </Link>
+          ) : user && vendor ? (
+            <Link
+              href="/vendor/dashboard"
+              className="inline-flex h-10 items-center gap-1 rounded-lg bg-[#0F6E6E] px-2.5 text-xs font-semibold text-white"
+            >
+              <LayoutDashboard className="h-3.5 w-3.5" />
+              <span>My Shop</span>
+            </Link>
+          ) : (
             <Link
               href="/vendor/apply"
               className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3 text-xs font-semibold text-white hover:bg-[#0A4F4F]"
             >
               <Store className="h-3.5 w-3.5" />
-              <span>Become a Vendor</span>
+              <span>Sell</span>
             </Link>
-          )}
-          {user && (
-            <button
-              type="button"
-              onClick={handleSwitchMode}
-              disabled={isPending}
-              className="inline-flex h-10 items-center gap-1 rounded-lg border border-border bg-muted px-2.5 text-[11px] font-semibold text-foreground"
-            >
-              <ArrowLeftRight className="h-3 w-3 text-[#0F6E6E]" />
-              {activeMode === 'vendor' ? 'Vendor' : 'Buyer'}
-            </button>
           )}
           <DarkModeToggle />
           <button
@@ -292,7 +264,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search safety boots, action rigs, calculators..."
+                placeholder="Search safety boots, action rigs, fruit salad..."
                 className="w-full h-11 pl-10 pr-4 rounded-lg border border-input bg-muted text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
@@ -322,62 +294,83 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             })}
           </nav>
 
-          {user && (
-            <div className="pt-2 border-t border-border flex flex-col gap-2">
-              {vendor ? (
-                <Link
-                  href="/vendor/dashboard"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-2.5 text-xs font-semibold text-white min-h-10"
-                >
-                  <LayoutDashboard className="h-4 w-4" />
-                  Vendor Dashboard
-                </Link>
-              ) : (
-                <Link
-                  href="/vendor/apply"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-[#E6F2F2] border border-[#0F6E6E]/20 py-2.5 text-xs font-semibold text-[#0A4F4F] min-h-10"
-                >
-                  <Store className="h-4 w-4" />
-                  Become a Vendor
-                </Link>
-              )}
+          <div className="pt-2 border-t border-border flex flex-col gap-2">
+            {user ? (
+              <>
+                {isAdmin && (
+                  <Link
+                    href="/admin"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#E8B84A]/20 border border-[#E8B84A] py-2.5 text-xs font-bold text-foreground min-h-10"
+                  >
+                    <ShieldAlert className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                    Admin Moderation &amp; Vendor Console
+                  </Link>
+                )}
 
-              {profile?.role === 'admin' && (
-                <Link
-                  href="/admin"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 rounded-lg bg-[#E8B84A]/15 border border-[#E8B84A] py-2.5 text-xs font-semibold text-foreground min-h-10"
-                >
-                  <ShieldAlert className="h-4 w-4" />
-                  Admin Moderation Queue
-                </Link>
-              )}
+                {vendor ? (
+                  <div className="grid grid-cols-2 gap-2">
+                    <Link
+                      href={`/vendors/${vendor.slug || vendor.id}`}
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1.5 rounded-lg border border-border py-2.5 text-xs font-semibold text-foreground min-h-10"
+                    >
+                      <ExternalLink className="h-3.5 w-3.5 text-[#0F6E6E]" />
+                      My Storefront
+                    </Link>
+                    <Link
+                      href="/vendor/dashboard"
+                      onClick={() => setMobileMenuOpen(false)}
+                      className="flex items-center justify-center gap-1.5 rounded-lg bg-[#0F6E6E] py-2.5 text-xs font-semibold text-white min-h-10"
+                    >
+                      <LayoutDashboard className="h-3.5 w-3.5" />
+                      Manage Shop
+                    </Link>
+                  </div>
+                ) : (
+                  <Link
+                    href="/vendor/apply"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="flex items-center justify-center gap-2 rounded-lg bg-[#0F6E6E] py-2.5 text-xs font-semibold text-white min-h-10"
+                  >
+                    <Store className="h-4 w-4" />
+                    Create Vendor Storefront
+                  </Link>
+                )}
 
-              <div className="grid grid-cols-2 gap-2">
-                <Link
-                  href="/profile"
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border py-2.5 text-xs font-semibold text-foreground min-h-10"
-                >
-                  <UserCircle className="h-4 w-4" />
-                  Profile
-                </Link>
                 <button
                   type="button"
                   onClick={() => {
                     setMobileMenuOpen(false)
                     handleSignOut()
                   }}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 py-2.5 text-xs font-semibold text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400 min-h-10"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50/50 py-2.5 text-xs font-semibold text-red-700 dark:border-red-900 dark:bg-red-950/30 dark:text-red-400 min-h-10 cursor-pointer"
                 >
                   <LogOut className="h-4 w-4" />
-                  Sign Out
+                  Sign Out ({user.email})
                 </button>
+              </>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <Link
+                  href="/login"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border py-2.5 text-xs font-semibold text-foreground min-h-10"
+                >
+                  <LogIn className="h-4 w-4 text-[#0F6E6E]" />
+                  Vendor Sign In
+                </Link>
+                <Link
+                  href="/vendor/apply"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center justify-center gap-1.5 rounded-lg bg-[#0F6E6E] py-2.5 text-xs font-semibold text-white min-h-10"
+                >
+                  <Store className="h-4 w-4" />
+                  Become a Vendor
+                </Link>
               </div>
-            </div>
-          )}
+            )}
+          </div>
         </div>
       )}
     </header>
