@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, SlidersHorizontal, X } from 'lucide-react'
+import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
 import { Category } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -10,12 +10,19 @@ interface MarketplaceFiltersProps {
   categories: Category[]
 }
 
+const CAMPUS_OPTIONS = [
+  { id: 'all', label: 'All Campuses' },
+  { id: 'Okerenkoko', label: 'Okerenkoko' },
+  { id: 'Kurutie', label: 'Kurutie' },
+]
+
 export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
   const router = useRouter()
   const searchParams = useSearchParams()
 
   const [q, setQ] = useState(searchParams.get('q') || '')
   const [category, setCategory] = useState(searchParams.get('category') || 'all')
+  const [campus, setCampus] = useState(searchParams.get('campus') || 'all')
   const [condition, setCondition] = useState(searchParams.get('condition') || 'all')
   const [availability, setAvailability] = useState(
     searchParams.get('availability') || 'available_only'
@@ -29,6 +36,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
     const params = new URLSearchParams()
     const nextQ = overrides?.q !== undefined ? overrides.q : q
     const nextCategory = overrides?.category !== undefined ? overrides.category : category
+    const nextCampus = overrides?.campus !== undefined ? overrides.campus : campus
     const nextCondition = overrides?.condition !== undefined ? overrides.condition : condition
     const nextAvailability =
       overrides?.availability !== undefined ? overrides.availability : availability
@@ -38,6 +46,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
 
     if (nextQ.trim()) params.set('q', nextQ.trim())
     if (nextCategory && nextCategory !== 'all') params.set('category', nextCategory)
+    if (nextCampus && nextCampus !== 'all') params.set('campus', nextCampus)
     if (nextCondition && nextCondition !== 'all') params.set('condition', nextCondition)
     if (nextAvailability && nextAvailability !== 'available_only') {
       params.set('availability', nextAvailability)
@@ -53,6 +62,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
   const clearAll = () => {
     setQ('')
     setCategory('all')
+    setCampus('all')
     setCondition('all')
     setAvailability('available_only')
     setMinPrice('')
@@ -84,15 +94,15 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
               type="search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Search boots, rigs, calculators, size 43..."
-              className="w-full h-10 sm:h-11 pl-10 pr-3 rounded-xl border border-input bg-card text-sm text-foreground placeholder:text-muted-foreground focus:border-[#0F6E6E] focus:outline-none focus:ring-2 focus:ring-[#0F6E6E]/15"
+              placeholder="Search boots, action rigs, calculators, size 43..."
+              className="w-full h-10 sm:h-11 pl-10 pr-3 rounded-xl border border-input bg-card text-sm text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none focus:ring-1 focus:ring-foreground/20"
             />
           </div>
           <button
             type="submit"
-            className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold hover:bg-[#0A4F4F] transition-colors shrink-0 cursor-pointer"
+            className="h-10 sm:h-11 px-4 sm:px-5 rounded-xl bg-foreground text-background text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity shrink-0 cursor-pointer"
           >
-            Search listings
+            Search
           </button>
         </form>
 
@@ -104,27 +114,55 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
               applyFilters({ sort: e.target.value })
             }}
             aria-label="Sort listings"
-            className="flex-1 md:flex-none h-10 sm:h-11 min-w-0 rounded-xl border border-input bg-card px-3 text-xs sm:text-sm font-medium text-foreground focus:border-[#0F6E6E] focus:outline-none"
+            className="h-10 sm:h-11 px-3 rounded-xl border border-input bg-card text-xs font-medium text-foreground focus:border-foreground/40 focus:outline-none"
           >
-            <option value="newest">Sort: Newest</option>
+            <option value="newest">Newest first</option>
             <option value="price_asc">Price: Low to High</option>
             <option value="price_desc">Price: High to Low</option>
-            <option value="relevance">Relevance</option>
           </select>
 
           <button
             type="button"
             onClick={() => setMobileOpen(!mobileOpen)}
-            className="inline-flex md:hidden items-center gap-1.5 h-10 rounded-xl border border-input bg-card px-3 text-xs font-semibold text-foreground shrink-0"
+            className="h-10 sm:h-11 px-3.5 rounded-xl border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted flex items-center gap-1.5 transition-colors cursor-pointer"
           >
-            <SlidersHorizontal className="h-3.5 w-3.5 text-[#0F6E6E]" />
+            <SlidersHorizontal className="h-3.5 w-3.5 text-muted-foreground" />
             Filters
           </button>
         </div>
       </div>
 
-      {/* Category Pills Bar (Contained Horizontal Scroll) */}
-      <div className="w-full max-w-full overflow-x-auto no-scrollbar pb-1">
+      {/* Campus Selector Bar (Clean Monochrome) */}
+      <div className="flex flex-wrap items-center gap-1.5 pt-1">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mr-1">
+          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+          Campus:
+        </span>
+        {CAMPUS_OPTIONS.map((c) => {
+          const active = campus.toLowerCase() === c.id.toLowerCase()
+          return (
+            <button
+              key={c.id}
+              type="button"
+              onClick={() => {
+                setCampus(c.id)
+                applyFilters({ campus: c.id })
+              }}
+              className={cn(
+                'rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors cursor-pointer',
+                active
+                  ? 'bg-foreground text-background border-foreground font-bold'
+                  : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
+              )}
+            >
+              {c.label}
+            </button>
+          )
+        })}
+      </div>
+
+      {/* Category Pills Bar (Clean Monochrome Active States) */}
+      <div className="w-full max-w-full overflow-x-auto no-scrollbar pb-1 border-t border-border/60 pt-2">
         <div className="flex items-center gap-1.5 w-max">
           <button
             type="button"
@@ -135,11 +173,11 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             className={cn(
               'shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors cursor-pointer',
               category === 'all'
-                ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
-                : 'bg-card text-foreground border-border hover:border-[#0F6E6E]/40'
+                ? 'bg-foreground text-background border-foreground font-bold'
+                : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
             )}
           >
-            All
+            All Categories
           </button>
           {categories.map((cat) => (
             <button
@@ -152,11 +190,11 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
               className={cn(
                 'shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors cursor-pointer',
                 category === cat.slug
-                  ? 'bg-[#0F6E6E] text-white border-[#0F6E6E]'
-                  : 'bg-card text-foreground border-border hover:border-[#0F6E6E]/40'
+                  ? 'bg-foreground text-background border-foreground font-bold'
+                  : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
               )}
             >
-              {cat.name}
+              {cat.short_name || cat.name}
             </button>
           ))}
         </div>
@@ -179,7 +217,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             value={minPrice}
             onChange={(e) => setMinPrice(e.target.value)}
             placeholder="e.g. 2000"
-            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
+            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-foreground/40 focus:outline-none"
           />
         </div>
 
@@ -193,7 +231,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             value={maxPrice}
             onChange={(e) => setMaxPrice(e.target.value)}
             placeholder="e.g. 30000"
-            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
+            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-foreground/40 focus:outline-none"
           />
         </div>
 
@@ -204,7 +242,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
           <select
             value={condition}
             onChange={(e) => setCondition(e.target.value)}
-            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
+            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-foreground/40 focus:outline-none"
           >
             <option value="all">Any Condition</option>
             <option value="new">Brand New</option>
@@ -221,7 +259,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
           <select
             value={availability}
             onChange={(e) => setAvailability(e.target.value)}
-            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
+            className="w-full h-9 rounded-lg border border-input bg-background px-2.5 text-xs text-foreground focus:border-foreground/40 focus:outline-none"
           >
             <option value="available_only">In Stock Only</option>
             <option value="all">Include Out of Stock</option>
@@ -232,7 +270,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
           <button
             type="button"
             onClick={() => applyFilters()}
-            className="flex-1 h-9 rounded-lg bg-[#0F6E6E] text-white text-xs font-semibold hover:bg-[#0A4F4F] transition-colors cursor-pointer"
+            className="flex-1 h-9 rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
           >
             Apply
           </button>

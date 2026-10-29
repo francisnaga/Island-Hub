@@ -21,6 +21,7 @@ import { getSellerTypeLabel } from '@/components/cards/VendorCard'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
+import { cn } from '@/lib/utils'
 import {
   buildGoogleMapsDirectionsUrl,
   buildVendorStoreWhatsAppUrl,
@@ -206,20 +207,21 @@ export default async function VendorStorefrontPage({
                           {vendor.shop_name}
                         </h1>
 
-                        {vendor.verification_status === 'verified' ? (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 border border-primary/30 px-2.5 py-0.5 text-xs font-bold text-primary">
-                            <BadgeCheck className="h-4 w-4 text-primary" />
-                            Verified
-                          </span>
-                        ) : (
-                          <span className="inline-flex items-center rounded-full bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 text-xs font-medium text-amber-600 dark:text-amber-400">
-                            Pending approval
-                          </span>
+                        {vendor.verification_status === 'verified' && (
+                          <BadgeCheck
+                            className={cn(
+                              'h-5 w-5 shrink-0',
+                              vendor.slug === 'naga' || vendor.slug === 'francis-naga'
+                                ? 'text-[#F59E0B]'
+                                : 'text-primary'
+                            )}
+                            aria-label="Verified"
+                          />
                         )}
 
                         {vendor.seller_type === 'business' && vendor.business_verified && (
-                          <span className="inline-flex items-center gap-1 rounded-full bg-emerald-500/15 border border-emerald-500/30 px-2.5 py-0.5 text-xs font-semibold text-emerald-600 dark:text-emerald-400">
-                            <Building2 className="h-3.5 w-3.5" />
+                          <span className="inline-flex items-center gap-1 rounded-md bg-muted border border-border px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                            <Building2 className="h-3 w-3" />
                             Business
                           </span>
                         )}
@@ -336,7 +338,7 @@ export default async function VendorStorefrontPage({
                     </p>
                   </div>
 
-                  <div className="rounded-xl bg-accent/40 border border-primary/20 p-3.5 space-y-1">
+                  <div className="rounded-xl bg-muted/40 border border-border p-3.5 space-y-1">
                     <div className="flex items-center gap-1.5 font-bold text-foreground">
                       <ShieldCheck className="h-3.5 w-3.5 text-primary" />
                       Trust &amp; Verification

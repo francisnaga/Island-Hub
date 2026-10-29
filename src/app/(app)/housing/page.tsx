@@ -185,7 +185,7 @@ export default async function HousingPage({
                   className={cn(
                     'h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors',
                     active
-                      ? 'bg-primary text-primary-foreground'
+                      ? 'bg-foreground text-background'
                       : 'border border-border bg-card text-muted-foreground hover:text-foreground'
                   )}
                 >
@@ -222,7 +222,7 @@ export default async function HousingPage({
                     <span className="rounded-md bg-slate-950/85 backdrop-blur-xs border border-white/10 px-2.5 py-0.5 text-[11px] font-bold text-white">
                       {lodge.room_type_label}
                     </span>
-                    <span className="rounded-md bg-primary/95 px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                    <span className="rounded-md bg-slate-950/85 backdrop-blur-xs border border-white/10 px-2 py-0.5 text-[10px] font-semibold text-white">
                       {lodge.campus}
                     </span>
                   </div>
@@ -272,10 +272,7 @@ export default async function HousingPage({
                     <div className="flex items-center justify-between text-xs">
                       <span className="text-muted-foreground truncate">{lodge.contact_name}</span>
                       {lodge.is_verified && (
-                        <span className="inline-flex items-center gap-1 text-[11px] text-primary font-semibold shrink-0">
-                          <BadgeCheck className="h-3.5 w-3.5" />
-                          Verified
-                        </span>
+                        <BadgeCheck className="h-4 w-4 text-primary shrink-0" aria-label="Verified" />
                       )}
                     </div>
 

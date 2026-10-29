@@ -7,6 +7,12 @@ import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
+export const metadata = {
+  title: 'Verified Campus Vendors | Jetty NMU',
+  description:
+    'Browse verified student and local vendors across NMU Okerenkoko and Kurutie. Direct WhatsApp storefronts for uniforms, gadgets, tools, and hostel essentials.',
+}
+
 export default async function VendorsDirectoryPage({
   searchParams,
 }: {
@@ -53,30 +59,20 @@ export default async function VendorsDirectoryPage({
 
   return (
     <div className="py-5 sm:py-8 md:py-10 min-w-0">
-      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 min-w-0">
-        {/* Compact Header & Pill Switch */}
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 sm:space-y-6 min-w-0">
+        {/* Header & Monochrome Pill Switch */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="flex items-center justify-between sm:block gap-2">
-            <div>
-              <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
-                {isVerifiedOnly ? 'Verified Vendors' : 'All Vendors'} ({vendors.length})
-              </h1>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Okerenkoko &amp; Kurutie · Direct WhatsApp storefronts
-              </p>
-            </div>
-
-            <Link
-              href="/vendor/apply"
-              className="sm:hidden inline-flex h-9 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-3 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
-            >
-              <Store className="h-3.5 w-3.5" />
-              <span>Sell</span>
-            </Link>
+          <div>
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground">
+              {isVerifiedOnly ? 'Verified Vendors' : 'All Vendors'} ({vendors.length})
+            </h1>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Okerenkoko &amp; Kurutie · Direct WhatsApp storefronts
+            </p>
           </div>
 
           <div className="flex items-center justify-between sm:justify-end gap-2.5">
-            {/* Pill Switch for Verified vs All Vendors */}
+            {/* Clean Monochrome Pill Switch */}
             <div
               role="radiogroup"
               aria-label="Filter vendors by verification status"
@@ -87,9 +83,9 @@ export default async function VendorsDirectoryPage({
                 role="radio"
                 aria-checked={isVerifiedOnly}
                 className={cn(
-                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all',
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
                   isVerifiedOnly
-                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    ? 'bg-foreground text-background shadow-xs font-bold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -101,9 +97,9 @@ export default async function VendorsDirectoryPage({
                 role="radio"
                 aria-checked={!isVerifiedOnly}
                 className={cn(
-                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-bold transition-all',
+                  'inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all',
                   !isVerifiedOnly
-                    ? 'bg-primary text-primary-foreground shadow-xs'
+                    ? 'bg-foreground text-background shadow-xs font-bold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -114,7 +110,7 @@ export default async function VendorsDirectoryPage({
 
             <Link
               href="/vendor/apply"
-              className="hidden sm:inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
+              className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-3.5 sm:px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0"
             >
               <Store className="h-3.5 w-3.5" />
               <span>Open Store</span>
@@ -122,46 +118,43 @@ export default async function VendorsDirectoryPage({
           </div>
         </div>
 
-        {/* Founder Account Spotlight Card */}
-        <div className="relative overflow-hidden rounded-2xl border border-primary/30 bg-card p-4 sm:p-5 shadow-xs transition-all hover:border-primary/50">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        {/* Founder Spotlight Card (Matches Vendor Card Layout with Golden Badge & Monochrome Buttons) */}
+        <div className="rounded-2xl border border-border/80 bg-card p-4 sm:p-5 hover:border-foreground/30 hover:shadow-xs transition-all flex flex-col justify-between gap-3 min-w-0">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 min-w-0">
             <div className="flex items-center gap-3.5 min-w-0">
-              <div className="relative flex h-13 w-13 sm:h-14 sm:w-14 shrink-0 items-center justify-center rounded-full bg-primary/10 border-2 border-primary/30 text-primary shadow-xs">
-                <NagaLogo size={24} className="text-primary" />
-                <span className="absolute -bottom-0.5 -right-0.5 flex h-4.5 w-4.5 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-xs">
-                  <BadgeCheck className="h-3 w-3" />
-                </span>
+              {/* Sharp, clean high-contrast Naga mark avatar */}
+              <div className="relative flex h-12 w-12 sm:h-13 sm:w-13 shrink-0 items-center justify-center rounded-full border border-border/80 bg-slate-900 text-white shadow-2xs">
+                <NagaLogo size={26} color="#FFFFFF" />
               </div>
 
-              <div className="min-w-0 space-y-1">
-                <div className="flex flex-wrap items-center gap-2">
+              {/* Title & Metadata */}
+              <div className="min-w-0 space-y-0.5">
+                <div className="flex items-center gap-1.5 min-w-0">
                   <h3 className="text-sm sm:text-base font-bold text-foreground">
-                    Francis Naga
+                    Naga
                   </h3>
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/15 border border-primary/30 px-2 py-0.5 text-[10px] font-bold text-primary uppercase tracking-wider">
-                    <BadgeCheck className="h-2.5 w-2.5" />
-                    Founder &amp; Architect
-                  </span>
+                  {/* Golden Verified Badge for Founder */}
+                  <BadgeCheck
+                    className="h-4 w-4 text-[#F59E0B] shrink-0"
+                    aria-label="Verified Founder"
+                  />
                 </div>
 
-                <p className="text-xs text-muted-foreground line-clamp-1">
-                  Building Jetty — High-speed sovereign campus commerce for NMU
-                </p>
-
-                <div className="flex items-center gap-2 text-[11px] text-muted-foreground">
-                  <span className="font-medium text-foreground/80">Okerenkoko &amp; Kurutie</span>
+                <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                  <span className="font-semibold text-foreground/90">Founder</span>
                   <span>·</span>
-                  <span>Platform Lead</span>
+                  <span>Okerenkoko &amp; Kurutie</span>
                 </div>
               </div>
             </div>
 
-            <div className="flex items-center gap-2 shrink-0 sm:self-center">
+            {/* Naga's special action buttons (Monochrome, no AI glowing teal) */}
+            <div className="flex items-center gap-2 shrink-0 self-start sm:self-auto">
               <a
                 href="https://francisnaga.site"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground hover:bg-muted hover:border-primary/40 transition-colors"
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-border bg-background px-3 text-xs font-semibold text-foreground hover:bg-muted hover:border-foreground/40 transition-colors"
               >
                 <span>Portfolio</span>
                 <ExternalLink className="h-3 w-3 text-muted-foreground" />
@@ -171,22 +164,26 @@ export default async function VendorsDirectoryPage({
                 href="https://francisnaga.site#tip"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-3.5 text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
+                className="inline-flex h-9 items-center gap-1.5 rounded-xl bg-foreground text-background px-3.5 text-xs font-bold hover:opacity-90 transition-opacity shadow-xs"
               >
                 <HeartHandshake className="h-3.5 w-3.5" />
-                <span>Tip Francis</span>
+                <span>Tip Naga</span>
               </a>
             </div>
           </div>
+
+          <p className="text-xs text-muted-foreground leading-relaxed">
+            Building Jetty — High-speed sovereign campus commerce and peer marketplace for Nigeria Maritime University.
+          </p>
         </div>
 
-        {/* Search & Filters Bar */}
-        <div className="rounded-2xl border border-border bg-card p-3.5 sm:p-4 space-y-3 min-w-0">
+        {/* Search & Filters Bar (Clean Monochrome Active States) */}
+        <div className="rounded-2xl border border-border/80 bg-card p-3.5 sm:p-4 space-y-3 min-w-0">
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 min-w-0">
-            {/* Campus Filter Pills */}
+            {/* Campus Filter Pills (Monochrome) */}
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mr-1">
-                <MapPin className="h-3.5 w-3.5 text-primary" />
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
                 Campus:
               </span>
               {campusOptions.map((c) => {
@@ -198,8 +195,8 @@ export default async function VendorsDirectoryPage({
                     className={cn(
                       'rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors',
                       active
-                        ? 'bg-primary text-primary-foreground border-primary'
-                        : 'bg-background text-foreground border-border hover:border-primary/40'
+                        ? 'bg-foreground text-background border-foreground font-bold'
+                        : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
                     )}
                   >
                     {c.label}
@@ -220,7 +217,7 @@ export default async function VendorsDirectoryPage({
                   name="q"
                   defaultValue={query}
                   placeholder="Search vendor name or landmark..."
-                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-input bg-background text-xs text-foreground focus:border-primary focus:outline-none"
+                  className="w-full h-10 pl-9 pr-3 rounded-xl border border-input bg-background text-xs text-foreground focus:border-foreground/40 focus:outline-none"
                 />
               </div>
               <button
@@ -232,15 +229,15 @@ export default async function VendorsDirectoryPage({
             </form>
           </div>
 
-          {/* Category Filter Chips */}
-          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1 border-t border-border/60">
+          {/* Category Filter Chips (Monochrome Active States) */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 border-t border-border/60">
             <Link
               href={buildUrl({ category: 'all' })}
               className={cn(
-                'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold border transition-colors',
+                'shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors',
                 category === 'all'
-                  ? 'border-primary bg-accent text-accent-foreground font-bold'
-                  : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                  ? 'bg-foreground text-background border-foreground font-bold'
+                  : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
               )}
             >
               All Categories
@@ -252,22 +249,22 @@ export default async function VendorsDirectoryPage({
                   key={cat.slug}
                   href={buildUrl({ category: cat.slug })}
                   className={cn(
-                    'shrink-0 rounded-full px-3 py-1 text-[11px] font-semibold border transition-colors',
+                    'shrink-0 rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors',
                     active
-                      ? 'border-primary bg-accent text-accent-foreground font-bold'
-                      : 'border-border bg-background text-muted-foreground hover:text-foreground'
+                      ? 'bg-foreground text-background border-foreground font-bold'
+                      : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
                   )}
                 >
-                  {cat.name}
+                  {cat.short_name || cat.name}
                 </Link>
               )
             })}
           </div>
         </div>
 
-        {/* Grid */}
+        {/* 2-Column Desktop Grid of Matching Vendor Cards */}
         {vendors.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {vendors.map((vendor) => (
               <VendorCard key={vendor.id} vendor={vendor} />
             ))}
@@ -290,7 +287,7 @@ export default async function VendorsDirectoryPage({
               </Link>
               <Link
                 href="/vendor/apply"
-                className="inline-flex items-center justify-center rounded-xl bg-primary px-5 py-2.5 text-xs font-bold text-primary-foreground hover:opacity-90"
+                className="inline-flex items-center justify-center rounded-xl bg-foreground text-background px-5 py-2.5 text-xs font-bold hover:opacity-90"
               >
                 Apply to Sell on Jetty
               </Link>

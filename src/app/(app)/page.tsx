@@ -176,7 +176,7 @@ export default async function HomePage() {
                 href={`/category/${cat.slug}`}
                 className="group flex flex-col items-center justify-center text-center rounded-xl border border-border/75 bg-card p-3 sm:p-3.5 hover:border-foreground/30 hover:bg-muted/30 transition-all gap-2 shadow-2xs"
               >
-                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-muted/50 text-foreground group-hover:border-primary/50 group-hover:bg-primary/10 group-hover:text-primary transition-all">
+                <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-border/70 bg-muted/50 text-foreground group-hover:border-foreground/30 group-hover:bg-muted transition-all">
                   <IconComp className="h-4.5 w-4.5 stroke-[1.65]" />
                 </div>
                 <div className="min-w-0 w-full space-y-0.5">
@@ -273,7 +273,7 @@ export default async function HomePage() {
             className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/60 transition-colors"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
                 <CheckSquare className="h-5 w-5" />
               </div>
               <div className="min-w-0">
@@ -293,7 +293,7 @@ export default async function HomePage() {
             className="group flex items-center justify-between rounded-2xl border border-border bg-card p-4 hover:border-primary/60 transition-colors"
           >
             <div className="flex items-center gap-3 min-w-0">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-accent text-primary">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-muted text-foreground group-hover:bg-foreground group-hover:text-background transition-colors">
                 <Home className="h-5 w-5" />
               </div>
               <div className="min-w-0">

@@ -235,6 +235,7 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
 export interface ProductQueryFilters {
   q?: string
   category?: string
+  campus?: string
   minPrice?: number
   maxPrice?: number
   condition?: string
@@ -288,6 +289,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
   const {
     q = '',
     category = '',
+    campus = '',
     minPrice,
     maxPrice,
     condition = '',
@@ -406,6 +408,14 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
   if (category && category !== 'all') {
     productsList = productsList.filter(
       (p) => p.category?.slug === category || p.category_id === category
+    )
+  }
+
+  if (campus && campus !== 'all') {
+    productsList = productsList.filter(
+      (p) =>
+        p.vendor?.campus === 'Both' ||
+        p.vendor?.campus?.toLowerCase() === campus.toLowerCase()
     )
   }
 

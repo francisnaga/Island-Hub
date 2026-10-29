@@ -235,7 +235,7 @@ export function ProductForm({
         return
       }
       toast.success(
-        `Category request for "${requestedCategoryName}" submitted! Admin (Francis Naga) will review and approve it shortly.`
+        `Category request for "${requestedCategoryName}" submitted! Admin (Naga) will review and approve it shortly.`
       )
       setRequestedCategoryName('')
       setRequestedCategoryDesc('')
@@ -781,7 +781,7 @@ export function ProductForm({
             </div>
 
             <p className="text-xs text-muted-foreground leading-relaxed">
-              Don&apos;t see a category that matches your product, meal, or service? Submit your request to the Admin (Francis Naga) and it will be created upon review.
+              Don&apos;t see a category that matches your product, meal, or service? Submit your request to the Admin (Naga) and it will be created upon review.
             </p>
 
             <form onSubmit={handleRequestCategory} className="space-y-3.5">

@@ -16,6 +16,7 @@ export default async function MarketplacePage({
   searchParams: Promise<{
     q?: string
     category?: string
+    campus?: string
     minPrice?: string
     maxPrice?: string
     condition?: string
@@ -34,6 +35,7 @@ export default async function MarketplacePage({
     getPublicProducts({
       q: params.q || '',
       category: params.category || 'all',
+      campus: params.campus || 'all',
       minPrice,
       maxPrice,
       condition: params.condition || 'all',

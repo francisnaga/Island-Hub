@@ -178,7 +178,7 @@ export default async function ProductDetailPage({
                 {product.category && (
                   <Link
                     href={`/category/${product.category.slug}`}
-                    className="inline-flex items-center gap-1 rounded-md bg-accent border border-primary/25 px-2.5 py-1 text-xs font-semibold text-accent-foreground"
+                    className="inline-flex items-center gap-1 rounded-md bg-muted border border-border px-2.5 py-1 text-xs font-semibold text-foreground hover:bg-muted/80 transition-colors"
                   >
                     <Tag className="h-3 w-3" />
                     {product.category.name}
@@ -211,7 +211,7 @@ export default async function ProductDetailPage({
               </h1>
 
               {product.listing_type === 'food' && (product.food_lead_time || product.food_allergen_info) && (
-                <div className="rounded-xl border border-primary/25 bg-accent/60 p-3.5 space-y-1.5 text-xs">
+                <div className="rounded-xl border border-border bg-muted/40 p-3.5 space-y-1.5 text-xs">
                   <p className="font-bold uppercase tracking-wider text-primary">
                     Made-to-Order Food &amp; Drink Details
                   </p>
@@ -229,7 +229,7 @@ export default async function ProductDetailPage({
               )}
 
               {product.listing_type === 'service' && (product.service_turnaround || product.service_area) && (
-                <div className="rounded-xl border border-primary/25 bg-accent/60 p-3.5 space-y-1.5 text-xs">
+                <div className="rounded-xl border border-border bg-muted/40 p-3.5 space-y-1.5 text-xs">
                   <p className="font-bold uppercase tracking-wider text-primary">
                     Campus Service Details
                   </p>

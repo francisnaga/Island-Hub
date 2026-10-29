@@ -30,10 +30,9 @@ export default function SafetyAndHelpPage() {
       <div className="container mx-auto max-w-4xl px-3.5 sm:px-4 space-y-8 min-w-0">
         {/* Header Hero */}
         <div className="space-y-3">
-          <div className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            <span>Trust, Integrity &amp; Safety Architecture</span>
-          </div>
+          <p className="text-xs font-bold tracking-wider uppercase text-muted-foreground">
+            Trust, Integrity &amp; Safety
+          </p>
 
           <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-foreground leading-[1.15]">
             Trust, Safety &amp; Community Standards
@@ -358,7 +357,7 @@ export default function SafetyAndHelpPage() {
 
         {/* Section 7: Reporting Desk & Escalation */}
         <section id="reporting-desk" className="scroll-mt-28 space-y-4">
-          <div className="rounded-2xl border border-primary/25 bg-card p-5 sm:p-6 space-y-4 shadow-xs">
+          <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4 shadow-xs">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div className="space-y-1">
                 <h2 className="text-base sm:text-lg font-bold text-foreground flex items-center gap-2">

@@ -69,7 +69,7 @@ export function Footer() {
             <span>Built by</span>
             <NagaLogo size={14} className="text-foreground group-hover:text-primary transition-colors" />
             <span className="font-semibold text-foreground group-hover:text-primary transition-colors">
-              Francis Naga
+              Naga
             </span>
             <ExternalLink className="h-3 w-3 opacity-60 group-hover:opacity-100 transition-opacity" />
           </a>
