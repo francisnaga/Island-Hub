@@ -66,8 +66,8 @@ export function DarkModeToggle({ className = '' }: { className?: string }) {
           ],
         },
         {
-          duration: 500,
-          easing: 'cubic-bezier(0.22, 0.8, 0.2, 1)',
+          duration: 720,
+          easing: 'cubic-bezier(0.4, 0, 0.2, 1)',
           pseudoElement: '::view-transition-new(root)',
         }
       )

@@ -156,12 +156,6 @@
 ::view-transition-new(root) {
   z-index: 9999;
 }
-.dark::view-transition-old(root) {
-  z-index: 9999;
-}
-.dark::view-transition-new(root) {
-  z-index: 1;
-}
 
 /* ── Waterline Sweep & Flowing Animations ── */
 .sweep {
@@ -212,10 +206,24 @@
   }
 }
 
-.no-scrollbar::-webkit-scrollbar {
-  display: none;
+/* ── Clean Horizontal Rails — Zero Native Scrollbars (Linear / Apple / Stripe Grade) ── */
+.scrollbar-none,
+.no-scrollbar,
+.rail,
+.chips,
+[class*="overflow-x-auto"],
+[class*="overflow-x-scroll"] {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
 }
-.no-scrollbar {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+
+.scrollbar-none::-webkit-scrollbar,
+.no-scrollbar::-webkit-scrollbar,
+.rail::-webkit-scrollbar,
+.chips::-webkit-scrollbar,
+[class*="overflow-x-auto"]::-webkit-scrollbar,
+[class*="overflow-x-scroll"]::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
 }
