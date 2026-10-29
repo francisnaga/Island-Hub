@@ -107,6 +107,7 @@ export interface Product {
   id: string
   vendor_id: string
   category_id: string
+  campus?: 'Okerenkoko' | 'Kurutie'
   title: string
   slug: string
   description: string

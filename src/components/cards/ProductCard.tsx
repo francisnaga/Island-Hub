@@ -37,9 +37,8 @@ export function ProductCard({ product }: ProductCardProps) {
     product.stock_quantity > 0
 
   const campusShort =
-    product.vendor?.campus === 'Both'
-      ? 'Okerenkoko · Kurutie'
-      : product.vendor?.campus || 'Okerenkoko'
+    product.campus ||
+    (product.vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')
 
   return (
     <Link

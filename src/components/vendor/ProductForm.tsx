@@ -80,6 +80,10 @@ export function ProductForm({
   const [categoryId, setCategoryId] = useState(
     existingProduct?.category_id || categories[0]?.id || ''
   )
+  const [campus, setCampus] = useState<'Okerenkoko' | 'Kurutie'>(
+    existingProduct?.campus ||
+      (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')
+  )
   const [price, setPrice] = useState(
     existingProduct ? String(existingProduct.price) : ''
   )
@@ -109,7 +113,8 @@ export function ProductForm({
     existingProduct?.service_turnaround || '24–48 hours'
   )
   const [serviceArea, setServiceArea] = useState(
-    existingProduct?.service_area || 'Okerenkoko & Kurutie Campus'
+    existingProduct?.service_area ||
+      `${existingProduct?.campus || (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')} Campus & Hostels`
   )
 
   const [images, setImages] = useState<string[]>(
@@ -280,6 +285,7 @@ export function ProductForm({
       existingProduct.status === 'approved' &&
       existingProduct.title === title.trim() &&
       existingProduct.category_id === categoryId &&
+      existingProduct.campus === campus &&
       JSON.stringify(existingProduct.images) === JSON.stringify(images)
 
     const nextStatus = existingProduct
@@ -294,6 +300,7 @@ export function ProductForm({
       const payload = {
         vendor_id: vendor.id,
         category_id: categoryId,
+        campus,
         listing_type: listingType,
         title: title.trim(),
         slug: existingProduct?.slug || slugifyProductTitle(title),
@@ -316,12 +323,23 @@ export function ProductForm({
         last_confirmed_at: new Date().toISOString(),
       }
 
-      const { error } = existingProduct
+      let { error } = existingProduct
         ? await supabase
             .from('products')
             .update(payload)
             .eq('id', existingProduct.id)
         : await supabase.from('products').insert(payload)
+
+      if (error && error.message?.toLowerCase().includes('campus')) {
+        const { campus: _c, ...fallbackPayload } = payload
+        const retry = existingProduct
+          ? await supabase
+              .from('products')
+              .update(fallbackPayload)
+              .eq('id', existingProduct.id)
+          : await supabase.from('products').insert(fallbackPayload)
+        error = retry.error
+      }
 
       if (error) {
         toast.error(error.message)
@@ -468,6 +486,55 @@ export function ProductForm({
                 ))}
               </select>
             </div>
+          </div>
+
+          {/* Mandatory Single Campus Location */}
+          <div className="rounded-xl border border-border bg-muted/30 p-3.5 sm:p-4 space-y-2">
+            <div className="flex items-center justify-between gap-2">
+              <label className="block text-xs font-bold text-foreground">
+                Item / Service Location (Campus) *
+              </label>
+              <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
+                Single Campus Only
+              </span>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              {[
+                { id: 'Okerenkoko', label: 'Okerenkoko Campus', hint: 'Permanent Site' },
+                { id: 'Kurutie', label: 'Kurutie Campus', hint: 'Take-off Site' },
+              ].map((opt) => {
+                const isSelected = campus === opt.id
+                return (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => {
+                      setCampus(opt.id as 'Okerenkoko' | 'Kurutie')
+                      if (listingType === 'service' && (!serviceArea || serviceArea.includes('Campus'))) {
+                        setServiceArea(`${opt.id} Campus & Hostels`)
+                      }
+                    }}
+                    className={cn(
+                      'flex items-center justify-between p-3 rounded-xl border text-left transition-all cursor-pointer',
+                      isSelected
+                        ? 'border-foreground bg-card ring-1 ring-foreground text-foreground shadow-xs'
+                        : 'border-border bg-background/60 text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                    )}
+                  >
+                    <div>
+                      <p className="text-xs font-bold">{opt.label}</p>
+                      <p className="text-[10px] text-muted-foreground">{opt.hint}</p>
+                    </div>
+                    {isSelected && (
+                      <span className="h-2 w-2 rounded-full bg-foreground shrink-0 ml-2" />
+                    )}
+                  </button>
+                )
+              })}
+            </div>
+            <p className="text-[11px] text-muted-foreground leading-relaxed">
+              Every physical product, meal, or service is located at one specific campus for in-person inspection and pickup.
+            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">

@@ -282,6 +282,27 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
   })
 }
 
+export function getItemCampus(p: Partial<Product>): 'Okerenkoko' | 'Kurutie' {
+  if (p.campus === 'Kurutie' || p.campus === 'Okerenkoko') {
+    return p.campus
+  }
+  const kurutieSlugs = [
+    'a2-engineering-drawing-board-tee-square',
+    'rechargeable-12-inch-hostel-table-fan',
+    'cadet-officer-parade-oxford-shoes-leather-belt-pack',
+  ]
+  if (p.slug && kurutieSlugs.includes(p.slug)) {
+    return 'Kurutie'
+  }
+  if (p.tags && p.tags.some((t) => t.toLowerCase() === 'kurutie')) {
+    return 'Kurutie'
+  }
+  if (p.vendor?.campus === 'Kurutie' || (p.vendor?.slug && p.vendor.slug.includes('kurutie'))) {
+    return 'Kurutie'
+  }
+  return 'Okerenkoko'
+}
+
 export async function getPublicProducts(filters: ProductQueryFilters = {}): Promise<{
   products: Product[]
   totalCount: number
@@ -350,6 +371,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
         )
         .map((item) => ({
           ...item,
+          campus: getItemCampus(item),
           vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
         }))
 
@@ -372,6 +394,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
           (item.vendor.verification_status === 'verified' && !item.vendor.is_paused))
     ).map((item) => ({
       ...item,
+      campus: getItemCampus(item),
       category: item.category
         ? {
             ...item.category,
@@ -412,11 +435,13 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
   }
 
   if (campus && campus !== 'all') {
-    productsList = productsList.filter(
-      (p) =>
-        p.vendor?.campus === 'Both' ||
-        p.vendor?.campus?.toLowerCase() === campus.toLowerCase()
-    )
+    const campusTarget = campus.toLowerCase()
+    productsList = productsList.filter((p) => {
+      const itemCampus = (
+        p.campus || (p.vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')
+      ).toLowerCase()
+      return itemCampus === campusTarget
+    })
   }
 
   if (sort === 'price_asc') {
@@ -466,6 +491,7 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
       }
       return {
         ...p,
+        campus: getItemCampus(p),
         category: p.category
           ? {
               ...p.category,
@@ -484,6 +510,7 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
   if (found.vendor && found.vendor.verification_status === 'suspended') return null
   return {
     ...found,
+    campus: getItemCampus(found),
     vendor: found.vendor ? sanitizePublicVendor(found.vendor) : undefined,
   }
 }

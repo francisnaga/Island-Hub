@@ -114,7 +114,7 @@ export default async function ProductDetailPage({
           <div className="flex items-center gap-2">
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ₦${product.price.toLocaleString('en-NG')} · ${product.vendor?.campus || 'NMU'}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
+                `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ₦${product.price.toLocaleString('en-NG')} · ${product.campus || (product.vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"
@@ -297,7 +297,7 @@ export default async function ProductDetailPage({
                         )}
                       </div>
                       <p className="text-xs text-muted-foreground truncate">
-                        {getSellerDistinctionLabel(product.vendor)} · {product.vendor.campus || 'Okerenkoko'}
+                        {getSellerDistinctionLabel(product.vendor)} · {product.campus || (product.vendor.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')}
                       </p>
                     </div>
                   </div>

@@ -143,7 +143,7 @@ export const INITIAL_VENDORS: Vendor[] = [
     verification_status: 'verified',
     is_student: true,
     seller_type: 'student',
-    campus: 'Both',
+    campus: 'Okerenkoko',
     opening_hours: 'Daily, 9:00 AM – 8:00 PM',
     is_paused: false,
     is_featured: true,
@@ -177,7 +177,7 @@ export const INITIAL_VENDORS: Vendor[] = [
     seller_type: 'business',
     business_name: 'Pere Creek Ventures Ltd',
     business_verified: true,
-    campus: 'Both',
+    campus: 'Kurutie',
     opening_hours: 'Mon–Sat, 7:30 AM – 7:00 PM',
     is_paused: false,
     is_featured: true,
@@ -269,6 +269,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Oil-resistant, slip-resistant steel-toe safety boots suitable for NMU workshop practicals, parade inspection, and marine engineering lab sessions. Durable black leather upper with cushioned ankle support. Sold as 1 pair in box.',
     price: 18500,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 14,
@@ -297,6 +298,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Complete 2-piece dark-navy cadet action rig set (short-sleeve shirt + matching trousers) tailored to NMU dress regulations. Breathable cotton-twill weave, shoulder epaulette loops, and reinforced belt loops.',
     price: 22000,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 10,
@@ -325,6 +327,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       '3-item parade dress kit including 1 wool navy beret, 1 metallic anchor cap badge, and 1 pair of white ceremonial parade gloves.',
     price: 7500,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 20,
@@ -353,6 +356,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Pack of 3 pairs of plain, thick anti-blister cotton-blend long socks designed for steel-toe safety boots and parade drills.',
     price: 3500,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'low_stock',
     stock_quantity: 4,
@@ -381,6 +385,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'High-capacity 20,800mAh anodized aluminum Mi power bank built for hostel phone and study-lamp charging in Okerenkoko. Includes 1 power bank unit and short USB charging cable.',
     price: 24000,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 8,
@@ -408,6 +413,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Non-programmable scientific calculator with 417 functions for Marine Engineering, Nautical Science, and Maritime Transport exams. Includes slide-on hard protective case.',
     price: 14500,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 12,
@@ -435,6 +441,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Smooth A2 technical drawing board bundled with acrylic-edge tee-square, 30/60 and 45-degree set squares, and carry bag for 100L & 200L engineering courses.',
     price: 16000,
+    campus: 'Kurutie',
     condition: 'like_new',
     stock_status: 'available',
     stock_quantity: 5,
@@ -462,6 +469,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Quiet 3-speed 12-inch rechargeable table fan with replaceable 6V battery, built-in LED study light, and AC/DC charging cable.',
     price: 26500,
+    campus: 'Kurutie',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 6,
@@ -489,6 +497,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Chilled 750ml sealed takeaway bowl of freshly cut watermelon, pineapple, pawpaw, banana, green apple, and shredded coconut. Prepared fresh upon WhatsApp order.',
     price: 2500,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 15,
@@ -518,6 +527,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Custom cadet action-rig slimming/hemming, shoulder board loop reinforcement, rank badge stitching, and embroidered cloth nameplates for NMU cadets.',
     price: 3000,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 25,
@@ -547,6 +557,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Official Nigeria Maritime University cadet athletic tracksuit set (zippered track jacket with gold shoulder striping + matching elasticated track pants). Lightweight breathable poly-cotton weave designed for early morning PT drills, parade physical training, and campus sports.',
     price: 18500,
+    campus: 'Okerenkoko',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 12,
@@ -575,6 +586,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     description:
       'Glossy polishable low-quarter black oxford dress shoes paired with a regulation genuine black leather uniform belt and golden brass maritime anchor buckle. Standard regulation dress for NMU parade inspections and ceremonial duties.',
     price: 17500,
+    campus: 'Kurutie',
     condition: 'new',
     stock_status: 'available',
     stock_quantity: 8,
