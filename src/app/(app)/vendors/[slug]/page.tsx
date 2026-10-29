@@ -22,6 +22,7 @@ import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import { cn } from '@/lib/utils'
+import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 import {
   buildGoogleMapsDirectionsUrl,
   buildVendorStoreWhatsAppUrl,
@@ -181,9 +182,9 @@ export default async function VendorStorefrontPage({
 
               {/* Profile Details (Overlapping Cover) */}
               <div className="px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8 space-y-5">
-                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                <div className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
                   {/* Avatar + Main Title */}
-                  <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 sm:gap-5 -mt-12 sm:-mt-16">
+                  <div className="flex flex-col sm:flex-row sm:items-end gap-3.5 sm:gap-5 -mt-12 sm:-mt-16 min-w-0 flex-1">
                     <div className="relative flex h-22 w-22 sm:h-28 sm:w-28 shrink-0 items-center justify-center rounded-full border-4 border-card bg-muted text-foreground font-extrabold text-2xl sm:text-3xl overflow-hidden shadow-md">
                       {vendor.logo_url ? (
                         <img
@@ -201,9 +202,9 @@ export default async function VendorStorefrontPage({
                       )}
                     </div>
 
-                    <div className="space-y-1 mb-1">
+                    <div className="space-y-1 mb-1 min-w-0 flex-1">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground">
+                        <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold tracking-tight text-foreground break-words">
                           {vendor.shop_name}
                         </h1>
 
@@ -251,16 +252,16 @@ export default async function VendorStorefrontPage({
                     </div>
                   </div>
 
-                  {/* Primary WhatsApp Action Button */}
-                  <div className="flex flex-wrap items-center gap-2 pt-2 sm:pt-0">
+                  {/* Primary Actions: WhatsApp + Directions (Clean unified single row, no staircase wrapping) */}
+                  <div className="flex items-center gap-2.5 w-full sm:w-auto shrink-0 pt-1 lg:pt-0">
                     {whatsappStore.valid && (
                       <a
                         href={whatsappStore.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] px-5 text-xs sm:text-sm font-bold text-white hover:opacity-90 transition-opacity shadow-sm"
+                        className="flex-1 sm:flex-initial inline-flex h-10 sm:h-11 items-center justify-center gap-2 rounded-xl bg-[#25D366] hover:bg-[#20BD5A] px-4 sm:px-5 text-xs sm:text-sm font-bold text-white transition-colors shadow-xs"
                       >
-                        <MessageCircle className="h-4 w-4" />
+                        <WhatsAppIcon className="h-4 w-4 shrink-0" />
                         <span>Message on WhatsApp</span>
                       </a>
                     )}
@@ -270,9 +271,9 @@ export default async function VendorStorefrontPage({
                         href={directionsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex h-11 items-center justify-center gap-2 rounded-xl border border-border bg-background px-4 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                        className="shrink-0 inline-flex h-10 sm:h-11 items-center justify-center gap-1.5 rounded-xl border border-border bg-card px-3 sm:px-3.5 text-xs font-semibold text-foreground hover:bg-muted hover:border-foreground/30 transition-colors shadow-2xs"
                       >
-                        <Navigation className="h-3.5 w-3.5 text-primary" />
+                        <Navigation className="h-3.5 w-3.5 text-muted-foreground" />
                         <span>Directions</span>
                       </a>
                     )}

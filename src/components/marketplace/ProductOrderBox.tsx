@@ -20,6 +20,7 @@ import {
   formatNaira,
 } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
+import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 
 interface ProductOrderBoxProps {
   product: Product
@@ -301,7 +302,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                   : 'bg-[#25D366] text-white hover:opacity-90'
               )}
             >
-              <MessageCircle className="h-5 w-5 shrink-0" />
+              <WhatsAppIcon className="h-5 w-5 shrink-0" />
               <span className="truncate">
                 {isOutOfStock ? 'Ask When Back in Stock' : 'Order on WhatsApp'}
               </span>
@@ -397,7 +398,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
                 isOutOfStock ? 'bg-slate-700 hover:bg-slate-800' : 'bg-[#25D366] hover:opacity-90'
               )}
             >
-              <MessageCircle className="h-4.5 w-4.5" />
+              <WhatsAppIcon className="h-4 w-4 shrink-0" />
               <span>{isOutOfStock ? 'Notify When Ready' : 'Order on WhatsApp'}</span>
             </a>
           ) : (

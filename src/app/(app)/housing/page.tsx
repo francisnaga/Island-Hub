@@ -11,6 +11,7 @@ import {
   CheckCircle2,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 
 export const dynamic = 'force-dynamic'
 
@@ -282,7 +283,7 @@ export default async function HousingPage({
                       rel="noopener noreferrer"
                       className="w-full inline-flex h-10 items-center justify-center gap-2 rounded-xl bg-[#25D366] text-white text-xs font-bold hover:opacity-90 transition-opacity"
                     >
-                      <MessageCircle className="h-4 w-4 shrink-0" />
+                      <WhatsAppIcon className="h-4 w-4 shrink-0" />
                       <span>Inspect Room on WhatsApp</span>
                     </a>
                   </div>
