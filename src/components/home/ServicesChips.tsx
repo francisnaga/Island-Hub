@@ -2,12 +2,12 @@ import Link from 'next/link'
 import { Scissors, Droplets, Shirt, Utensils, Wrench, BookOpen } from 'lucide-react'
 
 const SERVICES = [
-  { label: 'Haircuts', icon: Scissors, href: '/services?category=barbing' },
-  { label: 'Laundry', icon: Droplets, href: '/services?category=laundry' },
-  { label: 'Tailoring', icon: Shirt, href: '/services?category=tailoring' },
-  { label: 'Meals', icon: Utensils, href: '/services?category=cooking' },
-  { label: 'Repairs', icon: Wrench, href: '/services?category=tech-repairs' },
-  { label: 'Tutoring', icon: BookOpen, href: '/services?category=tutoring' },
+  { label: 'Tailoring', icon: Shirt, href: '/services/tailoring' },
+  { label: 'Laundry', icon: Droplets, href: '/services/laundry' },
+  { label: 'Haircuts', icon: Scissors, href: '/services/barbing' },
+  { label: 'Meals', icon: Utensils, href: '/services/cooking' },
+  { label: 'Repairs', icon: Wrench, href: '/services/tech-repairs' },
+  { label: 'Tutoring', icon: BookOpen, href: '/services/tutoring' },
 ]
 
 export function ServicesChips() {
