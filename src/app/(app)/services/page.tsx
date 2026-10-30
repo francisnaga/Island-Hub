@@ -5,7 +5,9 @@ import {
   Utensils,
   Camera,
   Shirt,
-  Sparkles,
+  Droplets,
+  BookOpen,
+  Briefcase,
   MapPin,
   Clock,
   BadgeCheck,
@@ -16,6 +18,7 @@ import {
   Store,
 } from 'lucide-react'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
+import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -105,7 +108,7 @@ const SERVICE_DIRECTORY: ServiceCategoryGroup[] = [
     id: 'laundry',
     title: 'Laundry & Uniform Pressing',
     slug: 'laundry',
-    icon: Wrench,
+    icon: Droplets,
     badge: '2 verified providers',
     description:
       'Heavy-duty washing, starching, and anti-wrinkle pressing for white action rigs and student everyday clothes.',
@@ -216,7 +219,7 @@ const SERVICE_DIRECTORY: ServiceCategoryGroup[] = [
     id: 'repairs',
     title: 'Gadget & Tech Repair',
     slug: 'tech-repairs',
-    icon: Sparkles,
+    icon: Wrench,
     badge: '1 verified provider',
     description:
       'Power bank cell diagnosis, smartphone charging port replacements, scientific calculator screen fixes, and laptop charging adapters.',
@@ -328,71 +331,75 @@ export default async function ServicesPage({
     <div className="py-5 sm:py-8 md:py-10 min-w-0">
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-6 sm:space-y-8 min-w-0">
         {/* Top Header & Context */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border pb-6">
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-border/60 pb-5">
           <div className="space-y-1.5 max-w-2xl">
-            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] text-xs font-semibold">
-              <Scissors className="h-3.5 w-3.5" />
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted border border-border text-foreground text-xs font-semibold">
+              <Briefcase className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
               <span>Campus Services Directory</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
               Services &amp; Artisans around NMU
             </h1>
             <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-              Services do not have fixed unit prices like retail products — they are quote and turnaround based. Connect directly on WhatsApp with verified student &amp; local providers in Okerenkoko and Kurutie.
+              Tailoring, laundry, barbing, repairs, and catering from verified student and local craftspeople across Okerenkoko &amp; Kurutie campuses.
             </p>
           </div>
 
           <Link
             href="/vendor/apply"
-            className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 shadow-xs"
+            className="inline-flex h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 shadow-2xs self-start md:self-auto"
           >
-            <Store className="h-4 w-4" />
-            Offer a Service
+            <Store className="h-3.5 w-3.5" />
+            <span>List a Service</span>
           </Link>
         </div>
 
         {/* Filter Controls: Campus Selector & Category Rails */}
-        <div className="space-y-3.5">
-          {/* Row 1: Campus Tabs & Search */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-            {/* Campus Radio Pills */}
-            <div
-              role="radiogroup"
-              aria-label="Filter services by campus"
-              className="inline-flex p-1 rounded-xl bg-muted border border-border self-start shadow-2xs"
-            >
-              {[
-                { id: 'all', label: 'All Campuses' },
-                { id: 'Okerenkoko', label: 'Okerenkoko' },
-                { id: 'Kurutie', label: 'Kurutie' },
-              ].map((c) => {
-                const active = selectedCampus.toLowerCase() === c.id.toLowerCase()
-                return (
-                  <Link
-                    key={c.id}
-                    href={buildUrl({ campus: c.id })}
-                    role="radio"
-                    aria-checked={active}
-                    className={cn(
-                      'px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all',
-                      active
-                        ? 'bg-foreground text-background shadow-xs font-bold'
-                        : 'text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    {c.label}
-                  </Link>
-                )
-              })}
+        <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 space-y-3 shadow-2xs">
+          {/* Row 1: Single-Line Campus Filter (Never wraps on iPhone) */}
+          <div className="flex items-center justify-between gap-3 flex-wrap sm:flex-nowrap">
+            <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap w-full sm:w-auto">
+              <span className="text-xs font-semibold text-muted-foreground shrink-0 flex items-center gap-1 mr-1">
+                <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
+                Campus:
+              </span>
+              <div
+                role="radiogroup"
+                aria-label="Filter services by campus"
+                className="inline-flex p-1 rounded-xl bg-muted border border-border text-xs shrink-0 flex-nowrap"
+              >
+                {[
+                  { id: 'all', label: 'All' },
+                  { id: 'Okerenkoko', label: 'Okerenkoko' },
+                  { id: 'Kurutie', label: 'Kurutie' },
+                ].map((c) => {
+                  const active = selectedCampus.toLowerCase() === c.id.toLowerCase()
+                  return (
+                    <Link
+                      key={c.id}
+                      href={buildUrl({ campus: c.id })}
+                      role="radio"
+                      aria-checked={active}
+                      className={cn(
+                        'px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shrink-0 whitespace-nowrap',
+                        active
+                          ? 'bg-card text-foreground shadow-2xs font-bold'
+                          : 'text-muted-foreground hover:text-foreground'
+                      )}
+                    >
+                      {c.label}
+                    </Link>
+                  )
+                })}
+              </div>
             </div>
 
-            {/* Quick Count & Disclaimer */}
-            <div className="text-xs text-muted-foreground flex items-center gap-2">
+            {/* Quick Count */}
+            <div className="text-xs text-muted-foreground shrink-0">
               <span className="font-semibold text-foreground">
-                {totalProvidersCount} {totalProvidersCount === 1 ? 'provider' : 'providers'} available
+                {totalProvidersCount} {totalProvidersCount === 1 ? 'provider' : 'providers'}
               </span>
-              <span>·</span>
-              <span className="truncate">Direct WhatsApp quotes</span>
+              <span> · Direct WhatsApp quotes</span>
             </div>
           </div>
 
@@ -497,9 +504,14 @@ export default async function ServicesPage({
                         <div className="space-y-3">
                           <div className="flex items-start justify-between gap-2">
                             <div className="flex items-center gap-2.5 min-w-0">
-                              {/* Monogram Avatar */}
-                              <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-foreground text-background text-xs font-bold tracking-tight">
-                                {provider.initials}
+                              {/* Generative Maritime Avatar */}
+                              <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs">
+                                <WavyAvatar
+                                  name={provider.name}
+                                  seed={provider.id || provider.name}
+                                  size={40}
+                                  className="w-full h-full"
+                                />
                               </div>
                               <div className="min-w-0">
                                 <div className="flex items-center gap-1.5 flex-wrap">

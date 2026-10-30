@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react'
 import { usePathname, useSearchParams } from 'next/navigation'
-import { JettyMark } from '@/components/brand/JettyMark'
 
 export function NavigationFeedback() {
   const pathname = usePathname()
@@ -61,23 +60,22 @@ export function NavigationFeedback() {
 
   return (
     <>
-      {/* Sleek top indeterminate progress bar */}
-      <div className="fixed top-0 inset-x-0 z-[100] h-0.5 bg-primary/20 overflow-hidden pointer-events-none">
-        <div className="h-full w-1/2 bg-primary animate-[pulse_0.8s_ease-in-out_infinite] rounded-full" />
+      {/* Sleek top indeterminate progress bar (Linear / GitHub style) */}
+      <div className="fixed top-0 inset-x-0 z-[100] h-[2.5px] bg-transparent overflow-hidden pointer-events-none">
+        <div className="h-full w-2/5 bg-foreground animate-[shimmer_1.2s_infinite] rounded-r-full shadow-[0_0_8px_rgba(255,255,255,0.4)]" />
       </div>
 
-      {/* Subtle floating Jetty brand loader pill so user knows their tap worked immediately */}
+      {/* Subtle floating navigation pill — clean pulsing dot, zero spinning logo */}
       <div
         role="status"
         aria-live="polite"
-        className="fixed top-16 left-1/2 -translate-x-1/2 z-[90] inline-flex items-center gap-2 rounded-full border border-border bg-card/95 px-3.5 py-1.5 shadow-lg backdrop-blur-md pointer-events-none animate-in fade-in zoom-in-95 duration-150"
+        className="fixed top-16 left-1/2 -translate-x-1/2 z-[90] inline-flex items-center gap-2 rounded-full border border-border bg-card/95 px-3 py-1.5 shadow-md backdrop-blur-md pointer-events-none animate-in fade-in zoom-in-95 duration-150"
       >
-        <JettyMark
-          size={20}
-          className="h-5 w-5 rounded-md animate-spin"
-          style={{ animationDuration: '1.1s' }}
-        />
-        <span className="text-xs font-semibold text-foreground tracking-tight">
+        <span className="relative flex h-2 w-2">
+          <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-foreground opacity-75" />
+          <span className="relative inline-flex rounded-full h-2 w-2 bg-foreground" />
+        </span>
+        <span className="text-xs font-medium text-foreground tracking-tight">
           Loading…
         </span>
       </div>

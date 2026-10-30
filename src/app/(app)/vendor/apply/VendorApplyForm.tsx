@@ -11,7 +11,7 @@ import {
   ArrowRight,
   Upload,
   User,
-  Sparkles,
+  ShoppingBag,
   Building2,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
@@ -321,7 +321,7 @@ export function VendorApplyForm({
                 id: 'independent' as SellerType,
                 title: 'Independent Seller',
                 desc: 'Regularly selling fruit salads, cooked food, tailoring, or campus services.',
-                icon: Sparkles,
+                icon: ShoppingBag,
               },
               {
                 id: 'business' as SellerType,

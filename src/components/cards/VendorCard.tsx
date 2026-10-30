@@ -38,10 +38,7 @@ export function VendorCard({ vendor }: VendorCardProps) {
   const isBanned = vendor.verification_status === 'suspended'
   const isPaused = Boolean(vendor.is_paused) && !isBanned
 
-  const campusLabel =
-    vendor.campus === 'Both'
-      ? 'Okerenkoko & Kurutie'
-      : vendor.campus || 'Okerenkoko'
+  const campusLabel = (vendor.campus as string) === 'Both' ? 'Okerenkoko' : (vendor.campus || 'Okerenkoko')
 
   return (
     <div
@@ -117,7 +114,12 @@ export function VendorCard({ vendor }: VendorCardProps) {
                 {/* Clean badge icon with NO glowing text container */}
                 {!isBanned && vendor.verification_status === 'verified' && (
                   <BadgeCheck
-                    className="h-4 w-4 text-primary shrink-0"
+                    className={cn(
+                      'h-4 w-4 shrink-0',
+                      vendor.slug === 'naga' || vendor.slug === 'francis-naga'
+                        ? 'text-[#E8B84A]'
+                        : 'text-[#0F6E6E] dark:text-[#E8B84A]'
+                    )}
                     aria-label="Verified Vendor"
                   />
                 )}

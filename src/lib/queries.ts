@@ -43,13 +43,6 @@ const CATEGORY_METADATA_OVERRIDES: Record<string, Partial<Category>> = {
       'Fresh fruit salad bowls, freshly prepared campus meals, pastries, smoothies, and cold bottled beverages.',
     icon: 'Coffee',
   },
-  'campus-services': {
-    name: 'Campus Services & Tailoring',
-    short_name: 'Services',
-    description:
-      'Cadet uniform tailoring & alteration, laundry pressing, barbing, student printing, and device repair.',
-    icon: 'Scissors',
-  },
   'fashion-accessories': {
     name: 'Civilian Wear & Fashion',
     short_name: 'Civilian Wear',
@@ -144,7 +137,7 @@ export async function getPublicVendors(options?: {
     const targetCampus = options.campus.toLowerCase()
     list = list.filter((v) => {
       const c = (v.campus || 'Okerenkoko').toLowerCase()
-      return c === 'both' || c === targetCampus
+      return c === targetCampus
     })
   }
 

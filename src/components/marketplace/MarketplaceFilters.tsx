@@ -1,8 +1,9 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
+import { Search, SlidersHorizontal, X, MapPin, ArrowRight } from 'lucide-react'
 import { Category } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -11,7 +12,7 @@ interface MarketplaceFiltersProps {
 }
 
 const CAMPUS_OPTIONS = [
-  { id: 'all', label: 'All Campuses' },
+  { id: 'all', label: 'All' },
   { id: 'Okerenkoko', label: 'Okerenkoko' },
   { id: 'Kurutie', label: 'Kurutie' },
 ]
@@ -132,33 +133,35 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
         </div>
       </div>
 
-      {/* Campus Selector Bar (Clean Monochrome) */}
-      <div className="flex flex-wrap items-center gap-1.5 pt-1">
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mr-1">
+      {/* Campus Selector Bar (Single-Line Flex Nowrap — Never wraps on mobile/iPhone) */}
+      <div className="flex items-center gap-1.5 pt-1 overflow-x-auto no-scrollbar flex-nowrap w-full">
+        <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mr-1 shrink-0">
           <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
           Campus:
         </span>
-        {CAMPUS_OPTIONS.map((c) => {
-          const active = campus.toLowerCase() === c.id.toLowerCase()
-          return (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => {
-                setCampus(c.id)
-                applyFilters({ campus: c.id })
-              }}
-              className={cn(
-                'rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors cursor-pointer',
-                active
-                  ? 'bg-foreground text-background border-foreground font-bold'
-                  : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
-              )}
-            >
-              {c.label}
-            </button>
-          )
-        })}
+        <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
+          {CAMPUS_OPTIONS.map((c) => {
+            const active = campus.toLowerCase() === c.id.toLowerCase()
+            return (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => {
+                  setCampus(c.id)
+                  applyFilters({ campus: c.id })
+                }}
+                className={cn(
+                  'rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors cursor-pointer shrink-0 whitespace-nowrap',
+                  active
+                    ? 'bg-foreground text-background border-foreground font-bold'
+                    : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
+                )}
+              >
+                {c.label}
+              </button>
+            )
+          })}
+        </div>
       </div>
 
       {/* Category Pills Bar (Clean Monochrome Active States) */}
@@ -198,6 +201,18 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Discrete Services Helper Callout */}
+      <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
+        <span className="text-[11px]">Physical goods only</span>
+        <Link
+          href="/services"
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0F6E6E] dark:text-[#E8B84A] hover:underline"
+        >
+          <span>Need Tailoring, Laundry, Barbing or Repairs? View Campus Services</span>
+          <ArrowRight className="h-3 w-3" />
+        </Link>
       </div>
 
       {/* Secondary Filter Bar (Price range, Condition, Availability) */}

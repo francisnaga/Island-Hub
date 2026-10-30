@@ -60,10 +60,7 @@ export default async function VendorStorefrontPage({
         locationType: vendor.location_type,
       })
 
-  const campusLabel =
-    vendor.campus === 'Both'
-      ? 'Okerenkoko & Kurutie'
-      : vendor.campus || 'Okerenkoko'
+  const campusLabel = vendor.campus || 'Okerenkoko'
 
   const memberSince = new Date(vendor.created_at).toLocaleDateString('en-NG', {
     month: 'short',

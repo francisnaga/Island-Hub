@@ -3,7 +3,7 @@ export type ActiveMode = 'buyer' | 'vendor'
 
 export type VendorVerificationStatus = 'pending' | 'verified' | 'rejected' | 'suspended'
 export type SellerType = 'student' | 'independent' | 'business'
-export type CampusArea = 'Okerenkoko' | 'Kurutie' | 'Both'
+export type CampusArea = 'Okerenkoko' | 'Kurutie'
 export type LocationType = 'shop' | 'pickup_point' | 'home_based' | 'delivery_only'
 export type LocationVisibility = 'exact' | 'approximate' | 'hidden'
 

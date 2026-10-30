@@ -452,7 +452,7 @@ export function VendorDashboardClient({
                 {shopName}
               </h1>
               <p className="text-xs text-muted-foreground">
-                {campus === 'Both' ? 'Okerenkoko & Kurutie' : campus} · WhatsApp: +{whatsappNumber} · {vendor.location_label}
+                {campus} · WhatsApp: +{whatsappNumber} · {vendor.location_label}
               </p>
             </div>
           </div>

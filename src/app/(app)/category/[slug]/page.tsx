@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import { ArrowLeft, Package, Search } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { getPublicCategories, getPublicProducts } from '@/lib/queries'
@@ -15,6 +15,9 @@ export default async function CategoryPage({
   searchParams: Promise<{ q?: string; sort?: string; condition?: string }>
 }) {
   const { slug } = await params
+  if (slug === 'campus-services') {
+    redirect('/services')
+  }
   const sp = await searchParams
 
   const categories = await getPublicCategories()

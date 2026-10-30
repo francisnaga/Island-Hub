@@ -62,18 +62,6 @@ export const INITIAL_CATEGORIES: Category[] = [
     is_active: true,
   },
   {
-    id: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
-    name: 'Campus Services & Tailoring',
-    short_name: 'Campus Services',
-    slug: 'campus-services',
-    description:
-      'Cadet uniform tailoring & alteration, laundry pressing, barbing, student printing, and device repair.',
-    icon: 'Scissors',
-    display_order: 6,
-    is_priority: false,
-    is_active: true,
-  },
-  {
     id: 'f29ca736-488c-4220-8724-879763541192',
     name: 'Civilian Wear & Fashion',
     short_name: 'Civilian Wear',
@@ -81,7 +69,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     description:
       'Everyday civilian clothing, footwear, casual tees, bags, and non-uniform accessories.',
     icon: 'Shirt',
-    display_order: 7,
+    display_order: 6,
     is_priority: false,
     is_active: true,
   },
@@ -202,7 +190,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Freshly prepared tropical fruit salad bowls made to order, plus professional cadet uniform alterations, rank badge stitching, and nameplate embroidery.',
     logo_url: null,
     whatsapp_number: '2348060004455',
-    categories_offered: ['food-beauty-other', 'campus-services'],
+    categories_offered: ['food-beauty-other'],
     pickup_options: 'Pickup near Block C Walkway or hostel gate delivery',
     delivery_available: true,
     delivery_coverage: 'All Okerenkoko Campus Hostels',
@@ -234,7 +222,7 @@ export const INITIAL_VENDORS: Vendor[] = [
       'Fast 24h laundry, pressing and starching for cadet white rigs and everyday campus clothes.',
     logo_url: null,
     whatsapp_number: '2348080005566',
-    categories_offered: ['campus-services'],
+    categories_offered: ['hostel-daily-essentials'],
     pickup_options: 'Drop off and pick up at Kurutie Campus Gate',
     delivery_available: true,
     delivery_coverage: 'Kurutie Hostels',
@@ -519,36 +507,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     category: INITIAL_CATEGORIES[4],
   },
   {
-    id: '20000000-0000-4000-a000-000000000010',
-    vendor_id: '10000000-0000-4000-a000-000000000004',
-    category_id: 'a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d',
-    title: 'Cadet Uniform Tailoring, Alteration & Nameplate Stitching',
-    slug: 'cadet-uniform-tailoring-alteration-service',
-    description:
-      'Custom cadet action-rig slimming/hemming, shoulder board loop reinforcement, rank badge stitching, and embroidered cloth nameplates for NMU cadets.',
-    price: 3000,
-    campus: 'Okerenkoko',
-    condition: 'new',
-    stock_status: 'available',
-    stock_quantity: 25,
-    images: ['/products/cadet-uniform-tailoring.jpg'],
-    needs_seller_photo: false,
-    variants: {
-      custom_label: 'Starting at ₦3,000 · Quote on WhatsApp',
-    },
-    tags: ['Campus Services', 'Tailoring', 'Uniform', 'Nameplate', 'Okerenkoko'],
-    status: 'approved',
-    listing_type: 'service',
-    service_turnaround: '24–48 hours turnaround',
-    service_area: 'Okerenkoko Campus & Hostels',
-    is_featured: false,
-    is_demo: true,
-    last_confirmed_at: new Date(Date.now() - 1000 * 60 * 60 * 1).toISOString(),
-    created_at: new Date(Date.now() - 1000 * 60 * 60 * 3).toISOString(),
-    vendor: INITIAL_VENDORS[3],
-    category: INITIAL_CATEGORIES[5],
-  },
-  {
     id: '20000000-0000-4000-a000-000000000011',
     vendor_id: '10000000-0000-4000-a000-000000000001',
     category_id: '19754212-f183-4880-9d72-308183295186',
@@ -613,12 +571,21 @@ export const INITIAL_PRODUCTS: Product[] = [
  * so private residential/hostel coordinates are never leaked to the public client.
  */
 export function sanitizePublicVendor(vendor: Vendor): Vendor {
-  if (vendor.location_visibility !== 'exact' || vendor.location_type === 'delivery_only') {
-    return {
-      ...vendor,
-      latitude: null,
-      longitude: null,
-    }
+  const isBoth = vendor.campus === ('Both' as any) || (vendor.campus as string) === 'both'
+  const resolvedCampus: 'Okerenkoko' | 'Kurutie' = isBoth
+    ? (vendor.location_label?.toLowerCase().includes('kurutie') || vendor.shop_name?.toLowerCase().includes('kurutie') ? 'Kurutie' : 'Okerenkoko')
+    : (vendor.campus || 'Okerenkoko')
+
+  return {
+    ...vendor,
+    campus: resolvedCampus,
+    latitude:
+      vendor.location_visibility !== 'exact' || vendor.location_type === 'delivery_only'
+        ? null
+        : vendor.latitude,
+    longitude:
+      vendor.location_visibility !== 'exact' || vendor.location_type === 'delivery_only'
+        ? null
+        : vendor.longitude,
   }
-  return vendor
 }

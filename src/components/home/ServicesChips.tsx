@@ -1,12 +1,12 @@
 import Link from 'next/link'
-import { Scissors, Wrench, Shirt, Utensils, Sparkles, BookOpen } from 'lucide-react'
+import { Scissors, Droplets, Shirt, Utensils, Wrench, BookOpen } from 'lucide-react'
 
 const SERVICES = [
   { label: 'Haircuts', icon: Scissors, href: '/services?category=barbing' },
-  { label: 'Laundry', icon: Wrench, href: '/services?category=laundry' },
+  { label: 'Laundry', icon: Droplets, href: '/services?category=laundry' },
   { label: 'Tailoring', icon: Shirt, href: '/services?category=tailoring' },
   { label: 'Meals', icon: Utensils, href: '/services?category=cooking' },
-  { label: 'Repairs', icon: Sparkles, href: '/services?category=tech-repairs' },
+  { label: 'Repairs', icon: Wrench, href: '/services?category=tech-repairs' },
   { label: 'Tutoring', icon: BookOpen, href: '/services?category=tutoring' },
 ]
 

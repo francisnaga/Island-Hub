@@ -84,43 +84,43 @@
   --radius: 0.75rem;
 }
 
-/* ── Dark Mode (Harbour Night / Deep Carbon Teal) ── */
+/* ── Dark Mode (Linear / Raycast High-Precision Obsidian Dark) ── */
 .dark {
   --jetty-teal: #14B8A6;
   --jetty-teal-deep: #0A4F4F;
-  --jetty-teal-tint: #132A2A;
+  --jetty-teal-tint: #14171A;
   --jetty-gold: #E8B84A;
-  --jetty-ink: #E8F1F1;
+  --jetty-ink: #F7F8F8;
 
-  --teal: #0F6E6E;
-  --teal-l: #17908D;
-  --deep: #0A4F4F;
-  --tint: #132A2A;
+  --teal: #14B8A6;
+  --teal-l: #2DD4BF;
+  --deep: #0D1117;
+  --tint: #16181D;
   --gold: #E8B84A;
   --gold-tint: #2B2414;
-  --ink: #E8F1F1;
-  --muted-text: #9DB0B0;
-  --bg: #0B1414;
-  --line: #1F3333;
+  --ink: #F7F8F8;
+  --muted-text: #8A8F98;
+  --bg: #090A0C;
+  --line: #22252A;
   --white: #ffffff;
 
-  --background: #0B1414;
-  --foreground: #E8F1F1;
-  --card: #122020;
-  --card-foreground: #E8F1F1;
-  --popover: #122020;
-  --popover-foreground: #E8F1F1;
+  --background: #090A0C;
+  --foreground: #F7F8F8;
+  --card: #121316;
+  --card-foreground: #F7F8F8;
+  --popover: #16171B;
+  --popover-foreground: #F7F8F8;
   --primary: #14B8A6;
-  --primary-foreground: #0B1414;
-  --secondary: #162929;
-  --secondary-foreground: #E8F1F1;
-  --muted: #162929;
-  --muted-foreground: #9DB0B0;
-  --accent: #132A2A;
+  --primary-foreground: #090A0C;
+  --secondary: #18191E;
+  --secondary-foreground: #F7F8F8;
+  --muted: #18191E;
+  --muted-foreground: #8A8F98;
+  --accent: #18191E;
   --accent-foreground: #E8B84A;
   --destructive: #EF4444;
-  --border: #1F3333;
-  --input: #1F3333;
+  --border: #22252A;
+  --input: #1C1E23;
   --ring: #14B8A6;
 }
 
