@@ -17,6 +17,7 @@ import {
 } from 'lucide-react'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { SafetyNavTabs } from '@/components/safety/SafetyNavTabs'
+import { buildJettyTeamWhatsAppUrl, JETTY_TEAM_PHONE_DISPLAY } from '@/lib/whatsapp'
 
 export const metadata = {
   title: 'Trust, Safety & Guidelines | Jetty NMU',
@@ -369,7 +370,15 @@ export default function SafetyAndHelpPage() {
                 </p>
               </div>
 
-              <div className="shrink-0">
+              <div className="shrink-0 flex flex-wrap items-center gap-2">
+                <a
+                  href={buildJettyTeamWhatsAppUrl('Hi Jetty Team! I need help with a listing or vendor verification on Jetty.')}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F6E6E] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
+                >
+                  <span>WhatsApp Jetty Team ({JETTY_TEAM_PHONE_DISPLAY})</span>
+                </a>
                 <ReportListingModal
                   targetType="vendor"
                   targetName="General Jetty Safety Desk"

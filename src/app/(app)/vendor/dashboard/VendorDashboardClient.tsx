@@ -35,7 +35,12 @@ import {
 } from '@/lib/types'
 import { SERVICES_LIST } from '@/lib/services-data'
 import { getVendorInitials } from '@/components/cards/VendorCard'
-import { formatNaira, getCanonicalUrl, normalizeWhatsAppNumber } from '@/lib/whatsapp'
+import {
+  buildJettyTeamWhatsAppUrl,
+  formatNaira,
+  getCanonicalUrl,
+  normalizeWhatsAppNumber,
+} from '@/lib/whatsapp'
 import { isImageFile, compressImageFile } from '@/lib/image-compression'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -1466,14 +1471,14 @@ export function VendorDashboardClient({
               <div className="mx-4 mt-5 p-4 rounded-xl bg-[#FBF1D6] dark:bg-amber-950/30 text-[#0E1B1B] dark:text-amber-100">
                 <b className="block text-base font-semibold">Not verified yet</b>
                 <p className="mt-1 text-sm leading-relaxed opacity-90">
-                  Your store is live. Verified shops get a tick and appear first at the top of Stores and Listings. Message the Jetty admin on WhatsApp to get verified and featured.
+                  Your store is live. Verified shops get a tick and appear first at the top of Stores and Listings. Message the Jetty team on WhatsApp to get verified and featured.
                 </p>
                 <a
-                  href={`https://wa.me/?text=${encodeURIComponent(
-                    `Hi Jetty Admin! I'd like to get my store "${vendor.shop_name}" (${getCanonicalUrl(
+                  href={buildJettyTeamWhatsAppUrl(
+                    `Hi Jetty Team! I'd like to get my store "${vendor.shop_name}" (${getCanonicalUrl(
                       `/vendors/${vendor.slug || vendor.id}`
                     )}) verified and featured on Jetty.`
-                  )}`}
+                  )}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-3 h-11 w-full rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors"

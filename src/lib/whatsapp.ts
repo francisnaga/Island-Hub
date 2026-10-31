@@ -2,6 +2,13 @@ import { LocationType, LocationVisibility } from './types'
 
 export const SITE_ORIGIN = 'https://jetty.francisnaga.site'
 
+export const JETTY_TEAM_WHATSAPP = '2349130436032'
+export const JETTY_TEAM_PHONE_DISPLAY = '0913 043 6032'
+
+export function buildJettyTeamWhatsAppUrl(message: string): string {
+  return `https://wa.me/${JETTY_TEAM_WHATSAPP}?text=${encodeURIComponent(message)}`
+}
+
 export function getCanonicalUrl(path: string): string {
   const cleanPath = path.startsWith('/') ? path : `/${path}`
   if (typeof window !== 'undefined' && window.location?.origin) {
