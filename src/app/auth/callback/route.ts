@@ -1,18 +1,79 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isAdminEmail } from '@/lib/types'
+import type { User } from '@supabase/supabase-js'
+
+function getPublicOrigin(request: Request): string {
+  const url = new URL(request.url)
+  const forwardedHost = request.headers.get('x-forwarded-host')
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https'
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`
+  }
+  return url.origin
+}
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
+  const origin = getPublicOrigin(request)
   const code = searchParams.get('code')
-  const next = searchParams.get('next') ?? '/'
+  const stateNext = searchParams.get('state')
+  const next = searchParams.get('next') || stateNext || '/'
 
   if (code) {
     const supabase = await createClient()
-    const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+    let authenticatedUser: User | null = null
 
-    if (!error && data.user) {
-      const user = data.user
+    const googleClientId =
+      process.env.GOOGLE_CLIENT_ID ||
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      '933767752231-lqadfle5brnh3bcf05q8lhfdd6ulpvsn.apps.googleusercontent.com'
+    const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
+
+    // 1. First-party Google OAuth exchange (eliminates *.supabase.co from Google screen)
+    if (googleClientId && googleClientSecret) {
+      try {
+        const redirectUri = `${origin}/auth/callback`
+        const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({
+            code,
+            client_id: googleClientId,
+            client_secret: googleClientSecret,
+            redirect_uri: redirectUri,
+            grant_type: 'authorization_code',
+          }),
+        })
+
+        if (tokenRes.ok) {
+          const tokenData = await tokenRes.json()
+          if (tokenData.id_token) {
+            const { data, error } = await supabase.auth.signInWithIdToken({
+              provider: 'google',
+              token: tokenData.id_token,
+              access_token: tokenData.access_token,
+            })
+            if (!error && data.user) {
+              authenticatedUser = data.user
+            }
+          }
+        }
+      } catch (err) {
+        console.error('First-party Google token exchange failed, trying PKCE fallback:', err)
+      }
+    }
+
+    // 2. Fallback: standard Supabase PKCE code exchange
+    if (!authenticatedUser) {
+      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
+      if (!error && data.user) {
+        authenticatedUser = data.user
+      }
+    }
+
+    if (authenticatedUser) {
+      const user = authenticatedUser
       const admin = isAdminEmail(user.email)
 
       try {
@@ -51,18 +112,17 @@ export async function GET(request: Request) {
 
       let redirectTarget = next
       if (admin) {
-        // Super Admin (efobifrancis53@gmail.com) goes directly to /admin unless they explicitly requested a vendor route with a completed store
         if (next === '/admin' || next === '/' || next === '/login' || !hasCompleteVendor) {
           redirectTarget = '/admin'
         }
       } else if (!hasCompleteVendor) {
-        // Force regular vendors through store onboarding to setup WhatsApp, campus, and shop name
         redirectTarget = '/vendor/apply'
       } else if (next === '/' || next === '/login') {
         redirectTarget = '/vendor/dashboard'
       }
 
-      return NextResponse.redirect(`${origin}${redirectTarget}`)
+      const safeRedirect = redirectTarget.startsWith('/') ? redirectTarget : `/${redirectTarget}`
+      return NextResponse.redirect(`${origin}${safeRedirect}`)
     }
   }
 

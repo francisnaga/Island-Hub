@@ -1,7 +1,6 @@
 'use client'
 
 import { useState } from 'react'
-import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 interface GoogleSignInButtonProps {
@@ -10,43 +9,16 @@ interface GoogleSignInButtonProps {
 }
 
 export function GoogleSignInButton({
-  nextPath = '/',
+  nextPath = '/vendor/apply',
   label = 'Continue with Google',
 }: GoogleSignInButtonProps) {
   const [loading, setLoading] = useState(false)
 
-  const handleGoogleSignIn = async () => {
+  const handleGoogleSignIn = () => {
     setLoading(true)
     try {
-      const supabase = createClient()
-      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
-        nextPath
-      )}`
-
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo,
-          queryParams: {
-            access_type: 'offline',
-            prompt: 'consent',
-          },
-        },
-      })
-
-      if (error) {
-        if (
-          error.message?.toLowerCase().includes('unsupported provider') ||
-          error.message?.toLowerCase().includes('not enabled')
-        ) {
-          toast.error(
-            'Google Sign-In is not enabled yet in your Supabase dashboard (Authentication > Providers > Google).'
-          )
-        } else {
-          toast.error(error.message)
-        }
-        setLoading(false)
-      }
+      const target = `/api/auth/google?next=${encodeURIComponent(nextPath)}`
+      window.location.assign(target)
     } catch {
       toast.error('Unable to start Google Sign-In. Please check your connection.')
       setLoading(false)
