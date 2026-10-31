@@ -12,9 +12,10 @@ import {
   MessageCircle,
 } from 'lucide-react'
 import { getPublicLodgeById } from '@/lib/queries'
-import { formatNaira } from '@/lib/whatsapp'
+import { formatNaira, getCanonicalUrl } from '@/lib/whatsapp'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
+import { ShareButton } from '@/components/shared/ShareButton'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,9 +28,21 @@ export async function generateMetadata({
   const { lodge } = await getPublicLodgeById(id)
   if (!lodge) return { title: 'Room Not Found | Jetty' }
 
+  const canonicalPath = `/housing/${lodge.slug || lodge.id}`
+  const canonicalUrl = getCanonicalUrl(canonicalPath)
+  const title = `${lodge.title} — ${formatNaira(lodge.price)}/${lodge.period} | Jetty Lodges`
+  const description = `${lodge.room_type_label} near NMU ${lodge.campus}. ${lodge.distance_hint}`
+
   return {
-    title: `${lodge.title} | Jetty Lodges`,
-    description: `${lodge.room_type_label} near NMU ${lodge.campus}. ${lodge.distance_hint}`,
+    title,
+    description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title,
+      description,
+      url: canonicalUrl,
+      images: lodge.image ? [{ url: lodge.image }] : undefined,
+    },
   }
 }
 
@@ -82,17 +95,13 @@ export default async function HousingDetailPage({
           </Link>
 
           {/* Floating Circular Share Button (.ov.r) */}
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out this student room on Jetty: ${lodge.title} (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}):\nhttps://jetty.francisnaga.site/housing/${lodge.id}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Share on WhatsApp"
-            className="ov r"
-          >
-            <Share2 className="w-4.5 h-4.5 stroke-[2]" />
-          </a>
+          <ShareButton
+            path={`/housing/${lodge.slug || lodge.id}`}
+            title={lodge.title}
+            shareText={`Check out this student room on Jetty: ${lodge.title} (${formatNaira(lodge.price)} / ${lodge.period} at ${lodge.campus}):`}
+            className="ov r cursor-pointer"
+            iconClassName="w-4.5 h-4.5 stroke-[2]"
+          />
 
           {/* Carousel Dots */}
           <div className="dots absolute bottom-3 inset-x-0 flex items-center justify-center gap-1.5 pointer-events-none">

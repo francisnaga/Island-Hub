@@ -1,31 +1,12 @@
-import Link from 'next/link'
 import { Suspense } from 'react'
 import { cookies } from 'next/headers'
-import {
-  Search,
-  ChevronLeft,
-  ChevronRight,
-  Store,
-  ExternalLink,
-  Plus,
-  ShoppingBag,
-  ShieldCheck,
-  Bed,
-  Briefcase,
-} from 'lucide-react'
-import { ProductCard } from '@/components/cards/ProductCard'
-import { VendorCard } from '@/components/cards/VendorCard'
-import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
-import { NagaLogo } from '@/components/brand/NagaLogo'
-import { MarketplaceFilters } from '@/components/marketplace/MarketplaceFilters'
 import {
   getPublicCategories,
   getPublicLodges,
   getPublicProducts,
   getPublicVendors,
 } from '@/lib/queries'
-import { SERVICES_LIST } from '@/lib/services-data'
-import { cn } from '@/lib/utils'
+import { MarketplaceClient } from '@/components/marketplace/MarketplaceClient'
 
 export const dynamic = 'force-dynamic'
 
@@ -54,7 +35,7 @@ export default async function MarketplacePage({
   const activeCampus =
     params.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
 
-  const currentTab = params.tab === 'stores' ? 'stores' : 'items'
+  const initialTab = params.tab === 'stores' ? 'stores' : 'items'
   const page = Math.max(1, parseInt(params.page || '1', 10) || 1)
   const minPrice = params.minPrice ? Number(params.minPrice) : undefined
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined
@@ -68,422 +49,52 @@ export default async function MarketplacePage({
       (params.condition && params.condition !== 'all')
   )
 
-  // Parallel fetch: when searching via `q`, also match rooms and stores so Home general search surfaces everything
+  // Always fetch both Items and Stores in parallel so switching tabs is 0ms instant!
   const [categories, productsData, vendorsData, matchingLodges] = await Promise.all([
     getPublicCategories(),
-    currentTab === 'items'
-      ? getPublicProducts({
-          q: rawQuery,
-          category: params.category || 'all',
-          campus: activeCampus,
-          minPrice,
-          maxPrice,
-          condition: params.condition || 'all',
-          availability: params.availability === 'all' ? 'all' : 'available_only',
-          sort: (params.sort as 'newest' | 'price_asc' | 'price_desc' | 'relevance') || 'newest',
-          limit: ITEMS_PER_PAGE,
-          page,
-        })
-      : Promise.resolve({ products: [], totalCount: 0 }),
-    currentTab === 'stores' || Boolean(rawQuery)
-      ? getPublicVendors({
-          query: rawQuery,
-          verifiedOnly: params.filter !== 'all',
-          campus: activeCampus,
-        })
-      : Promise.resolve([]),
-    rawQuery && currentTab === 'items'
+    getPublicProducts({
+      q: rawQuery,
+      category: params.category || 'all',
+      campus: activeCampus,
+      minPrice,
+      maxPrice,
+      condition: params.condition || 'all',
+      availability: params.availability === 'all' ? 'all' : 'available_only',
+      sort: (params.sort as 'newest' | 'price_asc' | 'price_desc' | 'relevance') || 'newest',
+      limit: ITEMS_PER_PAGE,
+      page,
+    }),
+    getPublicVendors({
+      verifiedOnly: false,
+      campus: activeCampus,
+    }),
+    rawQuery
       ? getPublicLodges({ q: rawQuery, campus: activeCampus })
       : Promise.resolve([]),
   ])
 
   const { products, totalCount } = productsData
-  const vendors = vendorsData
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
-
-  // Match service categories when user searches a keyword from the Home general search bar
-  const matchingServices = rawQuery
-    ? SERVICES_LIST.filter((s) => {
-        const text = `${s.title} ${s.slug} ${s.tagline} ${s.description}`.toLowerCase()
-        return rawQuery
-          .toLowerCase()
-          .split(/\s+/)
-          .some((tok) => tok.length >= 3 && text.includes(tok))
-      })
-    : []
-
-  // Sort vendors so featured vendors and verified vendors strictly come first (monetization priority)
-  const sortedVendors = [...vendors].sort((a, b) => {
-    if (Boolean(a.is_featured) !== Boolean(b.is_featured)) {
-      return a.is_featured ? -1 : 1
-    }
-    if (a.verification_status === 'verified' && b.verification_status !== 'verified') {
-      return -1
-    }
-    if (b.verification_status === 'verified' && a.verification_status !== 'verified') {
-      return 1
-    }
-    return a.shop_name.localeCompare(b.shop_name)
-  })
-
-  const buildTabHref = (tab: 'items' | 'stores') => {
-    const sp = new URLSearchParams()
-    if (tab === 'stores') sp.set('tab', 'stores')
-    if (params.q) sp.set('q', params.q)
-    const qStr = sp.toString()
-    return `/marketplace${qStr ? `?${qStr}` : ''}`
-  }
-
-  const buildStoreFilterHref = (filterVal: 'verified' | 'all') => {
-    const sp = new URLSearchParams()
-    sp.set('tab', 'stores')
-    if (params.q) sp.set('q', params.q)
-    if (filterVal !== 'verified') sp.set('filter', filterVal)
-    const qStr = sp.toString()
-    return `/marketplace?${qStr}`
-  }
-
-  const buildPageHref = (targetPage: number) => {
-    const sp = new URLSearchParams()
-    Object.entries(params).forEach(([k, v]) => {
-      if (v) sp.set(k, v)
-    })
-    sp.set('page', String(targetPage))
-    return `/marketplace?${sp.toString()}`
-  }
 
   return (
     <div className="py-5 sm:py-8 md:py-10 min-w-0">
-      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 space-y-5 min-w-0">
-        {/* Page Title & Segmented Switch: [ Items | Stores ] */}
-        <div className="space-y-3 border-b border-border/60 pb-4">
-          <div className="flex items-center justify-between">
-            <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
-              Market
-            </h1>
-            <span className="text-xs text-muted-foreground font-medium">
-              {currentTab === 'items'
-                ? `${totalCount} ${totalCount === 1 ? 'listing' : 'listings'}`
-                : `${vendors.length} verified ${vendors.length === 1 ? 'store' : 'stores'}`}
-            </span>
-          </div>
-
-          {/* Prototype-Standard Segmented Control (.seg) */}
-          <div className="inline-flex w-full sm:w-auto p-1 rounded-xl bg-muted border border-border text-xs shadow-2xs">
-            <Link
-              href={buildTabHref('items')}
-              className={cn(
-                'flex-1 sm:flex-initial text-center px-5 py-2 rounded-lg font-semibold transition-all',
-                currentTab === 'items'
-                  ? 'bg-card text-foreground shadow-2xs font-bold'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              Items
-            </Link>
-            <Link
-              href={buildTabHref('stores')}
-              className={cn(
-                'flex-1 sm:flex-initial text-center px-5 py-2 rounded-lg font-semibold transition-all',
-                currentTab === 'stores'
-                  ? 'bg-card text-foreground shadow-2xs font-bold'
-                  : 'text-muted-foreground hover:text-foreground'
-              )}
-            >
-              Stores
-            </Link>
-          </div>
-        </div>
-
-        {/* ── TAB 1: ITEMS CATALOG (plus cross-category matches when searching) ── */}
-        {currentTab === 'items' && (
-          <div className="space-y-5">
-            <Suspense fallback={<div className="h-16 rounded-xl bg-muted animate-pulse" />}>
-              <MarketplaceFilters categories={categories} />
-            </Suspense>
-
-            {/* Cross-Category General Search Results (Services & Rooms matching query) */}
-            {rawQuery && (matchingServices.length > 0 || matchingLodges.length > 0) && (
-              <div className="space-y-4 pb-2 border-b border-border/60">
-                {matchingServices.length > 0 && (
-                  <div className="space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        <Briefcase className="w-3.5 h-3.5" />
-                        Matching Campus Services
-                      </span>
-                      <Link href="/services" className="text-xs font-semibold text-[#0F6E6E] hover:underline">
-                        All services &rarr;
-                      </Link>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      {matchingServices.map((svc) => {
-                        const Icon = svc.icon
-                        return (
-                          <Link
-                            key={svc.id}
-                            href={`/services/${svc.slug}`}
-                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card hover:border-foreground/30 text-xs font-semibold text-foreground shadow-2xs"
-                          >
-                            <Icon className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] stroke-[1.75]" />
-                            <span>{svc.title}</span>
-                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
-                          </Link>
-                        )
-                      })}
-                    </div>
-                  </div>
-                )}
-
-                {matchingLodges.length > 0 && (
-                  <div className="space-y-2.5">
-                    <div className="flex items-center justify-between">
-                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                        <Bed className="w-3.5 h-3.5" />
-                        Matching Student Rooms ({matchingLodges.length})
-                      </span>
-                      <Link
-                        href={`/housing?q=${encodeURIComponent(rawQuery)}`}
-                        className="text-xs font-semibold text-[#0F6E6E] hover:underline"
-                      >
-                        View in Lodge &rarr;
-                      </Link>
-                    </div>
-                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                      {matchingLodges.slice(0, 4).map((lodge) => (
-                        <WaterlineRoomCard key={lodge.id} lodge={lodge} variant="grid" />
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
-            )}
-
-            {products.length === 0 ? (
-              hasItemFilters ? (
-                <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center max-w-lg mx-auto my-6 space-y-3 shadow-2xs">
-                  <div className="w-11 h-11 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                    <Search className="w-5 h-5 stroke-[1.75]" />
-                  </div>
-                  <p className="text-base font-bold text-foreground">No matching items found</p>
-                  <p className="text-xs text-muted-foreground leading-relaxed">
-                    Try another keyword, check the Stores or Lodge tab, or clear your current filters.
-                  </p>
-                  <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
-                    <Link
-                      href="/marketplace"
-                      className="inline-flex h-9 items-center px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity"
-                    >
-                      Reset Filters
-                    </Link>
-                    <Link
-                      href="/vendor/apply"
-                      className="inline-flex h-9 items-center gap-1.5 px-4 rounded-xl border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5" />
-                      Sell this item
-                    </Link>
-                  </div>
-                </div>
-              ) : (
-                /* High-Converting Empty State when 0 approved items are live */
-                <div className="rounded-2xl border border-border/80 bg-card p-7 sm:p-11 text-center max-w-lg mx-auto my-6 space-y-4 shadow-2xs">
-                  <div className="w-12 h-12 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                    <ShoppingBag className="w-6 h-6 stroke-[1.75]" />
-                  </div>
-                  <div className="space-y-1.5">
-                    <h2 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-                      Turn your campus items into instant WhatsApp sales
-                    </h2>
-                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                      List cadet uniforms, safety boots, calculators, power banks, or hostel essentials. Every listing is verified by Admin before going live.
-                    </p>
-                  </div>
-                  <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-                    <Link
-                      href="/vendor/apply"
-                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
-                    >
-                      <Plus className="w-4 h-4 stroke-[2.2]" />
-                      <span>Start Selling on Jetty</span>
-                    </Link>
-                  </div>
-                  <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                    <ShieldCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
-                    <span>Zero buyer sign-in · Direct WhatsApp checkout</span>
-                  </div>
-                </div>
-              )
-            ) : (
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
-            )}
-
-            {/* Pagination */}
-            {totalPages > 1 && (
-              <div className="flex items-center justify-center gap-2 pt-6 border-t border-border/60">
-                <Link
-                  href={buildPageHref(page - 1)}
-                  aria-disabled={page <= 1}
-                  className={cn(
-                    'inline-flex items-center gap-1 h-9 px-3 rounded-lg border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted transition-colors',
-                    page <= 1 && 'pointer-events-none opacity-40'
-                  )}
-                >
-                  <ChevronLeft className="h-3.5 w-3.5" />
-                  Previous
-                </Link>
-                <span className="text-xs font-medium text-muted-foreground px-2">
-                  Page {page} of {totalPages}
-                </span>
-                <Link
-                  href={buildPageHref(page + 1)}
-                  aria-disabled={page >= totalPages}
-                  className={cn(
-                    'inline-flex items-center gap-1 h-9 px-3 rounded-lg border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted transition-colors',
-                    page >= totalPages && 'pointer-events-none opacity-40'
-                  )}
-                >
-                  Next
-                  <ChevronRight className="h-3.5 w-3.5" />
-                </Link>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* ── TAB 2: STORES / VENDORS DIRECTORY ── */}
-        {currentTab === 'stores' && (
-          <div className="space-y-5">
-            {/* Search & Verified Filter Strip */}
-            <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 space-y-3 shadow-2xs">
-              <form action="/marketplace" method="GET" className="relative w-full">
-                <input type="hidden" name="tab" value="stores" />
-                {params.filter && <input type="hidden" name="filter" value={params.filter} />}
-                <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
-                <input
-                  type="search"
-                  name="q"
-                  defaultValue={params.q || ''}
-                  placeholder="Search vendor name, landmark, or merchandise..."
-                  className="w-full h-10 pl-10 pr-3 rounded-xl border border-input bg-background text-xs sm:text-sm text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none transition-colors"
-                />
-              </form>
-
-              <div className="flex items-center gap-2 pt-2 border-t border-border/60">
-                <Link
-                  href={buildStoreFilterHref('all')}
-                  className={cn(
-                    'pill-proto text-xs font-semibold',
-                    params.filter === 'all' && 'active'
-                  )}
-                >
-                  All vendors
-                </Link>
-                <Link
-                  href={buildStoreFilterHref('verified')}
-                  className={cn(
-                    'pill-proto text-xs font-semibold',
-                    params.filter !== 'all' && 'active'
-                  )}
-                >
-                  Verified
-                </Link>
-              </div>
-            </div>
-
-            {/* 2-Column Grid Matching Reference Image & Prototype */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-              {/* Naga's Founder Card */}
-              <div className="relative rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-2xs hover:border-foreground/30 hover:shadow-xs transition-all">
-                {/* Golden Circular Verified Badge for Founder */}
-                <div
-                  className="absolute top-4 right-4 sm:top-5 sm:right-5 w-6 h-6 rounded-full bg-[#E8B84A] text-slate-950 flex items-center justify-center shrink-0 shadow-2xs"
-                  aria-label="Verified Founder"
-                  title="Verified Platform Founder"
-                >
-                  <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                    <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                  </svg>
-                </div>
-
-                {/* Avatar */}
-                <div className="flex justify-center">
-                  <div className="h-18 w-18 sm:h-20 sm:w-20 rounded-full overflow-hidden bg-slate-900 border border-border/80 shadow-2xs flex items-center justify-center text-white ring-2 ring-border/70">
-                    <NagaLogo size={36} color="#FFFFFF" />
-                  </div>
-                </div>
-
-                {/* Details */}
-                <div className="mt-3.5 text-center space-y-1">
-                  <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-                    Naga
-                  </h3>
-                  <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
-                    FOUNDER
-                  </p>
-                </div>
-
-                <div className="my-5 border-t border-border/60" />
-
-                <div className="text-center">
-                  <span className="text-sm font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
-                    Platform Founder
-                  </span>
-                </div>
-
-                <div className="mt-4 pt-3 border-t border-border/50">
-                  <a
-                    href="https://francisnaga.site"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl border border-border bg-muted/30 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-                  >
-                    <span>Portfolio</span>
-                    <ExternalLink className="h-3 w-3 text-muted-foreground" />
-                  </a>
-                </div>
-              </div>
-
-              {/* Verified & Featured Vendors (sorted first) */}
-              {sortedVendors.map((vendor) => (
-                <VendorCard key={vendor.id} vendor={vendor} />
-              ))}
-
-              {/* High-Converting Storefront Onboarding Card when 0 vendors exist */}
-              {sortedVendors.length === 0 && (
-                <div className="rounded-2xl border border-dashed border-border bg-card p-6 sm:p-7 flex flex-col justify-between text-center space-y-4 shadow-2xs">
-                  <div className="space-y-3 pt-2">
-                    <div className="w-14 h-14 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                      <Store className="w-6 h-6 stroke-[1.75]" />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-base sm:text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-                        Launch Your Campus Storefront
-                      </h3>
-                      <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                        Get verified by Admin to unlock your custom vendor profile, priority placement, and direct WhatsApp orders.
-                      </p>
-                    </div>
-                  </div>
-
-                  <div className="pt-3 border-t border-border/50">
-                    <Link
-                      href="/vendor/apply"
-                      className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-xs font-semibold text-white transition-colors"
-                    >
-                      <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
-                      <span>Apply as a Vendor</span>
-                    </Link>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
-        )}
+      <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 min-w-0">
+        <Suspense fallback={null}>
+          <MarketplaceClient
+            initialTab={initialTab}
+            categories={categories}
+            products={products}
+            totalCount={totalCount}
+            vendors={vendorsData}
+            matchingLodges={matchingLodges}
+            rawQuery={rawQuery}
+            hasItemFilters={hasItemFilters}
+            page={page}
+            totalPages={totalPages}
+            initialStoreFilter={params.filter === 'all' ? 'all' : 'verified'}
+            searchParamsRecord={params}
+          />
+        </Suspense>
       </div>
     </div>
   )

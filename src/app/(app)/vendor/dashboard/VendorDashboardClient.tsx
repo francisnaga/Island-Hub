@@ -35,7 +35,7 @@ import {
 import { NMU_DEFAULT_COORDS } from '@/lib/marketplace-data'
 import { getVendorInitials } from '@/components/cards/VendorCard'
 import { LocationPicker, LocationValue } from '@/components/vendor/LocationPicker'
-import { formatNaira, isListingStale, normalizeWhatsAppNumber } from '@/lib/whatsapp'
+import { formatNaira, getCanonicalUrl, isListingStale, normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -546,7 +546,7 @@ export function VendorDashboardClient({
             </span>
             <a
               href={`https://wa.me/?text=${encodeURIComponent(
-                `Shop my verified storefront on Jetty (${shopName}): https://jetty.ng/vendors/${vendor.slug || vendor.id}`
+                `Shop my verified storefront on Jetty (${shopName}): ${getCanonicalUrl(`/vendors/${vendor.slug || vendor.id}`)}`
               )}`}
               target="_blank"
               rel="noopener noreferrer"

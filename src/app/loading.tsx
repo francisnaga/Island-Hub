@@ -1,15 +1,19 @@
-export default function Loading() {
+export default function RootLoading() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center bg-background text-foreground gap-3">
+    <div
+      role="status"
+      aria-label="Loading"
+      className="min-h-[65vh] w-full flex flex-col items-center justify-center bg-background text-foreground gap-3 px-4"
+    >
       <img
         src="/jetty-loader.svg"
         alt="Loading"
-        width={72}
-        height={72}
-        className="h-18 w-18 drop-shadow-xs"
+        width={56}
+        height={56}
+        className="h-14 w-14 drop-shadow-2xs"
       />
-      <span className="text-xs font-semibold tracking-wider text-muted-foreground font-[family-name:var(--font-bricolage)]">
-        loading…
+      <span className="text-xs font-medium tracking-wide text-muted-foreground font-[family-name:var(--font-bricolage)]">
+        Loading…
       </span>
     </div>
   )

@@ -3,20 +3,24 @@ import { notFound } from 'next/navigation'
 import {
   ChevronLeft,
   ChevronRight,
-  Share2,
   MapPin,
   Clock,
   ShieldCheck,
-  ShieldAlert,
 } from 'lucide-react'
 import { WaterlineProductCard } from '@/components/cards/WaterlineProductCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getVendorInitials } from '@/components/cards/VendorCard'
+import { ShareButton } from '@/components/shared/ShareButton'
 import {
   getPublicProductBySlugOrId,
   getPublicProducts,
 } from '@/lib/queries'
-import { formatNaira, buildProductWhatsAppUrl, daysSinceConfirmed } from '@/lib/whatsapp'
+import {
+  formatNaira,
+  buildProductWhatsAppUrl,
+  daysSinceConfirmed,
+  getCanonicalUrl,
+} from '@/lib/whatsapp'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 
 export const dynamic = 'force-dynamic'
@@ -26,6 +30,34 @@ const conditionLabels: Record<string, string> = {
   like_new: 'Like New',
   good: 'Good (Pre-owned)',
   fair: 'Fair Condition',
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>
+}) {
+  const { slug } = await params
+  const product = await getPublicProductBySlugOrId(slug)
+  if (!product) {
+    return { title: 'Item Not Found | Jetty' }
+  }
+
+  const canonicalPath = `/product/${product.slug || product.id}`
+  const canonicalUrl = getCanonicalUrl(canonicalPath)
+  const title = `${product.title} — ${formatNaira(product.price)} | Jetty NMU`
+
+  return {
+    title,
+    description: product.description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title,
+      description: product.description,
+      url: canonicalUrl,
+      images: product.images?.[0] ? [{ url: product.images[0] }] : undefined,
+    },
+  }
 }
 
 export default async function ProductDetailPage({
@@ -41,7 +73,6 @@ export default async function ProductDetailPage({
   }
 
   const vendor = product.vendor
-  const categorySlug = product.category?.slug || ''
   const primaryMedia =
     product.images?.[0] || '/products/cadet-action-rig-navy.jpg'
 
@@ -57,11 +88,14 @@ export default async function ProductDetailPage({
   const isVerifiedVendor = vendor?.verification_status === 'verified'
   const vendorInitials = vendor ? getVendorInitials(vendor.shop_name) : 'V'
 
+  const productPath = `/product/${product.slug || product.id}`
+  const productUrl = getCanonicalUrl(productPath)
+
   const whatsappResult = buildProductWhatsAppUrl({
     whatsappNumber: vendor?.whatsapp_number || '',
     productTitle: product.title,
     price: product.price,
-    productUrl: `https://jetty.ng/product/${product.slug || product.id}`,
+    productUrl,
   })
 
   const hasLocation = Boolean(
@@ -112,18 +146,14 @@ export default async function ProductDetailPage({
             <ChevronLeft className="w-5 h-5 -ml-0.5 stroke-[2.2]" />
           </Link>
 
-          {/* Floating Share Button (.ov.r) */}
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out ${product.title} on Jetty (₦${product.price.toLocaleString('en-NG')} · ${product.campus || 'NMU'}):\nhttps://jetty.ng/product/${product.slug || product.id}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Share on WhatsApp"
-            className="ov r"
-          >
-            <Share2 className="w-4.5 h-4.5" />
-          </a>
+          {/* Direct Deep-Link Share Button (.ov.r) */}
+          <ShareButton
+            path={productPath}
+            title={product.title}
+            shareText={`Check out ${product.title} on Jetty (${formatNaira(product.price)} · ${product.campus || 'NMU'}):`}
+            className="ov r cursor-pointer"
+            iconClassName="w-4.5 h-4.5"
+          />
 
           {/* Slide Indicator Dots (if multiple images) */}
           {product.images && product.images.length > 1 && (
@@ -185,7 +215,7 @@ export default async function ProductDetailPage({
             ))}
           </dl>
 
-          {/* Location Landmark: ONLY SHOWN IF VENDOR ADDED ONE (User Rule) */}
+          {/* Location Landmark: ONLY SHOWN IF VENDOR ADDED ONE */}
           {hasLocation && (
             <div className="mt-4 p-3.5 rounded-[12px] bg-card border border-border/80 text-xs flex items-start gap-2.5 text-muted-foreground shadow-2xs">
               <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
@@ -283,7 +313,7 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      {/* 3. Sticky Bottom Action Bar (.bar) matching Prototype exactly */}
+      {/* 3. Sticky Bottom Action Bar (.bar) matching Prototype */}
       <div className="bar">
         <div className="pp min-w-0">
           <b>{formatNaira(product.price)}</b>

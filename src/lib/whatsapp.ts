@@ -1,5 +1,16 @@
 import { LocationType, LocationVisibility } from './types'
 
+export const SITE_ORIGIN = 'https://jetty.francisnaga.site'
+
+export function getCanonicalUrl(path: string): string {
+  const cleanPath = path.startsWith('/') ? path : `/${path}`
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return `${window.location.origin}${cleanPath}`
+  }
+  return `${SITE_ORIGIN}${cleanPath}`
+}
+
+
 /**
  * Normalizes Nigerian and international phone numbers to digits-only international format
  * e.g., 08031234567 -> 2348031234567, +234 803 123 4567 -> 2348031234567

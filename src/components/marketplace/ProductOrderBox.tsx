@@ -18,6 +18,7 @@ import {
   buildGoogleMapsDirectionsUrl,
   buildProductWhatsAppUrl,
   formatNaira,
+  getCanonicalUrl,
 } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
@@ -49,10 +50,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
 
   const totalPrice = product.price * quantity
 
-  const currentUrl =
-    typeof window !== 'undefined'
-      ? window.location.href
-      : `https://jetty.ng/product/${product.slug || product.id}`
+  const currentUrl = getCanonicalUrl(`/product/${product.slug || product.id}`)
 
   const whatsappResult = buildProductWhatsAppUrl({
     whatsappNumber: vendor?.whatsapp_number || '',
@@ -312,7 +310,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
           {/* Share with Friends on WhatsApp (Desktop) */}
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ${formatNaira(totalPrice)} · ${product.campus || (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
+              `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ${formatNaira(totalPrice)} · ${product.campus || (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')}\n🔗 ${currentUrl}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -377,7 +375,7 @@ export function ProductOrderBox({ product }: ProductOrderBoxProps) {
         <div className="flex items-center gap-2 shrink-0">
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ${formatNaira(totalPrice)} · ${product.campus || (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')}\n🔗 https://jetty.ng/product/${product.slug || product.id}`
+              `Check out this on Jetty (NMU Campus Marketplace):\n🛍️ ${product.title}\n💰 ${formatNaira(totalPrice)} · ${product.campus || (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')}\n🔗 ${currentUrl}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"

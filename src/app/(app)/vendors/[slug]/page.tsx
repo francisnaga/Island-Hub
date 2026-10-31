@@ -1,12 +1,18 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronLeft, ChevronRight, MapPin, Share2, Navigation } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MapPin, Navigation } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
+import { ShareButton } from '@/components/shared/ShareButton'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
-import { buildGoogleMapsDirectionsUrl, buildVendorStoreWhatsAppUrl, formatNaira } from '@/lib/whatsapp'
+import {
+  buildGoogleMapsDirectionsUrl,
+  buildVendorStoreWhatsAppUrl,
+  formatNaira,
+  getCanonicalUrl,
+} from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'
 
@@ -19,9 +25,20 @@ export async function generateMetadata({
   const { vendor } = await getPublicVendorBySlugOrId(slug)
   if (!vendor) return { title: 'Vendor Not Found | Jetty' }
 
+  const canonicalPath = `/vendors/${vendor.slug || vendor.id}`
+  const canonicalUrl = getCanonicalUrl(canonicalPath)
+  const title = `${vendor.shop_name} | Jetty NMU`
+
   return {
-    title: `${vendor.shop_name} | Jetty NMU`,
+    title,
     description: vendor.description,
+    alternates: { canonical: canonicalUrl },
+    openGraph: {
+      title,
+      description: vendor.description,
+      url: canonicalUrl,
+      images: vendor.logo_url ? [{ url: vendor.logo_url }] : undefined,
+    },
   }
 }
 
@@ -40,9 +57,13 @@ export default async function VendorStorefrontPage({
   const isBanned = vendor.verification_status === 'suspended'
   const isVerified = vendor.verification_status === 'verified' && !isBanned
 
+  const vendorPath = `/vendors/${vendor.slug || vendor.id}`
+  const storeUrl = getCanonicalUrl(vendorPath)
+
   const whatsappStore = buildVendorStoreWhatsAppUrl({
     whatsappNumber: vendor.whatsapp_number,
     shopName: vendor.shop_name,
+    storeUrl,
   })
 
   const directionsUrl =
@@ -78,17 +99,13 @@ export default async function VendorStorefrontPage({
             <ChevronLeft className="w-5 h-5 -ml-1 stroke-[2]" />
             <span>Back</span>
           </Link>
-          <a
-            href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out ${vendor.shop_name} on Jetty (${campusLabel}) — https://jetty.francisnaga.site/vendors/${vendor.slug || vendor.id}`
-            )}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="Share Storefront"
-            className="text-white/80 hover:text-white transition-colors"
-          >
-            <Share2 className="w-4.5 h-4.5" />
-          </a>
+          <ShareButton
+            path={vendorPath}
+            title={vendor.shop_name}
+            shareText={`Check out ${vendor.shop_name} on Jetty (${campusLabel}):`}
+            className="text-white/80 hover:text-white transition-colors p-1.5 cursor-pointer"
+            iconClassName="w-4.5 h-4.5"
+          />
         </div>
 
         {/* 88px Circular Avatar with Ring (.av) */}
@@ -183,7 +200,7 @@ export default async function VendorStorefrontPage({
               {serviceListings.map((s) => (
                 <Link
                   key={s.id}
-                  href={`/products/${s.slug || s.id}`}
+                  href={`/product/${s.slug || s.id}`}
                   className="flex items-center justify-between py-3 min-h-[52px] hover:opacity-90 transition-opacity group"
                 >
                   <b className="text-[15px] font-semibold text-foreground">{s.title}</b>
