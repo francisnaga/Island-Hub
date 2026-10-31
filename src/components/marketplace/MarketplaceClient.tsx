@@ -147,7 +147,7 @@ export function MarketplaceClient({
           <span className="text-xs text-muted-foreground font-medium">
             {activeTab === 'items'
               ? `${totalCount} ${totalCount === 1 ? 'listing' : 'listings'}`
-              : `${filteredVendors.length} verified ${filteredVendors.length === 1 ? 'store' : 'stores'}`}
+              : `${filteredVendors.length} ${filteredVendors.length === 1 ? 'vendor' : 'vendors'}`}
           </span>
         </div>
 
@@ -255,61 +255,28 @@ export function MarketplaceClient({
           )}
 
           {products.length === 0 ? (
-            hasItemFilters ? (
-              <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center max-w-lg mx-auto my-6 space-y-3 shadow-2xs">
-                <div className="w-11 h-11 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                  <Search className="w-5 h-5 stroke-[1.75]" />
-                </div>
-                <p className="text-base font-bold text-foreground">No matching items found</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Try another keyword, switch to the Stores tab, or clear your current filters.
-                </p>
-                <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
-                  <Link
-                    href="/marketplace"
-                    className="inline-flex h-9 items-center px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity"
-                  >
-                    Reset Filters
-                  </Link>
-                  <button
-                    type="button"
-                    onClick={() => handleSwitchTab('stores')}
-                    className="inline-flex h-9 items-center gap-1.5 px-4 rounded-xl border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted transition-colors cursor-pointer"
-                  >
-                    <Store className="w-3.5 h-3.5" />
-                    Browse Stores
-                  </button>
-                </div>
-              </div>
-            ) : (
-              /* High-Converting Empty State when 0 approved items are live */
-              <div className="rounded-2xl border border-border/80 bg-card p-7 sm:p-11 text-center max-w-lg mx-auto my-6 space-y-4 shadow-2xs">
-                <div className="w-12 h-12 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                  <ShoppingBag className="w-6 h-6 stroke-[1.75]" />
-                </div>
-                <div className="space-y-1.5">
-                  <h2 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-                    Turn your campus items into instant WhatsApp sales
-                  </h2>
-                  <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-                    List cadet uniforms, safety boots, calculators, power banks, or hostel essentials. Every listing is verified by Admin before going live.
-                  </p>
-                </div>
-                <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2.5">
-                  <Link
-                    href="/vendor/apply"
-                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
-                  >
-                    <Plus className="w-4 h-4 stroke-[2.2]" />
-                    <span>Start Selling on Jetty</span>
-                  </Link>
-                </div>
-                <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                  <ShieldCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
-                  <span>Zero buyer sign-in · Direct WhatsApp checkout</span>
-                </div>
-              </div>
-            )
+            <div className="py-12 px-4 text-center">
+              <p className="text-sm text-muted-foreground">
+                {hasItemFilters
+                  ? 'Nothing here yet. Try another category or search.'
+                  : 'Nothing listed here yet.'}
+              </p>
+              {hasItemFilters ? (
+                <Link
+                  href="/marketplace"
+                  className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
+                >
+                  Clear filters
+                </Link>
+              ) : (
+                <Link
+                  href="/vendor/dashboard?tab=new&kind=item"
+                  className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
+                >
+                  Add a listing →
+                </Link>
+              )}
+            </div>
           ) : (
             <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
               {products.map((product) => (
@@ -454,44 +421,19 @@ export function MarketplaceClient({
               </div>
             </div>
 
-            {/* Verified & Featured Vendors (sorted first) */}
+            {/* Vendors (Featured & Verified sorted first, followed by unverified stores) */}
             {filteredVendors.map((vendor) => (
               <VendorCard key={vendor.id} vendor={vendor} />
             ))}
-
-            {/* High-Converting Storefront Onboarding Card when 0 vendors exist */}
-            {filteredVendors.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-6 sm:p-7 flex flex-col justify-between text-center space-y-4 shadow-2xs">
-                <div className="space-y-3 pt-2">
-                  <div className="w-14 h-14 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                    <Store className="w-6 h-6 stroke-[1.75]" />
-                  </div>
-                  <div className="space-y-1">
-                    <h3 className="text-base sm:text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-                      {storeSearch.trim()
-                        ? 'No matching campus stores'
-                        : 'Launch Your Campus Storefront'}
-                    </h3>
-                    <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
-                      {storeSearch.trim()
-                        ? 'Try another search term or apply to become a verified vendor on Jetty.'
-                        : 'Get verified by Admin to unlock your custom vendor profile, priority placement, and direct WhatsApp orders.'}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="pt-3 border-t border-border/50">
-                  <Link
-                    href="/vendor/apply"
-                    className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-xs font-semibold text-white transition-colors"
-                  >
-                    <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
-                    <span>Apply as a Vendor</span>
-                  </Link>
-                </div>
-              </div>
-            )}
           </div>
+
+          {filteredVendors.length === 0 && (
+            <p className="py-8 px-4 text-center text-sm text-muted-foreground">
+              {storeSearch.trim()
+                ? 'No vendors match your search.'
+                : 'No vendors listed yet.'}
+            </p>
+          )}
         </div>
       )}
     </div>

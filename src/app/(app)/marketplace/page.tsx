@@ -91,7 +91,7 @@ export default async function MarketplacePage({
             hasItemFilters={hasItemFilters}
             page={page}
             totalPages={totalPages}
-            initialStoreFilter={params.filter === 'all' ? 'all' : 'verified'}
+            initialStoreFilter={params.filter === 'verified' ? 'verified' : 'all'}
             searchParamsRecord={params}
           />
         </Suspense>

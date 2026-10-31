@@ -131,37 +131,16 @@ export default async function ServiceDetailPage({
             })}
           </div>
         ) : (
-          /* High-Converting Empty State for Service Category */
-          <div className="px-4 pt-3">
-            <div className="rounded-2xl border border-border/80 bg-card p-7 sm:p-8 text-center space-y-4 shadow-2xs">
-              <div className="w-12 h-12 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-                <Icon className="w-6 h-6 stroke-[1.75]" />
-              </div>
-
-              <div className="space-y-1.5">
-                <h2 className="text-base sm:text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-                  Be the first verified {service.title.toLowerCase()} provider
-                </h2>
-                <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed">
-                  {service.tagline} Apply as a campus provider and get featured here once approved by Admin.
-                </p>
-              </div>
-
-              <div className="pt-1">
-                <Link
-                  href="/vendor/products/new?type=service"
-                  className="inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
-                >
-                  <Plus className="w-4 h-4 stroke-[2.2]" />
-                  <span>List Your {service.title} Service</span>
-                </Link>
-              </div>
-
-              <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-                <ShieldCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
-                <span>Students message you directly on WhatsApp</span>
-              </div>
-            </div>
+          <div className="py-10 px-4 text-center">
+            <p className="text-sm text-muted-foreground">
+              No {service.title.toLowerCase()} providers at this campus yet.
+            </p>
+            <Link
+              href="/vendor/dashboard?tab=new&kind=svc"
+              className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
+            >
+              Offer {service.title.toLowerCase()} →
+            </Link>
           </div>
         )}
       </div>

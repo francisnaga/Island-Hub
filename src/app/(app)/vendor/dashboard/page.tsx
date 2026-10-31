@@ -6,8 +6,13 @@ import { VendorDashboardClient } from './VendorDashboardClient'
 
 export const dynamic = 'force-dynamic'
 
-export default async function VendorDashboardPage() {
-  const [{ user, profile, vendor }, categories] = await Promise.all([
+export default async function VendorDashboardPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ tab?: string; kind?: string; edit?: string }>
+}) {
+  const [sp, { user, profile, vendor }, categories] = await Promise.all([
+    searchParams,
     getCurrentUserContext(),
     getPublicCategories(),
   ])
@@ -16,7 +21,7 @@ export default async function VendorDashboardPage() {
     redirect('/login?next=/vendor/dashboard')
   }
 
-  if (!vendor) {
+  if (!vendor || !vendor.shop_name || !vendor.whatsapp_number) {
     redirect('/vendor/apply')
   }
 
@@ -37,16 +42,19 @@ export default async function VendorDashboardPage() {
   }
 
   return (
-    <div className="py-8 md:py-10">
-      <div className="container mx-auto max-w-7xl px-4">
-        <VendorDashboardClient
-          user={user}
-          profile={profile}
-          vendor={vendor}
-          initialProducts={vendorProducts}
-          categories={categories}
-        />
-      </div>
-    </div>
+    <VendorDashboardClient
+      user={user}
+      profile={profile}
+      vendor={vendor}
+      initialProducts={vendorProducts}
+      categories={categories}
+      initialTab={sp.tab === 'new' ? 'new' : sp.tab === 'store' ? 'store' : 'listings'}
+      initialKind={
+        sp.kind === 'room' || sp.kind === 'svc' || sp.kind === 'item'
+          ? sp.kind
+          : undefined
+      }
+      initialEditId={sp.edit || undefined}
+    />
   )
 }

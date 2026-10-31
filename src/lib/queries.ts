@@ -84,7 +84,7 @@ export async function getPublicVendors(options?: {
   featuredOnly?: boolean
 }): Promise<Vendor[]> {
   const hasSearchQuery = Boolean(options?.query?.trim())
-  const verifiedOnly = options?.verifiedOnly !== false
+  const verifiedOnly = options?.verifiedOnly === true
 
   let list: Vendor[] = []
 
@@ -98,23 +98,38 @@ export async function getPublicVendors(options?: {
       .order('created_at', { ascending: false })
 
     if (verifiedOnly) {
-      if (hasSearchQuery) {
-        dbQuery = dbQuery.in('verification_status', ['verified', 'suspended'])
-      } else {
-        dbQuery = dbQuery.eq('verification_status', 'verified')
-      }
-    } else {
-      // Never show unapproved/pending or rejected vendors publicly unless verified
       dbQuery = dbQuery.eq('verification_status', 'verified')
+    } else {
+      // All active stores (both verified and unverified) appear in Stores; only rejected/suspended are excluded
+      dbQuery = dbQuery.in('verification_status', ['verified', 'pending'])
     }
 
     if (options?.featuredOnly) {
       dbQuery = dbQuery.eq('is_featured', true)
     }
 
-    const { data, error } = await dbQuery
+    const [{ data, error }, { data: approvedProds }] = await Promise.all([
+      dbQuery,
+      supabase
+        .from('products')
+        .select('id, vendor_id')
+        .eq('status', 'approved')
+        .eq('is_demo', false),
+    ])
+
     if (!error && data) {
-      list = data as Vendor[]
+      const countMap: Record<string, number> = {}
+      if (approvedProds) {
+        for (const p of approvedProds as { id: string; vendor_id: string }[]) {
+          countMap[p.vendor_id] = (countMap[p.vendor_id] || 0) + 1
+        }
+      }
+      list = (data as Vendor[])
+        .filter((v) => !v.is_paused)
+        .map((v) => ({
+          ...v,
+          products_count: countMap[v.id] || 0,
+        }))
     }
   } catch {
     // Return empty list if offline
@@ -145,7 +160,7 @@ export async function getPublicVendors(options?: {
     const targetCampus = options.campus.toLowerCase()
     list = list.filter((v) => {
       const c = (v.campus || 'Okerenkoko').toLowerCase()
-      return c === targetCampus
+      return c === 'both' || c === targetCampus
     })
   }
 
@@ -157,7 +172,7 @@ export async function getPublicVendors(options?: {
     list = list.filter((v) => Boolean(v.is_featured) && v.verification_status === 'verified')
   }
 
-  // Guarantee paid featured and verified vendors strictly rank first
+  // Guarantee paid featured and verified vendors strictly rank first, followed by unverified stores
   list.sort((a, b) => {
     if (Boolean(b.is_featured) !== Boolean(a.is_featured)) {
       return b.is_featured ? 1 : -1
@@ -196,8 +211,8 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
       const v = vendorData as Vendor
       const sanitized = sanitizePublicVendor(v)
 
-      // Unverified or rejected vendors do not appear publicly until admin approves them
-      if (v.verification_status === 'pending' || v.verification_status === 'rejected') {
+      // Only rejected vendors are hidden; unverified ('pending') vendors are live without a tick
+      if (v.verification_status === 'rejected') {
         return { vendor: null, products: [] }
       }
 
@@ -216,12 +231,19 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
         .order('created_at', { ascending: false })
 
       const products = ((prodData as Product[]) || [])
-        .filter((p) => p.images && p.images.length > 0 && !p.needs_seller_photo)
+        .filter(
+          (p) =>
+            p.listing_type === 'service' ||
+            (p.images && p.images.length > 0 && !p.needs_seller_photo)
+        )
         .map((p) => ({
           ...p,
           vendor: sanitized,
         }))
-      return { vendor: sanitized, products }
+      return {
+        vendor: { ...sanitized, products_count: products.length },
+        products,
+      }
     }
   } catch {
     // Return null if offline
@@ -369,17 +391,17 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
 
     const { data, error } = await query
     if (!error && data) {
-      // Strictly only serve approved items from verified, non-paused vendors
+      // Serve admin-approved items from any active (non-rejected, non-suspended, non-paused) vendor
       productsList = (data as Product[])
         .filter(
           (item) =>
             item.status === 'approved' &&
             !item.is_demo &&
-            item.images &&
-            item.images.length > 0 &&
-            !item.needs_seller_photo &&
+            (item.listing_type === 'service' ||
+              (item.images && item.images.length > 0 && !item.needs_seller_photo)) &&
             item.vendor &&
-            item.vendor.verification_status === 'verified' &&
+            item.vendor.verification_status !== 'rejected' &&
+            item.vendor.verification_status !== 'suspended' &&
             !item.vendor.is_paused
         )
         .map((item) => ({
@@ -423,6 +445,11 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
       if (bFeatured !== aFeatured) {
         return bFeatured ? 1 : -1
       }
+      const aVerified = a.vendor?.verification_status === 'verified'
+      const bVerified = b.vendor?.verification_status === 'verified'
+      if (bVerified !== aVerified) {
+        return bVerified ? 1 : -1
+      }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })
   }
@@ -453,11 +480,12 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
 
     if (!error && data) {
       const p = data as Product
-      // Strictly require admin approval on both listing and vendor before going live
+      // Require admin approval on the listing; vendor only needs to not be banned/rejected/paused
       if (
         p.status !== 'approved' ||
         !p.vendor ||
-        p.vendor.verification_status !== 'verified' ||
+        p.vendor.verification_status === 'rejected' ||
+        p.vendor.verification_status === 'suspended' ||
         p.vendor.is_paused
       ) {
         return null
@@ -507,7 +535,8 @@ export async function getPublicLodges(options?: {
           item.images &&
           item.images.length > 0 &&
           item.vendor &&
-          item.vendor.verification_status === 'verified' &&
+          item.vendor.verification_status !== 'rejected' &&
+          item.vendor.verification_status !== 'suspended' &&
           !item.vendor.is_paused
       )
 
@@ -582,7 +611,8 @@ export async function getPublicServices(campus?: string): Promise<ServiceItem[]>
           item.status === 'approved' &&
           !item.is_demo &&
           item.vendor &&
-          item.vendor.verification_status === 'verified' &&
+          item.vendor.verification_status !== 'rejected' &&
+          item.vendor.verification_status !== 'suspended' &&
           !item.vendor.is_paused
       )
 
@@ -599,7 +629,9 @@ export async function getPublicServices(campus?: string): Promise<ServiceItem[]>
           .map((w) => w[0]?.toUpperCase() || '')
           .join('') || 'SV'
 
-        const providerCampus = item.campus || vendor.campus || 'Okerenkoko'
+        const rawCampus = item.campus || vendor.campus || 'Okerenkoko'
+        const providerCampus: 'Okerenkoko' | 'Kurutie' | 'Both campuses' =
+          rawCampus === 'Both' ? 'Both campuses' : rawCampus
 
         // Avoid duplicate provider entry for same vendor within the same service category
         const existingIdx = targetService.providers.findIndex(

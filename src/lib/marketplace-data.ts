@@ -92,12 +92,9 @@ export const INITIAL_PRODUCTS: Product[] = []
  * so private residential/hostel coordinates are never leaked to the public client.
  */
 export function sanitizePublicVendor(vendor: Vendor): Vendor {
-  const isBoth = vendor.campus === ('Both' as any) || (vendor.campus as string) === 'both'
-  const resolvedCampus: 'Okerenkoko' | 'Kurutie' = isBoth
-    ? vendor.location_label?.toLowerCase().includes('kurutie') ||
-      vendor.shop_name?.toLowerCase().includes('kurutie')
-      ? 'Kurutie'
-      : 'Okerenkoko'
+  const isBoth = vendor.campus === 'Both' || (vendor.campus as string) === 'both'
+  const resolvedCampus: Vendor['campus'] = isBoth
+    ? 'Both'
     : vendor.campus || 'Okerenkoko'
 
   return {

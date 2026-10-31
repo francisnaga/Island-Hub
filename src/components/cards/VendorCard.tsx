@@ -29,12 +29,14 @@ export function getSellerTypeLabel(vendor: Vendor): string {
   return 'Seller'
 }
 
-export function VendorCard({ vendor, listingsCount = 0 }: VendorCardProps) {
+export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
   const isBanned = vendor.verification_status === 'suspended'
   const isPaused = Boolean(vendor.is_paused) && !isBanned
   const isVerified = vendor.verification_status === 'verified'
   const roleLabel = getSellerTypeLabel(vendor)
-  const campusLabel = vendor.campus || 'Okerenkoko'
+  const campusLabel =
+    vendor.campus === 'Both' ? 'Both campuses' : vendor.campus || 'Okerenkoko'
+  const count = listingsCount ?? vendor.products_count ?? 0
 
   return (
     <Link
@@ -119,8 +121,15 @@ export function VendorCard({ vendor, listingsCount = 0 }: VendorCardProps) {
 
       {/* Bottom Center: Prototype Listings Count (Zero fake ratings) */}
       <div className="text-center">
-        <span className="text-sm font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
-          {listingsCount > 0 ? `${listingsCount} ${listingsCount === 1 ? 'listing' : 'listings'}` : 'View Storefront →'}
+        <span
+          className={cn(
+            'text-sm',
+            count > 0
+              ? 'font-semibold text-[#0F6E6E] dark:text-[#22D3EE]'
+              : 'font-medium text-muted-foreground'
+          )}
+        >
+          {count > 0 ? `${count} ${count === 1 ? 'listing' : 'listings'}` : 'No listings yet'}
         </span>
       </div>
     </Link>

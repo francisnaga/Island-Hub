@@ -3,22 +3,9 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import {
-  ShieldCheck,
-  CheckCircle2,
-  Clock,
-  AlertCircle,
-  ArrowRight,
-  Upload,
-  User,
-  ShoppingBag,
-  Building2,
-} from 'lucide-react'
+import { ChevronLeft } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
-import { CampusArea, Category, SellerType, UserProfile, Vendor } from '@/lib/types'
-import { NMU_DEFAULT_COORDS } from '@/lib/marketplace-data'
-import { getVendorInitials } from '@/components/cards/VendorCard'
-import { LocationPicker, LocationValue } from '@/components/vendor/LocationPicker'
+import { CampusArea, UserProfile, Vendor } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
@@ -27,7 +14,6 @@ interface VendorApplyFormProps {
   user: { id: string; email?: string; full_name?: string; avatar_url?: string }
   profile: UserProfile
   existingVendor: Vendor | null
-  categories: Category[]
 }
 
 function slugifyShopName(name: string): string {
@@ -42,122 +28,47 @@ function slugifyShopName(name: string): string {
   )
 }
 
-import { isImageFile, compressImageFile } from '@/lib/image-compression'
+function digitsOnly(val: string): string {
+  return String(val || '').replace(/\D/g, '')
+}
 
 export function VendorApplyForm({
   user,
   profile,
   existingVendor,
-  categories,
 }: VendorApplyFormProps) {
   const router = useRouter()
 
-  const defaultGoogleName = profile.full_name || user.full_name || ''
-  const defaultGoogleAvatar =
-    existingVendor?.logo_url ?? profile.avatar_url ?? user.avatar_url ?? null
-
-  const [shopName, setShopName] = useState(
-    existingVendor?.shop_name || defaultGoogleName
-  )
-  const [logoUrl, setLogoUrl] = useState<string | null>(defaultGoogleAvatar)
-  const [sellerType, setSellerType] = useState<SellerType>(
-    existingVendor?.seller_type ||
-      (existingVendor ? (existingVendor.is_student ? 'student' : 'independent') : 'student')
-  )
-  const [businessName, setBusinessName] = useState(
-    existingVendor?.business_name || ''
+  const [shopName, setShopName] = useState(existingVendor?.shop_name || '')
+  const [whatsappNumber, setWhatsappNumber] = useState(
+    existingVendor?.whatsapp_number || ''
   )
   const [campus, setCampus] = useState<CampusArea>(
     existingVendor?.campus || 'Okerenkoko'
   )
-  const [openingHours, setOpeningHours] = useState(
-    existingVendor?.opening_hours || 'Mon–Sat, 8:00 AM – 7:00 PM'
+  const [locationLabel, setLocationLabel] = useState(
+    existingVendor?.location_label || ''
   )
-  const [whatsappNumber, setWhatsappNumber] = useState(
-    existingVendor?.whatsapp_number || ''
-  )
-  const [description, setDescription] = useState(
-    existingVendor?.description || ''
-  )
-  const [deptOrBusinessInfo, setDeptOrBusinessInfo] = useState(
-    existingVendor?.department_or_business_info || ''
-  )
-  const [selectedCategories, setSelectedCategories] = useState<string[]>(
-    existingVendor?.categories_offered || ['maritime-cadet-gear']
-  )
-
-  const [locationVal, setLocationVal] = useState<LocationValue>({
-    latitude: existingVendor?.latitude || NMU_DEFAULT_COORDS.latitude,
-    longitude: existingVendor?.longitude || NMU_DEFAULT_COORDS.longitude,
-    location_type: existingVendor?.location_type || 'pickup_point',
-    location_visibility: existingVendor?.location_visibility || 'approximate',
-    location_label:
-      existingVendor?.location_label || 'Near NMU Main Campus Gate, Okerenkoko',
-    pickup_options:
-      existingVendor?.pickup_options ||
-      'Same-day pickup at Okerenkoko Campus Gate or landmark',
-    delivery_available: existingVendor?.delivery_available ?? true,
-    delivery_coverage:
-      existingVendor?.delivery_coverage || 'All NMU hostels & Okerenkoko',
-    pinConfirmed: Boolean(existingVendor?.location_confirmed_at),
-  })
-
-  const [uploadingAvatar, setUploadingAvatar] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (!file) return
-    if (!isImageFile(file)) {
-      toast.error('Please upload an image file (JPG, PNG, WebP, or iPhone photo).')
-      return
-    }
-    setUploadingAvatar(true)
-    try {
-      const { dataUrl } = await compressImageFile(file, {
-        maxWidth: 360,
-        maxHeight: 360,
-        quality: 0.85,
-      })
-      setLogoUrl(dataUrl)
-      toast.success('Profile photo / logo updated!')
-    } catch {
-      toast.error('Could not process image. Please try another photo.')
-    } finally {
-      setUploadingAvatar(false)
-      e.target.value = ''
-    }
-  }
+  const nameOk = shopName.trim().length > 1
+  const phoneOk = digitsOnly(whatsappNumber).length >= 10
+  const isReady = nameOk && phoneOk
 
-  const toggleCategory = (slug: string) => {
-    setSelectedCategories((prev) =>
-      prev.includes(slug) ? prev.filter((c) => c !== slug) : [...prev, slug]
-    )
-  }
+  const statusText = isReady
+    ? existingVendor
+      ? 'Save changes'
+      : 'Open your store'
+    : nameOk
+    ? 'Add your WhatsApp number'
+    : 'Add your shop name'
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
+    if (!isReady || submitting) return
 
     const cleanPhone = normalizeWhatsAppNumber(whatsappNumber)
     if (!cleanPhone) {
-      toast.error(
-        'Please enter a valid Nigerian or international WhatsApp phone number (e.g. 08031234567).'
-      )
-      return
-    }
-
-    if (selectedCategories.length === 0) {
-      toast.error('Please select at least one category you offer.')
-      return
-    }
-
-    if (
-      locationVal.location_type !== 'delivery_only' &&
-      !locationVal.pinConfirmed
-    ) {
-      toast.error(
-        'Please review the map preview and click "Confirm Pin Location" before submitting.'
-      )
+      toast.error('Please enter a valid WhatsApp number (e.g. 0803 000 0000).')
       return
     }
 
@@ -165,38 +76,21 @@ export function VendorApplyForm({
     try {
       const supabase = createClient()
       const slug = existingVendor?.slug || slugifyShopName(shopName)
+      const trimmedLoc = locationLabel.trim()
 
       const payload = {
         user_id: user.id,
         shop_name: shopName.trim(),
         slug,
-        logo_url: logoUrl,
-        description: description.trim(),
+        logo_url: existingVendor?.logo_url ?? profile.avatar_url ?? user.avatar_url ?? null,
+        description: existingVendor?.description || '',
         whatsapp_number: cleanPhone,
-        categories_offered: selectedCategories,
-        pickup_options: locationVal.pickup_options.trim(),
-        delivery_available:
-          locationVal.delivery_available ||
-          locationVal.location_type === 'delivery_only',
-        delivery_coverage: locationVal.delivery_coverage.trim() || null,
-        is_student: sellerType === 'student',
-        seller_type: sellerType,
-        business_name: sellerType === 'business' ? businessName.trim() || shopName.trim() : null,
         campus,
-        opening_hours: openingHours.trim() || 'Mon–Sat, 8:00 AM – 7:00 PM',
-        department_or_business_info: deptOrBusinessInfo.trim() || null,
-        latitude:
-          locationVal.location_type === 'delivery_only'
-            ? null
-            : locationVal.latitude,
-        longitude:
-          locationVal.location_type === 'delivery_only'
-            ? null
-            : locationVal.longitude,
-        location_type: locationVal.location_type,
-        location_visibility: locationVal.location_visibility,
-        location_label: locationVal.location_label.trim(),
-        location_confirmed_at: new Date().toISOString(),
+        location_label: trimmedLoc,
+        pickup_options: trimmedLoc,
+        is_student: existingVendor?.is_student ?? true,
+        seller_type: existingVendor?.seller_type || 'independent',
+        categories_offered: existingVendor?.categories_offered || [],
       }
 
       const { error } = existingVendor
@@ -206,6 +100,7 @@ export function VendorApplyForm({
             .eq('id', existingVendor.id)
         : await supabase.from('vendors').insert({
             ...payload,
+            // Stores are immediately live without a checkmark; verification is only for the paid badge
             verification_status: 'pending',
           })
 
@@ -214,11 +109,6 @@ export function VendorApplyForm({
         return
       }
 
-      toast.success(
-        existingVendor
-          ? 'Storefront profile updated!'
-          : 'Vendor storefront created! Opening your Vendor Dashboard...'
-      )
       router.push('/vendor/dashboard')
       router.refresh()
     } finally {
@@ -226,350 +116,156 @@ export function VendorApplyForm({
     }
   }
 
+  const campusOptions: { label: string; value: CampusArea }[] = [
+    { label: 'Okerenkoko', value: 'Okerenkoko' },
+    { label: 'Kurutie', value: 'Kurutie' },
+    { label: 'Both campuses', value: 'Both' },
+  ]
+
   return (
-    <div className="space-y-6">
-      {/* Existing Application Status Banner */}
-      {existingVendor && (
-        <div
-          className={cn(
-            'rounded-2xl border p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4',
-            existingVendor.verification_status === 'verified'
-              ? 'border-emerald-200 bg-emerald-50/70 text-emerald-950'
-              : existingVendor.verification_status === 'rejected'
-              ? 'border-red-200 bg-red-50 text-red-950'
-              : 'border-amber-200 bg-amber-50/80 text-amber-950'
-          )}
-        >
-          <div className="flex items-start gap-3">
-            {existingVendor.verification_status === 'verified' ? (
-              <CheckCircle2 className="h-5 w-5 text-emerald-600 shrink-0 mt-0.5" />
-            ) : existingVendor.verification_status === 'rejected' ? (
-              <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-            ) : (
-              <Clock className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
-            )}
-            <div className="space-y-1">
-              <h2 className="text-sm font-bold">
-                Storefront Status:{' '}
-                <span className="capitalize">
-                  {existingVendor.verification_status}
-                </span>
-              </h2>
-              <p className="text-xs opacity-90">
-                {existingVendor.verification_status === 'verified'
-                  ? 'Your vendor storefront is verified and live. Manage your products, food, services, and location from your dashboard.'
-                  : 'Your vendor application is under review. You can already customize your storefront and add listings.'}
-              </p>
-            </div>
-          </div>
-
+    <div className="min-h-screen bg-background text-foreground pb-32">
+      {/* Sticky Top Bar (.ftop from prototype) */}
+      <div className="sticky top-0 z-20 flex items-center gap-1 h-14 px-2 bg-card border-b border-border">
+        <div className="mx-auto w-full max-w-[480px] flex items-center gap-1">
           <Link
-            href="/vendor/dashboard"
-            className="inline-flex items-center gap-1.5 rounded-xl bg-[#0F6E6E] px-4 py-2.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] shrink-0"
+            href={existingVendor ? '/vendor/dashboard' : '/'}
+            aria-label="Back to buying"
+            className="w-11 h-11 rounded-full grid place-items-center text-foreground hover:bg-muted transition-colors"
           >
-            Go to Vendor Dashboard <ArrowRight className="h-3.5 w-3.5" />
+            <ChevronLeft className="h-5 w-5" />
           </Link>
+          <b className="font-[family-name:var(--font-bricolage)] font-semibold text-lg tracking-tight">
+            {existingVendor ? 'Store settings' : 'Start selling'}
+          </b>
         </div>
-      )}
-
-      {/* Header */}
-      <div className="space-y-1.5">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-          {existingVendor
-            ? 'Update Your Vendor Storefront'
-            : 'Create Your Jetty Storefront'}
-        </h1>
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          We prefilled your Google name and photo as a starting point. Choose whether you are a student seller, independent seller, or business, and customize your public storefront.
-        </p>
       </div>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* 1. Seller Account Type Selection */}
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4">
-          <div>
-            <h2 className="text-base font-bold text-foreground">
-              1. What kind of seller are you?
-            </h2>
-            <p className="text-xs text-muted-foreground mt-0.5">
-              Don&apos;t pretend to be a company if you&apos;re selling personal items — buyers trust honest profiles.
-            </p>
-          </div>
+      {/* Centered Minimal Form (#vsign from prototype) */}
+      <div className="mx-auto w-full max-w-[480px]">
+        <p className="px-4 pt-4 pb-1 text-sm text-muted-foreground">
+          Students browse without an account. You only need one to sell.
+        </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            {[
-              {
-                id: 'student' as SellerType,
-                title: 'Student Seller',
-                desc: 'NMU student selling cadet gear, textbooks, gadgets, or hostel items.',
-                icon: User,
-              },
-              {
-                id: 'independent' as SellerType,
-                title: 'Independent Seller',
-                desc: 'Regularly selling fruit salads, cooked food, tailoring, or campus services.',
-                icon: ShoppingBag,
-              },
-              {
-                id: 'business' as SellerType,
-                title: 'Business / Shop',
-                desc: 'Established shop or brand in Okerenkoko, Kurutie, or Warri jetty.',
-                icon: Building2,
-              },
-            ].map((opt) => {
-              const Icon = opt.icon
-              const active = sellerType === opt.id
+        {/* Field 1: Shop or seller name */}
+        <div className="px-4 mt-[22px]">
+          <label
+            htmlFor="s-name"
+            className="block mb-2 text-[15px] font-semibold text-foreground"
+          >
+            Shop or seller name
+          </label>
+          <input
+            id="s-name"
+            type="text"
+            autoComplete="organization"
+            maxLength={60}
+            value={shopName}
+            onChange={(e) => setShopName(e.target.value)}
+            placeholder="Amaka Fresh Bowls"
+            className="w-full h-[52px] px-3.5 rounded-xl border border-border bg-card text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-[#0F6E6E] focus:ring-3 focus:ring-[#0F6E6E]/15 transition-all"
+          />
+        </div>
+
+        {/* Field 2: WhatsApp number */}
+        <div className="px-4 mt-[22px]">
+          <label
+            htmlFor="s-phone"
+            className="block mb-2 text-[15px] font-semibold text-foreground"
+          >
+            WhatsApp number
+          </label>
+          <input
+            id="s-phone"
+            type="tel"
+            inputMode="tel"
+            autoComplete="tel"
+            value={whatsappNumber}
+            onChange={(e) => setWhatsappNumber(e.target.value)}
+            placeholder="0803 000 0000"
+            className="w-full h-[52px] px-3.5 rounded-xl border border-border bg-card text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-[#0F6E6E] focus:ring-3 focus:ring-[#0F6E6E]/15 transition-all"
+          />
+          <small className="block mt-1.5 text-[13px] text-muted-foreground">
+            Buyers message you here.
+          </small>
+        </div>
+
+        {/* Field 3: Where do you sell? */}
+        <div className="px-4 mt-[22px]">
+          <span className="block mb-2 text-[15px] font-semibold text-foreground">
+            Where do you sell?
+          </span>
+          <div role="group" aria-label="Campus" className="flex flex-wrap gap-2">
+            {campusOptions.map((opt) => {
+              const active = campus === opt.value
               return (
                 <button
-                  key={opt.id}
+                  key={opt.value}
                   type="button"
-                  onClick={() => setSellerType(opt.id)}
+                  aria-pressed={active}
+                  onClick={() => setCampus(opt.value)}
                   className={cn(
-                    'flex flex-col items-start text-left rounded-xl border p-4 transition-all cursor-pointer',
+                    'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
                     active
-                      ? 'border-[#0F6E6E] bg-[#E6F2F2]/60 dark:bg-[#132A2A] ring-1 ring-[#0F6E6E]'
-                      : 'border-border bg-background hover:border-[#0F6E6E]/40'
+                      ? 'bg-[#0F6E6E] border-[#0F6E6E] text-white'
+                      : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
                   )}
                 >
-                  <div className="flex items-center gap-2 font-bold text-sm text-foreground">
-                    <Icon className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                    <span>{opt.title}</span>
-                  </div>
-                  <p className="text-xs text-muted-foreground mt-1 leading-relaxed">
-                    {opt.desc}
-                  </p>
+                  {opt.label}
                 </button>
               )
             })}
           </div>
         </div>
 
-        {/* 2. Public Identity (Avatar/Logo + Display Name + Description) */}
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-5">
-          <h2 className="text-base font-bold text-foreground">
-            2. Public Storefront Identity &amp; Contact
-          </h2>
-
-          {/* Avatar / Logo with Google Default + Upload Replacement */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-4 rounded-xl border border-border bg-muted/40 p-4">
-            <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 text-[#0F6E6E] dark:text-[#E8B84A] font-extrabold text-xl overflow-hidden">
-              {logoUrl ? (
-                <img
-                  src={logoUrl}
-                  alt="Storefront avatar preview"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <span>{getVendorInitials(shopName || 'Jetty Seller')}</span>
-              )}
-            </div>
-
-            <div className="space-y-1.5 flex-1">
-              <p className="text-xs font-bold text-foreground">
-                Profile Photo or Business Logo
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Defaults to your Google profile photo (or generated initials). Upload a custom photo or business logo anytime.
-              </p>
-              <div className="flex flex-wrap items-center gap-2 pt-1">
-                <label className="inline-flex items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3 py-1.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] cursor-pointer">
-                  <Upload className="h-3.5 w-3.5" />
-                  <span>{uploadingAvatar ? 'Processing...' : 'Upload Photo / Logo'}</span>
-                  <input
-                    type="file"
-                    accept="image/*,image/heic,image/heif"
-                    onChange={handleAvatarUpload}
-                    className="hidden"
-                  />
-                </label>
-                {logoUrl && (
-                  <button
-                    type="button"
-                    onClick={() => setLogoUrl(null)}
-                    className="rounded-lg border border-border bg-background px-2.5 py-1.5 text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-                  >
-                    Use Initials Avatar
-                  </button>
-                )}
-              </div>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Public Display Name / Shop Name *
-              </label>
-              <input
-                type="text"
-                required
-                value={shopName}
-                onChange={(e) => setShopName(e.target.value)}
-                placeholder="e.g. Naga Cadet Supplies or Amaka Fresh Bowls"
-                className="w-full h-11 rounded-xl border border-input bg-background px-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              />
-              {defaultGoogleName && shopName !== defaultGoogleName && (
-                <button
-                  type="button"
-                  onClick={() => setShopName(defaultGoogleName)}
-                  className="text-[11px] text-[#0F6E6E] hover:underline mt-1 cursor-pointer"
-                >
-                  Use Google name ({defaultGoogleName})
-                </button>
-              )}
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                WhatsApp Ordering Number *
-              </label>
-              <input
-                type="tel"
-                required
-                value={whatsappNumber}
-                onChange={(e) => setWhatsappNumber(e.target.value)}
-                placeholder="e.g. 08031234567"
-                className="w-full h-11 rounded-xl border border-input bg-background px-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              />
-              <p className="text-[11px] text-muted-foreground mt-1">
-                Publicly visible on your storefront for WhatsApp orders.
-              </p>
-            </div>
-          </div>
-
-          {sellerType === 'business' && (
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Registered Business Name / CAC Info (Optional)
-              </label>
-              <input
-                type="text"
-                value={businessName}
-                onChange={(e) => setBusinessName(e.target.value)}
-                placeholder="e.g. Pere Creek Ventures Ltd (Optional — verified by Jetty Admin)"
-                className="w-full h-11 rounded-xl border border-input bg-background px-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              />
-            </div>
-          )}
-
-          <div>
-            <label className="block text-xs font-semibold text-foreground mb-1">
-              Short Store Description (What do you sell or offer?) *
-            </label>
-            <textarea
-              rows={3}
-              required
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the items, food, or services you offer and what buyers should know..."
-              className="w-full rounded-xl border border-input bg-background p-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-            />
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2 border-t border-border">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Campus Served *
-              </label>
-              <select
-                value={campus}
-                onChange={(e) => setCampus(e.target.value as CampusArea)}
-                className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              >
-                <option value="Okerenkoko">Okerenkoko Campus</option>
-                <option value="Kurutie">Kurutie Campus</option>
-                <option value="Both">Both (Okerenkoko &amp; Kurutie)</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Opening Hours / Availability
-              </label>
-              <input
-                type="text"
-                value={openingHours}
-                onChange={(e) => setOpeningHours(e.target.value)}
-                placeholder="e.g. Mon–Sat, 8am – 7pm"
-                className="w-full h-11 rounded-xl border border-input bg-background px-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                {sellerType === 'student'
-                  ? 'Department & Level *'
-                  : 'Specialty / Shop Tagline *'}
-              </label>
-              <input
-                type="text"
-                required
-                value={deptOrBusinessInfo}
-                onChange={(e) => setDeptOrBusinessInfo(e.target.value)}
-                placeholder={
-                  sellerType === 'student'
-                    ? 'e.g. Marine Engineering · 300L'
-                    : 'e.g. Fresh Fruit Bowls & Tailoring'
-                }
-                className="w-full h-11 rounded-xl border border-input bg-background px-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              />
-            </div>
-          </div>
-
-          {/* Categories Offered */}
-          <div className="space-y-2 pt-2 border-t border-border">
-            <label className="block text-xs font-semibold text-foreground">
-              Categories You Sell or Offer *
-            </label>
-            <div className="flex flex-wrap gap-2">
-              {categories.map((cat) => {
-                const selected = selectedCategories.includes(cat.slug)
-                return (
-                  <button
-                    key={cat.slug}
-                    type="button"
-                    onClick={() => toggleCategory(cat.slug)}
-                    className={cn(
-                      'rounded-full px-3.5 py-1.5 text-xs font-semibold border transition-colors cursor-pointer',
-                      selected
-                        ? 'border-[#0F6E6E] bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#132A2A] dark:text-white'
-                        : 'border-border bg-background text-muted-foreground hover:text-foreground'
-                    )}
-                  >
-                    {selected ? '✓ ' : '+ '}
-                    {cat.name}
-                  </button>
-                )
-              })}
-            </div>
-          </div>
-        </div>
-
-        {/* 3. Interactive Location Picker */}
-        <LocationPicker value={locationVal} onChange={setLocationVal} />
-
-        {/* 4. Verification Notice & Submit */}
-        <div className="rounded-2xl border border-border bg-card p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <div className="flex items-start gap-2.5 text-xs text-muted-foreground max-w-xl">
-            <ShieldCheck className="h-5 w-5 text-[#0F6E6E] shrink-0 mt-0.5" />
-            <p className="leading-relaxed">
-              <strong className="text-foreground">Free Honest Verification:</strong> A Google account authenticates your login, and Jetty Admin verifies your identity &amp; WhatsApp number before awarding the Verified Vendor badge.
-            </p>
-          </div>
-
-          <button
-            type="submit"
-            disabled={submitting}
-            className="rounded-xl bg-[#0F6E6E] px-6 py-3 text-sm font-bold text-white hover:bg-[#0A4F4F] transition-colors shrink-0 cursor-pointer disabled:opacity-50"
+        {/* Field 4: Optional Location / Landmark */}
+        <div className="px-4 mt-[22px]">
+          <label
+            htmlFor="s-loc"
+            className="block mb-2 text-[15px] font-semibold text-foreground"
           >
-            {submitting
-              ? 'Saving Storefront...'
-              : existingVendor
-              ? 'Save Storefront Changes'
-              : 'Launch My Storefront'}
+            Location
+          </label>
+          <input
+            id="s-loc"
+            type="text"
+            maxLength={80}
+            value={locationLabel}
+            onChange={(e) => setLocationLabel(e.target.value)}
+            placeholder="Block B Hostel, or near the main gate"
+            className="w-full h-[52px] px-3.5 rounded-xl border border-border bg-card text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-[#0F6E6E] focus:ring-3 focus:ring-[#0F6E6E]/15 transition-all"
+          />
+          <small className="block mt-1.5 text-[13px] text-muted-foreground">
+            Optional. Shown on your store only if you add one.
+          </small>
+        </div>
+      </div>
+
+      {/* Sticky Bottom Bar (.bar.on from prototype) */}
+      <div className="fixed bottom-0 inset-x-0 z-30 bg-card border-t border-border">
+        <div className="mx-auto w-full max-w-[480px] px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center gap-4">
+          <div className="min-w-0">
+            <small className="block text-xs text-muted-foreground">
+              {isReady ? 'Ready' : 'Still needed'}
+            </small>
+            <b className="block text-[15px] sm:text-base font-semibold text-foreground truncate">
+              {statusText}
+            </b>
+          </div>
+          <button
+            type="button"
+            disabled={!isReady || submitting}
+            onClick={handleSubmit}
+            className={cn(
+              'ml-auto flex-1 max-w-[180px] h-12 rounded-xl font-semibold text-[15px] flex items-center justify-center transition-colors cursor-pointer',
+              isReady && !submitting
+                ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
+                : 'bg-[#CBDADA] dark:bg-muted text-[#3E4F4F] dark:text-muted-foreground cursor-default'
+            )}
+          >
+            {submitting ? 'Saving...' : 'Continue'}
           </button>
         </div>
-      </form>
+      </div>
     </div>
   )
 }

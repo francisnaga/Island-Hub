@@ -1,9 +1,23 @@
+'use client'
+
 import Link from 'next/link'
+import { usePathname } from 'next/navigation'
 import { MapPin, ExternalLink } from 'lucide-react'
 import { NagaLogo } from '@/components/brand/NagaLogo'
 import { JettyMark } from '@/components/brand/JettyMark'
 
 export function Footer() {
+  const pathname = usePathname()
+
+  // Keep vendor onboarding/dashboard/forms and listing detail views clean and uninterrupted
+  if (
+    pathname.startsWith('/vendor') ||
+    pathname.startsWith('/product/') ||
+    (pathname.startsWith('/housing/') && pathname !== '/housing')
+  ) {
+    return null
+  }
+
   return (
     <footer className="border-t border-border bg-card text-muted-foreground mt-auto">
       <div className="container mx-auto max-w-7xl px-4 py-8 sm:py-10 space-y-6">

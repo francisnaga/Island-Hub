@@ -24,10 +24,12 @@ export function MobileBottomNav() {
 
   const activePath = pendingHref || pathname
 
-  // Hide on detail pages so sticky contact bar has the entire bottom
+  // Hide on detail pages, vendor flow (onboarding/dashboard/forms), and admin console
   if (
     pathname.startsWith('/product/') ||
-    (pathname.startsWith('/housing/') && pathname !== '/housing')
+    (pathname.startsWith('/housing/') && pathname !== '/housing') ||
+    pathname.startsWith('/vendor') ||
+    pathname.startsWith('/admin')
   ) {
     return null
   }

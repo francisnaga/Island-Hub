@@ -63,7 +63,7 @@ export function AdminDashboardClient({
 
   const [activeTab, setActiveTab] = useState<
     'vendors' | 'products' | 'reports' | 'categories' | 'logs'
-  >('vendors')
+  >('products')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [purgingDemo, setPurgingDemo] = useState(false)
 

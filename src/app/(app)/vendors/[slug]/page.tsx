@@ -121,15 +121,18 @@ export default async function VendorStorefrontPage({
           )}
         </div>
 
-        {/* Name, Role & Campus */}
+        {/* Name, Role & Campus (+ Optional Location if added) */}
         <h2>{vendor.shop_name}</h2>
         <div className="vk">{roleLabel}</div>
         <div className="vk2">
           <MapPin className="w-3.5 h-3.5" />
-          <span>{campusLabel}</span>
+          <span>
+            {campusLabel === 'Both' ? 'Both campuses' : campusLabel}
+            {hasLocation ? ` · ${vendor.location_label}` : ''}
+          </span>
         </div>
 
-        {/* Verified Badge Pill */}
+        {/* Verified Badge Pill (ONLY for verified vendors) */}
         {isVerified && (
           <div>
             <div className="vf">
@@ -146,7 +149,38 @@ export default async function VendorStorefrontPage({
             </div>
           </div>
         )}
+
+        <div className="flex justify-center gap-10 mt-4 pb-1.5">
+          <div>
+            <b className="block font-[family-name:var(--font-bricolage)] text-[22px] font-semibold leading-tight">
+              {products.length}
+            </b>
+            <small className="text-[13px] text-white/80">
+              {products.length === 1 ? 'Listing' : 'Listings'}
+            </small>
+          </div>
+        </div>
       </section>
+
+      <svg
+        viewBox="0 0 432 28"
+        preserveAspectRatio="xMidYMax slice"
+        aria-hidden="true"
+        className="block w-full h-7 -mt-[1px]"
+      >
+        <rect width="432" height="28" fill="#0A4F4F" />
+        <path
+          d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
+          className="fill-background"
+        />
+        <path
+          d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
+          fill="none"
+          stroke="#E8B84A"
+          strokeWidth="2.5"
+          strokeLinecap="round"
+        />
+      </svg>
 
       {/* 2. Main Content Container */}
       <div className="container mx-auto max-w-lg px-4 pt-4">
@@ -227,12 +261,9 @@ export default async function VendorStorefrontPage({
         )}
 
         {products.length === 0 && !isBanned && (
-          <div className="mt-6 rounded-2xl border border-dashed border-border bg-card p-6 text-center space-y-1">
-            <p className="text-sm font-semibold text-foreground">No active listings right now</p>
-            <p className="text-xs text-muted-foreground">
-              Message {vendor.shop_name} directly on WhatsApp to ask about current availability.
-            </p>
-          </div>
+          <p className="py-8 text-center text-sm text-muted-foreground">
+            No active listings right now.
+          </p>
         )}
 
         {/* Quiet Report Link */}

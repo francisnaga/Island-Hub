@@ -178,57 +178,32 @@ export function HousingClient({
           ))}
         </div>
       ) : hasActiveFilters && lodges.length > 0 ? (
-        <div className="rounded-2xl border border-border bg-card p-8 sm:p-10 text-center max-w-md mx-auto my-6 space-y-3 shadow-2xs">
-          <div className="w-11 h-11 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0F6E6E] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-            <Search className="w-5 h-5 stroke-[1.75]" />
-          </div>
-          <div className="space-y-1">
-            <h2 className="text-base font-bold text-foreground">No rooms match your filter</h2>
-            <p className="text-xs text-muted-foreground leading-relaxed">
-              Try clearing your search keyword or switching the room type filter to see all verified lodges.
-            </p>
-          </div>
+        <div className="py-12 px-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            No rooms match your filter.
+          </p>
           <button
             type="button"
             onClick={() => {
               setSearchQuery('')
               setRoomFilter('all')
             }}
-            className="inline-flex items-center justify-center h-9 px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+            className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline cursor-pointer"
           >
-            Reset search &amp; filters
+            Clear filters
           </button>
         </div>
       ) : (
-        /* High-Converting Empty State when 0 approved rooms exist */
-        <div className="rounded-2xl border border-border/80 bg-card p-7 sm:p-10 text-center max-w-lg mx-auto my-6 space-y-4 shadow-2xs">
-          <div className="w-12 h-12 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
-            <Building2 className="w-6 h-6 stroke-[1.75]" />
-          </div>
-
-          <div className="space-y-1.5">
-            <h2 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-              Have a student room or self-contain near NMU?
-            </h2>
-            <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
-              Every lodge on Jetty is verified by Admin before going live so students can schedule viewings directly on WhatsApp without fake inspection fees.
-            </p>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-2.5 pt-1">
-            <Link
-              href="/vendor/products/new?type=housing"
-              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
-            >
-              <Plus className="w-4 h-4 stroke-[2.2]" />
-              <span>List a Room for Admin Approval</span>
-            </Link>
-          </div>
-
-          <div className="pt-2 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
-            <ShieldCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
-            <span>Direct WhatsApp enquiries · Verified caretakers &amp; student landlords</span>
-          </div>
+        <div className="py-12 px-4 text-center">
+          <p className="text-sm text-muted-foreground">
+            No rooms listed at this campus yet.
+          </p>
+          <Link
+            href="/vendor/dashboard?tab=new&kind=room"
+            className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
+          >
+            List a room →
+          </Link>
         </div>
       )}
     </div>
