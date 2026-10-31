@@ -1,5 +1,8 @@
+import { Product } from './types'
+
 export interface LodgeListing {
   id: string
+  slug?: string
   title: string
   room_type: 'self_contain' | 'single_room' | 'bedspace'
   room_type_label: string
@@ -9,9 +12,11 @@ export interface LodgeListing {
   location_label: string
   distance_hint: string
   image: string
+  images?: string[]
   features: string[]
   whatsapp_number: string
   contact_name: string
+  vendor_slug?: string
   is_verified: boolean
   bedspaces?: string
   rent_covers?: string
@@ -22,77 +27,57 @@ export interface LodgeListing {
   agent_listings_count?: number
 }
 
-export const LODGE_LISTINGS: LodgeListing[] = [
-  {
-    id: 'lodge-1',
-    title: 'Self-contain, 5 min walk from the gate',
-    room_type: 'self_contain',
-    room_type_label: 'Self-contain',
-    campus: 'Kurutie',
-    price: 180000,
-    period: 'session',
-    location_label: 'Near the main gate',
-    distance_hint: '5 min to gate',
-    image: '/products/lodge-self-contain-okerenkoko.jpg',
-    features: ['Water', 'Power backup', 'Fenced compound', 'Tiled floor'],
-    whatsapp_number: '2349130436032',
-    contact_name: 'Campus Lodges Agent',
-    is_verified: true,
-    bedspaces: '1 to 2',
-    rent_covers: 'One session',
-    utilities: 'Water included',
-    other_fees: 'Agent fee applies',
-    posted_time: '1 day ago',
-    description:
-      'Clean self-contain with its own bathroom and kitchenette. Quiet street, close to lecture halls.',
-    agent_listings_count: 3,
-  },
-  {
-    id: 'lodge-2',
-    title: 'Shared room, 2 per room, water included',
-    room_type: 'single_room',
-    room_type_label: 'Shared room',
-    campus: 'Okerenkoko',
-    price: 120000,
-    period: 'session',
-    location_label: 'Hostel junction, Okerenkoko',
-    distance_hint: '3 mins to permanent site',
-    image: '/products/lodge-single-room-kurutie.jpg',
-    features: ['Water', 'Tiled floor', 'Fenced compound', 'Borehole water'],
-    whatsapp_number: '2349130436032',
-    contact_name: 'Campus Lodges Agent',
-    is_verified: true,
-    bedspaces: '2 per room',
-    rent_covers: 'One session',
-    utilities: 'Water included',
-    other_fees: 'None',
-    posted_time: '2 days ago',
-    description:
-      'Neat student accommodation near permanent site gate. Well-ventilated shared room with clean facilities.',
-    agent_listings_count: 3,
-  },
-  {
-    id: 'lodge-3',
-    title: 'Private room with ensuite',
-    room_type: 'self_contain',
-    room_type_label: 'Private room',
-    campus: 'Okerenkoko',
-    price: 240000,
-    period: 'session',
-    location_label: 'Main Academy road, Okerenkoko',
-    distance_hint: '7 mins to jetty',
-    image: '/products/lodge-shared-room-okerenkoko.jpg',
-    features: ['Ensuite bathroom', 'Running water', 'Prepaid meter', 'Security gate'],
-    whatsapp_number: '2349130436032',
-    contact_name: 'Campus Lodges Agent',
-    is_verified: true,
-    bedspaces: '1',
-    rent_covers: 'One session',
-    utilities: 'Prepaid meter',
-    other_fees: 'None',
-    posted_time: '3 days ago',
-    description:
-      'Spacious private self-contain ensuite room in a secure, quiet compound suitable for serious cadet studies.',
-    agent_listings_count: 3,
-  },
-]
+// Production Clean State: No mock lodges. All lodge listings are fetched from admin-approved database submissions.
+export const LODGE_LISTINGS: LodgeListing[] = []
+
+function formatRelativePostedTime(isoDate?: string): string {
+  if (!isoDate) return 'Recently posted'
+  const diffMs = Date.now() - new Date(isoDate).getTime()
+  const hours = Math.max(1, Math.floor(diffMs / (1000 * 60 * 60)))
+  if (hours < 24) return `${hours} hr${hours === 1 ? '' : 's'} ago`
+  const days = Math.floor(hours / 24)
+  if (days < 30) return `${days} day${days === 1 ? '' : 's'} ago`
+  return 'Recently posted'
+}
+
+export function mapProductToLodgeListing(p: Product): LodgeListing {
+  const v = p.variants || {}
+  const roomType = v.room_type || 'self_contain'
+  const roomTypeLabel =
+    v.room_type_label ||
+    (roomType === 'self_contain'
+      ? 'Self-contain'
+      : roomType === 'bedspace'
+      ? 'Bedspace'
+      : 'Shared room')
+
+  return {
+    id: p.id,
+    slug: p.slug,
+    title: p.title,
+    room_type: roomType,
+    room_type_label: roomTypeLabel,
+    campus: p.campus || p.vendor?.campus || 'Okerenkoko',
+    price: p.price,
+    period: v.period || 'session',
+    location_label: v.location_label || p.vendor?.location_label || `Near ${p.campus || 'NMU'} campus`,
+    distance_hint: v.distance_hint || 'Walking distance to campus',
+    image: p.images?.[0] || '',
+    images: p.images || [],
+    features:
+      v.features && v.features.length > 0
+        ? v.features
+        : ['Water', 'Fenced compound', 'Tiled floor'],
+    whatsapp_number: p.vendor?.whatsapp_number || '',
+    contact_name: p.vendor?.shop_name || 'Verified Campus Caretaker',
+    vendor_slug: p.vendor?.slug || p.vendor?.id,
+    is_verified: p.vendor?.verification_status === 'verified',
+    bedspaces: v.bedspaces || '1 to 2',
+    rent_covers: v.rent_covers || `One ${v.period || 'session'}`,
+    utilities: v.utilities || 'Water included',
+    other_fees: v.other_fees || 'None',
+    posted_time: formatRelativePostedTime(p.created_at),
+    description: p.description,
+    agent_listings_count: 1,
+  }
+}

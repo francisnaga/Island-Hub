@@ -1,7 +1,8 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { SERVICES_LIST } from '@/lib/services-data'
+import { Plus } from 'lucide-react'
+import { getPublicServices } from '@/lib/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -17,7 +18,6 @@ export default async function ServicesPage({
 }) {
   const sp = await searchParams
 
-  // Backward compatibility: If an old link points to /services?category=barbing, redirect to /services/haircuts
   if (sp.category && sp.category !== 'all') {
     redirect(`/services/${encodeURIComponent(sp.category)}`)
   }
@@ -27,29 +27,36 @@ export default async function ServicesPage({
   const selectedCampus =
     sp.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
 
+  const services = await getPublicServices(selectedCampus)
+
   return (
     <div className="min-w-0 max-w-full pb-24">
       <div className="container mx-auto max-w-lg px-4 pt-5 space-y-1 min-w-0">
-        {/* Services Page Header Matching Prototype Image 1 */}
-        <h1 className="text-[26px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
-          Services
-        </h1>
-        <p className="text-[14px] text-muted-foreground pb-2">
-          Pick a service to see who offers it.
-        </p>
+        {/* Services Page Header (No search bar per user requirement) */}
+        <div className="flex items-end justify-between gap-3 pb-2">
+          <div>
+            <h1 className="text-[26px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
+              Services
+            </h1>
+            <p className="text-[14px] text-muted-foreground mt-0.5">
+              Pick a service to see who offers it.
+            </p>
+          </div>
+          <Link
+            href="/vendor/products/new?type=service"
+            className="inline-flex items-center gap-1 h-9 px-3.5 rounded-full bg-[#0A4F4F] text-white text-xs font-semibold hover:bg-[#0F6E6E] transition-colors shrink-0 shadow-2xs"
+          >
+            <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
+            <span>List service</span>
+          </Link>
+        </div>
 
         {/* 2-Column Clean Grid (Linear / Claude Precision UI) */}
         <div className="grid grid-cols-2 gap-3 pt-1">
-          {SERVICES_LIST.map((service) => {
+          {services.map((service) => {
             const Icon = service.icon
             const detailHref = `/services/${service.slug}`
-
-            // Filter providers by campus if selected
-            const count = service.providers.filter((p) => {
-              if (selectedCampus === 'all' || !selectedCampus) return true
-              if (p.campus === 'Both campuses') return true
-              return p.campus.toLowerCase() === selectedCampus.toLowerCase()
-            }).length
+            const count = service.providers.length
 
             return (
               <Link

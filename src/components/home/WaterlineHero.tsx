@@ -53,7 +53,7 @@ export function WaterlineHero() {
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search rooms, haircuts, boots"
+                placeholder="Search items, rooms, stores, or services..."
                 className="w-full bg-transparent text-sm text-[#0E1B1B] placeholder:text-[#5B6B6B] focus:outline-none"
               />
             </div>

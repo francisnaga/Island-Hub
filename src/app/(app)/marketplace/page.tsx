@@ -1,12 +1,30 @@
 import Link from 'next/link'
 import { Suspense } from 'react'
 import { cookies } from 'next/headers'
-import { Search, ChevronLeft, ChevronRight, Store, ExternalLink } from 'lucide-react'
+import {
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Store,
+  ExternalLink,
+  Plus,
+  ShoppingBag,
+  ShieldCheck,
+  Bed,
+  Briefcase,
+} from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { VendorCard } from '@/components/cards/VendorCard'
+import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { NagaLogo } from '@/components/brand/NagaLogo'
 import { MarketplaceFilters } from '@/components/marketplace/MarketplaceFilters'
-import { getPublicCategories, getPublicProducts, getPublicVendors } from '@/lib/queries'
+import {
+  getPublicCategories,
+  getPublicLodges,
+  getPublicProducts,
+  getPublicVendors,
+} from '@/lib/queries'
+import { SERVICES_LIST } from '@/lib/services-data'
 import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
@@ -40,13 +58,22 @@ export default async function MarketplacePage({
   const page = Math.max(1, parseInt(params.page || '1', 10) || 1)
   const minPrice = params.minPrice ? Number(params.minPrice) : undefined
   const maxPrice = params.maxPrice ? Number(params.maxPrice) : undefined
+  const rawQuery = (params.q || '').trim()
 
-  // Parallel fetch based on active tab
-  const [categories, productsData, vendorsData] = await Promise.all([
+  const hasItemFilters = Boolean(
+    rawQuery ||
+      (params.category && params.category !== 'all') ||
+      minPrice ||
+      maxPrice ||
+      (params.condition && params.condition !== 'all')
+  )
+
+  // Parallel fetch: when searching via `q`, also match rooms and stores so Home general search surfaces everything
+  const [categories, productsData, vendorsData, matchingLodges] = await Promise.all([
     getPublicCategories(),
     currentTab === 'items'
       ? getPublicProducts({
-          q: params.q || '',
+          q: rawQuery,
           category: params.category || 'all',
           campus: activeCampus,
           minPrice,
@@ -58,18 +85,32 @@ export default async function MarketplacePage({
           page,
         })
       : Promise.resolve({ products: [], totalCount: 0 }),
-    currentTab === 'stores'
+    currentTab === 'stores' || Boolean(rawQuery)
       ? getPublicVendors({
-          query: params.q || '',
+          query: rawQuery,
           verifiedOnly: params.filter !== 'all',
           campus: activeCampus,
         })
+      : Promise.resolve([]),
+    rawQuery && currentTab === 'items'
+      ? getPublicLodges({ q: rawQuery, campus: activeCampus })
       : Promise.resolve([]),
   ])
 
   const { products, totalCount } = productsData
   const vendors = vendorsData
   const totalPages = Math.max(1, Math.ceil(totalCount / ITEMS_PER_PAGE))
+
+  // Match service categories when user searches a keyword from the Home general search bar
+  const matchingServices = rawQuery
+    ? SERVICES_LIST.filter((s) => {
+        const text = `${s.title} ${s.slug} ${s.tagline} ${s.description}`.toLowerCase()
+        return rawQuery
+          .toLowerCase()
+          .split(/\s+/)
+          .some((tok) => tok.length >= 3 && text.includes(tok))
+      })
+    : []
 
   // Sort vendors so featured vendors and verified vendors strictly come first (monetization priority)
   const sortedVendors = [...vendors].sort((a, b) => {
@@ -122,8 +163,8 @@ export default async function MarketplacePage({
             </h1>
             <span className="text-xs text-muted-foreground font-medium">
               {currentTab === 'items'
-                ? `${totalCount} listings`
-                : `${vendors.length} campus stores`}
+                ? `${totalCount} ${totalCount === 1 ? 'listing' : 'listings'}`
+                : `${vendors.length} verified ${vendors.length === 1 ? 'store' : 'stores'}`}
             </span>
           </div>
 
@@ -154,28 +195,125 @@ export default async function MarketplacePage({
           </div>
         </div>
 
-        {/* ── TAB 1: ITEMS CATALOG ── */}
+        {/* ── TAB 1: ITEMS CATALOG (plus cross-category matches when searching) ── */}
         {currentTab === 'items' && (
           <div className="space-y-5">
             <Suspense fallback={<div className="h-16 rounded-xl bg-muted animate-pulse" />}>
               <MarketplaceFilters categories={categories} />
             </Suspense>
 
-            {products.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-10 sm:p-14 text-center max-w-lg mx-auto my-6 space-y-3">
-                <p className="text-base font-bold text-foreground">No listings found</p>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  Try another keyword, or clear your price and category filters.
-                </p>
-                <div className="pt-2">
-                  <Link
-                    href="/marketplace"
-                    className="inline-flex h-9 items-center px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity"
-                  >
-                    Reset Filters
-                  </Link>
-                </div>
+            {/* Cross-Category General Search Results (Services & Rooms matching query) */}
+            {rawQuery && (matchingServices.length > 0 || matchingLodges.length > 0) && (
+              <div className="space-y-4 pb-2 border-b border-border/60">
+                {matchingServices.length > 0 && (
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        <Briefcase className="w-3.5 h-3.5" />
+                        Matching Campus Services
+                      </span>
+                      <Link href="/services" className="text-xs font-semibold text-[#0F6E6E] hover:underline">
+                        All services &rarr;
+                      </Link>
+                    </div>
+                    <div className="flex flex-wrap gap-2">
+                      {matchingServices.map((svc) => {
+                        const Icon = svc.icon
+                        return (
+                          <Link
+                            key={svc.id}
+                            href={`/services/${svc.slug}`}
+                            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card hover:border-foreground/30 text-xs font-semibold text-foreground shadow-2xs"
+                          >
+                            <Icon className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] stroke-[1.75]" />
+                            <span>{svc.title}</span>
+                            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
+                          </Link>
+                        )
+                      })}
+                    </div>
+                  </div>
+                )}
+
+                {matchingLodges.length > 0 && (
+                  <div className="space-y-2.5">
+                    <div className="flex items-center justify-between">
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-muted-foreground">
+                        <Bed className="w-3.5 h-3.5" />
+                        Matching Student Rooms ({matchingLodges.length})
+                      </span>
+                      <Link
+                        href={`/housing?q=${encodeURIComponent(rawQuery)}`}
+                        className="text-xs font-semibold text-[#0F6E6E] hover:underline"
+                      >
+                        View in Lodge &rarr;
+                      </Link>
+                    </div>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                      {matchingLodges.slice(0, 4).map((lodge) => (
+                        <WaterlineRoomCard key={lodge.id} lodge={lodge} variant="grid" />
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+            )}
+
+            {products.length === 0 ? (
+              hasItemFilters ? (
+                <div className="rounded-2xl border border-border bg-card p-8 sm:p-12 text-center max-w-lg mx-auto my-6 space-y-3 shadow-2xs">
+                  <div className="w-11 h-11 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
+                    <Search className="w-5 h-5 stroke-[1.75]" />
+                  </div>
+                  <p className="text-base font-bold text-foreground">No matching items found</p>
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    Try another keyword, check the Stores or Lodge tab, or clear your current filters.
+                  </p>
+                  <div className="pt-2 flex flex-wrap items-center justify-center gap-2.5">
+                    <Link
+                      href="/marketplace"
+                      className="inline-flex h-9 items-center px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity"
+                    >
+                      Reset Filters
+                    </Link>
+                    <Link
+                      href="/vendor/apply"
+                      className="inline-flex h-9 items-center gap-1.5 px-4 rounded-xl border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5" />
+                      Sell this item
+                    </Link>
+                  </div>
+                </div>
+              ) : (
+                /* High-Converting Empty State when 0 approved items are live */
+                <div className="rounded-2xl border border-border/80 bg-card p-7 sm:p-11 text-center max-w-lg mx-auto my-6 space-y-4 shadow-2xs">
+                  <div className="w-12 h-12 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
+                    <ShoppingBag className="w-6 h-6 stroke-[1.75]" />
+                  </div>
+                  <div className="space-y-1.5">
+                    <h2 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
+                      Turn your campus items into instant WhatsApp sales
+                    </h2>
+                    <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed max-w-md mx-auto">
+                      List cadet uniforms, safety boots, calculators, power banks, or hostel essentials. Every listing is verified by Admin before going live.
+                    </p>
+                  </div>
+                  <div className="pt-1 flex flex-col sm:flex-row items-center justify-center gap-2.5">
+                    <Link
+                      href="/vendor/apply"
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 h-11 px-5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white text-xs sm:text-sm font-semibold transition-colors shadow-2xs"
+                    >
+                      <Plus className="w-4 h-4 stroke-[2.2]" />
+                      <span>Start Selling on Jetty</span>
+                    </Link>
+                  </div>
+                  <div className="pt-1 flex items-center justify-center gap-1.5 text-[11px] text-muted-foreground">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
+                    <span>Zero buyer sign-in · Direct WhatsApp checkout</span>
+                  </div>
+                </div>
+              )
             ) : (
               <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
                 {products.map((product) => (
@@ -314,17 +452,36 @@ export default async function MarketplacePage({
               {sortedVendors.map((vendor) => (
                 <VendorCard key={vendor.id} vendor={vendor} />
               ))}
-            </div>
 
-            {sortedVendors.length === 0 && (
-              <div className="rounded-2xl border border-dashed border-border bg-card p-10 sm:p-14 text-center max-w-lg mx-auto my-6 space-y-3">
-                <Store className="mx-auto h-8 w-8 text-muted-foreground" />
-                <p className="text-base font-bold text-foreground">No matching vendors</p>
-                <p className="text-xs text-muted-foreground">
-                  Try another keyword or view all campus vendors.
-                </p>
-              </div>
-            )}
+              {/* High-Converting Storefront Onboarding Card when 0 vendors exist */}
+              {sortedVendors.length === 0 && (
+                <div className="rounded-2xl border border-dashed border-border bg-card p-6 sm:p-7 flex flex-col justify-between text-center space-y-4 shadow-2xs">
+                  <div className="space-y-3 pt-2">
+                    <div className="w-14 h-14 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0A4F4F] dark:text-[#E8B84A] flex items-center justify-center mx-auto">
+                      <Store className="w-6 h-6 stroke-[1.75]" />
+                    </div>
+                    <div className="space-y-1">
+                      <h3 className="text-base sm:text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
+                        Launch Your Campus Storefront
+                      </h3>
+                      <p className="text-xs text-muted-foreground leading-relaxed max-w-xs mx-auto">
+                        Get verified by Admin to unlock your custom vendor profile, priority placement, and direct WhatsApp orders.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="pt-3 border-t border-border/50">
+                    <Link
+                      href="/vendor/apply"
+                      className="flex items-center justify-center gap-1.5 w-full py-2.5 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-xs font-semibold text-white transition-colors"
+                    >
+                      <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
+                      <span>Apply as a Vendor</span>
+                    </Link>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         )}
       </div>

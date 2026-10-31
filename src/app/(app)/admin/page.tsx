@@ -1,8 +1,14 @@
 import { redirect } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { getCurrentUserContext, getPublicCategories } from '@/lib/queries'
-import { INITIAL_PRODUCTS, INITIAL_VENDORS } from '@/lib/marketplace-data'
-import { isAdminEmail, ModerationLog, Product, ReportRecord, Vendor, CategoryRequest } from '@/lib/types'
+import {
+  isAdminEmail,
+  ModerationLog,
+  Product,
+  ReportRecord,
+  Vendor,
+  CategoryRequest,
+} from '@/lib/types'
 import { AdminDashboardClient } from './AdminDashboardClient'
 
 export const dynamic = 'force-dynamic'
@@ -18,8 +24,8 @@ export default async function AdminDashboardPage() {
     redirect('/')
   }
 
-  let vendors: Vendor[] = INITIAL_VENDORS
-  let products: Product[] = INITIAL_PRODUCTS
+  let vendors: Vendor[] = []
+  let products: Product[] = []
   let reports: ReportRecord[] = []
   let logs: ModerationLog[] = []
   let categoryRequests: CategoryRequest[] = []
@@ -48,8 +54,8 @@ export default async function AdminDashboardPage() {
         .order('created_at', { ascending: false }),
     ])
 
-    if (vRes.data && vRes.data.length > 0) vendors = vRes.data as Vendor[]
-    if (pRes.data && pRes.data.length > 0) products = pRes.data as Product[]
+    if (vRes.data) vendors = vRes.data as Vendor[]
+    if (pRes.data) products = pRes.data as Product[]
     if (rRes.data) reports = rRes.data as ReportRecord[]
     if (lRes.data) logs = lRes.data as ModerationLog[]
     if (crRes.data) categoryRequests = crRes.data as CategoryRequest[]

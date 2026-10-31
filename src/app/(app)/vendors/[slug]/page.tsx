@@ -5,9 +5,8 @@ import { ProductCard } from '@/components/cards/ProductCard'
 import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
-import { SERVICES_LIST } from '@/lib/services-data'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
-import { buildGoogleMapsDirectionsUrl, buildVendorStoreWhatsAppUrl } from '@/lib/whatsapp'
+import { buildGoogleMapsDirectionsUrl, buildVendorStoreWhatsAppUrl, formatNaira } from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'
 
@@ -60,15 +59,9 @@ export default async function VendorStorefrontPage({
   const roleLabel = getSellerTypeLabel(vendor)
   const initials = getVendorInitials(vendor.shop_name)
 
-  // Find any services offered by this vendor
-  const vendorServices = SERVICES_LIST.filter((s) =>
-    s.providers.some(
-      (p) =>
-        p.vendorSlug === vendor.slug ||
-        p.vendorSlug === vendor.id ||
-        p.name.toLowerCase().includes(vendor.shop_name.toLowerCase())
-    )
-  )
+  // Separate service listings from physical/food/room listings
+  const serviceListings = products.filter((p) => p.listing_type === 'service')
+  const regularListings = products.filter((p) => p.listing_type !== 'service')
 
   const hasLocation = Boolean(
     vendor.location_label &&
@@ -78,7 +71,7 @@ export default async function VendorStorefrontPage({
 
   return (
     <div className="min-w-0 max-w-full pb-24">
-      {/* 1. Deep Teal Top Header (.pb) matching Prototype exactly */}
+      {/* 1. Deep Teal Top Header (.pb) matching Prototype */}
       <section className="pb">
         <div className="container mx-auto max-w-lg flex items-center justify-between">
           <Link href="/marketplace?tab=stores" className="bk" aria-label="Back to stores">
@@ -87,7 +80,7 @@ export default async function VendorStorefrontPage({
           </Link>
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out ${vendor.shop_name} on Jetty (${campusLabel}) — https://jetty.ng/vendors/${vendor.slug || vendor.id}`
+              `Check out ${vendor.shop_name} on Jetty (${campusLabel}) — https://jetty.francisnaga.site/vendors/${vendor.slug || vendor.id}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -153,7 +146,7 @@ export default async function VendorStorefrontPage({
           </a>
         ) : null}
 
-        {/* Location Section: ONLY SHOWN IF VENDOR ADDED ONE (User Rule) */}
+        {/* Location Section: ONLY SHOWN IF VENDOR ADDED ONE */}
         {hasLocation && (
           <div className="mt-4 p-3.5 rounded-[14px] bg-card border border-border/80 text-xs flex items-start gap-2.5 text-muted-foreground shadow-2xs">
             <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
@@ -183,19 +176,19 @@ export default async function VendorStorefrontPage({
         )}
 
         {/* Services Offered by Vendor (if any) */}
-        {vendorServices.length > 0 && (
+        {serviceListings.length > 0 && (
           <div className="mt-4">
             <h3 className="h3-proto">Services</h3>
             <div className="border-t border-[#DCE8E8] dark:border-border divide-y divide-[#DCE8E8] dark:divide-border">
-              {vendorServices.map((s) => (
+              {serviceListings.map((s) => (
                 <Link
                   key={s.id}
-                  href={`/services/${s.slug}`}
+                  href={`/products/${s.slug || s.id}`}
                   className="flex items-center justify-between py-3 min-h-[52px] hover:opacity-90 transition-opacity group"
                 >
                   <b className="text-[15px] font-semibold text-foreground">{s.title}</b>
                   <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>{s.startingPrice}</span>
+                    <span>From {formatNaira(s.price)}</span>
                     <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                   </div>
                 </Link>
@@ -205,14 +198,23 @@ export default async function VendorStorefrontPage({
         )}
 
         {/* Active Storefront Product Listings (.grid) */}
-        {products.length > 0 && (
+        {regularListings.length > 0 && (
           <div className="mt-4">
             <h3 className="h3-proto">Listings</h3>
             <div className="grid grid-cols-2 gap-3">
-              {products.map((item) => (
+              {regularListings.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))}
             </div>
+          </div>
+        )}
+
+        {products.length === 0 && !isBanned && (
+          <div className="mt-6 rounded-2xl border border-dashed border-border bg-card p-6 text-center space-y-1">
+            <p className="text-sm font-semibold text-foreground">No active listings right now</p>
+            <p className="text-xs text-muted-foreground">
+              Message {vendor.shop_name} directly on WhatsApp to ask about current availability.
+            </p>
           </div>
         )}
 

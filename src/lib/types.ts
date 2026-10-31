@@ -9,7 +9,7 @@ export type LocationVisibility = 'exact' | 'approximate' | 'hidden'
 
 export type ProductCondition = 'new' | 'like_new' | 'good' | 'fair'
 export type StockStatus = 'available' | 'low_stock' | 'out_of_stock'
-export type ListingType = 'product' | 'food' | 'service'
+export type ListingType = 'product' | 'food' | 'service' | 'housing'
 export type ProductApprovalStatus =
   | 'pending_review'
   | 'approved'
@@ -101,6 +101,17 @@ export interface ProductVariants {
   sizes?: string[]
   colors?: string[]
   custom_label?: string
+  service_slug?: string
+  room_type?: 'self_contain' | 'single_room' | 'bedspace'
+  room_type_label?: string
+  period?: string
+  distance_hint?: string
+  location_label?: string
+  bedspaces?: string
+  rent_covers?: string
+  utilities?: string
+  other_fees?: string
+  features?: string[]
 }
 
 export interface Product {

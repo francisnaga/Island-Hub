@@ -12,6 +12,7 @@ import {
   Package,
   Utensils,
   Wrench,
+  Building2,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -22,13 +23,16 @@ import {
   StockStatus,
   Vendor,
 } from '@/lib/types'
+import { SERVICES_LIST } from '@/lib/services-data'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { isImageFile, compressImageFile } from '@/lib/image-compression'
 
 interface ProductFormProps {
   vendor: Vendor
   categories: Category[]
   existingProduct?: Product | null
+  initialType?: ListingType
 }
 
 function slugifyProductTitle(title: string): string {
@@ -43,17 +47,16 @@ function slugifyProductTitle(title: string): string {
   )
 }
 
-import { isImageFile, compressImageFile } from '@/lib/image-compression'
-
 export function ProductForm({
   vendor,
   categories,
   existingProduct,
+  initialType,
 }: ProductFormProps) {
   const router = useRouter()
 
   const [listingType, setListingType] = useState<ListingType>(
-    existingProduct?.listing_type || 'product'
+    existingProduct?.listing_type || initialType || 'product'
   )
   const [title, setTitle] = useState(existingProduct?.title || '')
   const [categoryId, setCategoryId] = useState(
@@ -88,12 +91,42 @@ export function ProductForm({
   )
 
   // Service-specific fields
+  const [serviceSlug, setServiceSlug] = useState(
+    existingProduct?.variants?.service_slug || 'haircuts'
+  )
   const [serviceTurnaround, setServiceTurnaround] = useState(
     existingProduct?.service_turnaround || '24–48 hours'
   )
   const [serviceArea, setServiceArea] = useState(
     existingProduct?.service_area ||
       `${existingProduct?.campus || (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')} Campus & Hostels`
+  )
+
+  // Housing / Student Room specific fields
+  const [roomTypeLabel, setRoomTypeLabel] = useState(
+    existingProduct?.variants?.room_type_label || 'Self-contain'
+  )
+  const [rentPeriod, setRentPeriod] = useState(
+    existingProduct?.variants?.period || 'session'
+  )
+  const [distanceHint, setDistanceHint] = useState(
+    existingProduct?.variants?.distance_hint || '5 min walk to gate'
+  )
+  const [roomLocationLabel, setRoomLocationLabel] = useState(
+    existingProduct?.variants?.location_label || vendor?.location_label || 'Near the main gate'
+  )
+  const [bedspaces, setBedspaces] = useState(
+    existingProduct?.variants?.bedspaces || '1 to 2'
+  )
+  const [utilities, setUtilities] = useState(
+    existingProduct?.variants?.utilities || 'Water included'
+  )
+  const [otherFees, setOtherFees] = useState(
+    existingProduct?.variants?.other_fees || 'None'
+  )
+  const [roomFeaturesInput, setRoomFeaturesInput] = useState(
+    existingProduct?.variants?.features?.join(', ') ||
+      'Water, Power backup, Fenced compound, Tiled floor'
   )
 
   const [images, setImages] = useState<string[]>(
@@ -193,7 +226,7 @@ export function ProductForm({
     ]
     if (bannedStockDomains.some((domain) => lowerUrl.includes(domain))) {
       toast.error(
-        'Generic stock photos are not allowed. Please upload an actual photo of the item you are selling.'
+        'Generic stock photos are not allowed. Please upload an actual photo of the item or room.'
       )
       return
     }
@@ -263,20 +296,20 @@ export function ProductForm({
       .split(',')
       .map((c) => c.trim())
       .filter(Boolean)
+    const roomFeatures = roomFeaturesInput
+      .split(',')
+      .map((f) => f.trim())
+      .filter(Boolean)
 
-    const isRoutineOnly =
-      existingProduct &&
-      existingProduct.status === 'approved' &&
-      existingProduct.title === title.trim() &&
-      existingProduct.category_id === categoryId &&
-      existingProduct.campus === campus &&
-      JSON.stringify(existingProduct.images) === JSON.stringify(images)
+    // Strict Admin Approval Policy: Every new submission and any content change goes to 'pending_review'
+    const nextStatus = 'pending_review'
 
-    const nextStatus = existingProduct
-      ? isRoutineOnly
-        ? existingProduct.status
-        : 'pending_review'
-      : 'pending_review'
+    const mappedRoomType: 'self_contain' | 'single_room' | 'bedspace' =
+      roomTypeLabel === 'Bedspace'
+        ? 'bedspace'
+        : roomTypeLabel === 'Shared room'
+        ? 'single_room'
+        : 'self_contain'
 
     setSubmitting(true)
     try {
@@ -298,12 +331,28 @@ export function ProductForm({
           ...(sizes.length > 0 ? { sizes } : {}),
           ...(colors.length > 0 ? { colors } : {}),
           ...(customVariantLabel.trim() ? { custom_label: customVariantLabel.trim() } : {}),
+          ...(listingType === 'service' ? { service_slug: serviceSlug } : {}),
+          ...(listingType === 'housing'
+            ? {
+                room_type: mappedRoomType,
+                room_type_label: roomTypeLabel,
+                period: rentPeriod,
+                distance_hint: distanceHint.trim() || 'Walking distance to campus',
+                location_label: roomLocationLabel.trim() || `Near ${campus} gate`,
+                bedspaces: bedspaces.trim() || '1 to 2',
+                rent_covers: `One ${rentPeriod}`,
+                utilities: utilities.trim() || 'Water included',
+                other_fees: otherFees.trim() || 'None',
+                features: roomFeatures,
+              }
+            : {}),
         },
         food_lead_time: listingType === 'food' ? foodLeadTime.trim() || null : null,
         food_allergen_info: listingType === 'food' ? foodAllergenInfo.trim() || null : null,
         service_turnaround: listingType === 'service' ? serviceTurnaround.trim() || null : null,
         service_area: listingType === 'service' ? serviceArea.trim() || null : null,
         status: nextStatus,
+        is_demo: false,
         last_confirmed_at: new Date().toISOString(),
       }
 
@@ -330,13 +379,9 @@ export function ProductForm({
         return
       }
 
-      if (existingProduct && isRoutineOnly) {
-        toast.success('Price, stock & variants saved immediately!')
-      } else {
-        toast.success(
-          'Listing submitted to the Admin Review Queue! It will appear publicly once approved.'
-        )
-      }
+      toast.success(
+        'Submitted to the Admin Review Queue! Your listing will go live once approved by Admin.'
+      )
 
       router.push('/vendor/dashboard')
       router.refresh()
@@ -359,34 +404,40 @@ export function ProductForm({
       </div>
 
       <div className="space-y-1">
-        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground">
+        <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
           {existingProduct ? 'Edit Listing' : 'Add a New Listing'}
         </h1>
         <p className="text-sm text-muted-foreground">
-          List a physical product, made-to-order food/drink, or campus service under your storefront.
+          List a physical item, meal, campus service, or student room/lodge under your storefront.
         </p>
       </div>
 
-      {/* Listing Type Selector */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      {/* Listing Type Selector (4 Types: Product, Food, Service, Student Room) */}
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {[
           {
             id: 'product' as ListingType,
-            title: 'Physical Product',
+            title: 'Physical Item',
             desc: 'Cadet gear, boots, electronics, books, hostel items',
             icon: Package,
           },
           {
-            id: 'food' as ListingType,
-            title: 'Food & Drinks',
-            desc: 'Fruit salads, snacks, pastries, or made-to-order meals',
-            icon: Utensils,
+            id: 'housing' as ListingType,
+            title: 'Student Room / Lodge',
+            desc: 'Self-contain, shared room, private room, bedspace',
+            icon: Building2,
           },
           {
             id: 'service' as ListingType,
             title: 'Campus Service',
-            desc: 'Tailoring, laundry, barbing, printing, repair',
+            desc: 'Haircuts, laundry, tailoring, repairs, tutoring',
             icon: Wrench,
+          },
+          {
+            id: 'food' as ListingType,
+            title: 'Meals & Drinks',
+            desc: 'Cooked meals, fruit bowls, snacks & pastries',
+            icon: Utensils,
           },
         ].map((opt) => {
           const Icon = opt.icon
@@ -397,27 +448,27 @@ export function ProductForm({
               type="button"
               onClick={() => setListingType(opt.id)}
               className={cn(
-                'flex flex-col items-start text-left rounded-xl border p-4 transition-all cursor-pointer',
+                'flex flex-col items-start text-left rounded-xl border p-3.5 sm:p-4 transition-all cursor-pointer',
                 active
                   ? 'border-[#0F6E6E] bg-[#E6F2F2]/60 dark:bg-[#132A2A] ring-1 ring-[#0F6E6E]'
                   : 'border-border bg-card hover:border-[#0F6E6E]/40'
               )}
             >
-              <div className="flex items-center gap-2 font-bold text-sm text-foreground">
-                <Icon className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
+              <div className="flex items-center gap-2 font-bold text-xs sm:text-sm text-foreground">
+                <Icon className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
                 <span>{opt.title}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-1">{opt.desc}</p>
+              <p className="text-[11px] text-muted-foreground mt-1 leading-snug">{opt.desc}</p>
             </button>
           )
         })}
       </div>
 
-      {/* Moderation Rules Notice */}
+      {/* Strict Moderation Rules Notice */}
       <div className="rounded-xl border border-[#0F6E6E]/25 bg-[#E6F2F2]/60 dark:bg-[#132A2A]/60 p-4 flex items-start gap-2.5 text-xs text-foreground">
         <Info className="h-4 w-4 text-[#0F6E6E] shrink-0 mt-0.5" />
         <div>
-          <strong>Approval Policy:</strong> Every listing requires a real photo/visual and administrator approval before appearing publicly. Routine updates to <strong>price, stock status, or sizes</strong> on an already-approved listing save immediately.
+          <strong>Admin Approval Required:</strong> Every submission (items, rooms, services, and meals) is reviewed by the Jetty Super Admin before going live publicly. Make sure to upload a clear, authentic photo.
         </div>
       </div>
 
@@ -427,7 +478,7 @@ export function ProductForm({
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="sm:col-span-2">
               <label className="block text-xs font-semibold text-foreground mb-1">
-                Listing Title *
+                {listingType === 'housing' ? 'Room / Lodge Headline *' : 'Listing Title *'}
               </label>
               <input
                 type="text"
@@ -435,8 +486,10 @@ export function ProductForm({
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 placeholder={
-                  listingType === 'food'
-                    ? 'e.g. Fresh Tropical Fruit Salad Bowl — 750ml (Made to Order)'
+                  listingType === 'housing'
+                    ? 'e.g. Self-contain, 5 min walk from the gate'
+                    : listingType === 'food'
+                    ? 'e.g. Fresh Tropical Fruit Salad Bowl — 750ml'
                     : listingType === 'service'
                     ? 'e.g. Cadet Uniform Tailoring & Nameplate Stitching'
                     : 'e.g. Heavy-Duty Cadet Steel-Toe Safety Boots (Black)'
@@ -445,38 +498,73 @@ export function ProductForm({
               />
             </div>
 
-            <div>
-              <div className="flex items-center justify-between mb-1">
-                <label className="block text-xs font-semibold text-foreground">
-                  Category *
+            {listingType === 'service' ? (
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Service Category *
                 </label>
-                <button
-                  type="button"
-                  onClick={() => setReqCategoryModalOpen(true)}
-                  className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                <select
+                  value={serviceSlug}
+                  onChange={(e) => setServiceSlug(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
                 >
-                  + Request New
-                </button>
+                  {SERVICES_LIST.map((s) => (
+                    <option key={s.slug} value={s.slug}>
+                      {s.title}
+                    </option>
+                  ))}
+                </select>
               </div>
-              <select
-                value={categoryId}
-                onChange={(e) => setCategoryId(e.target.value)}
-                className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              >
-                {categories.map((cat) => (
-                  <option key={cat.id} value={cat.id}>
-                    {cat.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+            ) : listingType === 'housing' ? (
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Room Type *
+                </label>
+                <select
+                  value={roomTypeLabel}
+                  onChange={(e) => setRoomTypeLabel(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                >
+                  <option value="Self-contain">Self-contain</option>
+                  <option value="Shared room">Shared room</option>
+                  <option value="Private room">Private room</option>
+                  <option value="Bedspace">Bedspace</option>
+                </select>
+              </div>
+            ) : (
+              <div>
+                <div className="flex items-center justify-between mb-1">
+                  <label className="block text-xs font-semibold text-foreground">
+                    Category *
+                  </label>
+                  <button
+                    type="button"
+                    onClick={() => setReqCategoryModalOpen(true)}
+                    className="text-[11px] font-semibold text-primary hover:underline cursor-pointer"
+                  >
+                    + Request New
+                  </button>
+                </div>
+                <select
+                  value={categoryId}
+                  onChange={(e) => setCategoryId(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                >
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            )}
           </div>
 
           {/* Mandatory Single Campus Location */}
           <div className="rounded-xl border border-border bg-muted/30 p-3.5 sm:p-4 space-y-2">
             <div className="flex items-center justify-between gap-2">
               <label className="block text-xs font-bold text-foreground">
-                Item / Service Location (Campus) *
+                Campus Location *
               </label>
               <span className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider">
                 Single Campus Only
@@ -516,15 +604,16 @@ export function ProductForm({
                 )
               })}
             </div>
-            <p className="text-[11px] text-muted-foreground leading-relaxed">
-              Every physical product, meal, or service is located at one specific campus for in-person inspection and pickup.
-            </p>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-4 gap-4">
             <div>
               <label className="block text-xs font-semibold text-foreground mb-1">
-                {listingType === 'service' ? 'Starting Price (₦) *' : 'Price (₦ Naira) *'}
+                {listingType === 'housing'
+                  ? 'Rent Amount (₦) *'
+                  : listingType === 'service'
+                  ? 'Starting Price (₦) *'
+                  : 'Price (₦ Naira) *'}
               </label>
               <input
                 type="number"
@@ -533,28 +622,46 @@ export function ProductForm({
                 required
                 value={price}
                 onChange={(e) => setPrice(e.target.value)}
-                placeholder="e.g. 2500"
+                placeholder={listingType === 'housing' ? 'e.g. 180000' : 'e.g. 14500'}
                 className="w-full h-11 rounded-xl border border-input bg-background px-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Condition / Type *
-              </label>
-              <select
-                value={condition}
-                onChange={(e) =>
-                  setCondition(e.target.value as ProductCondition)
-                }
-                className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-              >
-                <option value="new">Brand New / Fresh</option>
-                <option value="like_new">Like New</option>
-                <option value="good">Good (Pre-owned)</option>
-                <option value="fair">Fair</option>
-              </select>
-            </div>
+            {listingType === 'housing' ? (
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Rent Period *
+                </label>
+                <select
+                  value={rentPeriod}
+                  onChange={(e) => setRentPeriod(e.target.value)}
+                  className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                >
+                  <option value="session">Per Session</option>
+                  <option value="year">Per Year</option>
+                  <option value="semester">Per Semester</option>
+                  <option value="month">Per Month</option>
+                </select>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Condition / Type *
+                </label>
+                <select
+                  value={condition}
+                  onChange={(e) =>
+                    setCondition(e.target.value as ProductCondition)
+                  }
+                  className="w-full h-11 rounded-xl border border-input bg-background px-3 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                >
+                  <option value="new">Brand New / Fresh</option>
+                  <option value="like_new">Like New</option>
+                  <option value="good">Good (Pre-owned)</option>
+                  <option value="fair">Fair</option>
+                </select>
+              </div>
+            )}
 
             <div>
               <label className="block text-xs font-semibold text-foreground mb-1">
@@ -573,7 +680,11 @@ export function ProductForm({
 
             <div>
               <label className="block text-xs font-semibold text-foreground mb-1">
-                {listingType === 'food' ? 'Daily Portions' : 'Approx. Quantity'}
+                {listingType === 'housing'
+                  ? 'Available Units'
+                  : listingType === 'food'
+                  ? 'Daily Portions'
+                  : 'Approx. Quantity'}
               </label>
               <input
                 type="number"
@@ -584,6 +695,91 @@ export function ProductForm({
               />
             </div>
           </div>
+
+          {/* Student Room / Lodge Specific Fields */}
+          {listingType === 'housing' && (
+            <div className="space-y-4 pt-3 border-t border-border">
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Walking Distance to Campus *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={distanceHint}
+                    onChange={(e) => setDistanceHint(e.target.value)}
+                    placeholder="e.g. 5 min to gate"
+                    className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Street / Landmark *
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={roomLocationLabel}
+                    onChange={(e) => setRoomLocationLabel(e.target.value)}
+                    placeholder="e.g. Near the main gate, Kurutie"
+                    className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Bedspaces / Occupancy
+                  </label>
+                  <input
+                    type="text"
+                    value={bedspaces}
+                    onChange={(e) => setBedspaces(e.target.value)}
+                    placeholder="e.g. 1 to 2 or 2 per room"
+                    className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Utilities Included
+                  </label>
+                  <input
+                    type="text"
+                    value={utilities}
+                    onChange={(e) => setUtilities(e.target.value)}
+                    placeholder="e.g. Water included, Prepaid meter"
+                    className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    Other Fees
+                  </label>
+                  <input
+                    type="text"
+                    value={otherFees}
+                    onChange={(e) => setOtherFees(e.target.value)}
+                    placeholder="e.g. None or Agreement fee"
+                    className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-semibold text-foreground mb-1">
+                    What is there (comma-separated)
+                  </label>
+                  <input
+                    type="text"
+                    value={roomFeaturesInput}
+                    onChange={(e) => setRoomFeaturesInput(e.target.value)}
+                    placeholder="Water, Power backup, Fenced compound, Tiled floor"
+                    className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Food & Drinks Specific Fields */}
           {listingType === 'food' && (
@@ -650,68 +846,76 @@ export function ProductForm({
 
           <div>
             <label className="block text-xs font-semibold text-foreground mb-1">
-              Full Description &amp; What&apos;s Included *
+              {listingType === 'housing'
+                ? 'About this room *'
+                : "Full Description & What's Included *"}
             </label>
             <textarea
               rows={4}
               required
               value={description}
               onChange={(e) => setDescription(e.target.value)}
-              placeholder="Describe the item, portion size, included accessories, or service details clearly..."
+              placeholder={
+                listingType === 'housing'
+                  ? 'Describe the room, bathroom/kitchenette setup, water supply, and compound security...'
+                  : 'Describe the item, portion size, included accessories, or service details clearly...'
+              }
               className="w-full rounded-xl border border-input bg-background p-3.5 text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
         </div>
 
-        {/* Variants (Sizes, Colours, Portion / Pack Label) */}
-        <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4">
-          <div>
-            <h2 className="text-base font-bold text-foreground">
-              Sizes, Colours or Portion / Pack Info (Optional)
-            </h2>
+        {/* Variants (Sizes, Colours, Portion / Pack Label) — Hidden for Housing */}
+        {listingType !== 'housing' && (
+          <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4">
+            <div>
+              <h2 className="text-base font-bold text-foreground">
+                Sizes, Colours or Portion / Pack Info (Optional)
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Sizes (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={sizesInput}
+                  onChange={(e) => setSizesInput(e.target.value)}
+                  placeholder="e.g. 40, 41, 42, 43 OR S, M, L"
+                  className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Colours / Flavours (comma-separated)
+                </label>
+                <input
+                  type="text"
+                  value={colorsInput}
+                  onChange={(e) => setColorsInput(e.target.value)}
+                  placeholder="e.g. Black, Dark Navy"
+                  className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-semibold text-foreground mb-1">
+                  Pack / Portion / Quote Note
+                </label>
+                <input
+                  type="text"
+                  value={customVariantLabel}
+                  onChange={(e) => setCustomVariantLabel(e.target.value)}
+                  placeholder="e.g. 750ml Bowl · Made to Order"
+                  className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
+                />
+              </div>
+            </div>
           </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Sizes (comma-separated)
-              </label>
-              <input
-                type="text"
-                value={sizesInput}
-                onChange={(e) => setSizesInput(e.target.value)}
-                placeholder="e.g. 40, 41, 42, 43 OR S, M, L"
-                className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Colours / Flavours (comma-separated)
-              </label>
-              <input
-                type="text"
-                value={colorsInput}
-                onChange={(e) => setColorsInput(e.target.value)}
-                placeholder="e.g. Black, Dark Navy"
-                className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Pack / Portion / Quote Note
-              </label>
-              <input
-                type="text"
-                value={customVariantLabel}
-                onChange={(e) => setCustomVariantLabel(e.target.value)}
-                placeholder="e.g. 750ml Bowl · Made to Order"
-                className="w-full h-10 rounded-xl border border-input bg-background px-3.5 text-xs text-foreground"
-              />
-            </div>
-          </div>
-        </div>
+        )}
 
         {/* Photos / Visuals */}
         <div className="rounded-2xl border border-border bg-card p-5 sm:p-6 space-y-4">
@@ -806,10 +1010,10 @@ export function ProductForm({
             className="rounded-xl bg-[#0F6E6E] px-6 py-3 text-sm font-bold text-white hover:bg-[#0A4F4F] transition-colors cursor-pointer disabled:opacity-50"
           >
             {submitting
-              ? 'Submitting...'
+              ? 'Submitting for Review...'
               : existingProduct
-              ? 'Save Changes'
-              : 'Submit Listing for Approval'}
+              ? 'Submit Changes for Admin Approval'
+              : 'Submit Listing for Admin Approval'}
           </button>
         </div>
       </form>

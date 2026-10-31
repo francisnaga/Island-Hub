@@ -11,7 +11,7 @@ import {
   Building2,
   MessageCircle,
 } from 'lucide-react'
-import { LODGE_LISTINGS } from '@/lib/lodge-data'
+import { getPublicLodgeById } from '@/lib/queries'
 import { formatNaira } from '@/lib/whatsapp'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
@@ -24,7 +24,7 @@ export async function generateMetadata({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const lodge = LODGE_LISTINGS.find((l) => l.id === id)
+  const { lodge } = await getPublicLodgeById(id)
   if (!lodge) return { title: 'Room Not Found | Jetty' }
 
   return {
@@ -39,7 +39,7 @@ export default async function HousingDetailPage({
   params: Promise<{ id: string }>
 }) {
   const { id } = await params
-  const lodge = LODGE_LISTINGS.find((l) => l.id === id)
+  const { lodge, otherLodges } = await getPublicLodgeById(id)
 
   if (!lodge) {
     notFound()
@@ -49,8 +49,6 @@ export default async function HousingDetailPage({
     `Hi ${lodge.contact_name}! 👋 I saw your room listing "${lodge.title}" (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}) on Jetty. I would like to schedule an in-person viewing.`
   )
   const waUrl = `https://wa.me/${lodge.whatsapp_number}?text=${waText}`
-
-  const otherLodges = LODGE_LISTINGS.filter((l) => l.id !== lodge.id)
 
   const initials = lodge.contact_name
     .split(' ')
@@ -66,7 +64,7 @@ export default async function HousingDetailPage({
   return (
     <div className="min-w-0 max-w-full pb-28">
       <div className="container mx-auto max-w-lg px-0">
-        {/* 1. Image Gallery matching Uploaded Images 1 & 5 */}
+        {/* 1. Image Gallery */}
         <div className="dimg relative aspect-square w-full bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center">
           {lodge.image ? (
             <img
@@ -86,7 +84,7 @@ export default async function HousingDetailPage({
           {/* Floating Circular Share Button (.ov.r) */}
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `Check out this student room on Jetty: ${lodge.title} (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}):\nhttps://jetty.ng/housing/${lodge.id}`
+              `Check out this student room on Jetty: ${lodge.title} (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}):\nhttps://jetty.francisnaga.site/housing/${lodge.id}`
             )}`}
             target="_blank"
             rel="noopener noreferrer"
@@ -96,7 +94,7 @@ export default async function HousingDetailPage({
             <Share2 className="w-4.5 h-4.5 stroke-[2]" />
           </a>
 
-          {/* Carousel Dots matching Image 5 */}
+          {/* Carousel Dots */}
           <div className="dots absolute bottom-3 inset-x-0 flex items-center justify-center gap-1.5 pointer-events-none">
             <span className="dot on" />
             <span className="dot" />
@@ -104,7 +102,7 @@ export default async function HousingDetailPage({
           </div>
         </div>
 
-        {/* 2. Detail Body matching Uploaded Images 3 & 4 */}
+        {/* 2. Detail Body */}
         <div className="db px-4 pt-4 space-y-4">
           {/* Price & Period (.dp) */}
           <div className="dp flex items-baseline gap-1 text-[28px] sm:text-[32px] font-bold text-foreground tracking-tight font-[family-name:var(--font-bricolage)]">
@@ -119,7 +117,7 @@ export default async function HousingDetailPage({
             {lodge.title}
           </h1>
 
-          {/* Metadata Row matching Image 4 */}
+          {/* Metadata Row */}
           <div className="dmeta flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
             <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold">
               <Check className="w-3.5 h-3.5 stroke-[2.5]" />
@@ -131,14 +129,14 @@ export default async function HousingDetailPage({
             </span>
             <span className="inline-flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 stroke-[2]" />
-              Posted {lodge.posted_time || '1 day ago'}
+              Posted {lodge.posted_time || 'Recently'}
             </span>
           </div>
 
           {/* Light Divider */}
           <div className="dv" />
 
-          {/* Facts 2-Column Grid matching Image 4 */}
+          {/* Facts 2-Column Grid */}
           <dl className="facts">
             <div>
               <dt>Type</dt>
@@ -162,11 +160,11 @@ export default async function HousingDetailPage({
             </div>
             <div>
               <dt>Other fees</dt>
-              <dd>{lodge.other_fees || 'Agent fee applies'}</dd>
+              <dd>{lodge.other_fees || 'None'}</dd>
             </div>
           </dl>
 
-          {/* What is there matching Image 4 */}
+          {/* What is there */}
           {lodge.features && lodge.features.length > 0 && (
             <>
               <div className="dv" />
@@ -186,12 +184,12 @@ export default async function HousingDetailPage({
             </>
           )}
 
-          {/* Caretaker Row matching Image 3 */}
+          {/* Caretaker Row */}
           <div className="dv" />
-          <a
-            href={waUrl}
-            target="_blank"
-            rel="noopener noreferrer"
+          <Link
+            href={lodge.vendor_slug ? `/vendors/${lodge.vendor_slug}` : waUrl}
+            target={lodge.vendor_slug ? undefined : '_blank'}
+            rel={lodge.vendor_slug ? undefined : 'noopener noreferrer'}
             className="flex items-center gap-3 py-2 group cursor-pointer"
             aria-label={`Contact ${lodge.contact_name}`}
           >
@@ -204,41 +202,44 @@ export default async function HousingDetailPage({
                 <Check className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#22D3EE] stroke-[2.5]" />
               </div>
               <p className="text-xs text-muted-foreground">
-                {lodge.agent_listings_count || 3} listings
+                {lodge.agent_listings_count || 1}{' '}
+                {lodge.agent_listings_count === 1 ? 'listing' : 'listings'}
               </p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-          </a>
+          </Link>
 
-          {/* About this room matching Image 3 */}
+          {/* About this room */}
           <div className="dv" />
           <div className="space-y-1.5">
             <h3 className="hh text-[17px] font-bold text-foreground">About this room</h3>
             <p className="text-sm text-muted-foreground leading-relaxed">
               {lodge.description ||
-                `Clean self-contain with its own bathroom and kitchenette. Quiet street, close to lecture halls.`}
+                `Clean student room near ${lodge.campus} campus. Contact on WhatsApp to arrange an in-person viewing.`}
             </p>
           </div>
 
-          {/* Location Landmark + Open in Google Maps matching Image 3 */}
-          <div className="dv" />
-          <div className="space-y-2.5">
-            <h3 className="hh text-[17px] font-bold text-foreground">Location</h3>
-            <p className="text-sm text-foreground font-medium">
-              {lodge.location_label || 'Near the main gate'}
-            </p>
-            <a
-              href={googleMapsUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#0F6E6E]/40 text-[#0F6E6E] dark:text-[#22D3EE] font-semibold text-sm hover:bg-[#E6F2F2]/40 transition-colors"
-            >
-              <MapPin className="w-4 h-4 stroke-[2]" />
-              <span>Open in Google Maps</span>
-            </a>
-          </div>
+          {/* Location Landmark + Open in Google Maps (shown only if vendor added location) */}
+          {lodge.location_label && (
+            <>
+              <div className="dv" />
+              <div className="space-y-2.5">
+                <h3 className="hh text-[17px] font-bold text-foreground">Location</h3>
+                <p className="text-sm text-foreground font-medium">{lodge.location_label}</p>
+                <a
+                  href={googleMapsUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#0F6E6E]/40 text-[#0F6E6E] dark:text-[#22D3EE] font-semibold text-sm hover:bg-[#E6F2F2]/40 transition-colors"
+                >
+                  <MapPin className="w-4 h-4 stroke-[2]" />
+                  <span>Open in Google Maps</span>
+                </a>
+              </div>
+            </>
+          )}
 
-          {/* Safety Box matching Image 3 */}
+          {/* Safety Box */}
           <div className="rounded-2xl border border-[#0F6E6E]/20 bg-[#E6F2F2]/60 dark:bg-[#132A2A]/60 p-4 flex items-start gap-3 text-xs text-foreground shadow-2xs">
             <ShieldCheck className="w-5 h-5 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0 mt-0.5" />
             <span className="leading-relaxed">
@@ -246,12 +247,12 @@ export default async function HousingDetailPage({
             </span>
           </div>
 
-          {/* More from Campus Lodges matching Image 2 */}
+          {/* More from Campus Lodges */}
           {otherLodges.length > 0 && (
             <div className="pt-4 space-y-3">
               <div className="dv" />
               <h3 className="hh text-[17px] font-bold text-foreground">
-                More from Campus Lodges
+                More rooms near campus
               </h3>
               <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
                 {otherLodges.map((other) => (
@@ -261,7 +262,7 @@ export default async function HousingDetailPage({
             </div>
           )}
 
-          {/* Quiet Report Link matching Image 2 */}
+          {/* Quiet Report Link */}
           <div className="pt-4 pb-6 text-center">
             <ReportListingModal
               targetType="product"
@@ -272,7 +273,7 @@ export default async function HousingDetailPage({
         </div>
       </div>
 
-      {/* 3. Sticky Bottom Action Bar matching Image 2 */}
+      {/* 3. Sticky Bottom Action Bar */}
       <div className="bar fixed bottom-0 inset-x-0 z-50 h-[72px] px-4 bg-card/95 backdrop-blur-md border-t border-border flex items-center justify-between gap-4 max-w-lg mx-auto">
         <div className="pp min-w-0">
           <b className="block text-[20px] font-bold text-foreground leading-none font-[family-name:var(--font-bricolage)]">

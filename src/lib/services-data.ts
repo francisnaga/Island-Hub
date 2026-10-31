@@ -7,6 +7,7 @@ import {
   BookOpen,
   type LucideIcon,
 } from 'lucide-react'
+import { Product } from './types'
 
 export interface ServiceProvider {
   id: string
@@ -17,6 +18,7 @@ export interface ServiceProvider {
   whatsapp: string
   verified: boolean
   vendorSlug?: string
+  productSlug?: string
   landmark?: string
   turnaround?: string
   pricingGuide?: string
@@ -38,6 +40,8 @@ export interface ServiceItem {
   providers: ServiceProvider[]
 }
 
+// Production Clean State: Service taxonomy definitions with 0 mock providers.
+// Real providers are dynamically populated from admin-approved service listings in Supabase.
 export const SERVICES_LIST: ServiceItem[] = [
   {
     id: 'haircuts',
@@ -51,41 +55,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     startingPrice: 'From ₦1,000',
     turnaround: 'Walk-in / 15 mins',
     popular: true,
-    providers: [
-      {
-        id: 'barber-hub',
-        name: 'Barber Hub',
-        initials: 'BH',
-        campus: 'Kurutie',
-        priceFrom: '₦1,500',
-        whatsapp: '2349020003344',
-        verified: false,
-        landmark: 'Kurutie Student Lodge Area',
-        vendorSlug: 'kurutie-okerenkoko-essentials',
-      },
-      {
-        id: 'fade-lab',
-        name: 'Fade Lab',
-        initials: 'FL',
-        campus: 'Okerenkoko',
-        priceFrom: '₦2,000',
-        whatsapp: '2348030001122',
-        verified: true,
-        landmark: 'Near NMU Main Gate / Okerenkoko',
-        vendorSlug: 'nmu-cadet-quartermaster',
-      },
-      {
-        id: 'creek-cuts',
-        name: 'Creek Cuts',
-        initials: 'CC',
-        campus: 'Both campuses',
-        priceFrom: '₦1,000',
-        whatsapp: '2348140002233',
-        verified: false,
-        landmark: 'Hostel B / Student Area',
-        vendorSlug: 'okerenkoko-creek-tech',
-      },
-    ],
+    providers: [],
   },
   {
     id: 'laundry',
@@ -99,30 +69,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     startingPrice: 'From ₦1,200',
     turnaround: 'Same-day to 24 hrs',
     popular: true,
-    providers: [
-      {
-        id: 'suds-and-co',
-        name: 'Suds & Co Laundry',
-        initials: 'SC',
-        campus: 'Kurutie',
-        priceFrom: '₦1,500',
-        whatsapp: '2348080005566',
-        verified: true,
-        landmark: 'Near Kurutie Campus Gate & Hostel Road',
-        vendorSlug: 'kurutie-okerenkoko-essentials',
-      },
-      {
-        id: 'freshfold-laundry',
-        name: 'FreshFold',
-        initials: 'FF',
-        campus: 'Okerenkoko',
-        priceFrom: '₦1,200',
-        whatsapp: '2348140002233',
-        verified: true,
-        landmark: 'Hostel Block B Pickup Annex, Okerenkoko',
-        vendorSlug: 'okerenkoko-creek-tech',
-      },
-    ],
+    providers: [],
   },
   {
     id: 'tailoring',
@@ -136,30 +83,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     startingPrice: 'From ₦2,500',
     turnaround: '24–48 hours',
     popular: true,
-    providers: [
-      {
-        id: 'stitch-point',
-        name: 'Stitch Point',
-        initials: 'SP',
-        campus: 'Kurutie',
-        priceFrom: '₦2,500',
-        whatsapp: '2349020003344',
-        verified: true,
-        landmark: 'Near Kurutie Campus Junction',
-        vendorSlug: 'kurutie-okerenkoko-essentials',
-      },
-      {
-        id: 'amaka-tailoring',
-        name: 'Amaka Cadet Tailoring',
-        initials: 'AF',
-        campus: 'Okerenkoko',
-        priceFrom: '₦3,000',
-        whatsapp: '2348060004455',
-        verified: true,
-        landmark: 'Block C Walkway / Hostels Area',
-        vendorSlug: 'amaka-fresh-bowls-tailoring',
-      },
-    ],
+    providers: [],
   },
   {
     id: 'meals',
@@ -173,30 +97,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     startingPrice: 'From ₦1,800',
     turnaround: '20 mins – 1 hr',
     popular: true,
-    providers: [
-      {
-        id: 'mama-put-kitchen',
-        name: 'Mama Put Kitchen',
-        initials: 'MP',
-        campus: 'Both campuses',
-        priceFrom: '₦1,800',
-        whatsapp: '2348080005566',
-        verified: true,
-        landmark: 'Hostel Central Kitchen Pickup',
-        vendorSlug: 'okerenkoko-creek-tech',
-      },
-      {
-        id: 'amaka-fresh-bowls',
-        name: 'Amaka Fresh Bowls',
-        initials: 'AF',
-        campus: 'Okerenkoko',
-        priceFrom: '₦2,500',
-        whatsapp: '2348060004455',
-        verified: true,
-        landmark: 'Block C Walkway / Hostels',
-        vendorSlug: 'amaka-fresh-bowls-tailoring',
-      },
-    ],
+    providers: [],
   },
   {
     id: 'repairs',
@@ -209,19 +110,7 @@ export const SERVICES_LIST: ServiceItem[] = [
       'Power bank cell diagnosis, smartphone charging port replacements, scientific calculator screen fixes, and laptop charger repairs on campus.',
     startingPrice: 'From ₦2,000',
     turnaround: 'Same-day – 24 hrs',
-    providers: [
-      {
-        id: 'creek-tech-repair',
-        name: 'Okerenkoko Creek Tech',
-        initials: 'OC',
-        campus: 'Both campuses',
-        priceFrom: '₦2,000',
-        whatsapp: '2348140002233',
-        verified: true,
-        landmark: 'Hostel B Junction, NMU Okerenkoko',
-        vendorSlug: 'okerenkoko-creek-tech',
-      },
-    ],
+    providers: [],
   },
   {
     id: 'tutoring',
@@ -234,19 +123,7 @@ export const SERVICES_LIST: ServiceItem[] = [
       'Peer tutoring for first and second year engineering and maritime courses. Past questions, calculus, navigation, and technical drawing practice.',
     startingPrice: 'From ₦3,000',
     turnaround: 'Evenings & weekends',
-    providers: [
-      {
-        id: 'tutor-tide',
-        name: 'Tutor Tide',
-        initials: 'TT',
-        campus: 'Both campuses',
-        priceFrom: '₦3,000',
-        whatsapp: '2348030001122',
-        verified: false,
-        landmark: 'Engineering Block Study Rooms',
-        vendorSlug: 'nmu-cadet-quartermaster',
-      },
-    ],
+    providers: [],
   },
 ]
 
@@ -254,21 +131,50 @@ export function getAllServices(): ServiceItem[] {
   return SERVICES_LIST
 }
 
-export function getServiceBySlug(slug: string): ServiceItem | undefined {
+export function normalizeServiceSlug(slug: string): string {
   const normalized = slug.toLowerCase().trim()
-
-  // Handle aliases
   if (normalized === 'barbing' || normalized === 'haircut' || normalized === 'barber') {
-    return SERVICES_LIST.find((s) => s.slug === 'haircuts')
+    return 'haircuts'
   }
   if (normalized === 'cooking' || normalized === 'food' || normalized === 'catering') {
-    return SERVICES_LIST.find((s) => s.slug === 'meals')
+    return 'meals'
   }
-  if (normalized === 'tech-repairs' || normalized === 'repair' || normalized === 'electronics-repairs') {
-    return SERVICES_LIST.find((s) => s.slug === 'repairs')
+  if (
+    normalized === 'tech-repairs' ||
+    normalized === 'repair' ||
+    normalized === 'electronics-repairs'
+  ) {
+    return 'repairs'
   }
+  return normalized
+}
 
+export function inferServiceSlugFromProduct(p: Product): string {
+  if (p.variants?.service_slug) {
+    return normalizeServiceSlug(p.variants.service_slug)
+  }
+  const text = `${p.title} ${p.description} ${p.category?.slug || ''}`.toLowerCase()
+  if (text.includes('barber') || text.includes('haircut') || text.includes('fade') || text.includes('groom')) {
+    return 'haircuts'
+  }
+  if (text.includes('laundry') || text.includes('wash') || text.includes('starch') || text.includes('iron')) {
+    return 'laundry'
+  }
+  if (text.includes('tailor') || text.includes('stitch') || text.includes('sew') || text.includes('alteration') || text.includes('nameplate')) {
+    return 'tailoring'
+  }
+  if (p.listing_type === 'food' || text.includes('meal') || text.includes('food') || text.includes('soup') || text.includes('bowl') || text.includes('cook')) {
+    return 'meals'
+  }
+  if (text.includes('tutor') || text.includes('lesson') || text.includes('calculus') || text.includes('study')) {
+    return 'tutoring'
+  }
+  return 'repairs'
+}
+
+export function getServiceBySlug(slug: string): ServiceItem | undefined {
+  const target = normalizeServiceSlug(slug)
   return SERVICES_LIST.find(
-    (s) => s.slug.toLowerCase() === normalized || s.id.toLowerCase() === normalized
+    (s) => s.slug.toLowerCase() === target || s.id.toLowerCase() === target
   )
 }

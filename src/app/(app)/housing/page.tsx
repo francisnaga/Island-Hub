@@ -1,5 +1,5 @@
 import { cookies } from 'next/headers'
-import { LODGE_LISTINGS } from '@/lib/lodge-data'
+import { getPublicLodges } from '@/lib/queries'
 import { HousingClient } from './HousingClient'
 
 export const dynamic = 'force-dynamic'
@@ -13,7 +13,7 @@ export const metadata = {
 export default async function HousingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ campus?: string; type?: string }>
+  searchParams: Promise<{ campus?: string; type?: string; q?: string }>
 }) {
   const sp = await searchParams
   const cookieStore = await cookies()
@@ -21,14 +21,16 @@ export default async function HousingPage({
   const selectedCampus =
     sp.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
   const selectedType = sp.type || 'all'
+  const lodges = await getPublicLodges()
 
   return (
     <div className="py-5 sm:py-8 min-w-0">
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 min-w-0">
         <HousingClient
-          initialLodges={LODGE_LISTINGS}
+          initialLodges={lodges}
           initialCampus={selectedCampus}
           initialType={selectedType}
+          initialQuery={sp.q || ''}
         />
       </div>
     </div>

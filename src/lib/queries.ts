@@ -1,10 +1,13 @@
 import { createClient } from '@/lib/supabase/server'
+import { INITIAL_CATEGORIES, sanitizePublicVendor } from './marketplace-data'
+import { LodgeListing, mapProductToLodgeListing } from './lodge-data'
 import {
-  INITIAL_CATEGORIES,
-  INITIAL_PRODUCTS,
-  INITIAL_VENDORS,
-  sanitizePublicVendor,
-} from './marketplace-data'
+  SERVICES_LIST,
+  ServiceItem,
+  ServiceProvider,
+  inferServiceSlugFromProduct,
+  normalizeServiceSlug,
+} from './services-data'
 import { Category, CategoryRequest, isAdminEmail, Product, UserProfile, Vendor } from './types'
 
 const CATEGORY_METADATA_OVERRIDES: Record<string, Partial<Category>> = {
@@ -68,7 +71,7 @@ export async function getPublicCategories(): Promise<Category[]> {
       }))
     }
   } catch {
-    // Fallback to initial categories if DB is unreachable
+    // Fallback to initial categories taxonomy if DB is unreachable
   }
   return INITIAL_CATEGORIES
 }
@@ -83,20 +86,14 @@ export async function getPublicVendors(options?: {
   const hasSearchQuery = Boolean(options?.query?.trim())
   const verifiedOnly = options?.verifiedOnly !== false
 
-  let list: Vendor[] = INITIAL_VENDORS.filter((v) => {
-    if (verifiedOnly) {
-      return hasSearchQuery
-        ? v.verification_status === 'verified' || v.verification_status === 'suspended'
-        : v.verification_status === 'verified'
-    }
-    return v.verification_status !== 'rejected'
-  })
+  let list: Vendor[] = []
 
   try {
     const supabase = await createClient()
     let dbQuery = supabase
       .from('vendors')
       .select('*')
+      .eq('is_demo', false)
       .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
 
@@ -107,7 +104,8 @@ export async function getPublicVendors(options?: {
         dbQuery = dbQuery.eq('verification_status', 'verified')
       }
     } else {
-      dbQuery = dbQuery.neq('verification_status', 'rejected')
+      // Never show unapproved/pending or rejected vendors publicly unless verified
+      dbQuery = dbQuery.eq('verification_status', 'verified')
     }
 
     if (options?.featuredOnly) {
@@ -115,11 +113,11 @@ export async function getPublicVendors(options?: {
     }
 
     const { data, error } = await dbQuery
-    if (!error && data && data.length > 0) {
+    if (!error && data) {
       list = data as Vendor[]
     }
   } catch {
-    // Fallback to initial vendors
+    // Return empty list if offline
   }
 
   if (hasSearchQuery && options?.query) {
@@ -127,12 +125,6 @@ export async function getPublicVendors(options?: {
     const tokens = q.split(/\s+/).filter(Boolean)
 
     list = list.filter((v) => {
-      // Collect all product titles & descriptions by this vendor
-      const vendorProds = INITIAL_PRODUCTS.filter(
-        (p) => p.vendor_id === v.id || p.vendor?.id === v.id || p.vendor?.slug === v.slug
-      )
-      const prodText = vendorProds.map((p) => `${p.title} ${p.description}`).join(' ')
-
       const searchableText = [
         v.shop_name || '',
         v.business_name || '',
@@ -140,7 +132,6 @@ export async function getPublicVendors(options?: {
         v.location_label || '',
         v.campus || '',
         ...(v.categories_offered || []),
-        prodText,
       ]
         .filter(Boolean)
         .join(' ')
@@ -193,7 +184,7 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
 }> {
   try {
     const supabase = await createClient()
-    let vQuery = supabase.from('vendors').select('*')
+    let vQuery = supabase.from('vendors').select('*').eq('is_demo', false)
     if (isUuidString(slugOrId)) {
       vQuery = vQuery.or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
     } else {
@@ -205,8 +196,13 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
       const v = vendorData as Vendor
       const sanitized = sanitizePublicVendor(v)
 
+      // Unverified or rejected vendors do not appear publicly until admin approves them
+      if (v.verification_status === 'pending' || v.verification_status === 'rejected') {
+        return { vendor: null, products: [] }
+      }
+
       // If vendor is banned/suspended, return the vendor profile (so user sees BANNED notice) but hide all their items
-      if (v.verification_status === 'suspended' || v.verification_status === 'rejected') {
+      if (v.verification_status === 'suspended') {
         return { vendor: sanitized, products: [] }
       }
 
@@ -215,6 +211,7 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
         .select('*, category:categories(*), vendor:vendors(*)')
         .eq('vendor_id', v.id)
         .eq('status', 'approved')
+        .eq('is_demo', false)
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
 
@@ -227,33 +224,10 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
       return { vendor: sanitized, products }
     }
   } catch {
-    // Fallback to initial vendors
+    // Return null if offline
   }
 
-  const fallbackVendor = INITIAL_VENDORS.find(
-    (v) => v.slug === slugOrId || v.id === slugOrId
-  )
-  if (!fallbackVendor) {
-    return { vendor: null, products: [] }
-  }
-  const sanitized = sanitizePublicVendor(fallbackVendor)
-  if (
-    fallbackVendor.verification_status === 'suspended' ||
-    fallbackVendor.verification_status === 'rejected'
-  ) {
-    return { vendor: sanitized, products: [] }
-  }
-  const products = INITIAL_PRODUCTS.filter(
-    (p) =>
-      p.vendor_id === fallbackVendor.id &&
-      p.status === 'approved' &&
-      p.images &&
-      p.images.length > 0
-  ).map((p) => ({
-    ...p,
-    vendor: sanitized,
-  }))
-  return { vendor: sanitized, products }
+  return { vendor: null, products: [] }
 }
 
 export interface ProductQueryFilters {
@@ -267,6 +241,7 @@ export interface ProductQueryFilters {
   sort?: 'newest' | 'price_asc' | 'price_desc' | 'relevance'
   limit?: number
   page?: number
+  includeHousing?: boolean
 }
 
 function matchesSearchQuery(p: Product, rawQuery: string): boolean {
@@ -289,6 +264,9 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
   if (needle.includes('calc')) {
     expandedTerms.push('calculator', 'casio', 'fx-991es')
   }
+  if (needle.includes('room') || needle.includes('lodge') || needle.includes('hostel') || needle.includes('self')) {
+    expandedTerms.push('self-contain', 'bedspace', 'shared room', 'private room')
+  }
 
   const searchableText = [
     p.title,
@@ -302,6 +280,10 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
     ...(p.variants?.sizes || []),
     ...(p.variants?.colors || []),
     p.variants?.custom_label || '',
+    p.variants?.room_type_label || '',
+    p.variants?.location_label || '',
+    p.variants?.distance_hint || '',
+    ...(p.variants?.features || []),
     ...(p.tags || []),
   ]
     .filter(Boolean)
@@ -318,14 +300,6 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
 export function getItemCampus(p: Partial<Product>): 'Okerenkoko' | 'Kurutie' {
   if (p.campus === 'Kurutie' || p.campus === 'Okerenkoko') {
     return p.campus
-  }
-  const kurutieSlugs = [
-    'a2-engineering-drawing-board-tee-square',
-    'rechargeable-12-inch-hostel-table-fan',
-    'cadet-officer-parade-oxford-shoes-leather-belt-pack',
-  ]
-  if (p.slug && kurutieSlugs.includes(p.slug)) {
-    return 'Kurutie'
   }
   if (p.tags && p.tags.some((t) => t.toLowerCase() === 'kurutie')) {
     return 'Kurutie'
@@ -351,10 +325,10 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     sort = 'newest',
     limit = 24,
     page = 1,
+    includeHousing = false,
   } = filters
 
   let productsList: Product[] = []
-  let usedDatabase = false
 
   try {
     const supabase = await createClient()
@@ -362,6 +336,11 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
       .from('products')
       .select('*, category:categories(*), vendor:vendors(*)', { count: 'exact' })
       .eq('status', 'approved')
+      .eq('is_demo', false)
+
+    if (!includeHousing) {
+      query = query.neq('listing_type', 'housing')
+    }
 
     if (availability === 'available_only') {
       query = query.in('stock_status', ['available', 'low_stock'])
@@ -389,18 +368,19 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     }
 
     const { data, error } = await query
-    if (!error && data && data.length > 0) {
-      usedDatabase = true
-      // Strictly exclude items from unverified/suspended/banned vendors or items missing approved photos
+    if (!error && data) {
+      // Strictly only serve approved items from verified, non-paused vendors
       productsList = (data as Product[])
         .filter(
           (item) =>
             item.status === 'approved' &&
+            !item.is_demo &&
             item.images &&
             item.images.length > 0 &&
             !item.needs_seller_photo &&
-            (!item.vendor ||
-              (item.vendor.verification_status === 'verified' && !item.vendor.is_paused))
+            item.vendor &&
+            item.vendor.verification_status === 'verified' &&
+            !item.vendor.is_paused
         )
         .map((item) => ({
           ...item,
@@ -413,52 +393,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
       }
     }
   } catch {
-    // Fallback to initial catalog
-  }
-
-  if (!usedDatabase) {
-    productsList = INITIAL_PRODUCTS.filter(
-      (item) =>
-        item.status === 'approved' &&
-        item.images &&
-        item.images.length > 0 &&
-        !item.needs_seller_photo &&
-        (!item.vendor ||
-          (item.vendor.verification_status === 'verified' && !item.vendor.is_paused))
-    ).map((item) => ({
-      ...item,
-      campus: getItemCampus(item),
-      category: item.category
-        ? {
-            ...item.category,
-            ...(CATEGORY_METADATA_OVERRIDES[item.category.slug] || {}),
-          }
-        : undefined,
-      vendor: item.vendor ? sanitizePublicVendor(item.vendor) : undefined,
-    }))
-
-    if (availability === 'available_only') {
-      productsList = productsList.filter(
-        (p) =>
-          (p.stock_status === 'available' || p.stock_status === 'low_stock') &&
-          (p.stock_quantity === null || p.stock_quantity === undefined || p.stock_quantity > 0)
-      )
-    }
-
-    if (q.trim()) {
-      productsList = productsList.filter((p) => matchesSearchQuery(p, q))
-    }
-
-    if (condition && condition !== 'all') {
-      productsList = productsList.filter((p) => p.condition === condition)
-    }
-
-    if (typeof minPrice === 'number' && !Number.isNaN(minPrice)) {
-      productsList = productsList.filter((p) => p.price >= minPrice)
-    }
-    if (typeof maxPrice === 'number' && !Number.isNaN(maxPrice)) {
-      productsList = productsList.filter((p) => p.price <= maxPrice)
-    }
+    // Return empty list if offline
   }
 
   if (category && category !== 'all') {
@@ -508,6 +443,7 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
     let pQuery = supabase
       .from('products')
       .select('*, category:categories(*), vendor:vendors(*)')
+      .eq('is_demo', false)
     if (isUuidString(slugOrId)) {
       pQuery = pQuery.or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
     } else {
@@ -517,10 +453,12 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
 
     if (!error && data) {
       const p = data as Product
-      // Do not serve archived/suspended/rejected products or products from banned vendors on the public route
+      // Strictly require admin approval on both listing and vendor before going live
       if (
         p.status !== 'approved' ||
-        (p.vendor && p.vendor.verification_status === 'suspended')
+        !p.vendor ||
+        p.vendor.verification_status !== 'verified' ||
+        p.vendor.is_paused
       ) {
         return null
       }
@@ -537,17 +475,182 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
       }
     }
   } catch {
-    // Fallback to initial catalog
+    // Return null if offline
   }
 
-  const found = INITIAL_PRODUCTS.find((p) => p.slug === slugOrId || p.id === slugOrId)
-  if (!found || found.status !== 'approved') return null
-  if (found.vendor && found.vendor.verification_status === 'suspended') return null
-  return {
-    ...found,
-    campus: getItemCampus(found),
-    vendor: found.vendor ? sanitizePublicVendor(found.vendor) : undefined,
+  return null
+}
+
+/**
+ * Fetches admin-approved Student Rooms / Lodges (`listing_type = 'housing'`) from Supabase
+ */
+export async function getPublicLodges(options?: {
+  campus?: string
+  q?: string
+}): Promise<LodgeListing[]> {
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, category:categories(*), vendor:vendors(*)')
+      .eq('status', 'approved')
+      .eq('listing_type', 'housing')
+      .eq('is_demo', false)
+      .order('is_featured', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    if (!error && data) {
+      let approvedProducts = (data as Product[]).filter(
+        (item) =>
+          item.status === 'approved' &&
+          !item.is_demo &&
+          item.images &&
+          item.images.length > 0 &&
+          item.vendor &&
+          item.vendor.verification_status === 'verified' &&
+          !item.vendor.is_paused
+      )
+
+      if (options?.q?.trim()) {
+        approvedProducts = approvedProducts.filter((p) => matchesSearchQuery(p, options.q!))
+      }
+
+      // Compute agent_listings_count per vendor
+      const countsByVendor: Record<string, number> = {}
+      approvedProducts.forEach((p) => {
+        countsByVendor[p.vendor_id] = (countsByVendor[p.vendor_id] || 0) + 1
+      })
+
+      let lodges = approvedProducts.map((p) => {
+        const mapped = mapProductToLodgeListing({
+          ...p,
+          campus: getItemCampus(p),
+          vendor: p.vendor ? sanitizePublicVendor(p.vendor) : undefined,
+        })
+        mapped.agent_listings_count = countsByVendor[p.vendor_id] || 1
+        return mapped
+      })
+
+      if (options?.campus && options.campus !== 'all') {
+        const target = options.campus.toLowerCase()
+        lodges = lodges.filter(
+          (l) => l.campus === 'Both' || l.campus.toLowerCase() === target
+        )
+      }
+
+      return lodges
+    }
+  } catch {
+    // Return empty list if offline
   }
+  return []
+}
+
+export async function getPublicLodgeById(idOrSlug: string): Promise<{
+  lodge: LodgeListing | null
+  otherLodges: LodgeListing[]
+}> {
+  const allLodges = await getPublicLodges()
+  const found = allLodges.find((l) => l.id === idOrSlug || l.slug === idOrSlug) || null
+  const otherLodges = found ? allLodges.filter((l) => l.id !== found.id).slice(0, 4) : []
+  return { lodge: found, otherLodges }
+}
+
+/**
+ * Populates SERVICES_LIST dynamically from admin-approved service/food listings in Supabase
+ */
+export async function getPublicServices(campus?: string): Promise<ServiceItem[]> {
+  const baseServices: ServiceItem[] = SERVICES_LIST.map((s) => ({
+    ...s,
+    providers: [],
+  }))
+
+  try {
+    const supabase = await createClient()
+    const { data, error } = await supabase
+      .from('products')
+      .select('*, category:categories(*), vendor:vendors(*)')
+      .eq('status', 'approved')
+      .in('listing_type', ['service', 'food'])
+      .eq('is_demo', false)
+      .order('is_featured', { ascending: false })
+      .order('created_at', { ascending: false })
+
+    if (!error && data) {
+      const approved = (data as Product[]).filter(
+        (item) =>
+          item.status === 'approved' &&
+          !item.is_demo &&
+          item.vendor &&
+          item.vendor.verification_status === 'verified' &&
+          !item.vendor.is_paused
+      )
+
+      for (const item of approved) {
+        const serviceSlug = inferServiceSlugFromProduct(item)
+        const targetService = baseServices.find((s) => s.slug === serviceSlug)
+        if (!targetService || !item.vendor) continue
+
+        const vendor = sanitizePublicVendor(item.vendor)
+        const initials = vendor.shop_name
+          .split(' ')
+          .filter(Boolean)
+          .slice(0, 2)
+          .map((w) => w[0]?.toUpperCase() || '')
+          .join('') || 'SV'
+
+        const providerCampus = item.campus || vendor.campus || 'Okerenkoko'
+
+        // Avoid duplicate provider entry for same vendor within the same service category
+        const existingIdx = targetService.providers.findIndex(
+          (pr) => pr.vendorSlug === (vendor.slug || vendor.id)
+        )
+        const providerEntry: ServiceProvider = {
+          id: item.id,
+          name: vendor.shop_name,
+          initials,
+          campus: providerCampus,
+          priceFrom: `₦${Number(item.price || 0).toLocaleString('en-NG')}`,
+          whatsapp: vendor.whatsapp_number,
+          verified: vendor.verification_status === 'verified',
+          vendorSlug: vendor.slug || vendor.id,
+          productSlug: item.slug,
+          landmark: item.service_area || vendor.location_label,
+          turnaround: item.service_turnaround || item.food_lead_time || undefined,
+          bio: item.description,
+        }
+
+        if (existingIdx === -1) {
+          targetService.providers.push(providerEntry)
+        }
+      }
+    }
+  } catch {
+    // Return base services with 0 providers if offline
+  }
+
+  if (campus && campus !== 'all') {
+    const target = campus.toLowerCase()
+    return baseServices.map((s) => ({
+      ...s,
+      providers: s.providers.filter(
+        (p) => p.campus === 'Both campuses' || p.campus.toLowerCase() === target
+      ),
+    }))
+  }
+
+  return baseServices
+}
+
+export async function getPublicServiceBySlug(
+  slug: string,
+  campus?: string
+): Promise<ServiceItem | undefined> {
+  const normalized = normalizeServiceSlug(slug)
+  const services = await getPublicServices(campus)
+  return services.find(
+    (s) => s.slug.toLowerCase() === normalized || s.id.toLowerCase() === normalized
+  )
 }
 
 export async function getCurrentUserContext(): Promise<{
