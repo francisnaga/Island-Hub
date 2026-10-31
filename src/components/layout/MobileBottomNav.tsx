@@ -24,8 +24,11 @@ export function MobileBottomNav() {
 
   const activePath = pendingHref || pathname
 
-  // Hide on product detail pages so sticky buy bar has the entire bottom
-  if (pathname.startsWith('/product/')) {
+  // Hide on detail pages so sticky contact bar has the entire bottom
+  if (
+    pathname.startsWith('/product/') ||
+    (pathname.startsWith('/housing/') && pathname !== '/housing')
+  ) {
     return null
   }
 

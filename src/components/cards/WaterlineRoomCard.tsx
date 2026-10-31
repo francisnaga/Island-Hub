@@ -21,7 +21,7 @@ export function WaterlineRoomCard({
 
   return (
     <Link
-      href="/housing"
+      href={`/housing/${lodge.id}`}
       className="card flex-none block w-[244px] snap-start text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-[12px]"
     >
       {/* 16:10 Wide Aspect Image Container */}

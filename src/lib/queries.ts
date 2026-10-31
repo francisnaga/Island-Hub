@@ -149,6 +149,20 @@ export async function getPublicVendors(options?: {
     list = list.filter((v) => Boolean(v.is_featured) && v.verification_status === 'verified')
   }
 
+  // Guarantee paid featured and verified vendors strictly rank first
+  list.sort((a, b) => {
+    if (Boolean(b.is_featured) !== Boolean(a.is_featured)) {
+      return b.is_featured ? 1 : -1
+    }
+    if (a.verification_status === 'verified' && b.verification_status !== 'verified') {
+      return -1
+    }
+    if (b.verification_status === 'verified' && a.verification_status !== 'verified') {
+      return 1
+    }
+    return a.shop_name.localeCompare(b.shop_name)
+  })
+
   return list.map(sanitizePublicVendor)
 }
 
@@ -443,8 +457,10 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     productsList.sort((a, b) => b.price - a.price)
   } else {
     productsList.sort((a, b) => {
-      if (Boolean(b.is_featured) !== Boolean(a.is_featured)) {
-        return b.is_featured ? 1 : -1
+      const aFeatured = Boolean(a.is_featured || a.vendor?.is_featured)
+      const bFeatured = Boolean(b.is_featured || b.vendor?.is_featured)
+      if (bFeatured !== aFeatured) {
+        return bFeatured ? 1 : -1
       }
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     })

@@ -18,6 +18,7 @@ import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 import { DarkModeToggle } from './DarkModeToggle'
 import { JettyMark } from '@/components/brand/JettyMark'
+import { CampusSelectorModal } from './CampusSelectorModal'
 
 interface NavbarProps {
   user: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
@@ -64,17 +65,21 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md">
       {/* Main Navigation Row */}
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Official Jetty Brand Lockup: 32px mark + live lowercase "jetty" wordmark */}
-        <Link
-          href="/"
-          aria-label="Jetty — NMU Campus Marketplace Home"
-          className="flex items-center gap-2.5 shrink-0 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
-        >
-          <JettyMark size={32} className="h-8 w-8 shrink-0" />
-          <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none font-[family-name:var(--font-bricolage)]">
-            jetty
-          </span>
-        </Link>
+        {/* Official Jetty Brand Lockup + Header Campus Selector */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <Link
+            href="/"
+            aria-label="Jetty — NMU Campus Marketplace Home"
+            className="flex items-center gap-2 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
+          >
+            <JettyMark size={32} className="h-8 w-8 shrink-0" />
+            <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none font-[family-name:var(--font-bricolage)]">
+              jetty
+            </span>
+          </Link>
+
+          <CampusSelectorModal />
+        </div>
 
         {/* Quick Search Bar (Desktop) */}
         <form onSubmit={handleSearch} role="search" className="hidden md:flex flex-1 max-w-sm mx-2 min-w-0">
@@ -164,10 +169,10 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               ) : (
                 <Link
                   href="/vendor/apply"
-                  className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-[#0F6E6E] px-3.5 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
+                  className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-card px-3.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
                 >
-                  <Store className="h-3.5 w-3.5" />
-                  Create Storefront
+                  <Store className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                  Vendor Dashboard
                 </Link>
               )}
 
@@ -182,52 +187,35 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               </button>
             </>
           ) : (
-            <>
-              <Link
-                href="/login"
-                className="inline-flex h-10 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-              >
-                <LogIn className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                Vendor Sign In
-              </Link>
-              <Link
-                href="/vendor/apply"
-                className="inline-flex h-10 items-center gap-1.5 rounded-lg bg-foreground text-background px-4 text-xs sm:text-sm font-semibold hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-              >
-                <Store className="h-4 w-4" />
-                Become a Vendor
-              </Link>
-            </>
+            <Link
+              href="/login"
+              className="inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+            >
+              <LogIn className="h-3.5 w-3.5 text-muted-foreground" />
+              Vendor Sign In
+            </Link>
           )}
         </div>
 
-        {/* Mobile Actions — Clean, no hamburger button */}
-        <div className="flex items-center gap-2 md:hidden shrink-0">
+        {/* Mobile Actions — Clean: Only My Shop / Admin + DarkModeToggle (No Sell button) */}
+        <div className="flex items-center gap-1.5 md:hidden shrink-0">
           {user && isAdmin ? (
             <Link
               href="/admin"
-              className="inline-flex h-9 items-center gap-1 rounded-lg border border-[#E8B84A] bg-[#E8B84A]/15 px-2.5 text-xs font-bold text-foreground"
+              className="inline-flex h-8 items-center gap-1 rounded-lg border border-[#E8B84A] bg-[#E8B84A]/15 px-2 text-[11px] font-bold text-foreground"
             >
-              <ShieldAlert className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+              <ShieldAlert className="h-3 w-3 text-[#0F6E6E] dark:text-[#E8B84A]" />
               <span>Admin</span>
             </Link>
           ) : user && vendor ? (
             <Link
               href="/vendor/dashboard"
-              className="inline-flex h-9 items-center gap-1 rounded-lg bg-[#0F6E6E] px-2.5 text-xs font-semibold text-white"
+              className="inline-flex h-8 items-center gap-1 rounded-lg bg-[#0F6E6E] px-2 text-[11px] font-semibold text-white"
             >
-              <LayoutDashboard className="h-3.5 w-3.5" />
-              <span>My Shop</span>
+              <LayoutDashboard className="h-3 w-3" />
+              <span>Shop</span>
             </Link>
-          ) : (
-            <Link
-              href="/vendor/apply"
-              className="inline-flex h-9 items-center gap-1.5 rounded-lg bg-foreground text-background px-3 text-xs font-semibold hover:opacity-90 transition-opacity"
-            >
-              <Store className="h-3.5 w-3.5" />
-              <span>Sell</span>
-            </Link>
-          )}
+          ) : null}
           <DarkModeToggle />
         </div>
       </div>

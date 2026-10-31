@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, ShoppingBag, Bed, Briefcase, Store } from 'lucide-react'
+import { Search, ShoppingBag, Bed, Briefcase, Plus } from 'lucide-react'
 
 export function WaterlineHero() {
   const router = useRouter()
@@ -92,13 +92,13 @@ export function WaterlineHero() {
             </Link>
 
             <Link
-              href="/vendors"
+              href="/vendor/apply"
               className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-white/[0.09] border border-white/[0.16] flex items-center justify-center transition-transform active:scale-95 group-hover:bg-white/[0.14]">
-                <Store className="w-6 h-6 stroke-[1.75]" />
+              <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-[#E8B84A] border border-[#E8B84A] text-[#0E1B1B] flex items-center justify-center transition-transform active:scale-95 shadow-sm">
+                <Plus className="w-6.5 h-6.5 stroke-[2.2]" />
               </span>
-              <span>Vendors</span>
+              <span>Sell</span>
             </Link>
           </div>
         </div>

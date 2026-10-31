@@ -1,3 +1,4 @@
+import { cookies } from 'next/headers'
 import { LODGE_LISTINGS } from '@/lib/lodge-data'
 import { HousingClient } from './HousingClient'
 
@@ -15,7 +16,10 @@ export default async function HousingPage({
   searchParams: Promise<{ campus?: string; type?: string }>
 }) {
   const sp = await searchParams
-  const selectedCampus = sp.campus || 'all'
+  const cookieStore = await cookies()
+  const cookieCampus = cookieStore.get('jetty_campus')?.value
+  const selectedCampus =
+    sp.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
   const selectedType = sp.type || 'all'
 
   return (

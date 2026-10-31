@@ -35,10 +35,29 @@ export async function GET(request: Request) {
         console.error('Error auto-syncing profile during auth callback:', profileErr)
       }
 
-      const redirectTarget =
-        admin && (next === '/' || next === '/vendor/dashboard')
-          ? '/admin'
-          : next
+      let hasCompleteVendor = false
+      try {
+        const { data: vendorRecord } = await supabase
+          .from('vendors')
+          .select('id, shop_name, whatsapp_number')
+          .eq('user_id', user.id)
+          .maybeSingle()
+        if (vendorRecord && vendorRecord.shop_name && vendorRecord.whatsapp_number) {
+          hasCompleteVendor = true
+        }
+      } catch (vendorCheckErr) {
+        console.error('Error checking vendor onboarding status:', vendorCheckErr)
+      }
+
+      let redirectTarget = next
+      if (admin && (next === '/' || next === '/vendor/dashboard')) {
+        redirectTarget = '/admin'
+      } else if (!hasCompleteVendor) {
+        // Force vendor through store onboarding to setup WhatsApp, campus, and shop name
+        redirectTarget = '/vendor/apply'
+      } else if (next === '/' || next === '/login') {
+        redirectTarget = '/vendor/dashboard'
+      }
 
       return NextResponse.redirect(`${origin}${redirectTarget}`)
     }

@@ -133,37 +133,6 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
         </div>
       </div>
 
-      {/* Campus Selector Bar (Single-Line Flex Nowrap — Never wraps on mobile/iPhone) */}
-      <div className="flex items-center gap-1.5 pt-1 overflow-x-auto no-scrollbar flex-nowrap w-full">
-        <span className="inline-flex items-center gap-1 text-xs font-semibold text-muted-foreground mr-1 shrink-0">
-          <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-          Campus:
-        </span>
-        <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
-          {CAMPUS_OPTIONS.map((c) => {
-            const active = campus.toLowerCase() === c.id.toLowerCase()
-            return (
-              <button
-                key={c.id}
-                type="button"
-                onClick={() => {
-                  setCampus(c.id)
-                  applyFilters({ campus: c.id })
-                }}
-                className={cn(
-                  'rounded-lg px-3 py-1.5 text-xs font-semibold border transition-colors cursor-pointer shrink-0 whitespace-nowrap',
-                  active
-                    ? 'bg-foreground text-background border-foreground font-bold'
-                    : 'bg-card text-muted-foreground border-border hover:text-foreground hover:border-foreground/30'
-                )}
-              >
-                {c.label}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
       {/* Category Pills Bar (Clean Monochrome Active States) */}
       <div className="w-full max-w-full overflow-x-auto no-scrollbar pb-1 border-t border-border/60 pt-2">
         <div className="flex items-center gap-1.5 w-max">

@@ -1,6 +1,8 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
   MapPin,
   BadgeCheck,
@@ -24,12 +26,13 @@ export function HousingClient({
   initialCampus = 'all',
   initialType = 'all',
 }: HousingClientProps) {
-  const [selectedCampus, setSelectedCampus] = useState(initialCampus.toLowerCase())
+  const searchParams = useSearchParams()
   const [selectedType, setSelectedType] = useState(initialType.toLowerCase())
+  const activeCampus = (searchParams.get('campus') || initialCampus).toLowerCase()
 
   // Instant client-side filtering — 0ms latency even on 2G/poor network
   const filteredLodges = initialLodges.filter((item) => {
-    if (selectedCampus !== 'all' && item.campus.toLowerCase() !== selectedCampus) {
+    if (activeCampus !== 'all' && item.campus.toLowerCase() !== activeCampus) {
       return false
     }
     if (selectedType !== 'all' && item.room_type.toLowerCase() !== selectedType) {
@@ -37,20 +40,6 @@ export function HousingClient({
     }
     return true
   })
-
-  const handleCampusChange = (c: string) => {
-    const nextCampus = c.toLowerCase()
-    setSelectedCampus(nextCampus)
-    // Sync browser URL without triggering server roundtrip
-    const sp = new URLSearchParams(window.location.search)
-    if (nextCampus === 'all') {
-      sp.delete('campus')
-    } else {
-      sp.set('campus', nextCampus)
-    }
-    const query = sp.toString()
-    window.history.replaceState(null, '', `${window.location.pathname}${query ? `?${query}` : ''}`)
-  }
 
   const handleTypeChange = (t: string) => {
     const nextType = t.toLowerCase()
@@ -68,30 +57,18 @@ export function HousingClient({
   return (
     <div className="space-y-5 sm:space-y-6 min-w-0">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border/60 pb-4">
-        <div>
-          <div className="flex items-center gap-2">
-            <h1 className="text-xl sm:text-2xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
-              Lodge &amp; Bedspaces
-            </h1>
-            <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
-              {filteredLodges.length} available
-            </span>
-          </div>
-          <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
-            Verified student hostels and bedspaces across NMU Okerenkoko &amp; Kurutie campuses.
-          </p>
+      <div className="border-b border-border/60 pb-4">
+        <div className="flex items-center gap-2">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+            Lodge &amp; Bedspaces
+          </h1>
+          <span className="rounded-md bg-muted px-2 py-0.5 text-xs font-semibold text-muted-foreground">
+            {filteredLodges.length} available
+          </span>
         </div>
-
-        <a
-          href="https://wa.me/2349130436032?text=Hi%20Jetty!%20I%20have%20a%20student%20room%20or%20bedspace%20near%20NMU%20to%20list."
-          target="_blank"
-          rel="noopener noreferrer"
-          className="inline-flex h-9 sm:h-10 items-center justify-center gap-1.5 rounded-xl bg-foreground text-background px-3.5 sm:px-4 text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 self-start sm:self-auto shadow-2xs"
-        >
-          <Building2 className="h-3.5 w-3.5" />
-          <span>List a Room or Bedspace</span>
-        </a>
+        <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
+          Verified student hostels and bedspaces across NMU Okerenkoko &amp; Kurutie campuses.
+        </p>
       </div>
 
       {/* Prominent High-Contrast Safety Alert Banner (100% visible on both Light & Dark modes) */}
@@ -109,71 +86,31 @@ export function HousingClient({
         </div>
       </div>
 
-      {/* Single-Line, Never-Wrapping Instant Filter Toolbar (Resilient on 2G/Poor Networks) */}
-      <div className="rounded-2xl border border-border/80 bg-card p-3 sm:p-4 space-y-3 shadow-2xs">
-        {/* Campus Filter Segment */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap w-full">
-          <span className="text-xs font-semibold text-muted-foreground shrink-0 flex items-center gap-1 mr-1">
-            <MapPin className="h-3.5 w-3.5 text-muted-foreground" />
-            Campus:
-          </span>
-          <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
-            {[
-              { id: 'all', label: 'All Campuses' },
-              { id: 'okerenkoko', label: 'Okerenkoko' },
-              { id: 'kurutie', label: 'Kurutie' },
-            ].map((c) => {
-              const active = selectedCampus === c.id
-              return (
-                <button
-                  key={c.id}
-                  type="button"
-                  onClick={() => handleCampusChange(c.id)}
-                  className={cn(
-                    'h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors cursor-pointer shrink-0 whitespace-nowrap',
-                    active
-                      ? 'bg-foreground text-background font-bold shadow-2xs'
-                      : 'border border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30'
-                  )}
-                >
-                  {c.label}
-                </button>
-              )
-            })}
-          </div>
-        </div>
-
-        {/* Room Type Filter Segment */}
-        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar flex-nowrap w-full pt-2 border-t border-border/60">
-          <span className="text-xs font-semibold text-muted-foreground shrink-0 mr-1">
-            Type:
-          </span>
-          <div className="flex items-center gap-1.5 shrink-0 flex-nowrap">
-            {[
-              { id: 'all', label: 'All Types' },
-              { id: 'self_contain', label: 'Self-Contain' },
-              { id: 'single_room', label: 'Single Room' },
-              { id: 'bedspace', label: 'Bedspace' },
-            ].map((t) => {
-              const active = selectedType === t.id
-              return (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => handleTypeChange(t.id)}
-                  className={cn(
-                    'h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors cursor-pointer shrink-0 whitespace-nowrap',
-                    active
-                      ? 'bg-foreground text-background font-bold shadow-2xs'
-                      : 'border border-border bg-card text-muted-foreground hover:text-foreground hover:border-foreground/30'
-                  )}
-                >
-                  {t.label}
-                </button>
-              )
-            })}
-          </div>
-        </div>
+      {/* Clean Room Type Filter Strip */}
+      <div className="rounded-2xl border border-border/80 bg-card p-2 sm:p-2.5 flex items-center gap-1.5 overflow-x-auto no-scrollbar flex-nowrap shadow-2xs">
+        {[
+          { id: 'all', label: 'All Listings' },
+          { id: 'self_contain', label: 'Self-Contain' },
+          { id: 'single_room', label: 'Single Room' },
+          { id: 'bedspace', label: 'Bedspace' },
+        ].map((t) => {
+          const active = selectedType === t.id
+          return (
+            <button
+              key={t.id}
+              type="button"
+              onClick={() => handleTypeChange(t.id)}
+              className={cn(
+                'h-8 px-3 rounded-lg text-xs font-semibold inline-flex items-center transition-colors cursor-pointer shrink-0 whitespace-nowrap',
+                active
+                  ? 'bg-foreground text-background font-bold shadow-2xs'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted'
+              )}
+            >
+              {t.label}
+            </button>
+          )
+        })}
       </div>
 
       {/* Modern 16:10 Wide Lodge Listings Grid */}
@@ -190,7 +127,7 @@ export function HousingClient({
               className="group flex flex-col justify-between rounded-2xl border border-border/80 bg-card overflow-hidden transition-all hover:border-foreground/30 hover:shadow-sm"
             >
               {/* Wide 16:10 Photography */}
-              <div className="relative aspect-[16/10] w-full bg-muted overflow-hidden">
+              <Link href={`/housing/${lodge.id}`} className="block relative aspect-[16/10] w-full bg-muted overflow-hidden">
                 <img
                   src={lodge.image}
                   alt={lodge.title}
@@ -206,7 +143,7 @@ export function HousingClient({
                     {lodge.campus}
                   </span>
                 </div>
-              </div>
+              </Link>
 
               {/* Details Body */}
               <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3.5">
@@ -220,9 +157,11 @@ export function HousingClient({
                     </span>
                   </div>
 
-                  <h2 className="text-sm sm:text-base font-bold text-foreground leading-snug line-clamp-2">
-                    {lodge.title}
-                  </h2>
+                  <Link href={`/housing/${lodge.id}`} className="block hover:underline">
+                    <h2 className="text-sm sm:text-base font-bold text-foreground leading-snug line-clamp-2">
+                      {lodge.title}
+                    </h2>
+                  </Link>
 
                   <div className="space-y-1 text-xs text-muted-foreground pt-1">
                     <div className="flex items-center gap-1.5 truncate">
@@ -286,10 +225,7 @@ export function HousingClient({
           <div className="pt-2">
             <button
               type="button"
-              onClick={() => {
-                handleCampusChange('all')
-                handleTypeChange('all')
-              }}
+              onClick={() => handleTypeChange('all')}
               className="inline-flex h-9 items-center px-4 rounded-xl bg-foreground text-background text-xs font-semibold hover:opacity-90 cursor-pointer"
             >
               Reset Filters

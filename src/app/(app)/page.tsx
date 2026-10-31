@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { cookies } from 'next/headers'
 import { WaterlineHero } from '@/components/home/WaterlineHero'
 import { WaterlineProductCard } from '@/components/cards/WaterlineProductCard'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
@@ -22,7 +23,10 @@ export default async function HomePage({
   searchParams: Promise<{ campus?: string }>
 }) {
   const sp = await searchParams
-  const selectedCampus = sp.campus || 'all'
+  const cookieStore = await cookies()
+  const cookieCampus = cookieStore.get('jetty_campus')?.value
+  const selectedCampus =
+    sp.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
 
   const [{ products: allProducts }, verifiedVendors] = await Promise.all([
     getPublicProducts({
