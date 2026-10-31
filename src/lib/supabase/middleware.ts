@@ -50,9 +50,20 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const rawUrl = (
+    process.env.NEXT_PUBLIC_SUPABASE_URL || 'https://zagfgxhewhwothrbyesw.supabase.co'
+  ).trim()
+  const supabaseUrl = rawUrl.includes('jlhnzqanrzwiiyrwfbja')
+    ? 'https://zagfgxhewhwothrbyesw.supabase.co'
+    : rawUrl
+  const supabaseAnonKey = (
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ||
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InphZ2ZneGhld2h3b3RocmJ5ZXN3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzMzMzg1NDAsImV4cCI6MjA4ODkxNDU0MH0.iBKqu5z7WMATRF0sJOm60LsJnue0XKfi91N1AdhSXz4'
+  ).trim()
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    supabaseUrl,
+    supabaseAnonKey,
     {
       cookies: {
         getAll() {

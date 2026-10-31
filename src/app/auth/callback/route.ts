@@ -50,10 +50,13 @@ export async function GET(request: Request) {
       }
 
       let redirectTarget = next
-      if (admin && (next === '/' || next === '/vendor/dashboard')) {
-        redirectTarget = '/admin'
+      if (admin) {
+        // Super Admin (efobifrancis53@gmail.com) goes directly to /admin unless they explicitly requested a vendor route with a completed store
+        if (next === '/admin' || next === '/' || next === '/login' || !hasCompleteVendor) {
+          redirectTarget = '/admin'
+        }
       } else if (!hasCompleteVendor) {
-        // Force vendor through store onboarding to setup WhatsApp, campus, and shop name
+        // Force regular vendors through store onboarding to setup WhatsApp, campus, and shop name
         redirectTarget = '/vendor/apply'
       } else if (next === '/' || next === '/login') {
         redirectTarget = '/vendor/dashboard'
