@@ -124,13 +124,30 @@ export async function getPublicVendors(options?: {
 
   if (hasSearchQuery && options?.query) {
     const q = options.query.trim().toLowerCase()
-    list = list.filter(
-      (v) =>
-        v.shop_name.toLowerCase().includes(q) ||
-        (v.business_name && v.business_name.toLowerCase().includes(q)) ||
-        v.description.toLowerCase().includes(q) ||
-        v.location_label.toLowerCase().includes(q)
-    )
+    const tokens = q.split(/\s+/).filter(Boolean)
+
+    list = list.filter((v) => {
+      // Collect all product titles & descriptions by this vendor
+      const vendorProds = INITIAL_PRODUCTS.filter(
+        (p) => p.vendor_id === v.id || p.vendor?.id === v.id || p.vendor?.slug === v.slug
+      )
+      const prodText = vendorProds.map((p) => `${p.title} ${p.description}`).join(' ')
+
+      const searchableText = [
+        v.shop_name || '',
+        v.business_name || '',
+        v.description || '',
+        v.location_label || '',
+        v.campus || '',
+        ...(v.categories_offered || []),
+        prodText,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+
+      return tokens.every((tok) => searchableText.includes(tok))
+    })
   }
 
   if (options?.campus && options.campus !== 'all') {
@@ -257,11 +274,20 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
   if (!needle) return true
 
   const expandedTerms = [needle]
-  if (needle.includes('coverall') || needle.includes('overall')) {
+  if (needle.includes('coverall') || needle.includes('overall') || needle.includes('rig')) {
     expandedTerms.push('action rig', 'uniform')
   }
   if (needle.includes('shoe') || needle.includes('boot')) {
-    expandedTerms.push('safety boots', 'footwear')
+    expandedTerms.push('safety boots', 'footwear', 'oxford')
+  }
+  if (needle.includes('power') || needle.includes('charge') || needle.includes('battery')) {
+    expandedTerms.push('power bank', 'fast charge', 'mi')
+  }
+  if (needle.includes('fan')) {
+    expandedTerms.push('table fan', 'rechargeable')
+  }
+  if (needle.includes('calc')) {
+    expandedTerms.push('calculator', 'casio', 'fx-991es')
   }
 
   const searchableText = [

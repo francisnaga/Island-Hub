@@ -66,7 +66,7 @@ export default async function HomePage({
               See all
             </Link>
           </div>
-          <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scrollbar-none snap-x">
+          <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
             {allProducts.slice(0, 8).map((product) => (
               <WaterlineProductCard
                 key={product.id}
@@ -90,7 +90,7 @@ export default async function HomePage({
               See all
             </Link>
           </div>
-          <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scrollbar-none snap-x">
+          <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
             {filteredLodges.map((lodge) => (
               <WaterlineRoomCard
                 key={lodge.id}

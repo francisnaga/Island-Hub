@@ -1,28 +1,19 @@
 import Link from 'next/link'
-import { Scissors, Droplets, Shirt, Utensils, Wrench, BookOpen } from 'lucide-react'
-
-const SERVICES = [
-  { label: 'Haircuts', icon: Scissors, href: '/services/haircuts' },
-  { label: 'Laundry', icon: Droplets, href: '/services/laundry' },
-  { label: 'Tailoring', icon: Shirt, href: '/services/tailoring' },
-  { label: 'Meals', icon: Utensils, href: '/services/meals' },
-  { label: 'Repairs', icon: Wrench, href: '/services/repairs' },
-  { label: 'Tutoring', icon: BookOpen, href: '/services/tutoring' },
-]
+import { SERVICES_LIST } from '@/lib/services-data'
 
 export function ServicesChips() {
   return (
     <div className="flex flex-wrap gap-2 px-4">
-      {SERVICES.map((s) => {
-        const Icon = s.icon
+      {SERVICES_LIST.map((service) => {
+        const Icon = service.icon
         return (
           <Link
-            key={s.label}
-            href={s.href}
-            className="flex items-center gap-2 h-11 px-3.5 rounded-full bg-card border border-border text-foreground text-[14px] font-medium hover:border-[#0F6E6E] hover:text-[#0F6E6E] dark:hover:text-[#E8B84A] transition-colors shadow-2xs"
+            key={service.id}
+            href={`/services/${service.slug}`}
+            className="flex items-center gap-2 h-10 px-3.5 rounded-full bg-card border border-border/80 text-foreground text-[13px] font-medium hover:border-foreground/40 hover:bg-muted/40 transition-all group shadow-2xs"
           >
-            <Icon className="w-[18px] h-[18px] text-[#0F6E6E] dark:text-[#E8B84A]" />
-            <span>{s.label}</span>
+            <Icon className="w-4 h-4 text-muted-foreground group-hover:text-foreground stroke-[1.75] transition-colors shrink-0" />
+            <span className="group-hover:text-foreground transition-colors">{service.title}</span>
           </Link>
         )
       })}

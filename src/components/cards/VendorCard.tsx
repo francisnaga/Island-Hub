@@ -1,11 +1,12 @@
 import Link from 'next/link'
-import { Ban, PauseCircle } from 'lucide-react'
+import { Ban, PauseCircle, MapPin } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
 
 interface VendorCardProps {
   vendor: Vendor
+  listingsCount?: number
 }
 
 export function getVendorInitials(name: string): string {
@@ -28,52 +29,38 @@ export function getSellerTypeLabel(vendor: Vendor): string {
   return 'Seller'
 }
 
-function getVendorRating(seed: string): string {
-  let hash = 0
-  for (let i = 0; i < seed.length; i++) {
-    hash = (hash << 5) - hash + seed.charCodeAt(i)
-    hash |= 0
-  }
-  const ratings = ['4.8', '4.9', '4.7', '4.8', '5.0']
-  return ratings[Math.abs(hash) % ratings.length]
-}
-
-export function VendorCard({ vendor }: VendorCardProps) {
+export function VendorCard({ vendor, listingsCount = 0 }: VendorCardProps) {
   const isBanned = vendor.verification_status === 'suspended'
   const isPaused = Boolean(vendor.is_paused) && !isBanned
   const isVerified = vendor.verification_status === 'verified'
-  const rating = getVendorRating(vendor.id || vendor.slug || vendor.shop_name)
-
-  const roleLabel =
-    vendor.seller_type === 'business'
-      ? 'BUSINESS MERCHANT'
-      : vendor.seller_type === 'student' || vendor.is_student
-      ? 'CAMPUS MERCHANT'
-      : 'CAMPUS MERCHANT'
+  const roleLabel = getSellerTypeLabel(vendor)
+  const campusLabel = vendor.campus || 'Okerenkoko'
 
   return (
     <Link
       href={`/vendors/${vendor.slug || vendor.id}`}
       className={cn(
-        'group relative block rounded-2xl border p-6 sm:p-7 transition-all bg-card shadow-2xs hover:border-foreground/30 hover:shadow-xs cursor-pointer',
+        'group relative block rounded-2xl border p-6 sm:p-7 transition-all bg-card shadow-2xs hover:border-foreground/30 hover:shadow-xs text-center cursor-pointer',
         isBanned
           ? 'border-red-500/30 bg-red-950/10'
           : 'border-border/80'
       )}
     >
-      {/* Top-Right Circular Verified Badge (Exact match to reference) */}
+      {/* Top-Right Circular Verified Badge */}
       {isVerified && !isBanned && (
         <div
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-6 h-6 rounded-full bg-[#0099FF] text-white flex items-center justify-center shrink-0 shadow-2xs"
-          aria-label="Verified Campus Merchant"
-          title="Verified Campus Merchant"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-6 h-6 rounded-full bg-[#0F6E6E] text-white flex items-center justify-center shrink-0 shadow-2xs"
+          aria-label="Verified Vendor"
+          title="Verified Vendor"
         >
           <svg
-            className="w-3.5 h-3.5 fill-current"
+            className="w-3.5 h-3.5 fill-none stroke-current"
             viewBox="0 0 24 24"
-            aria-hidden="true"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
           >
-            <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
+            <path d="M20 6L9 17l-5-5" />
           </svg>
         </div>
       )}
@@ -93,20 +80,13 @@ export function VendorCard({ vendor }: VendorCardProps) {
         </div>
       )}
 
-      {/* Center Top: Circular Avatar */}
+      {/* Center: 88px Circular Avatar */}
       <div className="flex justify-center">
-        <div
-          className={cn(
-            'relative h-18 w-18 sm:h-20 sm:w-20 shrink-0 rounded-full overflow-hidden bg-muted/80 ring-2 ring-border/70 shadow-2xs flex items-center justify-center',
-            isBanned && 'grayscale opacity-60'
-          )}
-        >
+        <div className="relative h-20 w-20 shrink-0 rounded-full overflow-hidden bg-muted ring-2 ring-border/70 shadow-2xs flex items-center justify-center group-hover:scale-105 transition-transform">
           {vendor.logo_url ? (
             <img
               src={vendor.logo_url}
               alt={vendor.shop_name}
-              loading="lazy"
-              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (
@@ -120,33 +100,28 @@ export function VendorCard({ vendor }: VendorCardProps) {
         </div>
       </div>
 
-      {/* Center Details: Name & Role */}
-      <div className="mt-3.5 text-center space-y-1">
-        <h3
-          className={cn(
-            'text-base sm:text-lg font-bold text-foreground group-hover:text-[#0099FF] dark:group-hover:text-[#38BDF8] transition-colors leading-snug line-clamp-1',
-            isBanned && 'line-through text-red-400'
-          )}
-        >
+      {/* Name, Role & Campus */}
+      <div className="mt-4 space-y-1">
+        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-lg sm:text-xl text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
           {vendor.shop_name}
         </h3>
-        <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
+        <p className="text-xs text-muted-foreground font-medium">
           {roleLabel}
         </p>
+        <div className="flex items-center justify-center gap-1 text-xs text-muted-foreground pt-0.5">
+          <MapPin className="h-3 w-3 shrink-0" />
+          <span>{campusLabel}</span>
+        </div>
       </div>
 
       {/* Horizontal Divider Line */}
-      <div className="my-5 border-t border-border/60" />
+      <div className="my-4 border-t border-border/60" />
 
-      {/* Bottom Center: Rating Stat & Merchant Quality Label */}
-      <div className="text-center space-y-0.5">
-        <div className="text-sm font-bold text-[#0099FF] dark:text-[#38BDF8] flex items-center justify-center gap-1">
-          <span>★</span>
-          <span>{rating} Rating</span>
-        </div>
-        <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">
-          MERCHANT QUALITY
-        </p>
+      {/* Bottom Center: Prototype Listings Count (Zero fake ratings) */}
+      <div className="text-center">
+        <span className="text-sm font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
+          {listingsCount > 0 ? `${listingsCount} ${listingsCount === 1 ? 'listing' : 'listings'}` : 'View Storefront →'}
+        </span>
       </div>
     </Link>
   )

@@ -65,8 +65,8 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
     <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md">
       {/* Main Navigation Row */}
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
-        {/* Official Jetty Brand Lockup + Header Campus Selector */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Official Jetty Brand Lockup */}
+        <div className="flex items-center shrink-0">
           <Link
             href="/"
             aria-label="Jetty — NMU Campus Marketplace Home"
@@ -77,8 +77,6 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               jetty
             </span>
           </Link>
-
-          <CampusSelectorModal />
         </div>
 
         {/* Quick Search Bar (Desktop) */}
@@ -125,6 +123,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
         {/* Right Actions (Desktop) */}
         <div className="hidden md:flex items-center gap-2 shrink-0">
+          <CampusSelectorModal />
           <DarkModeToggle />
 
           {user ? (
@@ -197,7 +196,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           )}
         </div>
 
-        {/* Mobile Actions — Clean: Only My Shop / Admin + DarkModeToggle (No Sell button) */}
+        {/* Mobile Actions: Campus Selector + My Shop / Admin + DarkModeToggle */}
         <div className="flex items-center gap-1.5 md:hidden shrink-0">
           {user && isAdmin ? (
             <Link
@@ -216,6 +215,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               <span>Shop</span>
             </Link>
           ) : null}
+          <CampusSelectorModal />
           <DarkModeToggle />
         </div>
       </div>

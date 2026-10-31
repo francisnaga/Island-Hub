@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ArrowLeft, Store, ShieldCheck, Zap } from 'lucide-react'
+import { ArrowLeft, Check } from 'lucide-react'
 import { GoogleSignInButton } from '@/components/auth/GoogleSignInButton'
 import { JettyMark } from '@/components/brand/JettyMark'
 
@@ -56,23 +56,23 @@ export default async function LoginPage({
             <GoogleSignInButton nextPath={nextPath} label="Continue with Google" />
           </div>
 
-          {/* Merchant Features Overview */}
-          <div className="rounded-2xl border border-border/70 bg-muted/40 p-4 space-y-2.5 text-xs">
-            <p className="font-bold text-foreground text-[11px] uppercase tracking-wider">
+          {/* Merchant Features Overview (Linear / Claude Clean Monochrome) */}
+          <div className="rounded-2xl border border-border/60 bg-muted/30 p-4 space-y-2.5 text-xs">
+            <p className="font-semibold text-muted-foreground text-[11px] uppercase tracking-wider">
               Storefront Features
             </p>
-            <ul className="space-y-2 text-xs text-muted-foreground">
-              <li className="flex items-start gap-2">
-                <Zap className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
-                <span>Instant WhatsApp orders directly to your personal phone number</span>
+            <ul className="space-y-2.5 text-xs text-muted-foreground">
+              <li className="flex items-start gap-2.5">
+                <Check className="h-3.5 w-3.5 text-foreground shrink-0 mt-0.5 stroke-[2]" />
+                <span className="text-foreground/90">Instant WhatsApp orders directly to your personal phone number</span>
               </li>
-              <li className="flex items-start gap-2">
-                <ShieldCheck className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
-                <span>Verified seller badge &amp; top-tier featured listing placement</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="h-3.5 w-3.5 text-foreground shrink-0 mt-0.5 stroke-[2]" />
+                <span className="text-foreground/90">Verified seller badge &amp; top-tier featured listing placement</span>
               </li>
-              <li className="flex items-start gap-2">
-                <Store className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
-                <span>Zero commission on sales — 100% of your earnings are yours</span>
+              <li className="flex items-start gap-2.5">
+                <Check className="h-3.5 w-3.5 text-foreground shrink-0 mt-0.5 stroke-[2]" />
+                <span className="text-foreground/90">Zero commission on sales — 100% of your earnings are yours</span>
               </li>
             </ul>
           </div>

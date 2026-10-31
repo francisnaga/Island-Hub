@@ -3,7 +3,7 @@ export interface LodgeListing {
   title: string
   room_type: 'self_contain' | 'single_room' | 'bedspace'
   room_type_label: string
-  campus: 'Okerenkoko' | 'Kurutie'
+  campus: 'Okerenkoko' | 'Kurutie' | 'Both'
   price: number
   period: string
   location_label: string
@@ -13,55 +13,86 @@ export interface LodgeListing {
   whatsapp_number: string
   contact_name: string
   is_verified: boolean
+  bedspaces?: string
+  rent_covers?: string
+  utilities?: string
+  other_fees?: string
+  posted_time?: string
+  description?: string
+  agent_listings_count?: number
 }
 
 export const LODGE_LISTINGS: LodgeListing[] = [
   {
     id: 'lodge-1',
-    title: 'Modern Tiled Self-Contain with Private Bath',
+    title: 'Self-contain, 5 min walk from the gate',
     room_type: 'self_contain',
-    room_type_label: 'Self-Contain',
-    campus: 'Okerenkoko',
-    price: 85000,
-    period: 'per session',
-    location_label: 'Near Permanent Site Gate, Okerenkoko',
-    distance_hint: '5 mins walk to lecture halls',
+    room_type_label: 'Self-contain',
+    campus: 'Kurutie',
+    price: 180000,
+    period: 'session',
+    location_label: 'Near the main gate',
+    distance_hint: '5 min to gate',
     image: '/products/lodge-self-contain-okerenkoko.jpg',
-    features: ['Private Bathroom', 'Tiled Floor', 'Running Water', 'Prepaid Meter'],
+    features: ['Water', 'Power backup', 'Fenced compound', 'Tiled floor'],
     whatsapp_number: '2349130436032',
-    contact_name: 'Elder Tari (Lodge Caretaker)',
+    contact_name: 'Campus Lodges Agent',
     is_verified: true,
+    bedspaces: '1 to 2',
+    rent_covers: 'One session',
+    utilities: 'Water included',
+    other_fees: 'Agent fee applies',
+    posted_time: '1 day ago',
+    description:
+      'Clean self-contain with its own bathroom and kitchenette. Quiet street, close to lecture halls.',
+    agent_listings_count: 3,
   },
   {
     id: 'lodge-2',
-    title: 'Spacious Single Room in Quiet Student Compound',
+    title: 'Shared room, 2 per room, water included',
     room_type: 'single_room',
-    room_type_label: 'Single Room',
-    campus: 'Kurutie',
-    price: 45000,
-    period: 'per session',
-    location_label: 'Kurutie Take-off Campus Junction',
-    distance_hint: '3 mins walk to campus gate',
+    room_type_label: 'Shared room',
+    campus: 'Okerenkoko',
+    price: 120000,
+    period: 'session',
+    location_label: 'Hostel junction, Okerenkoko',
+    distance_hint: '3 mins to permanent site',
     image: '/products/lodge-single-room-kurutie.jpg',
-    features: ['Well Ventilated', 'Shared Bath (Clean)', 'Fenced & Gated', 'Borehole Water'],
+    features: ['Water', 'Tiled floor', 'Fenced compound', 'Borehole water'],
     whatsapp_number: '2349130436032',
-    contact_name: 'Kurutie Campus Accommodations',
+    contact_name: 'Campus Lodges Agent',
     is_verified: true,
+    bedspaces: '2 per room',
+    rent_covers: 'One session',
+    utilities: 'Water included',
+    other_fees: 'None',
+    posted_time: '2 days ago',
+    description:
+      'Neat student accommodation near permanent site gate. Well-ventilated shared room with clean facilities.',
+    agent_listings_count: 3,
   },
   {
     id: 'lodge-3',
-    title: '2-Student Shared Bedspace with Storage Lockers',
-    room_type: 'bedspace',
-    room_type_label: 'Shared Bedspace',
+    title: 'Private room with ensuite',
+    room_type: 'self_contain',
+    room_type_label: 'Private room',
     campus: 'Okerenkoko',
-    price: 25000,
-    period: 'per student / session',
-    location_label: 'Behind NMU Maritime Academy Quarters',
-    distance_hint: '7 mins walk to jetty & classrooms',
+    price: 240000,
+    period: 'session',
+    location_label: 'Main Academy road, Okerenkoko',
+    distance_hint: '7 mins to jetty',
     image: '/products/lodge-shared-room-okerenkoko.jpg',
-    features: ['Mattress Included', 'Bedside Locker', 'Security Light', 'Budget Friendly'],
+    features: ['Ensuite bathroom', 'Running water', 'Prepaid meter', 'Security gate'],
     whatsapp_number: '2349130436032',
-    contact_name: 'Senior Cadet Preye',
+    contact_name: 'Campus Lodges Agent',
     is_verified: true,
+    bedspaces: '1',
+    rent_covers: 'One session',
+    utilities: 'Prepaid meter',
+    other_fees: 'None',
+    posted_time: '3 days ago',
+    description:
+      'Spacious private self-contain ensuite room in a secure, quiet compound suitable for serious cadet studies.',
+    agent_listings_count: 3,
   },
 ]

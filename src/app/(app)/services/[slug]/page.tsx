@@ -1,7 +1,7 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { ChevronLeft, ChevronRight, MapPin } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MapPin, BadgeCheck } from 'lucide-react'
 import { getServiceBySlug, getAllServices } from '@/lib/services-data'
 
 export const dynamic = 'force-dynamic'
@@ -50,14 +50,14 @@ export default async function ServiceDetailPage({
   return (
     <div className="min-w-0 max-w-full pb-24">
       <div className="container mx-auto max-w-lg px-0 pt-4 min-w-0">
-        {/* Back link to Services matching Image 2 */}
+        {/* Back link to Services (Linear Clean Navigation) */}
         <div className="px-4 pb-1">
           <Link
             href="/services"
-            className="inline-flex items-center gap-1 text-[14px] font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline transition-colors"
+            className="inline-flex items-center gap-1 text-[13px] font-medium text-muted-foreground hover:text-foreground transition-colors group"
           >
-            <ChevronLeft className="w-5 h-5 stroke-[2] -ml-1" />
-            <span>Services</span>
+            <ChevronLeft className="w-4 h-4 stroke-[2] -ml-1 group-hover:-translate-x-0.5 transition-transform" />
+            <span>All Services</span>
           </Link>
         </div>
 
@@ -91,8 +91,8 @@ export default async function ServiceDetailPage({
                 rel={isExternal ? 'noopener noreferrer' : undefined}
                 className="flex items-center gap-3 px-4 py-3 min-h-[76px] hover:bg-black/[0.02] dark:hover:bg-white/[0.03] transition-colors cursor-pointer group"
               >
-                {/* 56px Monogram Avatar matching Image 2 (.av) */}
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-[#17908D] to-[#0A4F4F] text-white flex items-center justify-center font-[family-name:var(--font-bricolage)] font-semibold text-[18px] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
+                {/* 56px Monogram Avatar (Solid, Minimalist, Zero Gradient) */}
+                <div className="w-14 h-14 rounded-full bg-[#0A4F4F] dark:bg-[#172D2D] border border-white/15 text-white flex items-center justify-center font-[family-name:var(--font-bricolage)] font-semibold text-[18px] shrink-0 shadow-2xs group-hover:scale-105 transition-transform">
                   {provider.initials}
                 </div>
 
@@ -101,18 +101,7 @@ export default async function ServiceDetailPage({
                   <div className="flex items-center gap-1.5 font-semibold text-[15px] text-[#0E1B1B] dark:text-[#F1F5F9]">
                     <span className="truncate">{provider.name}</span>
                     {provider.verified && (
-                      <svg
-                        className="w-4 h-4 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0"
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        stroke="currentColor"
-                        strokeWidth="2.4"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                        aria-label="Verified"
-                      >
-                        <path d="M20 6L9 17l-5-5" />
-                      </svg>
+                      <BadgeCheck className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
                     )}
                   </div>
 

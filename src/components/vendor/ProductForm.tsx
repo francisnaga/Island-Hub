@@ -43,28 +43,7 @@ function slugifyProductTitle(title: string): string {
   )
 }
 
-async function compressPhotoForPoorNetwork(file: File, maxWidth = 800): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const img = new Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const scale = Math.min(1, maxWidth / img.width)
-        canvas.width = Math.round(img.width * scale)
-        canvas.height = Math.round(img.height * scale)
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return reject(new Error('Canvas context unavailable'))
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        resolve(canvas.toDataURL('image/jpeg', 0.8))
-      }
-      img.onerror = reject
-      img.src = reader.result as string
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+import { isImageFile, compressImageFile } from '@/lib/image-compression'
 
 export function ProductForm({
   vendor,
@@ -145,27 +124,33 @@ export function ProductForm({
     const file = e.target.files?.[0]
     if (!file) return
 
-    const validTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/jpg']
-    if (!validTypes.includes(file.type)) {
-      toast.error('Please upload a JPG, PNG, or WebP image.')
-      return
-    }
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error('Image file size must be under 8MB.')
+    if (!isImageFile(file)) {
+      toast.error('Please upload an image file (JPG, PNG, WebP, or iPhone photo).')
       return
     }
 
     setUploadingImage(true)
     try {
+      // 1. Always compress client-side first so iPhone photos (12MP-48MP) become ~150KB
+      const { file: compressedFile, dataUrl } = await compressImageFile(file, {
+        maxWidth: 1280,
+        maxHeight: 1280,
+        quality: 0.82,
+      })
+
       const supabase = createClient()
-      const ext = file.name.split('.').pop() || 'jpg'
+      const ext = compressedFile.name.split('.').pop() || 'jpg'
       const path = `${vendor.id}/${Date.now()}-${Math.random()
         .toString(36)
         .slice(2, 7)}.${ext}`
 
+      // 2. Upload the compressed ~150KB file instead of the heavy raw iPhone image
       const { error: uploadErr } = await supabase.storage
         .from('product-images')
-        .upload(path, file, { upsert: false })
+        .upload(path, compressedFile, {
+          upsert: false,
+          contentType: compressedFile.type,
+        })
 
       if (!uploadErr) {
         const { data: pubData } = supabase.storage
@@ -174,17 +159,16 @@ export function ProductForm({
 
         if (pubData?.publicUrl) {
           setImages((prev) => [...prev, pubData.publicUrl])
-          toast.success('Photo uploaded')
+          toast.success('Photo compressed & uploaded!')
           return
         }
       }
 
-      // Low-bandwidth / offline bucket fallback: compress client-side to lightweight JPEG
-      const compressed = await compressPhotoForPoorNetwork(file, 800)
-      setImages((prev) => [...prev, compressed])
-      toast.success('Photo optimized and attached!')
+      // 3. Fallback to client-side compressed base64 if storage is offline
+      setImages((prev) => [...prev, dataUrl])
+      toast.success('Photo compressed & attached!')
     } catch {
-      toast.error('Could not process photo.')
+      toast.error('Could not process photo. Please try another image.')
     } finally {
       setUploadingImage(false)
       e.target.value = ''
@@ -743,10 +727,10 @@ export function ProductForm({
           <div className="flex flex-col sm:flex-row gap-3">
             <label className="inline-flex items-center justify-center gap-2 rounded-xl border border-dashed border-[#0F6E6E] bg-[#E6F2F2]/50 dark:bg-[#132A2A] px-5 py-3 text-xs font-bold text-[#0A4F4F] dark:text-[#E8B84A] hover:bg-[#E6F2F2] cursor-pointer shrink-0">
               <Upload className="h-4 w-4 text-[#0F6E6E] dark:text-[#E8B84A]" />
-              {uploadingImage ? 'Optimizing...' : 'Upload Photo from Device'}
+              {uploadingImage ? 'Compressing photo...' : 'Upload Photo from Device'}
               <input
                 type="file"
-                accept="image/jpeg,image/png,image/webp"
+                accept="image/*,image/heic,image/heif"
                 onChange={handleFileUpload}
                 disabled={uploadingImage}
                 className="hidden"

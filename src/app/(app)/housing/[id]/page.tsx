@@ -6,13 +6,15 @@ import {
   Share2,
   MapPin,
   Clock,
+  Check,
   ShieldCheck,
-  AlertTriangle,
   Building2,
+  MessageCircle,
 } from 'lucide-react'
 import { LODGE_LISTINGS } from '@/lib/lodge-data'
 import { formatNaira } from '@/lib/whatsapp'
-import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
+import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
+import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 
 export const dynamic = 'force-dynamic'
 
@@ -44,20 +46,12 @@ export default async function HousingDetailPage({
   }
 
   const waText = encodeURIComponent(
-    `Hi ${lodge.contact_name}, I saw your student lodge listing on Jetty: "${lodge.title}" (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}). I would like to schedule an in-person viewing.`
+    `Hi ${lodge.contact_name}! 👋 I saw your room listing "${lodge.title}" (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}) on Jetty. I would like to schedule an in-person viewing.`
   )
   const waUrl = `https://wa.me/${lodge.whatsapp_number}?text=${waText}`
 
-  const hasLocation = Boolean(lodge.location_label && lodge.location_label.trim().length > 0)
+  const otherLodges = LODGE_LISTINGS.filter((l) => l.id !== lodge.id)
 
-  const facts: Array<[string, string]> = [
-    ['Room Type', lodge.room_type_label],
-    ['Campus Area', `${lodge.campus} Campus Zone`],
-    ['Rent Period', lodge.period],
-    ['Caretaker', lodge.contact_name],
-  ]
-
-  // Find initials for caretaker
   const initials = lodge.contact_name
     .split(' ')
     .filter(Boolean)
@@ -65,31 +59,31 @@ export default async function HousingDetailPage({
     .map((w) => w[0].toUpperCase())
     .join('')
 
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(
+    `${lodge.location_label || lodge.campus}, Nigeria Maritime University, Delta State`
+  )}`
+
   return (
     <div className="min-w-0 max-w-full pb-28">
       <div className="container mx-auto max-w-lg px-0">
-        {/* 1. Image Gallery (.dimg) */}
-        <div className="dimg">
-          <div className="slides">
-            <div className="slide room">
-              {lodge.image ? (
-                <img
-                  src={lodge.image}
-                  alt={lodge.title}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <Building2 className="w-16 h-16 opacity-40 text-teal-700" />
-              )}
-            </div>
-          </div>
+        {/* 1. Image Gallery matching Uploaded Images 1 & 5 */}
+        <div className="dimg relative aspect-square w-full bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center">
+          {lodge.image ? (
+            <img
+              src={lodge.image}
+              alt={lodge.title}
+              className="w-full h-full object-cover"
+            />
+          ) : (
+            <Building2 className="w-16 h-16 opacity-35 text-[#0F6E6E]" />
+          )}
 
-          {/* Floating Back Button (.ov.l) */}
+          {/* Floating Circular Back Button (.ov.l) */}
           <Link href="/housing" className="ov l" aria-label="Back to lodges">
             <ChevronLeft className="w-5 h-5 -ml-0.5 stroke-[2.2]" />
           </Link>
 
-          {/* Floating Share Button (.ov.r) */}
+          {/* Floating Circular Share Button (.ov.r) */}
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
               `Check out this student room on Jetty: ${lodge.title} (₦${lodge.price.toLocaleString('en-NG')} / ${lodge.period} at ${lodge.campus}):\nhttps://jetty.ng/housing/${lodge.id}`
@@ -99,152 +93,201 @@ export default async function HousingDetailPage({
             aria-label="Share on WhatsApp"
             className="ov r"
           >
-            <Share2 className="w-4.5 h-4.5" />
+            <Share2 className="w-4.5 h-4.5 stroke-[2]" />
           </a>
+
+          {/* Carousel Dots matching Image 5 */}
+          <div className="dots absolute bottom-3 inset-x-0 flex items-center justify-center gap-1.5 pointer-events-none">
+            <span className="dot on" />
+            <span className="dot" />
+            <span className="dot" />
+          </div>
         </div>
 
-        {/* 2. Detail Body (.db) */}
-        <div className="db">
+        {/* 2. Detail Body matching Uploaded Images 3 & 4 */}
+        <div className="db px-4 pt-4 space-y-4">
           {/* Price & Period (.dp) */}
-          <div className="dp">
-            <span>{formatNaira(lodge.price)}</span>{' '}
-            <small>/ {lodge.period}</small>
+          <div className="dp flex items-baseline gap-1 text-[28px] sm:text-[32px] font-bold text-foreground tracking-tight font-[family-name:var(--font-bricolage)]">
+            <span>{formatNaira(lodge.price)}</span>
+            <small className="text-[15px] font-normal text-muted-foreground">
+              / {lodge.period}
+            </small>
           </div>
 
           {/* Title (.dt) */}
-          <h1 className="dt">{lodge.title}</h1>
+          <h1 className="dt text-[20px] sm:text-[22px] font-semibold text-foreground leading-snug">
+            {lodge.title}
+          </h1>
 
-          {/* Metadata (.dmeta) */}
-          <div className="dmeta">
-            {lodge.is_verified && (
-              <span className="ver">
-                <svg
-                  className="w-3.5 h-3.5 fill-none stroke-current"
-                  viewBox="0 0 24 24"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                >
-                  <path d="M20 6L9 17l-5-5" />
-                </svg>
-                <span>Verified room</span>
-              </span>
-            )}
-            <span>
-              <MapPin className="w-3.5 h-3.5 stroke-[2]" />
-              <span>{lodge.campus}</span>
+          {/* Metadata Row matching Image 4 */}
+          <div className="dmeta flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
+            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold">
+              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+              Verified seller
             </span>
-            <span>
+            <span className="inline-flex items-center gap-1">
+              <MapPin className="w-3.5 h-3.5 stroke-[2]" />
+              {lodge.campus}
+            </span>
+            <span className="inline-flex items-center gap-1">
               <Clock className="w-3.5 h-3.5 stroke-[2]" />
-              <span>{lodge.distance_hint}</span>
+              Posted {lodge.posted_time || '1 day ago'}
             </span>
           </div>
 
-          {/* Divider (.dv) */}
+          {/* Light Divider */}
           <div className="dv" />
 
-          {/* Facts (.facts) */}
+          {/* Facts 2-Column Grid matching Image 4 */}
           <dl className="facts">
-            {facts.map(([label, val]) => (
-              <div key={label}>
-                <dt>{label}</dt>
-                <dd>{val}</dd>
-              </div>
-            ))}
+            <div>
+              <dt>Type</dt>
+              <dd>{lodge.room_type_label}</dd>
+            </div>
+            <div>
+              <dt>Bedspaces</dt>
+              <dd>{lodge.bedspaces || '1 to 2'}</dd>
+            </div>
+            <div>
+              <dt>Distance</dt>
+              <dd>{lodge.distance_hint}</dd>
+            </div>
+            <div>
+              <dt>Rent covers</dt>
+              <dd>{lodge.rent_covers || 'One session'}</dd>
+            </div>
+            <div>
+              <dt>Utilities</dt>
+              <dd>{lodge.utilities || 'Water included'}</dd>
+            </div>
+            <div>
+              <dt>Other fees</dt>
+              <dd>{lodge.other_fees || 'Agent fee applies'}</dd>
+            </div>
           </dl>
 
-          {/* Location Landmark: ONLY SHOWN IF ADDED */}
-          {hasLocation && (
-            <div className="mt-4 p-3.5 rounded-[12px] bg-card border border-border/80 text-xs flex items-start gap-2.5 text-muted-foreground shadow-2xs">
-              <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
-              <div>
-                <b className="text-foreground">Lodge Landmark: </b>
-                <span>{lodge.location_label}</span>
-              </div>
-            </div>
-          )}
-
-          {/* Amenities / "What is there" (.hh & .am) */}
+          {/* What is there matching Image 4 */}
           {lodge.features && lodge.features.length > 0 && (
             <>
               <div className="dv" />
-              <h3 className="hh">What is there</h3>
-              <div className="am">
-                {lodge.features.map((feat) => (
-                  <span key={feat}>{feat}</span>
-                ))}
+              <div className="space-y-2.5">
+                <h3 className="hh text-[17px] font-bold text-foreground">What is there</h3>
+                <div className="flex flex-wrap gap-2">
+                  {lodge.features.map((feat) => (
+                    <span
+                      key={feat}
+                      className="px-3.5 py-1.5 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] text-foreground text-xs font-medium"
+                    >
+                      {feat}
+                    </span>
+                  ))}
+                </div>
               </div>
             </>
           )}
 
-          {/* Caretaker Row (.sr) */}
+          {/* Caretaker Row matching Image 3 */}
           <div className="dv" />
           <a
             href={waUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="sr group"
+            className="flex items-center gap-3 py-2 group cursor-pointer"
             aria-label={`Contact ${lodge.contact_name}`}
           >
-            <div className="av">
-              <span>{initials || 'LK'}</span>
+            <div className="w-12 h-12 rounded-full bg-[#0F6E6E] text-white flex items-center justify-center font-bold text-sm shrink-0">
+              {initials || 'CL'}
             </div>
-            <div className="bd">
-              <b>
+            <div className="flex-1 min-w-0">
+              <div className="flex items-center gap-1 font-semibold text-foreground text-sm">
                 <span>{lodge.contact_name}</span>
-                {lodge.is_verified && (
-                  <svg
-                    className="w-4 h-4 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2.2"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                  >
-                    <path d="M20 6L9 17l-5-5" />
-                  </svg>
-                )}
-              </b>
-              <small>Lodge Caretaker · Message on WhatsApp</small>
+                <Check className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#22D3EE] stroke-[2.5]" />
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {lodge.agent_listings_count || 3} listings
+              </p>
             </div>
             <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
           </a>
 
-          {/* About this room (.hh & .dd) */}
+          {/* About this room matching Image 3 */}
           <div className="dv" />
-          <h3 className="hh">About this room</h3>
-          <p className="dd">
-            Inspected student accommodation in the NMU {lodge.campus} campus vicinity. Clean environment with {lodge.features.join(', ').toLowerCase()}. Contact caretaker directly to arrange inspection.
-          </p>
+          <div className="space-y-1.5">
+            <h3 className="hh text-[17px] font-bold text-foreground">About this room</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              {lodge.description ||
+                `Clean self-contain with its own bathroom and kitchenette. Quiet street, close to lecture halls.`}
+            </p>
+          </div>
 
-          {/* Safety Tip (.tip) */}
+          {/* Location Landmark + Open in Google Maps matching Image 3 */}
           <div className="dv" />
-          <div className="tip">
-            <AlertTriangle className="w-5 h-5 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
-            <span>
-              See the room in person before paying anything. Never pay inspection fees or advance rent to someone you have not met on campus.
+          <div className="space-y-2.5">
+            <h3 className="hh text-[17px] font-bold text-foreground">Location</h3>
+            <p className="text-sm text-foreground font-medium">
+              {lodge.location_label || 'Near the main gate'}
+            </p>
+            <a
+              href={googleMapsUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#0F6E6E]/40 text-[#0F6E6E] dark:text-[#22D3EE] font-semibold text-sm hover:bg-[#E6F2F2]/40 transition-colors"
+            >
+              <MapPin className="w-4 h-4 stroke-[2]" />
+              <span>Open in Google Maps</span>
+            </a>
+          </div>
+
+          {/* Safety Box matching Image 3 */}
+          <div className="rounded-2xl border border-[#0F6E6E]/20 bg-[#E6F2F2]/60 dark:bg-[#132A2A]/60 p-4 flex items-start gap-3 text-xs text-foreground shadow-2xs">
+            <ShieldCheck className="w-5 h-5 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0 mt-0.5" />
+            <span className="leading-relaxed">
+              See the room before you pay anything. Never send rent to someone you have not met.
             </span>
           </div>
 
-          <div className="h-8" />
+          {/* More from Campus Lodges matching Image 2 */}
+          {otherLodges.length > 0 && (
+            <div className="pt-4 space-y-3">
+              <div className="dv" />
+              <h3 className="hh text-[17px] font-bold text-foreground">
+                More from Campus Lodges
+              </h3>
+              <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
+                {otherLodges.map((other) => (
+                  <WaterlineRoomCard key={other.id} lodge={other} variant="grid" />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Quiet Report Link matching Image 2 */}
+          <div className="pt-4 pb-6 text-center">
+            <ReportListingModal
+              targetType="product"
+              productId={lodge.id}
+              targetName={lodge.title}
+            />
+          </div>
         </div>
       </div>
 
-      {/* 3. Sticky Bottom Action Bar (.bar) */}
-      <div className="bar">
+      {/* 3. Sticky Bottom Action Bar matching Image 2 */}
+      <div className="bar fixed bottom-0 inset-x-0 z-50 h-[72px] px-4 bg-card/95 backdrop-blur-md border-t border-border flex items-center justify-between gap-4 max-w-lg mx-auto">
         <div className="pp min-w-0">
-          <b>{formatNaira(lodge.price)}</b>
-          <small>per {lodge.period}</small>
+          <b className="block text-[20px] font-bold text-foreground leading-none font-[family-name:var(--font-bricolage)]">
+            {formatNaira(lodge.price)}
+          </b>
+          <small className="text-xs text-muted-foreground">per {lodge.period}</small>
         </div>
 
         <a
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="go"
+          className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white font-semibold text-[15px] transition-colors shadow-sm"
         >
-          <WhatsAppIcon className="w-4.5 h-4.5 text-white" />
+          <MessageCircle className="w-5 h-5 stroke-[2] fill-white/20" />
           <span>Request viewing</span>
         </a>
       </div>

@@ -38,7 +38,7 @@ export default async function ServicesPage({
           Pick a service to see who offers it.
         </p>
 
-        {/* 2-Column Exact Prototype Grid (.sgrid & .scard) */}
+        {/* 2-Column Clean Grid (Linear / Claude Precision UI) */}
         <div className="grid grid-cols-2 gap-3 pt-1">
           {SERVICES_LIST.map((service) => {
             const Icon = service.icon
@@ -55,23 +55,21 @@ export default async function ServicesPage({
               <Link
                 key={service.id}
                 href={detailHref}
-                className="flex flex-col justify-between gap-5 p-4 rounded-[16px] bg-[#E6F2F2] dark:bg-[#13242A] hover:opacity-95 active:scale-[0.98] transition-all text-left min-h-[148px] group shadow-2xs"
+                className="flex flex-col justify-between gap-4 p-4 rounded-2xl border border-border/70 bg-card hover:border-foreground/30 hover:bg-muted/30 active:scale-[0.98] transition-all text-left min-h-[144px] group shadow-2xs"
               >
-                {/* White rounded square icon box (.ic) */}
-                <div className="w-11 h-11 rounded-[12px] bg-white dark:bg-[#1E333C] text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shadow-2xs shrink-0 group-hover:scale-105 transition-transform">
-                  <Icon className="w-5.5 h-5.5 stroke-[1.8]" />
-                </div>
+                {/* Clean, Direct Icon (No nested bubble/box) */}
+                <Icon className="w-6 h-6 stroke-[1.75] text-foreground group-hover:scale-105 transition-transform" />
 
-                {/* Service Name & Provider Count (.ct) */}
-                <div className="space-y-0.5">
-                  <b className="block text-[17px] font-semibold text-[#0E1B1B] dark:text-[#F1F5F9] leading-snug">
+                {/* Service Name & Provider Count */}
+                <div className="space-y-1">
+                  <b className="block text-[15px] font-semibold text-foreground leading-snug tracking-tight">
                     {service.title}
                   </b>
-                  <div className="flex items-baseline gap-1.5 text-[14px] text-[#5B6B6B] dark:text-[#94A3B8]">
-                    <em className="not-italic font-[family-name:var(--font-bricolage)] font-semibold text-[28px] leading-none text-[#0F6E6E] dark:text-[#22D3EE]">
+                  <div className="flex items-baseline gap-1.5 text-xs text-muted-foreground">
+                    <span className="font-[family-name:var(--font-bricolage)] font-bold text-[22px] leading-none text-foreground">
                       {count}
-                    </em>
-                    <span>{count === 1 ? 'provider' : 'providers'}</span>
+                    </span>
+                    <span className="font-medium">{count === 1 ? 'provider' : 'providers'}</span>
                   </div>
                 </div>
               </Link>

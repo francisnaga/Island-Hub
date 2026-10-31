@@ -245,6 +245,10 @@
 }
 
 /* ── Clean Horizontal Rails — Zero Native Scrollbars (Linear / Apple / Stripe Grade) ── */
+.rail {
+  scroll-padding: 0 1rem;
+}
+
 .scrollbar-none,
 .no-scrollbar,
 .rail,
@@ -295,8 +299,8 @@
   color: #fff;
   font-family: var(--font-bricolage, sans-serif);
   font-weight: 600;
-  background: linear-gradient(135deg, var(--teal-l), var(--deep));
-  box-shadow: 0 0 0 3px var(--deep), 0 0 0 5px rgba(255, 255, 255, 0.35);
+  background: var(--deep);
+  box-shadow: 0 0 0 3px var(--deep), 0 0 0 5px rgba(255, 255, 255, 0.25);
   overflow: hidden;
 }
 .pb h2 {
@@ -546,7 +550,7 @@
   color: #fff;
   font-family: var(--font-bricolage, sans-serif);
   font-weight: 600;
-  background: linear-gradient(135deg, var(--teal-l), var(--deep));
+  background: var(--deep);
   flex: none;
 }
 .sr .bd {

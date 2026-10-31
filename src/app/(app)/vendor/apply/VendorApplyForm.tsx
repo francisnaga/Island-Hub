@@ -42,28 +42,7 @@ function slugifyShopName(name: string): string {
   )
 }
 
-async function compressImageToDataUrl(file: File, maxSize = 256): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader()
-    reader.onload = () => {
-      const img = new Image()
-      img.onload = () => {
-        const canvas = document.createElement('canvas')
-        const scale = Math.min(1, maxSize / Math.max(img.width, img.height))
-        canvas.width = Math.round(img.width * scale)
-        canvas.height = Math.round(img.height * scale)
-        const ctx = canvas.getContext('2d')
-        if (!ctx) return reject(new Error('Canvas context unavailable'))
-        ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
-        resolve(canvas.toDataURL('image/jpeg', 0.82))
-      }
-      img.onerror = reject
-      img.src = reader.result as string
-    }
-    reader.onerror = reject
-    reader.readAsDataURL(file)
-  })
-}
+import { isImageFile, compressImageFile } from '@/lib/image-compression'
 
 export function VendorApplyForm({
   user,
@@ -129,9 +108,17 @@ export function VendorApplyForm({
   const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
+    if (!isImageFile(file)) {
+      toast.error('Please upload an image file (JPG, PNG, WebP, or iPhone photo).')
+      return
+    }
     setUploadingAvatar(true)
     try {
-      const dataUrl = await compressImageToDataUrl(file, 240)
+      const { dataUrl } = await compressImageFile(file, {
+        maxWidth: 360,
+        maxHeight: 360,
+        quality: 0.85,
+      })
       setLogoUrl(dataUrl)
       toast.success('Profile photo / logo updated!')
     } catch {
@@ -390,7 +377,7 @@ export function VendorApplyForm({
                   <span>{uploadingAvatar ? 'Processing...' : 'Upload Photo / Logo'}</span>
                   <input
                     type="file"
-                    accept="image/jpeg,image/png,image/webp"
+                    accept="image/*,image/heic,image/heif"
                     onChange={handleAvatarUpload}
                     className="hidden"
                   />

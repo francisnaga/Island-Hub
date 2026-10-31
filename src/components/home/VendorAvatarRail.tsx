@@ -5,7 +5,7 @@ import { WavyAvatar } from '@/components/brand/WavyAvatar'
 
 export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
   return (
-    <div className="flex gap-3 overflow-x-auto pb-2 px-4 scrollbar-none snap-x">
+    <div className="flex gap-3 overflow-x-auto pb-2 px-4 scroll-px-4 scrollbar-none snap-x">
       {vendors.map((vendor) => {
         const href = `/vendors/${vendor.slug || vendor.id}`
         const isGolden = vendor.slug === 'naga' || vendor.slug === 'francis-naga'

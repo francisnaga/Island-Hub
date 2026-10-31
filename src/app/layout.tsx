@@ -1,9 +1,22 @@
 import type { Metadata, Viewport } from "next";
+import { Inter, Bricolage_Grotesque } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
 import { FloatingSellButton } from "@/components/layout/FloatingSellButton";
 import { FirstTimeGuide } from "@/components/common/FirstTimeGuide";
 import "./globals.css";
+
+const inter = Inter({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-inter",
+});
+
+const bricolage = Bricolage_Grotesque({
+  subsets: ["latin"],
+  display: "swap",
+  variable: "--font-bricolage",
+});
 
 export const viewport: Viewport = {
   width: "device-width",
@@ -34,18 +47,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={`${inter.variable} ${bricolage.variable}`}>
       <head>
         <link rel="icon" type="image/svg+xml" href="/jetty-favicon.svg?v=2" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600;700&display=swap"
-          rel="stylesheet"
-        />
       </head>
       <body
-        className="font-sans min-h-screen flex flex-col bg-background text-foreground antialiased"
+        className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}

@@ -291,14 +291,10 @@ export default async function MarketplacePage({
 
                 <div className="my-5 border-t border-border/60" />
 
-                <div className="text-center space-y-0.5">
-                  <div className="text-sm font-bold text-[#E8B84A] flex items-center justify-center gap-1">
-                    <span>★</span>
-                    <span>5.0 Founder</span>
-                  </div>
-                  <p className="text-[10px] font-medium text-muted-foreground uppercase tracking-widest">
-                    PLATFORM FOUNDER
-                  </p>
+                <div className="text-center">
+                  <span className="text-sm font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
+                    Platform Founder
+                  </span>
                 </div>
 
                 <div className="mt-4 pt-3 border-t border-border/50">

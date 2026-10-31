@@ -136,39 +136,10 @@ export default async function VendorStorefrontPage({
             </div>
           </div>
         )}
-
-        {/* Stat Row */}
-        <div className="stat">
-          <div>
-            <b>{products.length}</b>
-            <small>{products.length === 1 ? 'Listing' : 'Listings'}</small>
-          </div>
-        </div>
       </section>
 
-      {/* 2. The Waterline SVG Wave with Gold Crest (#E8B84A) */}
-      <svg
-        viewBox="0 0 432 28"
-        preserveAspectRatio="xMidYMax slice"
-        aria-hidden="true"
-        className="w-full h-7 block -mt-px pointer-events-none"
-      >
-        <rect width="432" height="28" fill="#0A4F4F" />
-        <path
-          d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
-          className="fill-background"
-        />
-        <path
-          d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
-          fill="none"
-          stroke="#E8B84A"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-        />
-      </svg>
-
-      {/* 3. Main Content Container */}
-      <div className="container mx-auto max-w-lg px-4">
+      {/* 2. Main Content Container */}
+      <div className="container mx-auto max-w-lg px-4 pt-4">
         {/* Primary CTA: Message on WhatsApp */}
         {whatsappStore.valid && !isBanned ? (
           <a

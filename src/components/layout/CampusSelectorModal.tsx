@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { createPortal } from 'react-dom'
 import { useRouter, useSearchParams, usePathname } from 'next/navigation'
 import { ChevronDown, Check, X } from 'lucide-react'
 import { cn } from '@/lib/utils'
@@ -14,6 +15,11 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
 
   const [isOpen, setIsOpen] = useState(false)
   const [currentCampus, setCurrentCampus] = useState<CampusSelection>('all')
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   useEffect(() => {
     // 1. Read from URL if present
@@ -67,6 +73,129 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
       ? 'Kurutie'
       : 'Both campuses'
 
+  const modalContent = isOpen ? (
+    <div className="fixed inset-0 z-[9999] flex items-end sm:items-center justify-center p-0 sm:p-4">
+      {/* Backdrop Scrim */}
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in"
+        onClick={() => setIsOpen(false)}
+      />
+
+      {/* Sheet Container */}
+      <div className="relative w-full sm:max-w-md bg-card border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 animate-in slide-in-from-bottom duration-200 z-10 pb-[calc(20px+env(safe-area-inset-bottom,0px))]">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
+              Which campus?
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              Filter listings and merchants near you
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => setIsOpen(false)}
+            aria-label="Close dialog"
+            className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
+          >
+            <X className="h-4 w-4" />
+          </button>
+        </div>
+
+        <div className="space-y-2 pt-1" role="radiogroup">
+          {/* Option 1: Both campuses */}
+          <button
+            type="button"
+            onClick={() => setCampus('all')}
+            role="radio"
+            aria-checked={currentCampus === 'all'}
+            className={cn(
+              'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer',
+              currentCampus === 'all'
+                ? 'border-foreground bg-muted/70 shadow-2xs'
+                : 'border-border/80 hover:border-foreground/30 hover:bg-muted/30'
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
+                <span className="dot b" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground">Both campuses</h4>
+                <p className="text-xs text-muted-foreground">Okerenkoko &amp; Kurutie</p>
+              </div>
+            </div>
+            {currentCampus === 'all' && (
+              <Check className="h-4 w-4 text-foreground shrink-0" />
+            )}
+          </button>
+
+          {/* Option 2: Okerenkoko */}
+          <button
+            type="button"
+            onClick={() => setCampus('okerenkoko')}
+            role="radio"
+            aria-checked={currentCampus === 'okerenkoko'}
+            className={cn(
+              'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer',
+              currentCampus === 'okerenkoko'
+                ? 'border-foreground bg-muted/70 shadow-2xs'
+                : 'border-border/80 hover:border-foreground/30 hover:bg-muted/30'
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
+                <span className="dot" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground">Okerenkoko</h4>
+                <p className="text-xs text-muted-foreground">Permanent site</p>
+              </div>
+            </div>
+            {currentCampus === 'okerenkoko' && (
+              <Check className="h-4 w-4 text-foreground shrink-0" />
+            )}
+          </button>
+
+          {/* Option 3: Kurutie */}
+          <button
+            type="button"
+            onClick={() => setCampus('kurutie')}
+            role="radio"
+            aria-checked={currentCampus === 'kurutie'}
+            className={cn(
+              'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer',
+              currentCampus === 'kurutie'
+                ? 'border-foreground bg-muted/70 shadow-2xs'
+                : 'border-border/80 hover:border-foreground/30 hover:bg-muted/30'
+            )}
+          >
+            <div className="flex items-center gap-3">
+              <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
+                <span className="dot" />
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-foreground">Kurutie</h4>
+                <p className="text-xs text-muted-foreground">Take-off campus</p>
+              </div>
+            </div>
+            {currentCampus === 'kurutie' && (
+              <Check className="h-4 w-4 text-foreground shrink-0" />
+            )}
+          </button>
+        </div>
+
+        <button
+          type="button"
+          onClick={() => setIsOpen(false)}
+          className="w-full h-11 rounded-xl bg-muted text-foreground text-xs font-semibold hover:bg-muted/80 transition-colors cursor-pointer mt-2"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  ) : null
+
   return (
     <>
       {/* Top Navbar Trigger Pill */}
@@ -75,7 +204,7 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
         onClick={() => setIsOpen(true)}
         aria-label="Change campus"
         className={cn(
-          'relative inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border/80 bg-muted/50 hover:bg-muted text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs',
+          'relative inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border/80 bg-muted/50 hover:bg-muted text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs shrink-0',
           className
         )}
       >
@@ -88,128 +217,8 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
         <ChevronDown className="h-3.5 w-3.5 text-muted-foreground ml-0.5" />
       </button>
 
-      {/* Modal / Bottom Sheet */}
-      {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4">
-          {/* Backdrop Scrim */}
-          <div
-            className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in"
-            onClick={() => setIsOpen(false)}
-          />
-
-          {/* Sheet Container */}
-          <div className="relative w-full sm:max-w-md bg-card border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 shadow-xl space-y-4 animate-in slide-in-from-bottom duration-200 z-10">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
-                  Which campus?
-                </h3>
-                <p className="text-xs text-muted-foreground">
-                  Filter listings and merchants near you
-                </p>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsOpen(false)}
-                className="h-8 w-8 rounded-full bg-muted flex items-center justify-center text-muted-foreground hover:text-foreground cursor-pointer"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-
-            <div className="space-y-2 pt-1" role="radiogroup">
-              {/* Option 1: Both campuses */}
-              <button
-                type="button"
-                onClick={() => setCampus('all')}
-                role="radio"
-                aria-checked={currentCampus === 'all'}
-                className={cn(
-                  'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer',
-                  currentCampus === 'all'
-                    ? 'border-foreground bg-muted/60 shadow-2xs'
-                    : 'border-border/80 hover:border-foreground/30 hover:bg-muted/30'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
-                    <span className="dot b" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-foreground">Both campuses</h4>
-                    <p className="text-xs text-muted-foreground">Okerenkoko &amp; Kurutie</p>
-                  </div>
-                </div>
-                {currentCampus === 'all' && (
-                  <Check className="h-4 w-4 text-foreground shrink-0" />
-                )}
-              </button>
-
-              {/* Option 2: Okerenkoko */}
-              <button
-                type="button"
-                onClick={() => setCampus('okerenkoko')}
-                role="radio"
-                aria-checked={currentCampus === 'okerenkoko'}
-                className={cn(
-                  'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer',
-                  currentCampus === 'okerenkoko'
-                    ? 'border-foreground bg-muted/60 shadow-2xs'
-                    : 'border-border/80 hover:border-foreground/30 hover:bg-muted/30'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
-                    <span className="dot" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-foreground">Okerenkoko</h4>
-                    <p className="text-xs text-muted-foreground">Permanent site</p>
-                  </div>
-                </div>
-                {currentCampus === 'okerenkoko' && (
-                  <Check className="h-4 w-4 text-foreground shrink-0" />
-                )}
-              </button>
-
-              {/* Option 3: Kurutie */}
-              <button
-                type="button"
-                onClick={() => setCampus('kurutie')}
-                role="radio"
-                aria-checked={currentCampus === 'kurutie'}
-                className={cn(
-                  'w-full flex items-center justify-between p-3.5 rounded-xl border text-left transition-all cursor-pointer',
-                  currentCampus === 'kurutie'
-                    ? 'border-foreground bg-muted/60 shadow-2xs'
-                    : 'border-border/80 hover:border-foreground/30 hover:bg-muted/30'
-                )}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-xl bg-muted border border-border/60 flex items-center justify-center shrink-0">
-                    <span className="dot" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-bold text-foreground">Kurutie</h4>
-                    <p className="text-xs text-muted-foreground">Take-off campus</p>
-                  </div>
-                </div>
-                {currentCampus === 'kurutie' && (
-                  <Check className="h-4 w-4 text-foreground shrink-0" />
-                )}
-              </button>
-            </div>
-
-            <button
-              type="button"
-              onClick={() => setIsOpen(false)}
-              className="w-full h-11 rounded-xl bg-muted text-foreground text-xs font-semibold hover:bg-muted/80 transition-colors cursor-pointer mt-2"
-            >
-              Close
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Render via Portal so it escapes sticky/backdrop-blur container clipping */}
+      {mounted && modalContent && createPortal(modalContent, document.body)}
     </>
   )
 }
