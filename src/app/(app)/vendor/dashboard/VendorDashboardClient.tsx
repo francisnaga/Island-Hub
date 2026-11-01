@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
@@ -26,9 +26,13 @@ import {
   MapPin,
   Navigation,
   Loader2,
+  FileText,
+  AlertCircle,
+  Send,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { ImageCropperModal } from '@/components/vendor/ImageCropperModal'
 import {
   CampusArea,
   Category,
@@ -181,6 +185,10 @@ export function VendorDashboardClient({
   const [savingStoreField, setSavingStoreField] = useState(false)
   const [locatingGps, setLocatingGps] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [cropModalOpen, setCropModalOpen] = useState(false)
+  const [rawImageForCrop, setRawImageForCrop] = useState<string | null>(null)
+  const [savingCroppedAvatar, setSavingCroppedAvatar] = useState(false)
+  const avatarFileInputRef = useRef<HTMLInputElement>(null)
   const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
   const [deletingAccount, setDeletingAccount] = useState(false)
 
@@ -706,34 +714,42 @@ export function VendorDashboardClient({
     }
   }
 
-  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleAvatarFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !isImageFile(file)) return
-    setUploadingAvatar(true)
+    const reader = new FileReader()
+    reader.onerror = () => toast.error('Could not read image file.')
+    reader.onload = () => {
+      setRawImageForCrop(reader.result as string)
+      setCropModalOpen(true)
+    }
+    reader.readAsDataURL(file)
+    e.target.value = ''
+  }
+
+  const handleSaveCroppedAvatar = async (croppedDataUrl: string) => {
+    setSavingCroppedAvatar(true)
     try {
-      const { dataUrl } = await compressImageFile(file, {
-        maxWidth: 320,
-        maxHeight: 320,
-        quality: 0.85,
-      })
       const res = await fetch('/api/vendor/store', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vendor_id: vendor.id,
-          logo_url: dataUrl,
+          logo_url: croppedDataUrl,
         }),
       })
-      if (res.ok) {
-        setVendor((prev) => ({ ...prev, logo_url: dataUrl }))
-        toast.success('Store photo updated')
-        router.refresh()
+      if (!res.ok) {
+        throw new Error('Failed to update store photo')
       }
+      setVendor((prev) => ({ ...prev, logo_url: croppedDataUrl }))
+      setCropModalOpen(false)
+      setRawImageForCrop(null)
+      toast.success('Profile photo updated successfully')
+      router.refresh()
     } catch {
-      toast.error('Could not update photo.')
+      toast.error('Could not update profile photo.')
     } finally {
-      setUploadingAvatar(false)
-      e.target.value = ''
+      setSavingCroppedAvatar(false)
     }
   }
 
@@ -930,19 +946,23 @@ export function VendorDashboardClient({
                 </button>
               </div>
             ) : listingsView === 'drafts' ? (
-              <div className="text-center pt-12 px-6">
+              <div className="text-center pt-10 pb-8 px-6 max-w-sm mx-auto">
+                <div className="w-14 h-14 mx-auto rounded-2xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center mb-3.5">
+                  <FileText className="w-7 h-7" />
+                </div>
                 <b className="block font-[family-name:var(--font-bricolage)] font-semibold text-xl text-foreground">
                   No saved drafts
                 </b>
-                <p className="mt-1.5 text-sm text-muted-foreground">
-                  When you save an item without publishing immediately, it stays here.
+                <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
+                  Save listings in progress and return to finish or publish whenever you're ready.
                 </p>
                 <button
                   type="button"
                   onClick={() => setScreen('v:new')}
-                  className="mt-5 mx-auto max-w-[200px] h-11 rounded-xl bg-foreground text-background font-semibold text-sm flex items-center justify-center transition-opacity hover:opacity-90 cursor-pointer"
+                  className="mt-5 w-full sm:w-auto sm:px-6 h-12 rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-xs transition-colors cursor-pointer"
                 >
-                  Start a draft
+                  <Plus className="w-4 h-4" />
+                  <span>Start a draft</span>
                 </button>
               </div>
             ) : (
@@ -1534,41 +1554,86 @@ export function VendorDashboardClient({
             </div>
 
             {/* Sticky Bottom Publish Bar (.bar.on) */}
-            <div className="fixed bottom-0 inset-x-0 z-30 bg-card border-t border-border">
-              <div className="mx-auto w-full max-w-[480px] md:max-w-3xl px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center gap-2.5 sm:gap-3">
-                <div className="min-w-0 flex-1">
-                  <small className="block text-xs text-muted-foreground">
-                    {missingReason ? 'Still needed' : 'Ready'}
-                  </small>
-                  <b className="block text-[14px] sm:text-[15px] font-semibold text-foreground truncate">
-                    {missingReason || 'Ready to publish'}
-                  </b>
+            <div className="fixed bottom-0 inset-x-0 z-30 bg-card border-t border-border shadow-lg">
+              <div className="mx-auto w-full max-w-[480px] md:max-w-3xl px-4 py-2.5 sm:py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))]">
+                {/* Mobile View (<640px): Status row on top, balanced full-width split buttons below */}
+                <div className="flex flex-col gap-2 sm:hidden">
+                  <div className="flex items-center justify-between text-xs min-h-[18px]">
+                    {missingReason ? (
+                      <span className="text-amber-700 dark:text-amber-400 font-medium flex items-center gap-1.5 truncate">
+                        <AlertCircle className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">Still needed: {missingReason}</span>
+                      </span>
+                    ) : (
+                      <span className="text-emerald-600 dark:text-emerald-400 font-medium flex items-center gap-1.5">
+                        <Check className="w-3.5 h-3.5 shrink-0 stroke-[2.5]" />
+                        <span>Ready to publish</span>
+                      </span>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      disabled={publishing}
+                      onClick={() => handlePublish(true)}
+                      className="flex-1 h-11 rounded-xl border border-border bg-card text-foreground font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-muted transition-colors cursor-pointer"
+                    >
+                      <FileText className="w-3.5 h-3.5 text-muted-foreground" />
+                      <span>Save draft</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!isFormReady || publishing}
+                      onClick={() => handlePublish(false)}
+                      className={cn(
+                        'flex-1 h-11 rounded-xl font-semibold text-xs flex items-center justify-center gap-1.5 transition-colors cursor-pointer',
+                        isFormReady && !publishing
+                          ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
+                          : 'bg-muted text-muted-foreground cursor-default'
+                      )}
+                    >
+                      <Send className="w-3.5 h-3.5" />
+                      <span>{publishing ? 'Saving...' : editId ? 'Save' : 'Publish'}</span>
+                    </button>
+                  </div>
                 </div>
 
-                {/* Save Draft Button */}
-                <button
-                  type="button"
-                  disabled={publishing}
-                  onClick={() => handlePublish(true)}
-                  className="h-11 px-3.5 rounded-xl border border-border bg-card text-foreground font-semibold text-xs sm:text-sm hover:bg-muted transition-colors cursor-pointer shrink-0"
-                >
-                  Save draft
-                </button>
-
-                {/* Publish Button */}
-                <button
-                  type="button"
-                  disabled={!isFormReady || publishing}
-                  onClick={() => handlePublish(false)}
-                  className={cn(
-                    'h-11 px-4 sm:px-5 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center transition-colors cursor-pointer shrink-0',
-                    isFormReady && !publishing
-                      ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
-                      : 'bg-[#CBDADA] dark:bg-muted text-[#3E4F4F] dark:text-muted-foreground cursor-default'
-                  )}
-                >
-                  {publishing ? 'Saving...' : editId ? 'Save' : 'Publish'}
-                </button>
+                {/* Tablet / Desktop View (>=640px): Status on left, buttons on right */}
+                <div className="hidden sm:flex items-center justify-between gap-4">
+                  <div className="min-w-0 flex-1">
+                    <small className="block text-xs text-muted-foreground">
+                      {missingReason ? 'Still needed' : 'Ready'}
+                    </small>
+                    <b className="block text-[15px] font-semibold text-foreground truncate">
+                      {missingReason || 'Ready to publish'}
+                    </b>
+                  </div>
+                  <div className="flex items-center gap-2.5 shrink-0">
+                    <button
+                      type="button"
+                      disabled={publishing}
+                      onClick={() => handlePublish(true)}
+                      className="h-11 px-4 rounded-xl border border-border bg-card text-foreground font-semibold text-sm hover:bg-muted transition-colors cursor-pointer flex items-center gap-1.5"
+                    >
+                      <FileText className="w-4 h-4 text-muted-foreground" />
+                      <span>Save draft</span>
+                    </button>
+                    <button
+                      type="button"
+                      disabled={!isFormReady || publishing}
+                      onClick={() => handlePublish(false)}
+                      className={cn(
+                        'h-11 px-5 rounded-xl font-semibold text-sm flex items-center justify-center gap-1.5 transition-colors cursor-pointer',
+                        isFormReady && !publishing
+                          ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
+                          : 'bg-muted text-muted-foreground cursor-default'
+                      )}
+                    >
+                      <Send className="w-4 h-4" />
+                      <span>{publishing ? 'Saving...' : editId ? 'Save' : 'Publish'}</span>
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1654,28 +1719,70 @@ export function VendorDashboardClient({
           <div>
             {/* Centered Store Header (.sthead) */}
             <section className="text-center pt-6 px-4">
-              <label className="relative w-[72px] h-[72px] mx-auto rounded-full overflow-hidden grid place-items-center text-white font-[family-name:var(--font-bricolage)] font-semibold text-2xl bg-gradient-to-br from-[#17908D] to-[#0A4F4F] cursor-pointer group">
-                {vendor.logo_url ? (
-                  <img
-                    src={vendor.logo_url}
-                    alt={vendor.shop_name}
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <span>{getVendorInitials(vendor.shop_name)}</span>
-                )}
-                <span className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <Camera className="w-5 h-5 text-white" />
-                </span>
+              <div className="flex flex-col items-center">
+                {/* Croppable Avatar Container */}
+                <div className="relative inline-block">
+                  <button
+                    type="button"
+                    onClick={() => avatarFileInputRef.current?.click()}
+                    disabled={savingCroppedAvatar}
+                    className="relative w-24 h-24 rounded-full overflow-hidden grid place-items-center text-white font-[family-name:var(--font-bricolage)] font-semibold text-3xl bg-gradient-to-br from-[#17908D] to-[#0A4F4F] shadow-sm ring-4 ring-card hover:opacity-95 transition-all cursor-pointer group"
+                    aria-label="Change store profile photo"
+                  >
+                    {vendor.logo_url ? (
+                      <img
+                        src={vendor.logo_url}
+                        alt={vendor.shop_name}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <span>{getVendorInitials(vendor.shop_name)}</span>
+                    )}
+                    {savingCroppedAvatar ? (
+                      <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+                        <Loader2 className="w-6 h-6 text-white animate-spin" />
+                      </div>
+                    ) : (
+                      <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                        <Camera className="w-6 h-6 text-white" />
+                      </div>
+                    )}
+                  </button>
+
+                  {/* Corner Camera Badge */}
+                  <button
+                    type="button"
+                    onClick={() => avatarFileInputRef.current?.click()}
+                    disabled={savingCroppedAvatar}
+                    aria-label="Edit profile photo"
+                    className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-[#0F6E6E] dark:bg-[#22D3EE] text-white dark:text-[#0B1220] flex items-center justify-center shadow-md border-2 border-card hover:scale-105 active:scale-95 transition-transform cursor-pointer"
+                  >
+                    <Camera className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Explicit Button so vendors immediately know they can change it */}
+                <button
+                  type="button"
+                  onClick={() => avatarFileInputRef.current?.click()}
+                  disabled={savingCroppedAvatar}
+                  className="mt-3 inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-semibold text-[#0F6E6E] dark:text-[#22D3EE] bg-[#0F6E6E]/10 hover:bg-[#0F6E6E]/15 border border-[#0F6E6E]/25 transition-colors cursor-pointer"
+                >
+                  <Camera className="w-3.5 h-3.5" />
+                  <span>{savingCroppedAvatar ? 'Updating...' : 'Edit profile photo'}</span>
+                </button>
+
                 <input
+                  ref={avatarFileInputRef}
                   type="file"
                   accept="image/*,image/heic,image/heif"
-                  onChange={handleAvatarUpload}
-                  disabled={uploadingAvatar}
+                  onChange={handleAvatarFileSelected}
+                  disabled={savingCroppedAvatar}
                   className="hidden"
                 />
-              </label>
-              <h2 className="mt-3 font-[family-name:var(--font-bricolage)] font-semibold text-[22px] text-foreground inline-flex items-center justify-center gap-1.5">
+              </div>
+
+              <h2 className="mt-3.5 font-[family-name:var(--font-bricolage)] font-semibold text-[22px] text-foreground inline-flex items-center justify-center gap-1.5">
                 <span>{vendor.shop_name}</span>
                 {vendor.verification_status === 'verified' && <VerifiedBadge size={18} />}
               </h2>
@@ -2363,6 +2470,19 @@ export function VendorDashboardClient({
           </div>
         </div>
       )}
+
+      {/* Interactive Store Profile Photo Cropper Modal */}
+      <ImageCropperModal
+        isOpen={cropModalOpen}
+        imageSrc={rawImageForCrop}
+        onClose={() => {
+          setCropModalOpen(false)
+          setRawImageForCrop(null)
+        }}
+        onSave={handleSaveCroppedAvatar}
+        isSaving={savingCroppedAvatar}
+        title="Crop store photo"
+      />
     </div>
   )
 }
