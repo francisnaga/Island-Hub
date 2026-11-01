@@ -23,6 +23,8 @@ export const viewport: Viewport = {
   maximumScale: 1,
   userScalable: false,
   themeColor: "#0A4F4F",
+  // Required for env(safe-area-inset-bottom) to work on iPhone notch/home bar
+  viewportFit: "cover",
 };
 
 export const metadata: Metadata = {

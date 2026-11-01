@@ -16,7 +16,7 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
           <Link
             key={vendor.id}
             href={href}
-            className="flex-none w-[225px] sm:w-[250px] snap-start rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E]"
+            className="flex-none w-[225px] sm:w-[250px] snap-start rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] overflow-hidden min-w-0"
           >
             {/* Top row: Avatar + Name + Campus */}
             <div className="flex items-center gap-3 min-w-0">
@@ -37,9 +37,9 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
                 )}
               </div>
 
-              <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-[13px] text-foreground line-clamp-1 leading-snug group-hover:text-[#0F6E6E] dark:group-hover:text-[#E8B84A] transition-colors inline-flex items-center gap-1">
-                  <span className="truncate">{vendor.shop_name}</span>
+              <div className="min-w-0 flex-1 overflow-hidden">
+                <h3 className="font-bold text-[13px] text-foreground leading-snug group-hover:text-[#0F6E6E] dark:group-hover:text-[#E8B84A] transition-colors flex items-center gap-1 min-w-0">
+                  <span className="truncate min-w-0 block">{vendor.shop_name}</span>
                   {vendor.verification_status === 'verified' && (
                     <VerifiedBadge size={13} variant={isGolden ? 'gold' : 'blue'} />
                   )}

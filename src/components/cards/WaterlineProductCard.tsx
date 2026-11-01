@@ -92,21 +92,21 @@ export function WaterlineProductCard({
       </div>
 
       {/* Meta Row */}
-      <div className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground whitespace-nowrap overflow-hidden">
+      <div className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground overflow-hidden min-w-0">
         {product.vendor?.verification_status === 'verified' ? (
           <>
             <VerifiedBadge size={14} />
-            <span className="truncate font-medium text-foreground/80">
+            <span className="truncate font-medium text-foreground/80 min-w-0">
               {product.vendor?.shop_name || 'Verified'}
             </span>
             {!isSingleCampusSelected && (
-              <span className="truncate">
-                · {campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}
+              <span className="truncate shrink-0 text-[11px]">
+                · {campus === 'Both' ? 'Both campuses' : campus}
               </span>
             )}
           </>
         ) : (
-          <span className="truncate">
+          <span className="truncate min-w-0">
             {product.vendor?.shop_name ? `${product.vendor.shop_name} · ` : ''}
             {campus === 'Both' ? 'Both campuses' : campus}
           </span>

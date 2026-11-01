@@ -66,6 +66,13 @@ export function ReportListingModal({
 
       setSubmitted(true)
       toast.success('Report submitted to Jetty moderators')
+
+      // Fire-and-forget: notify admin via push
+      fetch('/api/push/report-notify', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ targetType, reason }),
+      }).catch(() => {})
     } catch {
       setSubmitted(true)
       toast.success('Report recorded for moderation review')

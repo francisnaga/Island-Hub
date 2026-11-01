@@ -43,7 +43,7 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
     <Link
       href={`/vendors/${vendor.slug || vendor.id}`}
       className={cn(
-        'group relative block rounded-2xl border p-4 sm:p-5 transition-all bg-card shadow-2xs hover:border-foreground/30 hover:shadow-xs text-center cursor-pointer',
+        'group relative block rounded-2xl border p-4 sm:p-5 transition-all bg-card shadow-2xs hover:border-foreground/30 hover:shadow-xs text-center cursor-pointer overflow-hidden min-w-0',
         isBanned
           ? 'border-red-500/30 bg-red-950/10'
           : 'border-border/80'
@@ -96,12 +96,12 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
       </div>
 
       {/* Name, Role & Campus */}
-      <div className="mt-2.5 space-y-0.5">
-        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base sm:text-lg text-foreground line-clamp-1 leading-snug group-hover:text-primary transition-colors inline-flex items-center justify-center gap-1.5">
-          <span>{vendor.shop_name}</span>
+      <div className="mt-2.5 space-y-0.5 min-w-0 w-full">
+        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base sm:text-lg text-foreground leading-snug group-hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-0">
+          <span className="truncate min-w-0">{vendor.shop_name}</span>
           {isVerified && !isBanned && <VerifiedBadge size={15} />}
         </h3>
-        <p className="text-[11px] text-muted-foreground font-medium">
+        <p className="text-[11px] text-muted-foreground font-medium truncate">
           {roleLabel}
         </p>
         <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground pt-0.5">

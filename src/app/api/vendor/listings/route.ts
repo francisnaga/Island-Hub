@@ -7,6 +7,7 @@ import {
   SYSTEM_SERVICE_CATEGORY_ID,
 } from '@/lib/marketplace-data'
 import { isAdminEmail, ProductCondition, StockStatus } from '@/lib/types'
+import { sendAdminPush } from '@/lib/push'
 
 function slugifyTitle(title: string): string {
   const base = title
@@ -325,6 +326,16 @@ export async function POST(request: NextRequest) {
     if (insertErr) {
       return NextResponse.json({ error: insertErr.message }, { status: 400 })
     }
+
+    // Notify admin: new listing pending review
+    const pushListingType = body.listing_type || 'product'
+    const typeEmoji = pushListingType === 'service' ? '🛠️' : pushListingType === 'housing' ? '🏠' : '📦'
+    await sendAdminPush({
+      title: `${typeEmoji} New Listing Posted`,
+      body: `"${title}" by ${vendor.shop_name} — pending review`,
+      url: '/admin',
+      tag: 'new-listing',
+    })
 
     return NextResponse.json({
       product: {

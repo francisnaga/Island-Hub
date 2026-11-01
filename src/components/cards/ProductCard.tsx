@@ -160,16 +160,16 @@ export function ProductCard({ product }: ProductCardProps) {
         </div>
 
         {product.vendor && (
-          <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-border/60 text-[11px] text-muted-foreground min-w-0">
-            <div className="flex items-center gap-1 min-w-0 truncate">
-              <span className="truncate font-medium text-foreground/80">
+          <div className="flex items-center justify-between gap-1.5 pt-1.5 border-t border-border/60 text-[11px] text-muted-foreground min-w-0 overflow-hidden">
+            <div className="flex items-center gap-1 min-w-0 overflow-hidden">
+              <span className="truncate font-medium text-foreground/80 min-w-0 block">
                 {product.vendor.shop_name}
               </span>
               {product.vendor.verification_status === 'verified' && (
                 <VerifiedBadge size={14} />
               )}
             </div>
-            <span className="shrink-0 text-[10px] text-muted-foreground">
+            <span className="shrink-0 text-[10px] text-muted-foreground whitespace-nowrap">
               {campusShort}
             </span>
           </div>

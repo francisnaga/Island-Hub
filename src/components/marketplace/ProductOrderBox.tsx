@@ -200,10 +200,10 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
 
       {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge with 0 gap / no opening) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[60] w-full bg-card border-t border-border shadow-[0_-4px_16px_rgba(0,0,0,0.07)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.25)] transform-gpu will-change-transform touch-manipulation"
-        style={{ transform: 'translate3d(0, 0, 0)' }}
+        className="fixed bottom-0 left-0 right-0 z-[60] w-full bg-card border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.35)] transform-gpu will-change-transform touch-manipulation"
+        style={{ transform: 'translate3d(0, 0, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 pt-3 pb-[max(12px,calc(env(safe-area-inset-bottom,0px)+10px))] flex items-center justify-between gap-3 sm:gap-4 min-h-[68px]">
+        <div className="w-full px-4 pt-3 pb-3 flex items-center justify-between gap-3 sm:gap-4 min-h-[72px]">
           {/* Price & Quantity Summary */}
           <div className="min-w-0 flex flex-col justify-center">
             <div className="flex items-baseline gap-1.5">

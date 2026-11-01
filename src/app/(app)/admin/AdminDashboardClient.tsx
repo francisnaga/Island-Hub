@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { AdminPushToggle } from '@/components/admin/AdminPushToggle'
 import {
   Category,
   CategoryRequest,
@@ -681,6 +682,12 @@ export function AdminDashboardClient({
           </p>
         </div>
 
+        {/* Admin Push Notifications Toggle */}
+        <div className="w-full sm:w-auto sm:min-w-[300px]">
+          <AdminPushToggle />
+        </div>
+      </div>
+
         {/* Compact Inline Telemetry Strip */}
         <div className="flex flex-wrap items-center gap-1.5">
           <button
@@ -743,7 +750,6 @@ export function AdminDashboardClient({
             </button>
           )}
         </div>
-      </div>
 
       {/* ── Primary Navigation Bar ── */}
       <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
@@ -1232,8 +1238,8 @@ export function AdminDashboardClient({
                               isSuspended && 'line-through'
                             )}
                           >
-                            <span>{v.shop_name}</span>
-                            <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                            <span className="truncate max-w-[200px]">{v.shop_name}</span>
+                            <ExternalLink className="w-3 h-3 text-muted-foreground shrink-0" />
                           </Link>
 
                           {isVerified ? (

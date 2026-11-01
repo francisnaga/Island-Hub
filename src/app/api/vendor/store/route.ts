@@ -4,6 +4,7 @@ import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { isAdminEmail, CampusArea } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
+import { sendAdminPush } from '@/lib/push'
 
 function slugifyShopName(name: string): string {
   const base = name
@@ -167,6 +168,14 @@ export async function POST(request: NextRequest) {
     if (insertErr) {
       return NextResponse.json({ error: insertErr.message }, { status: 400 })
     }
+
+    // Notify admin: new vendor application
+    await sendAdminPush({
+      title: '🏪 New Vendor Applied',
+      body: `${shopName} applied to sell on Jetty (${campus} campus)`,
+      url: '/admin',
+      tag: 'new-vendor',
+    })
 
     revalidatePath('/', 'layout')
     return NextResponse.json({ vendor: created })

@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { isAdminEmail } from '@/lib/types'
 import type { User } from '@supabase/supabase-js'
+import { sendAdminPush } from '@/lib/push'
 
 function getPublicOrigin(request: Request): string {
   const url = new URL(request.url)
@@ -90,6 +91,21 @@ export async function GET(request: Request) {
           },
           { onConflict: 'id' }
         )
+
+        // Notify admin of new sign-up (non-admin users only to avoid self-ping)
+        if (!admin) {
+          const displayName =
+            user.user_metadata?.full_name ||
+            user.user_metadata?.name ||
+            user.email?.split('@')[0] ||
+            'Someone'
+          await sendAdminPush({
+            title: '👤 New Sign-Up',
+            body: `${displayName} (${user.email}) just joined Jetty`,
+            url: '/admin',
+            tag: 'new-user',
+          })
+        }
       } catch (profileErr) {
         console.error('Error auto-syncing profile during auth callback:', profileErr)
       }
