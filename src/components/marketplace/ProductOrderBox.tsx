@@ -200,10 +200,10 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
 
       {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge with 0 gap / no opening) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[60] w-full bg-white dark:bg-[#111A2E] border-t border-border shadow-[0_-8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_-8px_24px_rgba(0,0,0,0.4)] transform-gpu will-change-transform touch-manipulation after:absolute after:top-full after:left-0 after:right-0 after:h-40 after:bg-white dark:after:bg-[#111A2E]"
+        className="fixed bottom-0 left-0 right-0 z-[60] w-full bg-card border-t border-border shadow-[0_-4px_16px_rgba(0,0,0,0.07)] dark:shadow-[0_-4px_16px_rgba(0,0,0,0.25)] transform-gpu will-change-transform touch-manipulation"
         style={{ transform: 'translate3d(0, 0, 0)' }}
       >
-        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 pt-3.5 sm:pt-4 pb-[max(16px,calc(env(safe-area-inset-bottom,0px)+12px))] flex items-center justify-between gap-3 sm:gap-4 min-h-[84px] sm:min-h-[92px]">
+        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 pt-3 pb-[max(12px,calc(env(safe-area-inset-bottom,0px)+10px))] flex items-center justify-between gap-3 sm:gap-4 min-h-[68px]">
           {/* Price & Quantity Summary */}
           <div className="min-w-0 flex flex-col justify-center">
             <div className="flex items-baseline gap-1.5">

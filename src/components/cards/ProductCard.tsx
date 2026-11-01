@@ -69,7 +69,7 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group flex min-w-0 flex-col rounded-2xl border border-border bg-card overflow-hidden transition-all hover:border-primary/60 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       {/* 1. Large Visual-First Product Media */}
-      <div className="relative aspect-square w-full bg-muted overflow-hidden flex items-center justify-center">
+      <div className="relative aspect-square md:aspect-[4/3] w-full bg-muted overflow-hidden flex items-center justify-center">
         {mediaUrl ? (
           isVideo ? (
             <video
@@ -141,10 +141,10 @@ export function ProductCard({ product }: ProductCardProps) {
       </div>
 
       {/* 2. Clean 3-Line Visual Body: Price -> Title -> Seller */}
-      <div className="flex flex-1 min-w-0 flex-col justify-between p-3 sm:p-3.5 gap-1.5">
+      <div className="flex flex-1 min-w-0 flex-col justify-between p-3 sm:p-3.5 md:p-4 gap-1.5">
         <div className="space-y-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2">
-            <div className="text-sm sm:text-base font-extrabold text-foreground tracking-tight">
+            <div className="text-sm sm:text-base md:text-[15px] font-extrabold text-foreground tracking-tight">
               {priceDisplay}
             </div>
             {hasValidLowStock && (
@@ -154,7 +154,7 @@ export function ProductCard({ product }: ProductCardProps) {
             )}
           </div>
 
-          <h3 className="text-xs sm:text-sm font-medium text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
+          <h3 className="text-xs sm:text-sm md:text-[13px] font-medium text-foreground/90 line-clamp-2 group-hover:text-primary transition-colors leading-snug">
             {product.title}
           </h3>
         </div>

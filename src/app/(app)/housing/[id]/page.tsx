@@ -317,23 +317,25 @@ export default async function HousingDetailPage({
       </div>
 
       {/* 3. Sticky Bottom Action Bar */}
-      <div className="bar fixed bottom-0 inset-x-0 z-50 h-[72px] px-4 bg-card/95 backdrop-blur-md border-t border-border flex items-center justify-between gap-4 max-w-lg md:max-w-5xl mx-auto">
-        <div className="pp min-w-0">
-          <b className="block text-[20px] font-bold text-foreground leading-none font-[family-name:var(--font-bricolage)]">
-            {formatNaira(lodge.price)}
-          </b>
-          <small className="text-xs text-muted-foreground">per {lodge.period}</small>
-        </div>
+      <div className="fixed bottom-0 inset-x-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
+        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[72px] flex items-center justify-between gap-4">
+          <div className="pp min-w-0">
+            <b className="block text-[20px] font-bold text-foreground leading-none font-[family-name:var(--font-bricolage)]">
+              {formatNaira(lodge.price)}
+            </b>
+            <small className="text-xs text-muted-foreground">per {lodge.period}</small>
+          </div>
 
-        <a
-          href={waUrl}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm sm:text-base transition-colors shadow-sm cursor-pointer"
-        >
-          <MessageCircle className="w-5 h-5 stroke-[2] fill-white/20" />
-          <span>Request viewing</span>
-        </a>
+          <a
+            href={waUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm sm:text-base transition-colors shadow-sm cursor-pointer"
+          >
+            <MessageCircle className="w-5 h-5 stroke-[2] fill-white/20" />
+            <span>Request viewing</span>
+          </a>
+        </div>
       </div>
     </div>
   )

@@ -78,15 +78,26 @@ export default async function HomePage({
           </div>
 
           {justLandedItems.length > 0 ? (
-            <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
-              {justLandedItems.slice(0, 8).map((product) => (
-                <WaterlineProductCard
-                  key={product.id}
-                  product={product}
-                  selectedCampus={selectedCampus}
-                />
-              ))}
-            </div>
+            <>
+              <div className="md:hidden rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
+                {justLandedItems.slice(0, 8).map((product) => (
+                  <WaterlineProductCard
+                    key={product.id}
+                    product={product}
+                    selectedCampus={selectedCampus}
+                  />
+                ))}
+              </div>
+              <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-4 px-4">
+                {justLandedItems.slice(0, 10).map((product) => (
+                  <WaterlineProductCard
+                    key={product.id}
+                    product={product}
+                    selectedCampus={selectedCampus}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
               <p className="text-xs text-muted-foreground">
@@ -111,15 +122,26 @@ export default async function HomePage({
           </div>
 
           {filteredLodges.length > 0 ? (
-            <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
-              {filteredLodges.map((lodge) => (
-                <WaterlineRoomCard
-                  key={lodge.id}
-                  lodge={lodge}
-                  selectedCampus={selectedCampus}
-                />
-              ))}
-            </div>
+            <>
+              <div className="md:hidden rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
+                {filteredLodges.map((lodge) => (
+                  <WaterlineRoomCard
+                    key={lodge.id}
+                    lodge={lodge}
+                    selectedCampus={selectedCampus}
+                  />
+                ))}
+              </div>
+              <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
+                {filteredLodges.map((lodge) => (
+                  <WaterlineRoomCard
+                    key={lodge.id}
+                    lodge={lodge}
+                    selectedCampus={selectedCampus}
+                  />
+                ))}
+              </div>
+            </>
           ) : (
             <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
               <p className="text-xs text-muted-foreground">
@@ -160,12 +182,48 @@ export default async function HomePage({
           </div>
 
           {vendors.length > 0 ? (
-            <VendorAvatarRail vendors={vendors} />
+            <div className="md:hidden">
+              <VendorAvatarRail vendors={vendors} />
+            </div>
           ) : (
             <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
               <p className="text-xs text-muted-foreground">
                 No stores registered yet at this campus.
               </p>
+            </div>
+          )}
+          {vendors.length > 0 && (
+            <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
+              {vendors.slice(0, 8).map((vendor) => {
+                const href = `/vendors/${vendor.slug || vendor.id}`
+                return (
+                  <Link
+                    key={vendor.id}
+                    href={href}
+                    className="flex-none rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E]"
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs">
+                        {vendor.logo_url ? (
+                          <img src={vendor.logo_url} alt={vendor.shop_name} className="w-full h-full object-cover" />
+                        ) : (
+                          <div className="w-full h-full bg-gradient-to-br from-[#17908D] to-[#0A4F4F] flex items-center justify-center text-white font-bold text-sm">
+                            {vendor.shop_name.slice(0, 2).toUpperCase()}
+                          </div>
+                        )}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <h3 className="font-bold text-[13px] text-foreground line-clamp-1 leading-snug truncate">{vendor.shop_name}</h3>
+                        <p className="text-[11px] text-muted-foreground truncate">{vendor.campus || 'Okerenkoko'}</p>
+                      </div>
+                    </div>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">{vendor.department_or_business_info || vendor.description || 'Verified Campus Merchant'}</p>
+                    <div className="pt-2 border-t border-border/60 flex items-center justify-end text-[11px] font-semibold text-[#0F6E6E] dark:text-[#E8B84A] gap-0.5">
+                      <span>View store</span>
+                    </div>
+                  </Link>
+                )
+              })}
             </div>
           )}
         </section>

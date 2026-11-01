@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Plus, Store } from 'lucide-react'
+import { Plus, Store, Wrench, Home } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 
 interface FloatingSellButtonProps {
@@ -79,30 +79,52 @@ export function FloatingSellButton({ initialHasStore = false }: FloatingSellButt
     return null
   }
 
+  // Context-aware label and destination based on current page
+  const isServicesTab = pathname === '/services' || pathname.startsWith('/services')
+  const isHousingTab = pathname === '/housing'
+
   if (hasStore) {
+    // On services page: go list a service; on housing: go post a room; elsewhere: open dashboard
+    const dashHref = isServicesTab
+      ? '/vendor/dashboard?tab=listings&type=service'
+      : isHousingTab
+      ? '/vendor/dashboard?tab=listings&type=housing'
+      : '/vendor/dashboard'
+    const dashLabel = isServicesTab ? 'List a service' : isHousingTab ? 'Post a room' : 'Open store'
+    const DashIcon = isServicesTab ? Wrench : isHousingTab ? Home : Store
+
     return (
       <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-6 right-4 z-40">
         <Link
-          href="/vendor/dashboard"
-          aria-label="Open your vendor store"
+          href={dashHref}
+          aria-label={dashLabel}
           className="flex items-center gap-1.5 h-11 px-4 rounded-full bg-foreground text-background text-xs font-bold shadow-lg hover:opacity-95 active:scale-95 transition-all"
         >
-          <Store className="h-4 w-4 stroke-[2]" />
-          <span>Open store</span>
+          <DashIcon className="h-4 w-4 stroke-[2]" />
+          <span>{dashLabel}</span>
         </Link>
       </div>
     )
   }
 
+  // Context-aware for unauthenticated / no store yet
+  const applyHref = isServicesTab
+    ? '/vendor/apply?type=service'
+    : isHousingTab
+    ? '/vendor/apply?type=housing'
+    : '/vendor/apply'
+  const applyLabel = isServicesTab ? 'List a service' : isHousingTab ? 'Post a room' : 'Sell'
+  const ApplyIcon = isServicesTab ? Wrench : isHousingTab ? Home : Plus
+
   return (
     <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-6 right-4 z-40">
       <Link
-        href="/vendor/apply"
-        aria-label="Sell on Jetty"
+        href={applyHref}
+        aria-label={applyLabel}
         className="flex items-center gap-1.5 h-11 px-4 rounded-full bg-[#0F6E6E] dark:bg-[#E8B84A] text-white dark:text-[#0E1B1B] text-xs font-bold shadow-lg hover:opacity-95 active:scale-95 transition-all"
       >
-        <Plus className="h-4 w-4 stroke-[2.5]" />
-        <span>Sell</span>
+        <ApplyIcon className="h-4 w-4 stroke-[2.5]" />
+        <span>{applyLabel}</span>
       </Link>
     </div>
   )

@@ -260,6 +260,18 @@
   scroll-padding: 0 1rem;
 }
 
+/* ── Home page section spacing ── */
+.sec {
+  padding-top: 4px;
+  padding-bottom: 8px;
+}
+@media (min-width: 768px) {
+  .sec {
+    padding-top: 8px;
+    padding-bottom: 16px;
+  }
+}
+
 .scrollbar-none,
 .no-scrollbar,
 .rail,

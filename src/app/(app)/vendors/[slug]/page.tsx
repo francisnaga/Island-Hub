@@ -207,7 +207,7 @@ export default async function VendorStorefrontPage({
       <div className="container mx-auto max-w-lg md:max-w-5xl px-4 pt-4">
         {/* Primary CTA: Message on WhatsApp */}
         {whatsappStore.valid && !isBanned ? (
-          <div className="md:max-w-md md:mx-auto">
+          <div>
             <a
               href={whatsappStore.url}
               target="_blank"
