@@ -35,24 +35,12 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
   }
 
   return (
-    <>
-      {/* Floating "Open store" pill on mobile in Buyer Mode when vendor is signed in */}
-      {hasStore && (
-        <Link
-          href="/vendor/dashboard"
-          className="fixed right-4 bottom-[calc(76px+env(safe-area-inset-bottom,0px))] z-40 md:hidden inline-flex items-center gap-2 h-11 px-4 rounded-full bg-foreground text-background text-xs font-semibold shadow-lg hover:opacity-95 active:scale-95 transition-all"
-        >
-          <Store className="w-4 h-4 stroke-[2]" />
-          <span>Open store</span>
-        </Link>
-      )}
-
-      <nav
-        aria-label="Mobile bottom navigation"
-        className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden transform-gpu will-change-transform"
-        style={{ transform: 'translate3d(0, 0, 0)' }}
-      >
-        <div className="grid h-full grid-cols-4">
+    <nav
+      aria-label="Mobile bottom navigation"
+      className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden transform-gpu will-change-transform"
+      style={{ transform: 'translate3d(0, 0, 0)' }}
+    >
+      <div className="grid h-full grid-cols-4">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const active = tab.exact
@@ -94,6 +82,5 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
           })}
         </div>
       </nav>
-    </>
   )
 }

@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter, Bricolage_Grotesque } from "next/font/google";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { Toaster } from "sonner";
-import { FloatingSellButton } from "@/components/layout/FloatingSellButton";
 import { FirstTimeGuide } from "@/components/common/FirstTimeGuide";
 import "./globals.css";
 
@@ -56,7 +55,6 @@ export default function RootLayout({
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
-          <FloatingSellButton />
           <FirstTimeGuide />
           <Toaster position="top-center" richColors closeButton />
         </ThemeProvider>
