@@ -76,6 +76,12 @@ export function Footer() {
             <Link href="/safety" className="hover:text-foreground transition-colors">
               Safety
             </Link>
+            <Link href="/privacy" className="hover:text-foreground transition-colors">
+              Privacy
+            </Link>
+            <Link href="/terms" className="hover:text-foreground transition-colors">
+              Terms
+            </Link>
           </nav>
         </div>
 
