@@ -9,7 +9,7 @@ export type LocationVisibility = 'exact' | 'approximate' | 'hidden'
 
 export type ProductCondition = 'new' | 'like_new' | 'good' | 'fair'
 export type StockStatus = 'available' | 'low_stock' | 'out_of_stock'
-export type ListingType = 'product' | 'food' | 'service' | 'housing'
+export type ListingType = 'product' | 'item' | 'food' | 'service' | 'housing'
 export type ProductApprovalStatus =
   | 'pending_review'
   | 'approved'
@@ -103,6 +103,7 @@ export interface ProductVariants {
   colors?: string[]
   custom_label?: string
   service_slug?: string
+  campus?: CampusArea
   room_type?: 'self_contain' | 'single_room' | 'bedspace'
   room_type_label?: string
   period?: string
@@ -113,13 +114,17 @@ export interface ProductVariants {
   utilities?: string
   other_fees?: string
   features?: string[]
+  room_meta?: Record<string, any>
+  service_meta?: Record<string, any>
 }
 
 export interface Product {
   id: string
   vendor_id: string
   category_id: string
-  campus?: 'Okerenkoko' | 'Kurutie'
+  campus?: CampusArea
+  room_meta?: Record<string, any>
+  service_meta?: Record<string, any>
   title: string
   slug: string
   description: string

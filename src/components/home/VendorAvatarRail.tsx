@@ -52,16 +52,23 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
               {vendor.department_or_business_info || vendor.description || 'Verified Campus Merchant'}
             </p>
 
-            {/* Bottom Row: Verified Badge & Enter Arrow */}
+            {/* Bottom Row: Verified Badge (only if verified) & Enter Arrow */}
             <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
-              <div className="inline-flex items-center gap-1 font-semibold text-foreground/85">
-                <BadgeCheck
-                  className={`h-3.5 w-3.5 ${
-                    isGolden ? 'text-[#E8B84A]' : 'text-[#0099FF]'
-                  }`}
-                />
-                <span>Verified</span>
-              </div>
+              {vendor.verification_status === 'verified' ? (
+                <div className="inline-flex items-center gap-1 font-semibold text-foreground/85">
+                  <BadgeCheck
+                    className={`h-3.5 w-3.5 ${
+                      isGolden ? 'text-[#E8B84A]' : 'text-[#0099FF]'
+                    }`}
+                  />
+                  <span>Verified</span>
+                </div>
+              ) : (
+                <span className="text-muted-foreground">
+                  {vendor.products_count ?? 0}{' '}
+                  {(vendor.products_count ?? 0) === 1 ? 'listing' : 'listings'}
+                </span>
+              )}
 
               <span className="inline-flex items-center gap-0.5 font-semibold text-[#0F6E6E] dark:text-[#E8B84A] group-hover:translate-x-0.5 transition-transform">
                 <span>View</span>

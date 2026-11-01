@@ -74,38 +74,19 @@ export function VendorApplyForm({
 
     setSubmitting(true)
     try {
-      const supabase = createClient()
-      const slug = existingVendor?.slug || slugifyShopName(shopName)
-      const trimmedLoc = locationLabel.trim()
-
-      const payload = {
-        user_id: user.id,
-        shop_name: shopName.trim(),
-        slug,
-        logo_url: existingVendor?.logo_url ?? profile.avatar_url ?? user.avatar_url ?? null,
-        description: existingVendor?.description || '',
-        whatsapp_number: cleanPhone,
-        campus,
-        location_label: trimmedLoc,
-        pickup_options: trimmedLoc,
-        is_student: existingVendor?.is_student ?? true,
-        seller_type: existingVendor?.seller_type || 'independent',
-        categories_offered: existingVendor?.categories_offered || [],
-      }
-
-      const { error } = existingVendor
-        ? await supabase
-            .from('vendors')
-            .update(payload)
-            .eq('id', existingVendor.id)
-        : await supabase.from('vendors').insert({
-            ...payload,
-            // Stores are immediately live without a checkmark; verification is only for the paid badge
-            verification_status: 'pending',
-          })
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/vendor/store', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          shop_name: shopName.trim(),
+          whatsapp_number: cleanPhone,
+          campus,
+          location_label: locationLabel.trim(),
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not save store.')
         return
       }
 

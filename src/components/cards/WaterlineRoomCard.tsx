@@ -60,12 +60,14 @@ export function WaterlineRoomCard({
         {lodge.title}
       </div>
 
-      {/* Meta Row: ✓ Verified  📍 Kurutie matching Image 1 */}
+      {/* Meta Row: ✓ Verified (only if verified) + Campus */}
       <div className="mt-1 flex items-center gap-2 text-[12px] text-muted-foreground whitespace-nowrap overflow-hidden">
-        <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
-          <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-          Verified
-        </span>
+        {lodge.is_verified && (
+          <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
+            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+            Verified
+          </span>
+        )}
         <span className="inline-flex items-center gap-0.5 truncate">
           <MapPin className="w-3 h-3 stroke-[2] shrink-0 text-muted-foreground" />
           {lodge.campus}

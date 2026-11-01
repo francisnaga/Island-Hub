@@ -63,8 +63,11 @@ export function ProductForm({
     existingProduct?.category_id || categories[0]?.id || ''
   )
   const [campus, setCampus] = useState<'Okerenkoko' | 'Kurutie'>(
-    existingProduct?.campus ||
-      (vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')
+    existingProduct?.campus === 'Kurutie'
+      ? 'Kurutie'
+      : vendor?.campus === 'Kurutie'
+      ? 'Kurutie'
+      : 'Okerenkoko'
   )
   const [price, setPrice] = useState(
     existingProduct ? String(existingProduct.price) : ''
@@ -317,7 +320,6 @@ export function ProductForm({
       const payload = {
         vendor_id: vendor.id,
         category_id: categoryId,
-        campus,
         listing_type: listingType,
         title: title.trim(),
         slug: existingProduct?.slug || slugifyProductTitle(title),
@@ -328,6 +330,7 @@ export function ProductForm({
         stock_quantity: Math.max(0, parseInt(stockQuantity || '1', 10) || 1),
         images,
         variants: {
+          campus,
           ...(sizes.length > 0 ? { sizes } : {}),
           ...(colors.length > 0 ? { colors } : {}),
           ...(customVariantLabel.trim() ? { custom_label: customVariantLabel.trim() } : {}),
@@ -356,23 +359,12 @@ export function ProductForm({
         last_confirmed_at: new Date().toISOString(),
       }
 
-      let { error } = existingProduct
+      const { error } = existingProduct
         ? await supabase
             .from('products')
             .update(payload)
             .eq('id', existingProduct.id)
         : await supabase.from('products').insert(payload)
-
-      if (error && error.message?.toLowerCase().includes('campus')) {
-        const { campus: _c, ...fallbackPayload } = payload
-        const retry = existingProduct
-          ? await supabase
-              .from('products')
-              .update(fallbackPayload)
-              .eq('id', existingProduct.id)
-          : await supabase.from('products').insert(fallbackPayload)
-        error = retry.error
-      }
 
       if (error) {
         toast.error(error.message)

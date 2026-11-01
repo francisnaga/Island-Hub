@@ -18,9 +18,11 @@ interface HousingClientProps {
 const ROOM_FILTERS = [
   { id: 'all', label: 'All rooms' },
   { id: 'Self-contain', label: 'Self-contain' },
-  { id: 'Shared room', label: 'Shared room' },
-  { id: 'Private room', label: 'Private room' },
+  { id: 'Single room', label: 'Single room' },
   { id: 'Bedspace', label: 'Bedspace' },
+  { id: 'Shared room', label: 'Shared room' },
+  { id: 'Flat / 2-Bed', label: 'Flat / 2-Bed' },
+  { id: 'Lodge unit', label: 'Lodge unit' },
 ]
 
 export function HousingClient({

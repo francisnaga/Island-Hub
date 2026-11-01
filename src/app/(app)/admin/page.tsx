@@ -1,5 +1,5 @@
 import { redirect } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { getCurrentUserContext, getPublicCategories } from '@/lib/queries'
 import {
   isAdminEmail,
@@ -32,7 +32,7 @@ export default async function AdminDashboardPage() {
   const categories = await getPublicCategories()
 
   try {
-    const supabase = await createClient()
+    const supabase = await createAdminClient()
     const [vRes, pRes, rRes, lRes, crRes] = await Promise.all([
       supabase.from('vendors').select('*').order('created_at', { ascending: false }),
       supabase

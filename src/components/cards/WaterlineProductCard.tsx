@@ -60,10 +60,19 @@ export function WaterlineProductCard({
 
       {/* Meta Row */}
       <div className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground whitespace-nowrap overflow-hidden">
-        <BadgeCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
-        <span>Verified</span>
-        {!isSingleCampusSelected && (
-          <span className="truncate">· {campus}</span>
+        {product.vendor?.verification_status === 'verified' ? (
+          <>
+            <BadgeCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
+            <span>Verified</span>
+            {!isSingleCampusSelected && (
+              <span className="truncate">· {campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}</span>
+            )}
+          </>
+        ) : (
+          <span className="truncate">
+            {product.vendor?.shop_name ? `${product.vendor.shop_name} · ` : ''}
+            {campus === 'Both' ? 'Both campuses' : campus}
+          </span>
         )}
       </div>
     </Link>

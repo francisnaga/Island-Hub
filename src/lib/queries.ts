@@ -10,50 +10,7 @@ import {
 } from './services-data'
 import { Category, CategoryRequest, isAdminEmail, Product, UserProfile, Vendor } from './types'
 
-const CATEGORY_METADATA_OVERRIDES: Record<string, Partial<Category>> = {
-  'maritime-cadet-gear': {
-    name: 'Uniforms & Cadet Kits',
-    short_name: 'Uniforms & Kits',
-    description:
-      'Regulation action rigs, ceremonial parade uniforms, steel-toe boots, parade shoes, berets with gold anchor badge, officer belts, socks, and NMU customized tracksuits & PT kits.',
-    icon: 'Shield',
-  },
-  'electronics-gadgets': {
-    name: 'Electronics & Power',
-    short_name: 'Electronics',
-    description:
-      'Rechargeable hostel table fans, high-capacity power banks, surge extension sockets, fast chargers, and study lamps.',
-    icon: 'Zap',
-  },
-  'books-stationery': {
-    name: 'Study & Engineering Tools',
-    short_name: 'Study Tools',
-    description:
-      'Casio scientific calculators, A2 drawing boards, T-squares, technical drawing sets, and maritime engineering textbooks.',
-    icon: 'BookOpen',
-  },
-  'hostel-daily-essentials': {
-    name: 'Hostel & Room Living',
-    short_name: 'Hostel Living',
-    description:
-      'Hostel bedsheets, heavy-duty security padlocks, plastic storage boxes, mosquito nets, water buckets, and room supplies.',
-    icon: 'Home',
-  },
-  'food-beauty-other': {
-    name: 'Meals, Drinks & Treats',
-    short_name: 'Meals & Treats',
-    description:
-      'Fresh fruit salad bowls, freshly prepared campus meals, pastries, smoothies, and cold bottled beverages.',
-    icon: 'Coffee',
-  },
-  'fashion-accessories': {
-    name: 'Civilian Wear & Fashion',
-    short_name: 'Civilian Wear',
-    description:
-      'Everyday civilian clothing, footwear, casual tees, bags, and non-uniform accessories.',
-    icon: 'Shirt',
-  },
-}
+const SYSTEM_SECTION_SLUGS = new Set(['campus-services', 'student-housing'])
 
 export async function getPublicCategories(): Promise<Category[]> {
   try {
@@ -65,10 +22,30 @@ export async function getPublicCategories(): Promise<Category[]> {
       .order('display_order', { ascending: true })
 
     if (!error && data && data.length > 0) {
-      return (data as Category[]).map((cat) => ({
-        ...cat,
-        ...(CATEGORY_METADATA_OVERRIDES[cat.slug] || {}),
-      }))
+      const dbCats = (data as Category[]).filter(
+        (cat) => !SYSTEM_SECTION_SLUGS.has(cat.slug)
+      )
+      const bySlug = new Map<string, Category>()
+      for (const initCat of INITIAL_CATEGORIES) {
+        bySlug.set(initCat.slug, initCat)
+      }
+      for (const cat of dbCats) {
+        const seedOverride = INITIAL_CATEGORIES.find((c) => c.slug === cat.slug)
+        bySlug.set(cat.slug, {
+          ...cat,
+          ...(seedOverride
+            ? {
+                name: seedOverride.name,
+                short_name: seedOverride.short_name,
+                description: seedOverride.description,
+                display_order: seedOverride.display_order,
+              }
+            : {}),
+        })
+      }
+      return Array.from(bySlug.values()).sort(
+        (a, b) => (a.display_order || 99) - (b.display_order || 99)
+      )
     }
   } catch {
     // Fallback to initial categories taxonomy if DB is unreachable
@@ -319,14 +296,16 @@ function matchesSearchQuery(p: Product, rawQuery: string): boolean {
   })
 }
 
-export function getItemCampus(p: Partial<Product>): 'Okerenkoko' | 'Kurutie' {
-  if (p.campus === 'Kurutie' || p.campus === 'Okerenkoko') {
-    return p.campus
+export function getItemCampus(p: Partial<Product>): 'Okerenkoko' | 'Kurutie' | 'Both' {
+  const variantCampus = (p.variants as any)?.campus
+  const candidate = p.campus || variantCampus || p.vendor?.campus
+  if (candidate === 'Kurutie' || candidate === 'Okerenkoko' || candidate === 'Both') {
+    return candidate
   }
   if (p.tags && p.tags.some((t) => t.toLowerCase() === 'kurutie')) {
     return 'Kurutie'
   }
-  if (p.vendor?.campus === 'Kurutie' || (p.vendor?.slug && p.vendor.slug.includes('kurutie'))) {
+  if (p.vendor?.slug && p.vendor.slug.includes('kurutie')) {
     return 'Kurutie'
   }
   return 'Okerenkoko'
@@ -427,10 +406,8 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
   if (campus && campus !== 'all') {
     const campusTarget = campus.toLowerCase()
     productsList = productsList.filter((p) => {
-      const itemCampus = (
-        p.campus || (p.vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')
-      ).toLowerCase()
-      return itemCampus === campusTarget
+      const itemCampus = getItemCampus(p).toLowerCase()
+      return itemCampus === 'both' || itemCampus === campusTarget
     })
   }
 
@@ -493,12 +470,6 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
       return {
         ...p,
         campus: getItemCampus(p),
-        category: p.category
-          ? {
-              ...p.category,
-              ...(CATEGORY_METADATA_OVERRIDES[p.category.slug] || {}),
-            }
-          : undefined,
         vendor: p.vendor ? sanitizePublicVendor(p.vendor) : undefined,
       }
     }

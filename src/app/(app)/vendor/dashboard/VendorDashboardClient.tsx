@@ -63,14 +63,23 @@ type VendorScreen =
   | 'v:form'
   | 'v:done'
 
-const ROOM_TYPES = ['Self-contain', 'Shared room', 'Private room', 'Bedspace']
+const ROOM_TYPES = [
+  'Self-contain',
+  'Single room',
+  'Bedspace',
+  'Shared room',
+  'Flat / 2-Bed',
+  'Lodge unit',
+]
 const ROOM_AMENITIES = [
   'Water',
   'Power backup',
+  'Solar light',
   'Fenced compound',
   'Tiled floor',
   'Ensuite bathroom',
   'Wardrobe',
+  'Ceiling fan',
   'Shared kitchen',
 ]
 
@@ -230,7 +239,7 @@ export function VendorDashboardClient({
     window.scrollTo(0, 0)
   }
 
-  // Photo Upload (with automatic iPhone / Canvas compression)
+  // Photo Upload (with automatic iPhone / Canvas compression + server upload API)
   const handleAddPhoto = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file) return
@@ -251,25 +260,18 @@ export function VendorDashboardClient({
         quality: 0.82,
       })
 
-      const supabase = createClient()
-      const ext = compressedFile.name.split('.').pop() || 'jpg'
-      const path = `${vendor.id}/${Date.now()}-${Math.random()
-        .toString(36)
-        .slice(2, 7)}.${ext}`
+      const formData = new FormData()
+      formData.append('file', compressedFile)
+      formData.append('folder', vendor.id)
 
-      const { error: uploadErr } = await supabase.storage
-        .from('product-images')
-        .upload(path, compressedFile, {
-          upsert: false,
-          contentType: compressedFile.type,
-        })
-
-      if (!uploadErr) {
-        const { data: pubData } = supabase.storage
-          .from('product-images')
-          .getPublicUrl(path)
-        if (pubData?.publicUrl) {
-          setPhotos((prev) => [...prev, pubData.publicUrl])
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+      if (res.ok) {
+        const json = await res.json()
+        if (json?.url) {
+          setPhotos((prev) => [...prev, json.url])
           return
         }
       }
@@ -303,7 +305,6 @@ export function VendorDashboardClient({
     setPublishing(true)
 
     try {
-      const supabase = createClient()
       const numericPrice = Number(digitsOnly(price))
       const selectedService = SERVICES_LIST.find((s) => s.slug === serviceSlug)
       const resolvedTitle =
@@ -312,18 +313,23 @@ export function VendorDashboardClient({
           : title.trim()
 
       const existing = editId ? products.find((p) => p.id === editId) : null
-      const slug = existing?.slug || slugifyProductTitle(resolvedTitle)
       const listingType: ListingType =
         formKind === 'room' ? 'housing' : formKind === 'svc' ? 'service' : 'product'
 
       const trimmedLocation = formLocation.trim()
       const resolvedCategoryId =
-        categoryId || categories[0]?.id || 'cat-1'
+        categoryId || categories[0]?.id || ''
 
       const variants =
         formKind === 'room'
           ? {
               room_type_label: roomType,
+              room_type:
+                roomType === 'Self-contain'
+                  ? 'self_contain'
+                  : roomType === 'Bedspace'
+                  ? 'bedspace'
+                  : 'single_room',
               period: 'session',
               location_label: trimmedLocation,
               utilities: roomAmenities.includes('Water')
@@ -334,83 +340,67 @@ export function VendorDashboardClient({
                   ? otherFeesText.trim() || 'Agent fee applies'
                   : 'None',
               features: roomAmenities,
+              campus: formCampus,
             }
           : formKind === 'svc'
           ? {
               service_slug: serviceSlug,
+              location_label: trimmedLocation,
               features: serviceIncluded
                 .split('\n')
                 .map((s) => s.trim())
                 .filter(Boolean),
+              campus: formCampus,
             }
-          : {}
+          : {
+              location_label: trimmedLocation,
+              campus: formCampus,
+            }
 
-      const payload = {
-        vendor_id: vendor.id,
-        category_id: resolvedCategoryId,
-        listing_type: listingType,
-        campus: formCampus === 'Both' ? 'Okerenkoko' : formCampus,
-        title: resolvedTitle,
-        slug,
-        description:
-          formKind === 'svc'
-            ? serviceIncluded.trim() || description.trim() || `${selectedService?.title} by ${vendor.shop_name}`
-            : description.trim() || resolvedTitle,
-        price: numericPrice,
-        currency: 'NGN',
-        images:
-          photos.length > 0
-            ? photos
-            : ['/products/cadet-uniform-tailoring.jpg'],
-        condition: (condition === 'New' ? 'new' : 'good') as ProductCondition,
-        stock_status: (existing?.stock_status || 'available') as StockStatus,
-        stock_quantity: 1,
-        service_turnaround: formKind === 'svc' ? serviceAvail.trim() || null : null,
-        service_area: trimmedLocation || null,
-        variants,
-        tags: [
-          formCampus.toLowerCase(),
-          ...(formKind === 'svc' ? [serviceSlug] : []),
-          ...(formKind === 'room' ? [roomType.toLowerCase()] : []),
-        ],
-        // Every new or edited listing is reviewed by admin before going live
-        status: 'pending_review' as const,
-        last_confirmed_at: new Date().toISOString(),
+      const res = await fetch('/api/vendor/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: existing?.id || undefined,
+          vendor_id: vendor.id,
+          category_id: resolvedCategoryId,
+          listing_type: listingType,
+          campus: formCampus,
+          title: resolvedTitle,
+          description:
+            formKind === 'svc'
+              ? serviceIncluded.trim() ||
+                description.trim() ||
+                `${selectedService?.title || 'Service'} by ${vendor.shop_name}`
+              : description.trim() || resolvedTitle,
+          price: numericPrice,
+          images:
+            photos.length > 0
+              ? photos
+              : ['/products/cadet-uniform-tailoring.jpg'],
+          condition: (condition === 'New' ? 'new' : 'good') as ProductCondition,
+          stock_status: (existing?.stock_status || 'available') as StockStatus,
+          service_turnaround: formKind === 'svc' ? serviceAvail.trim() || null : null,
+          service_area: trimmedLocation || null,
+          variants,
+        }),
+      })
+
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not publish listing.')
+        return
       }
 
+      const saved = json.product as Product
       if (existing) {
-        const { data, error } = await supabase
-          .from('products')
-          .update(payload)
-          .eq('id', existing.id)
-          .select('*, category:categories(*)')
-          .single()
-
-        if (error) {
-          toast.error(error.message)
-          return
-        }
-
-        const updated = (data as Product) || { ...existing, ...payload }
-        setProducts((prev) => prev.map((p) => (p.id === existing.id ? updated : p)))
+        setProducts((prev) => prev.map((p) => (p.id === existing.id ? saved : p)))
         setWasEdited(true)
-        setDoneProduct(updated)
+        setDoneProduct(saved)
       } else {
-        const { data, error } = await supabase
-          .from('products')
-          .insert(payload)
-          .select('*, category:categories(*)')
-          .single()
-
-        if (error) {
-          toast.error(error.message)
-          return
-        }
-
-        const created = data as Product
-        setProducts((prev) => [created, ...prev])
+        setProducts((prev) => [saved, ...prev])
         setWasEdited(false)
-        setDoneProduct(created)
+        setDoneProduct(saved)
       }
 
       setScreen('v:done')
@@ -425,16 +415,19 @@ export function VendorDashboardClient({
   const handleToggleSold = async (p: Product) => {
     setBusyAction(true)
     try {
-      const supabase = createClient()
       const nextStock: StockStatus =
         p.stock_status === 'out_of_stock' ? 'available' : 'out_of_stock'
-      const { error } = await supabase
-        .from('products')
-        .update({ stock_status: nextStock })
-        .eq('id', p.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/vendor/listings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: p.id,
+          stock_status: nextStock,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update listing.')
         return
       }
 
@@ -452,16 +445,19 @@ export function VendorDashboardClient({
   const handleTogglePause = async (p: Product) => {
     setBusyAction(true)
     try {
-      const supabase = createClient()
       const isCurrentlyPaused = p.status === 'archived'
       const nextStatus = isCurrentlyPaused ? 'pending_review' : 'archived'
-      const { error } = await supabase
-        .from('products')
-        .update({ status: nextStatus })
-        .eq('id', p.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/vendor/listings', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: p.id,
+          status: nextStatus,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update listing.')
         return
       }
 
@@ -479,10 +475,12 @@ export function VendorDashboardClient({
   const handleDeleteConfirm = async (p: Product) => {
     setBusyAction(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.from('products').delete().eq('id', p.id)
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch(`/api/vendor/listings?id=${encodeURIComponent(p.id)}`, {
+        method: 'DELETE',
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not delete listing.')
         return
       }
       setProducts((prev) => prev.filter((item) => item.id !== p.id))
@@ -499,17 +497,21 @@ export function VendorDashboardClient({
     if (!catReqName.trim() || submittingCatReq) return
     setSubmittingCatReq(true)
     try {
-      const supabase = createClient()
-      const { error } = await supabase.from('category_requests').insert({
-        vendor_id: vendor.id,
-        vendor_name: vendor.shop_name,
-        vendor_whatsapp: vendor.whatsapp_number,
-        name: catReqName.trim(),
-        description: catReqDesc.trim() || null,
-        status: 'pending',
+      const res = await fetch('/api/vendor/listings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'request_category',
+          vendor_id: vendor.id,
+          vendor_name: vendor.shop_name,
+          vendor_whatsapp: vendor.whatsapp_number,
+          name: catReqName.trim(),
+          description: catReqDesc.trim() || null,
+        }),
       })
-      if (error) {
-        toast.error(error.message)
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not submit category request.')
         return
       }
       toast.success('Category request sent to admin for review.')
@@ -537,7 +539,6 @@ export function VendorDashboardClient({
     if (!editingStoreField || savingStoreField) return
     setSavingStoreField(true)
     try {
-      const supabase = createClient()
       const updates: Partial<Vendor> = {}
 
       if (editingStoreField === 'name') {
@@ -562,17 +563,21 @@ export function VendorDashboardClient({
         updates.description = draftStoreValue.trim()
       }
 
-      const { error } = await supabase
-        .from('vendors')
-        .update(updates)
-        .eq('id', vendor.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/vendor/store', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendor_id: vendor.id,
+          ...updates,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update store.')
         return
       }
 
-      setVendor((prev) => ({ ...prev, ...updates }))
+      setVendor((prev) => ({ ...prev, ...(json.vendor || updates) }))
       setEditingStoreField(null)
       toast.success('Saved')
       router.refresh()
@@ -591,12 +596,15 @@ export function VendorDashboardClient({
         maxHeight: 320,
         quality: 0.85,
       })
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('vendors')
-        .update({ logo_url: dataUrl })
-        .eq('id', vendor.id)
-      if (!error) {
+      const res = await fetch('/api/vendor/store', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendor_id: vendor.id,
+          logo_url: dataUrl,
+        }),
+      })
+      if (res.ok) {
         setVendor((prev) => ({ ...prev, logo_url: dataUrl }))
         toast.success('Store photo updated')
         router.refresh()
@@ -1100,6 +1108,14 @@ export function VendorDashboardClient({
                           </button>
                         )
                       })}
+                      <button
+                        type="button"
+                        onClick={() => setCatReqOpen(true)}
+                        className="h-11 px-4 rounded-full border border-dashed border-[#0F6E6E] text-[#0F6E6E] dark:text-[#22D3EE] text-sm font-medium inline-flex items-center gap-1.5 hover:bg-[#E6F2F2]/40 transition-colors cursor-pointer"
+                      >
+                        <Plus className="w-4 h-4" />
+                        Request room type
+                      </button>
                     </div>
                   </div>
 

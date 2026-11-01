@@ -133,28 +133,23 @@ export function AdminDashboardClient({
 
     setBusyId(vendor.id)
     try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('vendors')
-        .update({
-          verification_status: nextStatus,
-          rejection_reason: reason || null,
-          ...(nextStatus === 'suspended' ? { is_featured: false } : {}),
-        })
-        .eq('id', vendor.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'vendor_status',
+          vendor_id: vendor.id,
+          status: nextStatus,
+          reason: reason || null,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update vendor status.')
         return
       }
 
-      // If banning vendor -> archive all their items so they disappear from public pages
       if (nextStatus === 'suspended') {
-        await supabase
-          .from('products')
-          .update({ status: 'archived', is_featured: false })
-          .eq('vendor_id', vendor.id)
-
         setProducts((prev) =>
           prev.map((p) =>
             p.vendor_id === vendor.id
@@ -171,14 +166,7 @@ export function AdminDashboardClient({
         )
       }
 
-      // If unbanning / verifying a previously banned vendor -> restore their archived items to approved
       if (nextStatus === 'verified' && vendor.verification_status === 'suspended') {
-        await supabase
-          .from('products')
-          .update({ status: 'approved' })
-          .eq('vendor_id', vendor.id)
-          .eq('status', 'archived')
-
         setProducts((prev) =>
           prev.map((p) =>
             p.vendor_id === vendor.id && p.status === 'archived'
@@ -226,14 +214,18 @@ export function AdminDashboardClient({
     const nextFeatured = !vendor.is_featured
     setBusyId(vendor.id)
     try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('vendors')
-        .update({ is_featured: nextFeatured })
-        .eq('id', vendor.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'vendor_featured',
+          vendor_id: vendor.id,
+          is_featured: nextFeatured,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update featured status.')
         return
       }
 
@@ -264,14 +256,18 @@ export function AdminDashboardClient({
     const nextBiz = !vendor.business_verified
     setBusyId(vendor.id)
     try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('vendors')
-        .update({ business_verified: nextBiz, seller_type: 'business' })
-        .eq('id', vendor.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'vendor_business',
+          vendor_id: vendor.id,
+          business_verified: nextBiz,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update business verification.')
         return
       }
 
@@ -312,18 +308,19 @@ export function AdminDashboardClient({
 
     setBusyId(product.id)
     try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('products')
-        .update({
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'product_status',
+          product_id: product.id,
           status: nextStatus,
-          rejection_reason: reason || null,
-          ...(nextStatus !== 'approved' ? { is_featured: false } : {}),
-        })
-        .eq('id', product.id)
-
-      if (error) {
-        toast.error(error.message)
+          reason: reason || null,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update listing status.')
         return
       }
 
@@ -352,14 +349,18 @@ export function AdminDashboardClient({
     const nextFeatured = !product.is_featured
     setBusyId(product.id)
     try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('products')
-        .update({ is_featured: nextFeatured })
-        .eq('id', product.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'product_featured',
+          product_id: product.id,
+          is_featured: nextFeatured,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update featured status.')
         return
       }
 
@@ -462,28 +463,27 @@ export function AdminDashboardClient({
 
     setCreatingCat(true)
     try {
-      const supabase = createClient()
-      const { data, error } = await supabase
-        .from('categories')
-        .insert({
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create_category',
           name: newCatName.trim(),
-          short_name: newCatName.trim(),
           slug,
           description: newCatDesc.trim(),
           display_order: categories.length + 1,
           is_priority: newCatPriority,
-          is_active: true,
-        })
-        .select('*')
-        .single()
-
-      if (error) {
-        toast.error(error.message)
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not create category.')
         return
       }
 
+      const data = json.category as Category
       if (data) {
-        setCategories((prev) => [...prev, data as Category])
+        setCategories((prev) => [...prev, data])
         await recordLog('category_created', 'category', data.id, data.name)
       }
       setNewCatName('')
@@ -500,39 +500,25 @@ export function AdminDashboardClient({
   const handleApproveCategoryRequest = async (req: CategoryRequest) => {
     setBusyId(req.id)
     try {
-      const supabase = createClient()
-      const slug =
-        req.name
-          .toLowerCase()
-          .replace(/[^a-z0-9]+/g, '-')
-          .replace(/^-+|-+$/g, '')
-
-      const { data: newCat, error: catError } = await supabase
-        .from('categories')
-        .insert({
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'approve_category_request',
+          request_id: req.id,
           name: req.name.trim(),
-          short_name: req.name.trim(),
-          slug,
           description: req.description || `Browse ${req.name} on Jetty`,
           display_order: categories.length + 1,
-          is_priority: false,
-          is_active: true,
-        })
-        .select('*')
-        .single()
-
-      if (catError) {
-        toast.error(catError.message)
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not approve category request.')
         return
       }
 
-      await supabase
-        .from('category_requests')
-        .update({ status: 'approved' })
-        .eq('id', req.id)
-
-      if (newCat) {
-        setCategories((prev) => [...prev, newCat as Category])
+      if (json.category) {
+        setCategories((prev) => [...prev, json.category as Category])
       }
       setCategoryRequests((prev) =>
         prev.map((r) => (r.id === req.id ? { ...r, status: 'approved' } : r))
@@ -548,11 +534,14 @@ export function AdminDashboardClient({
   const handleRejectCategoryRequest = async (req: CategoryRequest) => {
     setBusyId(req.id)
     try {
-      const supabase = createClient()
-      await supabase
-        .from('category_requests')
-        .update({ status: 'rejected' })
-        .eq('id', req.id)
+      await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'reject_category_request',
+          request_id: req.id,
+        }),
+      })
 
       setCategoryRequests((prev) =>
         prev.map((r) => (r.id === req.id ? { ...r, status: 'rejected' } : r))

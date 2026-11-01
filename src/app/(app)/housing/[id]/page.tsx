@@ -128,10 +128,12 @@ export default async function HousingDetailPage({
 
           {/* Metadata Row */}
           <div className="dmeta flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-0.5">
-            <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold">
-              <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-              Verified seller
-            </span>
+            {lodge.is_verified && (
+              <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-semibold">
+                <Check className="w-3.5 h-3.5 stroke-[2.5]" />
+                Verified seller
+              </span>
+            )}
             <span className="inline-flex items-center gap-1">
               <MapPin className="w-3.5 h-3.5 stroke-[2]" />
               {lodge.campus}
