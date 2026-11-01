@@ -62,8 +62,10 @@ export function FloatingSellButton({ initialHasStore = false }: FloatingSellButt
     }
   }, [])
 
-  // Hide on detail pages where the sticky contact bottom bar takes over, or inside vendor dashboard / auth / admin
-  const isDetailPage =
+  // Hide on home page (hero already has dedicated Sell/Open store gateway button)
+  // Also hide on detail pages where sticky contact bar takes over, or vendor dashboard / auth / admin
+  const shouldHide =
+    pathname === '/' ||
     pathname.startsWith('/product/') ||
     (pathname.startsWith('/housing/') && pathname !== '/housing') ||
     pathname.startsWith('/services/') ||
@@ -73,7 +75,7 @@ export function FloatingSellButton({ initialHasStore = false }: FloatingSellButt
     pathname.startsWith('/login') ||
     pathname.startsWith('/auth')
 
-  if (isDetailPage) {
+  if (shouldHide) {
     return null
   }
 

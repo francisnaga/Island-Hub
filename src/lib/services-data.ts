@@ -5,11 +5,10 @@ import {
   Shirt,
   Droplets,
   BookOpen,
-  Sparkles,
-  Printer,
   Camera,
   Truck,
-  Laptop,
+  Code,
+  Palette,
   type LucideIcon,
 } from 'lucide-react'
 import { BootIcon } from '@/components/brand/BootIcon'
@@ -82,7 +81,7 @@ export const SERVICES_LIST: ServiceItem[] = [
   {
     id: 'tailoring',
     slug: 'tailoring',
-    title: 'Tailoring & Uniforms',
+    title: 'Tailoring',
     shortTitle: 'Tailoring',
     icon: Shirt,
     tagline: 'Cadet action-rig resizing, trouser slimming, badges & cloth nameplates.',
@@ -136,19 +135,6 @@ export const SERVICES_LIST: ServiceItem[] = [
     providers: [],
   },
   {
-    id: 'printing',
-    slug: 'printing',
-    title: 'Printing, Typing & Photocopy',
-    shortTitle: 'Printing',
-    icon: Printer,
-    tagline: 'Course registration printouts, assignments, spiral binding & lamination.',
-    description:
-      'Colour and black-and-white printing, project spiral binding, photocopying, passport photographs, and portal printout assistance.',
-    startingPrice: 'From ₦100',
-    turnaround: 'Instant / Same day',
-    providers: [],
-  },
-  {
     id: 'photography',
     slug: 'photography',
     title: 'Photography & Videography',
@@ -164,7 +150,7 @@ export const SERVICES_LIST: ServiceItem[] = [
   {
     id: 'tutoring',
     slug: 'tutoring',
-    title: 'Tutoring & Exam Prep',
+    title: 'Tutoring',
     shortTitle: 'Tutoring',
     icon: BookOpen,
     tagline: 'Maritime navigation, calculus, physics & engineering drawing tutorials.',
@@ -177,27 +163,42 @@ export const SERVICES_LIST: ServiceItem[] = [
   {
     id: 'errands-delivery',
     slug: 'errands-delivery',
-    title: 'Warri Errands & Jetty Delivery',
+    title: 'Errands & Delivery',
     shortTitle: 'Errands & Delivery',
     icon: Truck,
-    tagline: 'Warri market shopping runs, waybill pickup & boat jetty parcel delivery.',
+    tagline: 'Market shopping runs, waybill pickup & campus parcel delivery.',
     description:
-      'Trusted campus runners for Warri market shopping, waybill collection at the jetty, and direct parcel delivery to Okerenkoko and Kurutie hostels.',
+      'Trusted campus runners for market shopping, waybill collection at the jetty, and direct parcel delivery to Okerenkoko and Kurutie hostels.',
     startingPrice: 'From ₦1,500',
     turnaround: 'Scheduled boat runs',
     providers: [],
   },
   {
-    id: 'tech-design',
-    slug: 'tech-design',
-    title: 'Tech Help & Graphic Design',
-    shortTitle: 'Tech & Design',
-    icon: Laptop,
-    tagline: 'Windows/software installation, flyers, CV design & portal assistance.',
+    id: 'graphic-design',
+    slug: 'graphic-design',
+    title: 'Graphic Design',
+    shortTitle: 'Graphic Design',
+    icon: Palette,
+    tagline: 'Event flyers, department logos, student CV formatting & banners.',
     description:
-      'OS and engineering software installation (AutoCAD, MATLAB), event flyer design, student CV formatting, and online registration help.',
-    startingPrice: 'From ₦2,000',
-    turnaround: 'Same day – 48 hrs',
+      'Professional graphic design for campus events, department associations, brand logos, custom student CVs, and social media flyers.',
+    startingPrice: 'From ₦1,500',
+    turnaround: 'Same day – 24 hrs',
+    popular: true,
+    providers: [],
+  },
+  {
+    id: 'web-app-development',
+    slug: 'web-app-development',
+    title: 'Web & App Development',
+    shortTitle: 'Web & App',
+    icon: Code,
+    tagline: 'Custom websites, student portfolio apps, scripts & project coding.',
+    description:
+      'Custom websites, web applications, student project programming, portfolio sites, and software development for students and businesses.',
+    startingPrice: 'From ₦5,000',
+    turnaround: '1–7 days',
+    popular: true,
     providers: [],
   },
   {
@@ -235,7 +236,12 @@ export function normalizeServiceSlug(slug: string): string {
   ) {
     return 'repairs'
   }
-  if (normalized === 'delivery' || normalized === 'errands') {
+  if (
+    normalized === 'delivery' ||
+    normalized === 'errands' ||
+    normalized === 'warri-errands' ||
+    normalized === 'warri-errands-jetty-delivery'
+  ) {
     return 'errands-delivery'
   }
   if (normalized === 'cobbler' || normalized === 'shoe-repair' || normalized === 'boot-care') {
@@ -243,6 +249,28 @@ export function normalizeServiceSlug(slug: string): string {
   }
   if (normalized === 'happy' || normalized === 'massage' || normalized === 'wellness') {
     return 'happy-ending'
+  }
+  if (
+    normalized === 'tech-design' ||
+    normalized === 'graphics' ||
+    normalized === 'graphic' ||
+    normalized === 'design' ||
+    normalized === 'graphic-design'
+  ) {
+    return 'graphic-design'
+  }
+  if (
+    normalized === 'web' ||
+    normalized === 'app' ||
+    normalized === 'web-dev' ||
+    normalized === 'app-dev' ||
+    normalized === 'web-development' ||
+    normalized === 'coding' ||
+    normalized === 'programming' ||
+    normalized === 'software' ||
+    normalized === 'web-app-development'
+  ) {
+    return 'web-app-development'
   }
   return normalized
 }
@@ -268,20 +296,34 @@ export function inferServiceSlugFromProduct(p: Product): string {
   if (text.includes('tailor') || text.includes('stitch') || text.includes('sew') || text.includes('alteration') || text.includes('nameplate')) {
     return 'tailoring'
   }
-  if (text.includes('print') || text.includes('photocopy') || text.includes('binding') || text.includes('typing')) {
-    return 'printing'
-  }
   if (text.includes('photo') || text.includes('camera') || text.includes('shoot') || text.includes('video')) {
     return 'photography'
   }
-  if (text.includes('errand') || text.includes('waybill') || text.includes('runner') || text.includes('jetty delivery')) {
+  if (text.includes('errand') || text.includes('waybill') || text.includes('runner') || text.includes('jetty delivery') || text.includes('delivery')) {
     return 'errands-delivery'
   }
   if (text.includes('cobbler') || text.includes('polish') || text.includes('shine') || text.includes('sole') || text.includes('boot')) {
     return 'cobbler-boot-care'
   }
-  if (text.includes('graphic') || text.includes('flyer') || text.includes('autocad') || text.includes('software')) {
-    return 'tech-design'
+  if (
+    text.includes('website') ||
+    text.includes('web app') ||
+    text.includes('web dev') ||
+    text.includes('coding') ||
+    text.includes('developer') ||
+    text.includes('software')
+  ) {
+    return 'web-app-development'
+  }
+  if (
+    text.includes('graphic') ||
+    text.includes('flyer') ||
+    text.includes('logo') ||
+    text.includes('banner') ||
+    text.includes('poster') ||
+    text.includes('design')
+  ) {
+    return 'graphic-design'
   }
   if (p.listing_type === 'food' || text.includes('meal') || text.includes('food') || text.includes('soup') || text.includes('bowl') || text.includes('cook')) {
     return 'meals'

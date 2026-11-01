@@ -39,11 +39,11 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
       <section className="bg-[#0A4F4F] text-white pt-4 px-4 pb-1 sm:pt-6 sm:px-6 md:py-6">
         <div className="mx-auto max-w-xl md:max-w-6xl md:flex md:items-center md:justify-between md:gap-10">
           <div className="md:flex-1 md:max-w-xl">
-            <h1 className="font-[family-name:var(--font-bricolage)] font-semibold text-[28px] sm:text-[34px] md:text-[40px] leading-[1.08] tracking-[-0.01em] text-white">
-              Everything NMU,<br />one jetty away.
+            <h1 className="font-[family-name:var(--font-bricolage)] font-semibold text-[28px] sm:text-[34px] md:text-[40px] leading-[1.12] tracking-[-0.01em] text-white">
+              Find what you need around NMU.
             </h1>
-            <p className="mt-2 text-sm md:text-base text-white/80 font-normal">
-              Rooms, services and gear from verified students.
+            <p className="mt-2 text-sm md:text-base text-white/80 font-normal leading-relaxed">
+              Shop local products, discover food and services, and find available rooms across Okerenkoko and Kurutie. Compare listings and contact sellers directly on WhatsApp.
             </p>
 
             {/* Search Field */}
@@ -54,7 +54,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search items, rooms, stores, or services..."
+                  placeholder="Search boots, fruit salad, rooms, services..."
                   className="w-full bg-transparent text-sm text-[#0E1B1B] placeholder:text-[#5B6B6B] focus:outline-none"
                 />
               </div>

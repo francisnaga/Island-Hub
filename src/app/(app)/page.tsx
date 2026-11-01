@@ -16,9 +16,9 @@ import {
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Jetty | NMU Campus Marketplace (Okerenkoko & Kurutie)',
+  title: 'Jetty | Find what you need around NMU (Okerenkoko & Kurutie)',
   description:
-    'Rooms, services and cadet gear from Nigeria Maritime University students across Okerenkoko and Kurutie.',
+    'Shop local products, discover food and services, and find available rooms across Okerenkoko and Kurutie. Compare listings and contact sellers directly on WhatsApp.',
 }
 
 export default async function HomePage({
