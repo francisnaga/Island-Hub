@@ -5,7 +5,7 @@ import { HousingClient } from './HousingClient'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Student Lodges & Bedspaces near NMU | Jetty',
+  title: 'Student Lodges & Bedspaces near NMU (Okerenkoko & Kurutie)',
   description:
     'Find inspected and verified student rooms, self-contains, and bedspaces around NMU Okerenkoko and Kurutie campuses. No inspection fees, direct WhatsApp contact with caretakers.',
   keywords: [

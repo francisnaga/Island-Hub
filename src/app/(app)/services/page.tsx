@@ -6,7 +6,7 @@ import { getPublicServices } from '@/lib/queries'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Campus Services | Tailoring, Barbers, Meals & Repairs | Jetty NMU',
+  title: 'Campus Services | Tailoring, Barbers, Laundry & Meals',
   description:
     'Discover trusted campus service providers around Nigeria Maritime University (Okerenkoko & Kurutie). Uniform tailoring, haircuts, laundry, meals, gadget repairs, and errands.',
   keywords: [

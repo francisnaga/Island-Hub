@@ -20,7 +20,7 @@ import { SafetyNavTabs } from '@/components/safety/SafetyNavTabs'
 import { buildJettyTeamWhatsAppUrl, JETTY_TEAM_PHONE_DISPLAY } from '@/lib/whatsapp'
 
 export const metadata = {
-  title: 'Trust, Safety & Guidelines | Jetty NMU',
+  title: 'Campus Trust & Safe Trading Guidelines',
   description:
     'Comprehensive safety rules, verified seller standards, campus meeting landmarks, privacy architecture, and terms of service for Nigeria Maritime University (NMU).',
   keywords: [

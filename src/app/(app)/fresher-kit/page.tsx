@@ -5,7 +5,7 @@ import { FresherKitClient, KitSection } from './FresherKitClient'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'NMU Fresher Kit Checklist | Essential Cadet Uniforms & Supplies | Jetty',
+  title: 'NMU Fresher Kit Checklist | Essential Cadet Uniforms & Gear',
   description:
     'Complete checklist of essential items every new Nigeria Maritime University (NMU) cadet needs for Week 1 resumption at Okerenkoko & Kurutie campuses. Cadet action rigs, safety boots, drawing boards, and hostel essentials.',
   keywords: [
