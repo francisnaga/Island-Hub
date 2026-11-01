@@ -183,25 +183,34 @@ export default async function VendorStorefrontPage({
         </div>
       </section>
 
+      {/* The Waterline SVG Wave (Gold Crest) — matching prototype exactly */}
       <svg
-        viewBox="0 0 1440 28"
+        viewBox="0 0 432 28"
         preserveAspectRatio="none"
         aria-hidden="true"
-        className="block w-full h-7 -mt-[1px]"
+        className="block w-full h-7 -mt-[1px] pointer-events-none"
+        style={{ display: 'block', width: '100%', height: '28px', marginTop: '-1px' }}
       >
-        <rect width="1440" height="28" fill="#0A4F4F" />
-        <path
-          d="M0 14q45-14 90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0V28H0z"
-          className="fill-background"
-        />
-        <path
-          d="M0 14q45-14 90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0"
-          fill="none"
-          stroke="#E8B84A"
-          strokeWidth="2.5"
-          strokeLinecap="round"
-          vectorEffect="non-scaling-stroke"
-        />
+        <rect width="432" height="28" fill="#0A4F4F" />
+        <g
+          style={{
+            transformBox: 'fill-box',
+            transformOrigin: '50% 100%',
+          }}
+        >
+          <path
+            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
+            className="fill-background"
+          />
+          <path
+            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
+            fill="none"
+            stroke="#E8B84A"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            vectorEffect="non-scaling-stroke"
+          />
+        </g>
       </svg>
 
       {/* 2. Main Content Container */}
