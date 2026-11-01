@@ -204,7 +204,7 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
         onClick={() => setIsOpen(true)}
         aria-label="Change campus"
         className={cn(
-          'relative inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-border/80 bg-muted/50 hover:bg-muted text-xs font-semibold text-foreground transition-all cursor-pointer shadow-2xs shrink-0',
+          'relative inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-white/20 bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all cursor-pointer shadow-2xs shrink-0',
           className
         )}
       >
@@ -213,8 +213,8 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
         ) : (
           <span className="dot" />
         )}
-        <span className="font-semibold">{campusLabel}</span>
-        <ChevronDown className="h-3.5 w-3.5 text-muted-foreground ml-0.5" />
+        <span className="font-semibold text-white">{campusLabel}</span>
+        <ChevronDown className="h-3.5 w-3.5 text-white/70 ml-0.5" />
       </button>
 
       {/* Render via Portal so it escapes sticky/backdrop-blur container clipping */}

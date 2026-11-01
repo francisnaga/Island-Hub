@@ -3,6 +3,7 @@
 import { useTheme } from 'next-themes'
 import { Moon, Sun } from 'lucide-react'
 import { useEffect, useState } from 'react'
+import { cn } from '@/lib/utils'
 
 export function DarkModeToggle({ className = '' }: { className?: string }) {
   const { theme, resolvedTheme, setTheme } = useTheme()
@@ -17,7 +18,10 @@ export function DarkModeToggle({ className = '' }: { className?: string }) {
       <button
         type="button"
         aria-label="Switch colour theme"
-        className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground ${className}`}
+        className={cn(
+          'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white/80 transition-colors',
+          className
+        )}
       >
         <Sun className="h-4 w-4" />
       </button>
@@ -82,7 +86,10 @@ export function DarkModeToggle({ className = '' }: { className?: string }) {
       aria-label={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       onClick={toggleTheme}
-      className={`inline-flex h-10 w-10 items-center justify-center rounded-lg border border-border text-muted-foreground hover:bg-muted hover:text-foreground transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E] cursor-pointer ${className}`}
+      className={cn(
+        'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white/80 hover:bg-white/15 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer',
+        className
+      )}
     >
       {isDark ? (
         <Sun className="h-4 w-4" />

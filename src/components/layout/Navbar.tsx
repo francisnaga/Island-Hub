@@ -68,17 +68,17 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-border bg-card/95 backdrop-blur-md">
+    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A4F4F] text-white">
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Official Jetty Brand Lockup */}
         <div className="flex items-center shrink-0">
           <Link
             href="/"
             aria-label="Jetty — NMU Campus Marketplace Home"
-            className="flex items-center gap-2 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary rounded-lg"
+            className="flex items-center gap-2 py-1 pr-1 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white rounded-lg"
           >
             <JettyMark size={32} className="h-8 w-8 shrink-0" />
-            <span className="text-2xl font-semibold tracking-[0.02em] text-foreground lowercase leading-none font-[family-name:var(--font-bricolage)]">
+            <span className="text-2xl font-semibold tracking-[0.02em] text-white lowercase leading-none font-[family-name:var(--font-bricolage)]">
               jetty
             </span>
           </Link>
@@ -91,14 +91,14 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               <label htmlFor="navbar-search-input" className="sr-only">
                 Search listings across NMU Okerenkoko and Kurutie
               </label>
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60 pointer-events-none" />
               <input
                 id="navbar-search-input"
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Search safety boots, action rigs, haircuts..."
-                className="w-full h-10 pl-10 pr-4 rounded-lg border border-input bg-muted/60 text-sm text-foreground placeholder:text-muted-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none focus:ring-2 focus:ring-[#0F6E6E]/15 transition-all"
+                className="w-full h-10 pl-10 pr-4 rounded-lg border border-white/20 bg-white/10 text-sm text-white placeholder:text-white/60 focus:bg-white focus:text-[#0E1B1B] focus:placeholder:text-[#5B6B6B] focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
               />
             </div>
           </form>
@@ -117,10 +117,10 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   href={link.href}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'px-2.5 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[#0F6E6E]',
+                    'px-2.5 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
                     isActive
-                      ? 'bg-[#E6F2F2] text-[#0A4F4F] dark:bg-[#16181D] dark:text-white font-semibold'
-                      : 'text-muted-foreground hover:text-foreground hover:bg-muted/70'
+                      ? 'bg-white/20 text-white font-semibold'
+                      : 'text-white/80 hover:text-white hover:bg-white/10'
                   )}
                 >
                   {link.label}
@@ -137,7 +137,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             <div
               role="group"
               aria-label="Mode"
-              className="hidden md:inline-flex items-center p-[3px] rounded-full bg-muted border border-border"
+              className="hidden md:inline-flex items-center p-[3px] rounded-full bg-white/10 border border-white/20"
             >
               <Link
                 href="/"
@@ -145,8 +145,8 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 className={cn(
                   'h-8 px-3 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors',
                   !isSellingMode
-                    ? 'bg-card text-foreground shadow-2xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white text-[#0A4F4F] shadow-xs font-semibold'
+                    : 'text-white/80 hover:text-white'
                 )}
               >
                 Buying
@@ -157,8 +157,8 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 className={cn(
                   'h-8 px-3 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors',
                   isSellingMode
-                    ? 'bg-foreground text-background shadow-2xs font-semibold'
-                    : 'text-muted-foreground hover:text-foreground'
+                    ? 'bg-white text-[#0A4F4F] shadow-xs font-semibold'
+                    : 'text-white/80 hover:text-white'
                 )}
               >
                 Selling
@@ -170,7 +170,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {user && vendor && isSellingMode && (
             <Link
               href="/"
-              className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
             >
               <span>Buying</span>
             </Link>
@@ -180,30 +180,30 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             <Link
               href="/admin"
               className={cn(
-                'inline-flex h-8 md:h-9 items-center gap-1 rounded-full md:rounded-lg px-2.5 text-xs font-semibold transition-colors',
+                'inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full md:rounded-lg px-2.5 text-xs font-semibold transition-colors',
                 pathname.startsWith('/admin')
-                  ? 'bg-foreground text-background'
-                  : 'border border-border bg-card text-foreground hover:bg-muted'
+                  ? 'bg-white text-[#0A4F4F]'
+                  : 'border border-white/25 bg-white/10 text-white hover:bg-white/20'
               )}
             >
-              <ShieldAlert className="h-3.5 w-3.5 text-muted-foreground" />
+              <ShieldAlert className="h-3.5 w-3.5 text-amber-300" />
               <span className="hidden sm:inline">Admin</span>
             </Link>
           )}
 
           {/* Mobile: mode switch visible for admin in admin panel */}
           {user && isAdmin && pathname.startsWith('/admin') && (
-            <div className="md:hidden inline-flex items-center p-[3px] rounded-full bg-muted border border-border">
+            <div className="md:hidden inline-flex items-center p-[3px] rounded-full bg-white/10 border border-white/20">
               <Link
                 href="/"
-                className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+                className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-white/80 hover:text-white"
               >
                 Buy
               </Link>
               {vendor && (
                 <Link
                   href="/vendor/dashboard"
-                  className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+                  className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-white/80 hover:text-white"
                 >
                   Sell
                 </Link>
@@ -214,7 +214,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {user && !vendor && !isSellingMode && (
             <Link
               href="/vendor/apply"
-              className="hidden sm:inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full bg-foreground px-3 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
+              className="hidden sm:inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full bg-white text-[#0A4F4F] px-3.5 text-xs font-semibold hover:bg-white/90 transition-opacity shadow-xs"
             >
               <Store className="h-3.5 w-3.5" />
               <span>Start selling</span>
@@ -224,9 +224,9 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {!user && (
             <Link
               href="/login"
-              className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-lg border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/25 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
             >
-              <LogIn className="h-3.5 w-3.5 text-muted-foreground" />
+              <LogIn className="h-3.5 w-3.5 text-white/80" />
               <span>Sell</span>
             </Link>
           )}
@@ -241,7 +241,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               type="button"
               onClick={handleSignOut}
               title="Sign out"
-              className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-border text-muted-foreground hover:text-foreground hover:bg-muted transition-colors cursor-pointer"
+              className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/25 bg-white/10 text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>

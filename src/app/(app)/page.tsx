@@ -17,9 +17,9 @@ import {
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Jetty | Find what you need around NMU (Okerenkoko & Kurutie)',
+  title: 'Jetty | Everything NMU, one jetty away (Okerenkoko & Kurutie)',
   description:
-    'Shop local products, discover food and services, and find available rooms across Okerenkoko and Kurutie. Compare listings and contact sellers directly on WhatsApp.',
+    'Rooms, services and gear from verified students across Okerenkoko and Kurutie.',
 }
 
 export default async function HomePage({
