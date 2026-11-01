@@ -8,9 +8,11 @@ import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-da
 export function WaterlineProductCard({
   product,
   selectedCampus = 'all',
+  variant = 'rail',
 }: {
   product: Product
   selectedCampus?: string
+  variant?: 'rail' | 'grid'
 }) {
   const campus = getItemCampus(product)
   const isSingleCampusSelected =
@@ -48,7 +50,11 @@ export function WaterlineProductCard({
   return (
     <Link
       href={targetHref}
-      className="card flex-none block w-[156px] snap-start text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-2xl"
+      className={
+        variant === 'rail'
+          ? 'card flex-none block w-[156px] snap-start text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-2xl'
+          : 'card block w-full text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-2xl'
+      }
     >
       {/* 1:1 Image Container */}
       <div className="relative aspect-square w-full rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center text-[#0F6E6E] dark:text-[#E8B84A]">

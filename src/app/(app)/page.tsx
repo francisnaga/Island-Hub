@@ -94,6 +94,7 @@ export default async function HomePage({
                     key={product.id}
                     product={product}
                     selectedCampus={selectedCampus}
+                    variant="grid"
                   />
                 ))}
               </div>
@@ -138,6 +139,7 @@ export default async function HomePage({
                     key={lodge.id}
                     lodge={lodge}
                     selectedCampus={selectedCampus}
+                    variant="grid"
                   />
                 ))}
               </div>
