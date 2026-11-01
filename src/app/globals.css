@@ -283,8 +283,8 @@
 
 /* ── Prototype Storefront & Detail Page Styles ── */
 .pb {
-  background: var(--deep);
-  color: #fff;
+  background: #0A4F4F !important;
+  color: #fff !important;
   padding: 12px 16px 20px;
   text-align: center;
 }
@@ -310,8 +310,8 @@
   color: #fff;
   font-family: var(--font-bricolage, sans-serif);
   font-weight: 600;
-  background: var(--deep);
-  box-shadow: 0 0 0 3px var(--deep), 0 0 0 5px rgba(255, 255, 255, 0.25);
+  background: #0A4F4F !important;
+  box-shadow: 0 0 0 3px #0A4F4F, 0 0 0 5px rgba(255, 255, 255, 0.25);
   overflow: hidden;
 }
 .pb h2 {

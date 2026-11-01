@@ -1,9 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, SlidersHorizontal, X, MapPin, ArrowRight } from 'lucide-react'
+import { Search, SlidersHorizontal, X, MapPin } from 'lucide-react'
 import { Category } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -172,17 +171,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
         </div>
       </div>
 
-      {/* Discrete Services Helper Callout */}
-      <div className="flex items-center justify-between text-xs text-muted-foreground px-0.5">
-        <span className="text-[11px]">Physical goods only</span>
-        <Link
-          href="/services"
-          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0F6E6E] dark:text-foreground hover:underline"
-        >
-          <span>Need Tailoring, Laundry, Barbing or Repairs? View Campus Services</span>
-          <ArrowRight className="h-3 w-3" />
-        </Link>
-      </div>
+
 
       {/* Secondary Filter Bar (Price range, Condition, Availability) */}
       <div
