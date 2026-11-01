@@ -18,7 +18,7 @@ import {
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Everything NMU, One Jetty Away (Okerenkoko & Kurutie)',
+  title: 'Find What You Need Around NMU (Okerenkoko & Kurutie)',
   description:
     'Rooms, services and items from students and businesses across Okerenkoko and Kurutie. Compare cadet uniforms, lodges, haircuts, and campus trades freely on Jetty.',
   keywords: [

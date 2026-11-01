@@ -40,7 +40,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
         <div className="mx-auto max-w-xl md:max-w-6xl md:flex md:items-center md:justify-between md:gap-10">
           <div className="md:flex-1 md:max-w-xl">
             <h1 className="font-[family-name:var(--font-bricolage)] font-semibold text-[28px] sm:text-[34px] md:text-[40px] leading-[1.12] tracking-[-0.01em] text-white">
-              Everything NMU, one jetty away.
+              Find what you need around <span className="text-[#E8B84A]">NMU</span>
             </h1>
             <p className="mt-1.5 text-sm md:text-base text-white/85 font-normal leading-relaxed">
               Rooms, services and items from students and businesses
