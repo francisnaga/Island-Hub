@@ -3,15 +3,17 @@
 import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Navigation, Check, X, AtSign, Loader2 } from 'lucide-react'
+import { ChevronLeft, Navigation, Check, X, AtSign, Loader2, Camera, Trash2 } from 'lucide-react'
 import { CampusArea, UserProfile, Vendor } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { UserAvatar } from '@/components/brand/UserAvatar'
+import { compressAvatarFile } from '@/lib/image-compression'
 
 interface VendorApplyFormProps {
-  user: { id: string; email?: string; full_name?: string; avatar_url?: string }
-  profile: UserProfile
+  user?: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
+  profile?: UserProfile | null
   existingVendor: Vendor | null
 }
 
@@ -33,6 +35,8 @@ function suggestUsername(name: string): string {
 type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
 
 export function VendorApplyForm({
+  user,
+  profile,
   existingVendor,
 }: VendorApplyFormProps) {
   const router = useRouter()
@@ -47,6 +51,12 @@ export function VendorApplyForm({
     !LEGACY_COORDS.has(existingCoordKey)
 
   const [shopName, setShopName] = useState(existingVendor?.shop_name || '')
+  const [logoUrl, setLogoUrl] = useState<string | null>(
+    existingVendor?.logo_url || null
+  )
+  const [uploadingImage, setUploadingImage] = useState(false)
+  const fileInputRef = useRef<HTMLInputElement | null>(null)
+
   const [whatsappNumber, setWhatsappNumber] = useState(
     existingVendor?.whatsapp_number || ''
   )
@@ -152,6 +162,44 @@ export function VendorApplyForm({
     ? 'Add your WhatsApp number'
     : 'Add your shop name'
 
+  const handleImageSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingImage(true)
+    try {
+      const { file: compressed } = await compressAvatarFile(file)
+      const formData = new FormData()
+      formData.append('file', compressed)
+      formData.append('folder', 'vendors')
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      })
+
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Failed to upload photo')
+        return
+      }
+
+      setLogoUrl(json.url)
+      toast.success('Store photo added!')
+    } catch (err: any) {
+      toast.error(err?.message || 'Error uploading photo')
+    } finally {
+      setUploadingImage(false)
+      if (fileInputRef.current) fileInputRef.current.value = ''
+    }
+  }
+
+  const handleRemoveImage = () => {
+    setLogoUrl(null)
+    toast.info('Photo removed — using clean monogram')
+    if (fileInputRef.current) fileInputRef.current.value = ''
+  }
+
   const handlePinCurrentLocation = () => {
     if (typeof window === 'undefined' || !('geolocation' in navigator)) {
       toast.error('Geolocation is not supported by your browser.')
@@ -201,6 +249,7 @@ export function VendorApplyForm({
           location_label: locationLabel.trim(),
           latitude,
           longitude,
+          logo_url: logoUrl || null,
           ...(cleanedUsername ? { username: cleanedUsername } : {}),
         }),
       })
@@ -248,6 +297,80 @@ export function VendorApplyForm({
         <p className="px-4 md:px-0 pt-4 md:pt-0 pb-1 text-sm text-muted-foreground">
           Students browse without an account. You only need one to sell.
         </p>
+
+        {/* Store Photo / Minimal Monogram Setup */}
+        <div className="px-4 md:px-0 mt-5 pt-4 border-t border-border/60">
+          <label className="block mb-2 text-[15px] font-semibold text-foreground">
+            Store photo or logo <span className="text-xs font-normal text-muted-foreground">(optional)</span>
+          </label>
+
+          <div className="flex items-center gap-4 p-3.5 rounded-2xl border border-border/80 bg-muted/30">
+            {/* 72px Live Avatar Preview */}
+            <div className="relative shrink-0">
+              <UserAvatar
+                src={logoUrl}
+                seed={username || shopName || user?.id || 'store'}
+                name={shopName.trim() || user?.full_name || 'My Store'}
+                size={72}
+                className="ring-2 ring-border/80 shadow-xs"
+              />
+              {uploadingImage && (
+                <div className="absolute inset-0 rounded-full bg-black/60 flex items-center justify-center">
+                  <Loader2 className="w-5 h-5 text-white animate-spin" />
+                </div>
+              )}
+            </div>
+
+            {/* Controls & Monogram Fallback Status */}
+            <div className="flex-1 min-w-0 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-card border border-border text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer shadow-2xs"
+                >
+                  <Camera className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+                  <span>{logoUrl ? 'Change photo' : 'Upload photo'}</span>
+                </button>
+
+                {logoUrl && (
+                  <button
+                    type="button"
+                    onClick={handleRemoveImage}
+                    disabled={uploadingImage}
+                    className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl border border-border text-xs font-medium text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors cursor-pointer"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Use monogram</span>
+                  </button>
+                )}
+              </div>
+
+              <p className="text-[11px] text-muted-foreground leading-tight">
+                {logoUrl ? (
+                  <span className="text-emerald-600 dark:text-emerald-400 font-medium">
+                    ✓ Custom photo active
+                  </span>
+                ) : (
+                  <span>
+                    No photo? Jetty generates this minimal monogram for you automatically.
+                  </span>
+                )}
+              </p>
+            </div>
+
+            {/* Hidden File Input */}
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/png,image/jpeg,image/webp"
+              onChange={handleImageSelect}
+              className="hidden"
+              aria-label="Upload store photo or logo"
+            />
+          </div>
+        </div>
 
         {/* Field 1: Shop or seller name */}
         <div className="px-4 md:px-0 mt-[22px]">

@@ -170,7 +170,7 @@ export function WavyAvatar({
   const x2 = Math.round(50 + Math.cos(angleRad) * 50)
   const y2 = Math.round(50 + Math.sin(angleRad) * 50)
 
-  // Wave 1 geometry (Mid-level flowing tidal current)
+  // Wave 1 geometry (flowing tidal current)
   const w1StartY = 38 + (h1 % 16)
   const w1CtrlX1 = 20 + (h2 % 25)
   const w1CtrlY1 = 16 + (h3 % 20)
@@ -178,21 +178,10 @@ export function WavyAvatar({
   const w1CtrlY2 = 44 + (h1 % 20)
   const w1EndY = 40 + (h2 % 16)
 
-  // Wave 2 geometry (Lower deep water swell)
-  const w2StartY = 56 + (h3 % 16)
-  const w2CtrlX = 50 + (h1 % 30)
-  const w2CtrlY = 38 + (h4 % 22)
-  const w2EndY = 62 + (h2 % 16)
-
-  // Nautical chart feature type (0: Depth soundings, 1: Navigation crosshair/ticks, 2: Radar echoes, 3: Dual tide lines)
-  const chartFeature = h3 % 4
-
   // Unique SVG element IDs based on composite hash
   const uid = `${h1.toString(16)}-${h2.toString(16)}`
   const gradId = `jetty-av-bg-${uid}`
   const wave1Id = `jetty-av-w1-${uid}`
-  const wave2Id = `jetty-av-w2-${uid}`
-  const shadowId = `jetty-av-sh-${uid}`
 
   return (
     <svg
@@ -210,111 +199,53 @@ export function WavyAvatar({
           <stop offset="100%" stopColor={palette.bgEnd} />
         </linearGradient>
 
-        {/* Wave Layer 1 Gradient */}
+        {/* Minimal Soft Wave Gradient */}
         <linearGradient id={wave1Id} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={palette.wave1} stopOpacity="0.88" />
-          <stop offset="100%" stopColor={palette.wave1} stopOpacity="0.35" />
+          <stop offset="0%" stopColor={palette.wave1} stopOpacity="0.45" />
+          <stop offset="100%" stopColor={palette.bgEnd} stopOpacity="0.85" />
         </linearGradient>
-
-        {/* Wave Layer 2 Gradient */}
-        <linearGradient id={wave2Id} x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor={palette.wave2} stopOpacity="0.95" />
-          <stop offset="100%" stopColor={palette.bgEnd} stopOpacity="0.98" />
-        </linearGradient>
-
-        {/* Crisp Monogram Text Drop Shadow */}
-        <filter id={shadowId} x="-20%" y="-20%" width="140%" height="140%">
-          <feDropShadow dx="0" dy="1.5" stdDeviation="1.8" floodColor="#000000" floodOpacity="0.65" />
-        </filter>
       </defs>
 
-      {/* Layer 1: Background Water Basin */}
+      {/* Layer 1: Minimal Sovereign Tone Background */}
       <rect width="100" height="100" fill={`url(#${gradId})`} />
 
-      {/* Layer 2: Nautical Chart / Bathymetric Watermark */}
-      {chartFeature === 0 && (
-        <g opacity="0.12" stroke="#FFFFFF" fill="none" strokeWidth="0.8">
-          <circle cx="50" cy="50" r="28" strokeDasharray="3 3" />
-          <circle cx="50" cy="50" r="40" strokeDasharray="4 4" />
-        </g>
-      )}
-
-      {chartFeature === 1 && (
-        <g opacity="0.12" stroke={palette.accent} fill="none" strokeWidth="0.8">
-          <line x1="50" y1="6" x2="50" y2="18" />
-          <line x1="50" y1="82" x2="50" y2="94" />
-          <line x1="6" y1="50" x2="18" y2="50" />
-          <line x1="82" y1="50" x2="94" y2="50" />
-        </g>
-      )}
-
-      {chartFeature === 2 && (
-        <g opacity="0.10" stroke="#FFFFFF" fill="none" strokeWidth="0.75">
-          <circle cx="50" cy="50" r="18" />
-          <circle cx="50" cy="50" r="34" />
-          <circle cx="50" cy="50" r="46" />
-        </g>
-      )}
-
-      {chartFeature === 3 && (
-        <g opacity="0.14" stroke={palette.accent} fill="none" strokeWidth="0.75">
-          <path d="M 10,25 Q 50,15 90,25" />
-          <path d="M 15,32 Q 50,22 85,32" strokeDasharray="2 3" />
-        </g>
-      )}
-
-      {/* Layer 3: Mid Tidal Current Wave */}
+      {/* Layer 2: Subtle Waterline Tide Wave at bottom */}
       <path
         d={`M 0,${w1StartY} C ${w1CtrlX1},${w1CtrlY1} ${w1CtrlX2},${w1CtrlY2} 100,${w1EndY} L 100,100 L 0,100 Z`}
         fill={`url(#${wave1Id})`}
       />
 
-      {/* Layer 4: Deep Water Swell Wave */}
-      <path
-        d={`M 0,${w2StartY} Q ${w2CtrlX},${w2CtrlY} 100,${w2EndY} L 100,100 L 0,100 Z`}
-        fill={`url(#${wave2Id})`}
-      />
-
-      {/* Layer 5: Luminous Waterline Crest Stroke */}
+      {/* Layer 3: Ultra-Fine Waterline Accent Crest */}
       <path
         d={`M 0,${w1StartY} C ${w1CtrlX1},${w1CtrlY1} ${w1CtrlX2},${w1CtrlY2} 100,${w1EndY}`}
         fill="none"
         stroke={palette.accent}
-        strokeWidth="1.25"
-        strokeOpacity="0.65"
+        strokeWidth="1.2"
+        strokeOpacity="0.45"
       />
 
-      {/* Layer 6: Minted Sovereign Coin Rim */}
+      {/* Layer 4: Minimal Outer Rim */}
       <circle
         cx="50"
         cy="50"
-        r="48.5"
+        r="49"
         fill="none"
-        stroke="rgba(255,255,255,0.22)"
-        strokeWidth="1.5"
-      />
-      <circle
-        cx="50"
-        cy="50"
-        r="46.5"
-        fill="none"
-        stroke="rgba(0,0,0,0.15)"
-        strokeWidth="0.75"
+        stroke="rgba(255,255,255,0.14)"
+        strokeWidth="1"
       />
 
-      {/* Layer 7: Centered Crisp Sovereign Monogram */}
+      {/* Layer 5: Clean, Crisp, Modern Monogram Initials */}
       {showInitials && (
         <text
           x="50"
-          y="52"
+          y="51"
           fill="#FFFFFF"
-          fontSize="32"
+          fontSize="34"
           fontWeight="700"
           fontFamily="var(--font-bricolage), var(--font-space-grotesk), var(--font-inter), system-ui, -apple-system, sans-serif"
-          letterSpacing="-0.03em"
+          letterSpacing="-0.025em"
           textAnchor="middle"
           dominantBaseline="central"
-          filter={`url(#${shadowId})`}
         >
           {initials}
         </text>

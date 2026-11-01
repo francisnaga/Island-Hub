@@ -50,6 +50,14 @@ export async function POST(request: NextRequest) {
     const pinnedLat = hasCoordinates ? Number(body.latitude) : null
     const pinnedLng = hasCoordinates ? Number(body.longitude) : null
 
+    // --- Image / Logo Handling ---
+    const chosenLogo =
+      body.logo_url !== undefined
+        ? typeof body.logo_url === 'string' && body.logo_url.trim().length > 0
+          ? body.logo_url.trim()
+          : null
+        : undefined
+
     // --- Username handling ---
     const rawUsername =
       typeof body.username === 'string'
@@ -100,7 +108,7 @@ export async function POST(request: NextRequest) {
         id: user.id,
         full_name: googleName,
         email: user.email,
-        avatar_url: googleAvatar,
+        avatar_url: chosenLogo !== undefined ? chosenLogo : googleAvatar,
         role: isAdminEmail(user.email) ? 'admin' : 'vendor',
         active_mode: 'vendor',
       },
@@ -173,6 +181,7 @@ export async function POST(request: NextRequest) {
           whatsapp_number: normalizedPhone,
           campus,
           location_label: trimmedLocation,
+          ...(chosenLogo !== undefined ? { logo_url: chosenLogo } : {}),
           ...(rawUsername && rawUsername !== existingVendor.username
             ? { username: rawUsername, username_changed_at: new Date().toISOString() }
             : {}),
@@ -215,7 +224,7 @@ export async function POST(request: NextRequest) {
         shop_name: shopName,
         slug: slugifyShopName(shopName),
         description: `Student seller at ${campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}.`,
-        logo_url: googleAvatar,
+        logo_url: chosenLogo !== undefined ? chosenLogo : null,
         whatsapp_number: normalizedPhone,
         categories_offered: [],
         pickup_options: trimmedLocation || pickupDefault,
