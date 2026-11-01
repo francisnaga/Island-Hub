@@ -198,16 +198,16 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
         </div>
       </div>
 
-      {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge with 0 gap / no opening) */}
+      {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge) */}
       <div
-        className="fixed bottom-0 left-0 right-0 z-[60] w-full bg-card border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.35)] transform-gpu will-change-transform touch-manipulation"
-        style={{ transform: 'translate3d(0, 0, 0)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="fixed bottom-0 inset-x-0 z-50 w-full bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.35)]"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
-        <div className="w-full px-4 pt-3 pb-3 flex items-center justify-between gap-3 sm:gap-4 min-h-[72px]">
+        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 py-3 flex items-center justify-between gap-4 min-h-[72px]">
           {/* Price & Quantity Summary */}
           <div className="min-w-0 flex flex-col justify-center">
             <div className="flex items-baseline gap-1.5">
-              <b className="text-2xl sm:text-[26px] font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
+              <b className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
                 {formatNaira(totalPrice)}
               </b>
             </div>
@@ -218,42 +218,14 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
             </span>
           </div>
 
-          {/* Stepper + WhatsApp CTA Button */}
-          <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
-            {/* Quick Quantity Stepper on the Bar */}
-            {!isOutOfStock && (
-              <div className="inline-flex items-center rounded-xl border border-border bg-muted/70 p-0.5 shadow-2xs">
-                <button
-                  type="button"
-                  onClick={handleDecreaseQuantity}
-                  disabled={quantity <= 1}
-                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center text-foreground hover:bg-card disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer active:scale-95"
-                  aria-label="Decrease quantity"
-                >
-                  <Minus className="h-4 w-4" />
-                </button>
-                <span className="w-8 sm:w-9 text-center text-sm font-bold text-foreground font-[family-name:var(--font-bricolage)] select-none">
-                  {quantity}
-                </span>
-                <button
-                  type="button"
-                  onClick={handleIncreaseQuantity}
-                  disabled={quantity >= maxStock}
-                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center text-foreground hover:bg-card disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer active:scale-95"
-                  aria-label="Increase quantity"
-                >
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-            )}
-
-            {/* Message Seller Button */}
+          {/* WhatsApp CTA Button */}
+          <div className="shrink-0">
             {whatsappResult.valid ? (
               <a
                 href={whatsappResult.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-12 sm:h-13 px-4 sm:px-7 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer shrink-0"
+                className="h-12 sm:h-13 px-5 sm:px-8 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
               >
                 <WhatsAppIcon className="w-5 h-5 text-white shrink-0" />
                 <span className="whitespace-nowrap">
