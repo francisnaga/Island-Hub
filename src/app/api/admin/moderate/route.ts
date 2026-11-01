@@ -218,7 +218,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'create_category') {
-      const { name, slug, description, display_order, is_priority } = body
+      const { name, slug, description, display_order, is_priority, section } = body
       const { data, error } = await adminDb
         .from('categories')
         .upsert(
@@ -229,6 +229,7 @@ export async function POST(request: NextRequest) {
             description: String(description || `Browse ${name} on Jetty`).trim(),
             display_order: Number(display_order || 20),
             is_priority: Boolean(is_priority),
+            section: String(section || 'products').trim(),
             is_active: true,
           },
           { onConflict: 'slug' }

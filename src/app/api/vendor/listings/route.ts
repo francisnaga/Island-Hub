@@ -178,9 +178,10 @@ export async function POST(request: NextRequest) {
       body.category_id
     )
 
-    const title = String(body.title || '').trim()
+    const isDraft = Boolean(body.is_draft || body.status === 'draft')
+    const title = String(body.title || (isDraft ? 'Untitled Draft' : '')).trim()
     const price = Number(body.price || 0)
-    if (!title || Number.isNaN(price) || price <= 0) {
+    if (!isDraft && (!title || Number.isNaN(price) || price <= 0)) {
       return NextResponse.json(
         { error: 'Please provide a valid title and price.' },
         { status: 400 }
@@ -201,6 +202,8 @@ export async function POST(request: NextRequest) {
       listing_type: listingType,
     }
 
+    const targetStatus = isDraft ? 'draft' : 'pending_review'
+
     // Strictly use only columns that exist on public.products in Supabase
     const dbPayload = {
       vendor_id: vendor.id,
@@ -208,7 +211,7 @@ export async function POST(request: NextRequest) {
       listing_type: listingType,
       title,
       description: String(body.description || title).trim(),
-      price,
+      price: Number.isNaN(price) ? 0 : price,
       condition: (body.condition === 'good' ||
       body.condition === 'like_new' ||
       body.condition === 'fair'
@@ -223,7 +226,7 @@ export async function POST(request: NextRequest) {
       service_turnaround: body.service_turnaround || null,
       service_area: body.service_area || null,
       variants,
-      status: 'pending_review' as const,
+      status: targetStatus,
       is_demo: false,
       last_confirmed_at: new Date().toISOString(),
       updated_at: new Date().toISOString(),

@@ -11,6 +11,7 @@ export type ProductCondition = 'new' | 'like_new' | 'good' | 'fair'
 export type StockStatus = 'available' | 'low_stock' | 'out_of_stock'
 export type ListingType = 'product' | 'item' | 'food' | 'service' | 'housing'
 export type ProductApprovalStatus =
+  | 'draft'
   | 'pending_review'
   | 'approved'
   | 'rejected'
@@ -46,6 +47,7 @@ export interface Category {
   display_order: number
   is_priority: boolean
   is_active: boolean
+  section?: 'products' | 'housing' | 'services' | string
 }
 
 export interface CategoryRequest {

@@ -86,6 +86,8 @@ export function AdminDashboardClient({
   // New Category Form
   const [newCatName, setNewCatName] = useState('')
   const [newCatDesc, setNewCatDesc] = useState('')
+  const [newCatSection, setNewCatSection] = useState<'products' | 'housing' | 'services'>('products')
+  const [catSectionFilter, setCatSectionFilter] = useState<'all' | 'products' | 'housing' | 'services'>('all')
   const [creatingCat, setCreatingCat] = useState(false)
 
   // Counts
@@ -435,6 +437,7 @@ export function AdminDashboardClient({
           description: newCatDesc.trim() || `Browse ${newCatName.trim()} on Jetty`,
           display_order: categories.length + 1,
           is_priority: false,
+          section: newCatSection,
         }),
       })
       const json = await res.json()
@@ -455,10 +458,44 @@ export function AdminDashboardClient({
       }
       setNewCatName('')
       setNewCatDesc('')
-      toast.success(`Category "${newCatName.trim()}" added`)
+      toast.success(`Category "${newCatName.trim()}" added to ${newCatSection}`)
       router.refresh()
     } finally {
       setCreatingCat(false)
+    }
+  }
+
+  const handleDeleteCategory = async (cat: Category) => {
+    if (
+      !confirm(
+        `Are you sure you want to delete category "${cat.name}"? This cannot be undone.`
+      )
+    ) {
+      return
+    }
+    setBusyId(cat.id)
+    try {
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete_category',
+          category_id: cat.id,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not delete category.')
+        return
+      }
+      setCategories((prev) => prev.filter((c) => c.id !== cat.id))
+      await recordLog('category_deleted', 'category', cat.id, cat.name)
+      toast.success(`Deleted category "${cat.name}"`)
+      router.refresh()
+    } catch {
+      toast.error('Network error deleting category.')
+    } finally {
+      setBusyId(null)
     }
   }
 
@@ -1411,10 +1448,10 @@ export function AdminDashboardClient({
             </div>
           )}
 
-          {/* Quick Add Category Bar */}
+          {/* Quick Add Category Bar with Section Selector */}
           <form
             onSubmit={handleCreateCategory}
-            className="rounded-xl border border-border bg-card p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5"
+            className="rounded-xl border border-border bg-card p-3.5 sm:p-4 flex flex-col md:flex-row items-stretch md:items-center gap-2.5"
           >
             <input
               type="text"
@@ -1431,6 +1468,15 @@ export function AdminDashboardClient({
               placeholder="Short description (optional)"
               className="flex-1 h-9 rounded-lg border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none"
             />
+            <select
+              value={newCatSection}
+              onChange={(e) => setNewCatSection(e.target.value as any)}
+              className="h-9 px-3 rounded-lg border border-border bg-background text-xs font-semibold text-foreground focus:border-foreground/40 focus:outline-none shrink-0"
+            >
+              <option value="products">Section: Products / Market</option>
+              <option value="housing">Section: Housing / Lodges</option>
+              <option value="services">Section: Campus Services</option>
+            </select>
             <button
               type="submit"
               disabled={creatingCat}
@@ -1441,33 +1487,112 @@ export function AdminDashboardClient({
             </button>
           </form>
 
+          {/* Section Filter Pills */}
+          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-1">
+            {[
+              { id: 'all' as const, label: 'All sections', count: categories.length },
+              {
+                id: 'products' as const,
+                label: 'Products',
+                count: categories.filter((c) => !c.section || c.section === 'products').length,
+              },
+              {
+                id: 'housing' as const,
+                label: 'Housing',
+                count: categories.filter((c) => c.section === 'housing').length,
+              },
+              {
+                id: 'services' as const,
+                label: 'Services',
+                count: categories.filter((c) => c.section === 'services').length,
+              },
+            ].map((f) => (
+              <button
+                key={f.id}
+                type="button"
+                onClick={() => setCatSectionFilter(f.id)}
+                className={cn(
+                  'inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium border transition-colors cursor-pointer shrink-0',
+                  catSectionFilter === f.id
+                    ? 'border-foreground bg-foreground text-background font-semibold'
+                    : 'border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted'
+                )}
+              >
+                <span>{f.label}</span>
+                <span className="opacity-70">({f.count})</span>
+              </button>
+            ))}
+          </div>
+
           {/* Active Categories List */}
           <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
-            {categories.map((cat) => (
-              <div
-                key={cat.id || cat.slug}
-                className="px-4 py-3 flex items-center justify-between gap-4 hover:bg-muted/30 transition-colors"
-              >
-                <div className="min-w-0">
-                  <div className="flex items-center gap-2">
-                    <span className="text-sm font-medium text-foreground">
-                      {cat.name}
-                    </span>
-                    <span className="text-xs text-muted-foreground font-mono">
-                      /{cat.slug}
-                    </span>
+            {categories
+              .filter((c) =>
+                catSectionFilter === 'all'
+                  ? true
+                  : catSectionFilter === 'products'
+                  ? !c.section || c.section === 'products'
+                  : c.section === catSectionFilter
+              )
+              .map((cat) => {
+                const sectionTag =
+                  cat.section === 'housing'
+                    ? 'Housing'
+                    : cat.section === 'services'
+                    ? 'Services'
+                    : 'Products'
+                const itemCount = products.filter((p) => p.category_id === cat.id).length
+
+                return (
+                  <div
+                    key={cat.id || cat.slug}
+                    className="px-4 py-3 flex items-center justify-between gap-4 hover:bg-muted/30 transition-colors"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-semibold text-foreground">
+                          {cat.name}
+                        </span>
+                        <span className="text-xs text-muted-foreground font-mono">
+                          /{cat.slug}
+                        </span>
+                        <span
+                          className={cn(
+                            'inline-flex items-center h-4 px-1.5 rounded text-[10px] font-semibold uppercase tracking-wider',
+                            sectionTag === 'Housing'
+                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                              : sectionTag === 'Services'
+                              ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400'
+                              : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                          )}
+                        >
+                          {sectionTag}
+                        </span>
+                      </div>
+                      {cat.description && (
+                        <p className="text-xs text-muted-foreground truncate max-w-xl mt-0.5">
+                          {cat.description}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex items-center gap-3 shrink-0">
+                      <span className="text-xs text-muted-foreground">
+                        {itemCount} {itemCount === 1 ? 'item' : 'items'}
+                      </span>
+                      <button
+                        type="button"
+                        disabled={busyId === cat.id}
+                        onClick={() => handleDeleteCategory(cat)}
+                        title={`Delete category "${cat.name}"`}
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
                   </div>
-                  {cat.description && (
-                    <p className="text-xs text-muted-foreground truncate max-w-xl">
-                      {cat.description}
-                    </p>
-                  )}
-                </div>
-                <span className="text-xs text-muted-foreground shrink-0">
-                  {products.filter((p) => p.category_id === cat.id).length} items
-                </span>
-              </div>
-            ))}
+                )
+              })}
           </div>
         </div>
       )}

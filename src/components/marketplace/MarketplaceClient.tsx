@@ -369,48 +369,48 @@ export function MarketplaceClient({
           {/* Stores Grid (1 col mobile, 2 cols tablet, 3 cols desktop) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Naga's Founder Card */}
-            <div className="relative rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-2xs hover:border-foreground/30 hover:shadow-xs transition-all">
+            <div className="relative rounded-2xl border border-border/80 bg-card p-4 sm:p-5 shadow-2xs hover:border-foreground/30 hover:shadow-xs transition-all text-center">
               {/* Golden Verified Badge for Founder */}
               <div
-                className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center justify-center shrink-0"
+                className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 flex items-center justify-center shrink-0"
                 aria-label="Verified Founder"
                 title="Verified Platform Founder"
               >
-                <VerifiedBadge size={22} variant="gold" />
+                <VerifiedBadge size={19} variant="gold" />
               </div>
 
               {/* Avatar */}
               <div className="flex justify-center">
-                <div className="h-18 w-18 sm:h-20 sm:w-20 rounded-full overflow-hidden bg-slate-900 border border-border/80 shadow-2xs flex items-center justify-center text-white ring-2 ring-border/70">
-                  <NagaLogo size={36} color="#FFFFFF" />
+                <div className="h-14 w-14 sm:h-16 sm:w-16 rounded-full overflow-hidden bg-[#0A4F4F] border border-border/80 shadow-2xs flex items-center justify-center text-white ring-2 ring-border/70">
+                  <NagaLogo size={30} color="#FFFFFF" />
                 </div>
               </div>
 
               {/* Details */}
-              <div className="mt-3.5 text-center space-y-1">
-                <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight inline-flex items-center justify-center gap-1.5">
+              <div className="mt-2.5 space-y-0.5">
+                <h3 className="font-[family-name:var(--font-bricolage)] text-base sm:text-lg font-bold text-foreground tracking-tight inline-flex items-center justify-center gap-1.5">
                   <span>Naga</span>
-                  <VerifiedBadge size={17} variant="gold" />
+                  <VerifiedBadge size={15} variant="gold" />
                 </h3>
-                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
+                <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest">
                   FOUNDER
                 </p>
               </div>
 
-              <div className="my-5 border-t border-border/60" />
+              <div className="my-2.5 border-t border-border/60" />
 
               <div className="text-center">
-                <span className="text-sm font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
+                <span className="text-xs font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
                   Platform Founder
                 </span>
               </div>
 
-              <div className="mt-4 pt-3 border-t border-border/50">
+              <div className="mt-2.5 pt-2 border-t border-border/50">
                 <a
                   href="https://francisnaga.site"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-1.5 w-full py-2 rounded-xl border border-border bg-muted/30 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+                  className="flex items-center justify-center gap-1.5 w-full py-1.5 rounded-lg border border-border bg-muted/30 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
                 >
                   <span>Portfolio</span>
                   <ExternalLink className="h-3 w-3 text-muted-foreground" />

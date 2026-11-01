@@ -133,7 +133,7 @@ export function VendorDashboardClient({
     if (initialTab === 'store') return 'v:store'
     return 'v:listings'
   })
-  const [listingsView, setListingsView] = useState<'active' | 'sold'>('active')
+  const [listingsView, setListingsView] = useState<'active' | 'drafts' | 'sold'>('active')
 
   // Listing Action Sheet state (openAct / confirmDel from prototype)
   const [actionProduct, setActionProduct] = useState<Product | null>(null)
@@ -331,18 +331,19 @@ export function VendorDashboardClient({
   const missingReason = getMissingReason()
   const isFormReady = !missingReason
 
-  // Publish / Save Listing
-  const handlePublish = async () => {
-    if (!isFormReady || publishing) return
+  // Publish / Save Listing (or Save as Draft)
+  const handlePublish = async (asDraft: boolean = false) => {
+    if (!asDraft && !isFormReady) return
+    if (publishing) return
     setPublishing(true)
 
     try {
-      const numericPrice = Number(digitsOnly(price))
+      const numericPrice = Number(digitsOnly(price)) || 0
       const selectedService = SERVICES_LIST.find((s) => s.slug === serviceSlug)
       const resolvedTitle =
         formKind === 'svc'
           ? title.trim() || `${selectedService?.title || 'Service'} by ${vendor.shop_name}`
-          : title.trim()
+          : title.trim() || (asDraft ? 'Untitled Draft' : '')
 
       const existing = editId ? products.find((p) => p.id === editId) : null
       const listingType: ListingType =
@@ -406,6 +407,7 @@ export function VendorDashboardClient({
                 `${selectedService?.title || 'Service'} by ${vendor.shop_name}`
               : description.trim() || resolvedTitle,
           price: numericPrice,
+          is_draft: asDraft,
           images:
             photos.length > 0
               ? photos
@@ -420,22 +422,26 @@ export function VendorDashboardClient({
 
       const json = await res.json()
       if (!res.ok || json.error) {
-        toast.error(json.error || 'Could not publish listing.')
+        toast.error(json.error || (asDraft ? 'Could not save draft.' : 'Could not publish listing.'))
         return
       }
 
       const saved = json.product as Product
       if (existing) {
         setProducts((prev) => prev.map((p) => (p.id === existing.id ? saved : p)))
-        setWasEdited(true)
-        setDoneProduct(saved)
       } else {
         setProducts((prev) => [saved, ...prev])
-        setWasEdited(false)
-        setDoneProduct(saved)
       }
 
-      setScreen('v:done')
+      if (asDraft) {
+        toast.success('Listing saved to Drafts.')
+        setListingsView('drafts')
+        setScreen('v:listings')
+      } else {
+        setWasEdited(Boolean(existing))
+        setDoneProduct(saved)
+        setScreen('v:done')
+      }
       window.scrollTo(0, 0)
       router.refresh()
     } finally {
@@ -731,9 +737,24 @@ export function VendorDashboardClient({
     }
   }
 
-  const activeProducts = products.filter((p) => p.stock_status !== 'out_of_stock')
-  const soldProducts = products.filter((p) => p.stock_status === 'out_of_stock')
-  const visibleProducts = listingsView === 'active' ? activeProducts : soldProducts
+  const draftProducts = products.filter((p) => p.status === 'draft')
+  const activeProducts = products.filter(
+    (p) =>
+      p.stock_status !== 'out_of_stock' &&
+      p.status !== 'draft' &&
+      p.status !== 'archived'
+  )
+  const soldProducts = products.filter(
+    (p) =>
+      (p.stock_status === 'out_of_stock' || p.status === 'archived') &&
+      p.status !== 'draft'
+  )
+  const visibleProducts =
+    listingsView === 'active'
+      ? activeProducts
+      : listingsView === 'drafts'
+      ? draftProducts
+      : soldProducts
 
   const activeNavTab: 'v:listings' | 'v:new' | 'v:store' =
     screen === 'v:new' || screen === 'v:form'
@@ -762,9 +783,9 @@ export function VendorDashboardClient({
                 aria-pressed={listingsView === 'active'}
                 onClick={() => setListingsView('active')}
                 className={cn(
-                  'flex-1 h-11 rounded-[9px] text-[15px] font-medium transition-all cursor-pointer',
+                  'flex-1 h-10 rounded-[9px] text-[13px] sm:text-[14px] font-medium transition-all cursor-pointer',
                   listingsView === 'active'
-                    ? 'bg-card text-foreground shadow-2xs'
+                    ? 'bg-card text-foreground shadow-2xs font-semibold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -772,12 +793,25 @@ export function VendorDashboardClient({
               </button>
               <button
                 type="button"
+                aria-pressed={listingsView === 'drafts'}
+                onClick={() => setListingsView('drafts')}
+                className={cn(
+                  'flex-1 h-10 rounded-[9px] text-[13px] sm:text-[14px] font-medium transition-all cursor-pointer',
+                  listingsView === 'drafts'
+                    ? 'bg-card text-foreground shadow-2xs font-semibold'
+                    : 'text-muted-foreground hover:text-foreground'
+                )}
+              >
+                Drafts {draftProducts.length}
+              </button>
+              <button
+                type="button"
                 aria-pressed={listingsView === 'sold'}
                 onClick={() => setListingsView('sold')}
                 className={cn(
-                  'flex-1 h-11 rounded-[9px] text-[15px] font-medium transition-all cursor-pointer',
+                  'flex-1 h-10 rounded-[9px] text-[13px] sm:text-[14px] font-medium transition-all cursor-pointer',
                   listingsView === 'sold'
-                    ? 'bg-card text-foreground shadow-2xs'
+                    ? 'bg-card text-foreground shadow-2xs font-semibold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -791,11 +825,14 @@ export function VendorDashboardClient({
                 {visibleProducts.map((x) => {
                   const kind = getKindFromListingType(x.listing_type)
                   const isSold = x.stock_status === 'out_of_stock'
+                  const isDraft = x.status === 'draft'
                   const isPaused = x.status === 'archived'
                   const isPending = x.status === 'pending_review'
                   const isRejected = x.status === 'rejected'
 
-                  const statusLabel = isSold
+                  const statusLabel = isDraft
+                    ? 'Draft'
+                    : isSold
                     ? 'Sold'
                     : isPaused
                     ? 'Paused'
@@ -856,13 +893,15 @@ export function VendorDashboardClient({
                       <span
                         className={cn(
                           'h-6 px-2.5 rounded-full text-xs font-medium inline-flex items-center shrink-0',
-                          isSold
+                          isDraft
+                            ? 'bg-muted border border-border text-foreground font-semibold'
+                            : isSold
                             ? 'bg-card border border-border text-muted-foreground'
                             : isPaused || isPending
-                            ? 'bg-[#FBF1D6] text-[#6B4E0E]'
+                            ? 'bg-[#FBF1D6] text-[#6B4E0E] dark:bg-amber-950/40 dark:text-amber-300'
                             : isRejected
                             ? 'bg-red-500/10 text-red-600'
-                            : 'bg-[#E6F2F2] text-[#0A4F4F]'
+                            : 'bg-[#E6F2F2] text-[#0A4F4F] dark:bg-teal-950/40 dark:text-teal-300'
                         )}
                       >
                         {statusLabel}
@@ -888,6 +927,22 @@ export function VendorDashboardClient({
                   className="mt-5 mx-auto w-full h-12 rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-[15px] flex items-center justify-center transition-colors cursor-pointer"
                 >
                   Add a listing
+                </button>
+              </div>
+            ) : listingsView === 'drafts' ? (
+              <div className="text-center pt-12 px-6">
+                <b className="block font-[family-name:var(--font-bricolage)] font-semibold text-xl text-foreground">
+                  No saved drafts
+                </b>
+                <p className="mt-1.5 text-sm text-muted-foreground">
+                  When you save an item without publishing immediately, it stays here.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setScreen('v:new')}
+                  className="mt-5 mx-auto max-w-[200px] h-11 rounded-xl bg-foreground text-background font-semibold text-sm flex items-center justify-center transition-opacity hover:opacity-90 cursor-pointer"
+                >
+                  Start a draft
                 </button>
               </div>
             ) : (
@@ -1480,21 +1535,33 @@ export function VendorDashboardClient({
 
             {/* Sticky Bottom Publish Bar (.bar.on) */}
             <div className="fixed bottom-0 inset-x-0 z-30 bg-card border-t border-border">
-              <div className="mx-auto w-full max-w-[480px] md:max-w-3xl px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center gap-4">
-                <div className="min-w-0">
+              <div className="mx-auto w-full max-w-[480px] md:max-w-3xl px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center gap-2.5 sm:gap-3">
+                <div className="min-w-0 flex-1">
                   <small className="block text-xs text-muted-foreground">
                     {missingReason ? 'Still needed' : 'Ready'}
                   </small>
-                  <b className="block text-[15px] sm:text-base font-semibold text-foreground truncate">
-                    {missingReason || 'Looks good'}
+                  <b className="block text-[14px] sm:text-[15px] font-semibold text-foreground truncate">
+                    {missingReason || 'Ready to publish'}
                   </b>
                 </div>
+
+                {/* Save Draft Button */}
+                <button
+                  type="button"
+                  disabled={publishing}
+                  onClick={() => handlePublish(true)}
+                  className="h-11 px-3.5 rounded-xl border border-border bg-card text-foreground font-semibold text-xs sm:text-sm hover:bg-muted transition-colors cursor-pointer shrink-0"
+                >
+                  Save draft
+                </button>
+
+                {/* Publish Button */}
                 <button
                   type="button"
                   disabled={!isFormReady || publishing}
-                  onClick={handlePublish}
+                  onClick={() => handlePublish(false)}
                   className={cn(
-                    'ml-auto flex-1 max-w-[180px] h-12 rounded-xl font-semibold text-[15px] flex items-center justify-center transition-colors cursor-pointer',
+                    'h-11 px-4 sm:px-5 rounded-xl font-semibold text-xs sm:text-sm flex items-center justify-center transition-colors cursor-pointer shrink-0',
                     isFormReady && !publishing
                       ? 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
                       : 'bg-[#CBDADA] dark:bg-muted text-[#3E4F4F] dark:text-muted-foreground cursor-default'
@@ -1883,72 +1950,157 @@ export function VendorDashboardClient({
               {actionProduct.title}
             </h3>
 
-            <button
-              type="button"
-              onClick={() => {
-                const target = actionProduct
-                setActionProduct(null)
-                populateFormForEdit(target)
-              }}
-              className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
-            >
-              <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
-                <Edit3 className="w-5 h-5" />
-              </span>
-              <b className="text-base font-semibold">Edit</b>
-            </button>
+            {actionProduct.status === 'draft' ? (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = actionProduct
+                    setActionProduct(null)
+                    populateFormForEdit(target)
+                  }}
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer hover:bg-muted/30 transition-colors"
+                >
+                  <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
+                    <Edit3 className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <b className="text-base font-semibold block text-foreground">Edit draft</b>
+                    <span className="text-xs text-muted-foreground block">Continue editing details</span>
+                  </div>
+                </button>
 
-            <button
-              type="button"
-              disabled={busyAction}
-              onClick={() => handleToggleSold(actionProduct)}
-              className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
-            >
-              <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
-                <Check className="w-5 h-5" />
-              </span>
-              <b className="text-base font-semibold">
-                {actionProduct.stock_status === 'out_of_stock'
-                  ? 'List again'
-                  : 'Mark as sold'}
-              </b>
-            </button>
+                <button
+                  type="button"
+                  disabled={busyAction}
+                  onClick={async () => {
+                    setBusyAction(true)
+                    try {
+                      const res = await fetch('/api/vendor/listings', {
+                        method: 'PATCH',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                          id: actionProduct.id,
+                          status: 'pending_review',
+                        }),
+                      })
+                      const json = await res.json()
+                      if (!res.ok || json.error) {
+                        toast.error(json.error || 'Could not publish draft.')
+                        return
+                      }
+                      setProducts((prev) =>
+                        prev.map((item) =>
+                          item.id === actionProduct.id
+                            ? { ...item, status: 'pending_review' }
+                            : item
+                        )
+                      )
+                      toast.success('Draft submitted for review!')
+                      setActionProduct(null)
+                      router.refresh()
+                    } catch {
+                      toast.error('Network error publishing draft.')
+                    } finally {
+                      setBusyAction(false)
+                    }
+                  }}
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer hover:bg-muted/30 transition-colors"
+                >
+                  <span className="w-11 h-11 rounded-xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 grid place-items-center shrink-0">
+                    <Check className="w-5 h-5 stroke-[2.2]" />
+                  </span>
+                  <div>
+                    <b className="text-base font-semibold block text-emerald-600 dark:text-emerald-400">Publish now</b>
+                    <span className="text-xs text-muted-foreground block">Submit draft for admin review</span>
+                  </div>
+                </button>
 
-            {actionProduct.stock_status !== 'out_of_stock' && (
-              <button
-                type="button"
-                disabled={busyAction}
-                onClick={() => handleTogglePause(actionProduct)}
-                className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
-              >
-                <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
-                  <Pause className="w-5 h-5" />
-                </span>
-                <span>
-                  <b className="block text-base font-semibold">
-                    {actionProduct.status === 'archived' ? 'Show again' : 'Pause'}
+                <button
+                  type="button"
+                  disabled={busyAction}
+                  onClick={() => setConfirmDeleteProduct(actionProduct)}
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer hover:bg-red-500/10 transition-colors"
+                >
+                  <span className="w-11 h-11 rounded-xl bg-red-500/10 text-red-600 grid place-items-center shrink-0">
+                    <Trash2 className="w-5 h-5" />
+                  </span>
+                  <div>
+                    <b className="text-base font-semibold text-[#A32020] dark:text-red-400 block">Delete draft</b>
+                    <span className="text-xs text-muted-foreground block">Permanently remove this draft</span>
+                  </div>
+                </button>
+              </>
+            ) : (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const target = actionProduct
+                    setActionProduct(null)
+                    populateFormForEdit(target)
+                  }}
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
+                >
+                  <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
+                    <Edit3 className="w-5 h-5" />
+                  </span>
+                  <b className="text-base font-semibold">Edit</b>
+                </button>
+
+                <button
+                  type="button"
+                  disabled={busyAction}
+                  onClick={() => handleToggleSold(actionProduct)}
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
+                >
+                  <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
+                    <Check className="w-5 h-5" />
+                  </span>
+                  <b className="text-base font-semibold">
+                    {actionProduct.stock_status === 'out_of_stock'
+                      ? 'List again'
+                      : 'Mark as sold'}
                   </b>
-                  <small className="text-[13px] text-muted-foreground">
-                    {actionProduct.status === 'archived'
-                      ? 'Submit to show buyers again'
-                      : 'Hide it from buyers for now'}
-                  </small>
-                </span>
-              </button>
-            )}
+                </button>
 
-            <button
-              type="button"
-              onClick={() => setConfirmDeleteProduct(actionProduct)}
-              className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
-            >
-              <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
-                <Trash2 className="w-5 h-5" />
-              </span>
-              <b className="text-base font-semibold text-[#A32020] dark:text-red-400">
-                Delete
-              </b>
-            </button>
+                {actionProduct.stock_status !== 'out_of_stock' && (
+                  <button
+                    type="button"
+                    disabled={busyAction}
+                    onClick={() => handleTogglePause(actionProduct)}
+                    className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
+                  >
+                    <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
+                      <Pause className="w-5 h-5" />
+                    </span>
+                    <span>
+                      <b className="block text-base font-semibold">
+                        {actionProduct.status === 'archived' ? 'Show again' : 'Pause'}
+                      </b>
+                      <small className="text-[13px] text-muted-foreground">
+                        {actionProduct.status === 'archived'
+                          ? 'Submit to show buyers again'
+                          : 'Hide it from buyers for now'}
+                      </small>
+                    </span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setConfirmDeleteProduct(actionProduct)}
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
+                >
+                  <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
+                    <Trash2 className="w-5 h-5" />
+                  </span>
+                  <b className="text-base font-semibold text-[#A32020] dark:text-red-400">
+                    Delete
+                  </b>
+                </button>
+              </>
+            )}
 
             <button
               type="button"
