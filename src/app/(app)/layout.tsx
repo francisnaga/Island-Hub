@@ -20,7 +20,7 @@ export default async function AppLayout({
       <Navbar user={user} profile={profile} vendor={vendor} />
       <main className="flex-1 min-w-0 w-full">{children}</main>
       <Footer />
-      <MobileBottomNav />
+      <MobileBottomNav hasStore={Boolean(user && vendor && vendor.shop_name)} />
     </div>
   )
 }

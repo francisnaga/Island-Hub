@@ -6,7 +6,12 @@ import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ServicesChips } from '@/components/home/ServicesChips'
 import { VendorAvatarRail } from '@/components/home/VendorAvatarRail'
 import { FresherBanner } from '@/components/home/FresherBanner'
-import { getPublicLodges, getPublicProducts, getPublicVendors } from '@/lib/queries'
+import {
+  getCurrentUserContext,
+  getPublicLodges,
+  getPublicProducts,
+  getPublicVendors,
+} from '@/lib/queries'
 
 export const dynamic = 'force-dynamic'
 
@@ -27,26 +32,30 @@ export default async function HomePage({
   const selectedCampus =
     sp.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
 
-  const [{ products: allProducts }, vendors, filteredLodges] = await Promise.all([
-    getPublicProducts({
-      limit: 16,
-      sort: 'newest',
-      availability: 'available_only',
-      campus: selectedCampus,
-    }),
-    getPublicVendors({
-      verifiedOnly: false,
-      campus: selectedCampus,
-    }),
-    getPublicLodges({
-      campus: selectedCampus,
-    }),
-  ])
+  const [{ products: allProducts }, vendors, filteredLodges, { user, vendor }] =
+    await Promise.all([
+      getPublicProducts({
+        limit: 16,
+        sort: 'newest',
+        availability: 'available_only',
+        campus: selectedCampus,
+      }),
+      getPublicVendors({
+        verifiedOnly: false,
+        campus: selectedCampus,
+      }),
+      getPublicLodges({
+        campus: selectedCampus,
+      }),
+      getCurrentUserContext(),
+    ])
+
+  const hasStore = Boolean(user && vendor && vendor.shop_name)
 
   return (
     <div className="min-w-0 max-w-full pb-16">
       {/* 1. Deep Teal Hero & Waterline Wave */}
-      <WaterlineHero />
+      <WaterlineHero hasStore={hasStore} />
 
       <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 pt-2 md:pt-4">
         {/* 2. Just landed */}

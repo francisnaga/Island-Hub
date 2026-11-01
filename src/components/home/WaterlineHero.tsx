@@ -3,9 +3,9 @@
 import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { Search, ShoppingBag, Bed, Briefcase, Plus } from 'lucide-react'
+import { Search, ShoppingBag, Bed, Briefcase, Plus, Store } from 'lucide-react'
 
-export function WaterlineHero() {
+export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
   const [amplitude, setAmplitude] = useState(1)
@@ -94,13 +94,17 @@ export function WaterlineHero() {
             </Link>
 
             <Link
-              href="/vendor/apply"
+              href={hasStore ? '/vendor/dashboard' : '/vendor/apply'}
               className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
             >
               <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-[#E8B84A] border border-[#E8B84A] text-[#0E1B1B] flex items-center justify-center transition-transform active:scale-95 shadow-sm">
-                <Plus className="w-6.5 h-6.5 stroke-[2.2]" />
+                {hasStore ? (
+                  <Store className="w-6 h-6 stroke-[2]" />
+                ) : (
+                  <Plus className="w-6.5 h-6.5 stroke-[2.2]" />
+                )}
               </span>
-              <span>Sell</span>
+              <span className="whitespace-nowrap">{hasStore ? 'Open store' : 'Sell'}</span>
             </Link>
           </div>
         </div>

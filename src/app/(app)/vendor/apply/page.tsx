@@ -11,6 +11,11 @@ export default async function VendorApplyPage() {
     redirect('/login?next=/vendor/apply')
   }
 
+  // If the signed-in user already has a vendor store, take them straight to their store dashboard
+  if (vendor && vendor.shop_name && vendor.whatsapp_number) {
+    redirect('/vendor/dashboard')
+  }
+
   return (
     <VendorApplyForm
       user={user}

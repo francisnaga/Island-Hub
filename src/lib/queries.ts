@@ -102,12 +102,10 @@ export async function getPublicVendors(options?: {
           countMap[p.vendor_id] = (countMap[p.vendor_id] || 0) + 1
         }
       }
-      list = (data as Vendor[])
-        .filter((v) => !v.is_paused)
-        .map((v) => ({
-          ...v,
-          products_count: countMap[v.id] || 0,
-        }))
+      list = (data as Vendor[]).map((v) => ({
+        ...v,
+        products_count: countMap[v.id] || 0,
+      }))
     }
   } catch {
     // Return empty list if offline
@@ -366,7 +364,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
 
     const { data, error } = await query
     if (!error && data) {
-      // Serve all admin-approved items from any active (non-rejected, non-suspended, non-paused) vendor
+      // Serve all admin-approved items from any active (non-rejected, non-suspended) vendor
       productsList = (data as Product[])
         .filter(
           (item) =>
@@ -374,8 +372,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
             !item.is_demo &&
             item.vendor &&
             item.vendor.verification_status !== 'rejected' &&
-            item.vendor.verification_status !== 'suspended' &&
-            !item.vendor.is_paused
+            item.vendor.verification_status !== 'suspended'
         )
         .map((item) => ({
           ...item,
@@ -466,8 +463,7 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
         }
       } else if (
         p.vendor.verification_status === 'rejected' ||
-        p.vendor.verification_status === 'suspended' ||
-        p.vendor.is_paused
+        p.vendor.verification_status === 'suspended'
       ) {
         return null
       }
@@ -510,8 +506,7 @@ export async function getPublicLodges(options?: {
           !item.is_demo &&
           item.vendor &&
           item.vendor.verification_status !== 'rejected' &&
-          item.vendor.verification_status !== 'suspended' &&
-          !item.vendor.is_paused
+          item.vendor.verification_status !== 'suspended'
       )
 
       // Push featured listings & verified/featured vendors to the top
@@ -607,8 +602,7 @@ export async function getPublicServices(campus?: string): Promise<ServiceItem[]>
             !item.is_demo &&
             item.vendor &&
             item.vendor.verification_status !== 'rejected' &&
-            item.vendor.verification_status !== 'suspended' &&
-            !item.vendor.is_paused
+            item.vendor.verification_status !== 'suspended'
         )
         .sort((a, b) => {
           const aFeat = Boolean(a.is_featured || a.vendor?.is_featured)
@@ -713,10 +707,17 @@ export async function getCurrentUserContext(): Promise<{
     const googleAvatar =
       user.user_metadata?.avatar_url || user.user_metadata?.picture || null
 
-    const [{ data: profileData }, { data: vendorData }] = await Promise.all([
-      supabase.from('profiles').select('*').eq('id', user.id).maybeSingle(),
-      supabase.from('vendors').select('*').eq('user_id', user.id).maybeSingle(),
+    const adminDb = await createAdminClient()
+    const [{ data: profileData }, { data: vendorRows }] = await Promise.all([
+      adminDb.from('profiles').select('*').eq('id', user.id).maybeSingle(),
+      adminDb
+        .from('vendors')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(1),
     ])
+    const vendorData = vendorRows?.[0] || null
 
     // Auto-promote efobifrancis53@gmail.com to admin in DB if not yet set
     if (adminByEmail && (!profileData || profileData.role !== 'admin')) {

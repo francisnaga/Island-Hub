@@ -73,7 +73,7 @@ export default async function ServiceDetailPage({
             </p>
           </div>
           <Link
-            href="/vendor/products/new?type=service"
+            href="/vendor/dashboard?tab=new&kind=svc"
             className="inline-flex items-center gap-1 h-8 px-3 rounded-full border border-border bg-card text-foreground text-xs font-semibold hover:bg-muted transition-colors shrink-0"
           >
             <Plus className="w-3.5 h-3.5" />

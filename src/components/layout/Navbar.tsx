@@ -166,25 +166,14 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             </div>
           )}
 
-          {/* Mobile: Compact single-button mode switch so top nav is never cramped */}
-          {user && vendor && (
-            isSellingMode ? (
-              <Link
-                href="/"
-                className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-              >
-                <span>Buying</span>
-              </Link>
-            ) : (
-              <Link
-                href="/vendor/dashboard"
-                aria-label="Open my vendor store"
-                className="md:hidden inline-flex h-8 items-center gap-1 rounded-full border border-border bg-card px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
-              >
-                <Store className="h-3.5 w-3.5 text-muted-foreground" />
-                <span>Store</span>
-              </Link>
-            )
+          {/* Mobile: Only show "Buying" switch when inside Vendor Dashboard; in Buyer Mode keep top nav clean and un-compacted */}
+          {user && vendor && isSellingMode && (
+            <Link
+              href="/"
+              className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+            >
+              <span>Buying</span>
+            </Link>
           )}
 
           {user && isAdmin && (
