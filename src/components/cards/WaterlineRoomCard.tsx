@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { MapPin, Bed } from 'lucide-react'
 import { LodgeListing } from '@/lib/lodge-data'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export function WaterlineRoomCard({
   lodge,
@@ -33,13 +34,12 @@ export function WaterlineRoomCard({
       {/* 1:1 or 4:3 Soft Tinted Container matching Image 1 */}
       <div className="relative aspect-square w-full rounded-2xl bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center text-[#0F6E6E] dark:text-[#E8B84A]">
         {lodge.image ? (
-          <img
+          <OptimizedImage
             src={lodge.image}
             alt={lodge.title}
-            loading="lazy"
-            decoding="async"
-            fetchPriority="low"
+            sizes="(max-width: 640px) 180px, 240px"
             className="h-full w-full object-cover transition-transform group-hover:scale-105 duration-200"
+            fallback={<Bed className="w-12 h-12 opacity-50 stroke-[1.5]" />}
           />
         ) : (
           <Bed className="w-12 h-12 opacity-50 stroke-[1.5]" />

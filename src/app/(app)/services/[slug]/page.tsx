@@ -6,6 +6,7 @@ import { getPublicServiceBySlug } from '@/lib/queries'
 import { getServiceBySlug } from '@/lib/services-data'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { getCanonicalUrl, buildServiceInquiryWhatsAppUrl } from '@/lib/whatsapp'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export const dynamic = 'force-dynamic'
 
@@ -138,9 +139,12 @@ export default async function ServiceDetailPage({
                     {/* 56px Dark Teal Circular Avatar matching prototype */}
                     <div className="w-14 h-14 rounded-full bg-[#0F6E6E] dark:bg-[#0A4F4F] text-white flex items-center justify-center font-[family-name:var(--font-bricolage)] font-bold text-lg shrink-0 overflow-hidden shadow-2xs">
                       {provider.logo_url ? (
-                        <img
+                        <OptimizedImage
                           src={provider.logo_url}
                           alt={provider.name}
+                          width={56}
+                          height={56}
+                          sizes="56px"
                           className="w-full h-full object-cover"
                         />
                       ) : (

@@ -15,6 +15,7 @@ import { getVendorInitials } from '@/components/cards/VendorCard'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { ProductOrderBox } from '@/components/marketplace/ProductOrderBox'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 import {
   getPublicProductBySlugOrId,
   getPublicProducts,
@@ -158,11 +159,13 @@ export default async function ProductDetailPage({
           {/* 1. Image Gallery */}
           <div className="dimg mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs md:col-span-6 md:sticky md:top-20">
             <div className="slides">
-              <div className="slide">
+              <div className="slide relative">
                 {primaryMedia ? (
-                  <img
+                  <OptimizedImage
                     src={primaryMedia}
                     alt={product.title}
+                    priority
+                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 550px"
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -177,10 +180,11 @@ export default async function ProductDetailPage({
               </div>
               {product.images &&
                 product.images.slice(1).map((img, i) => (
-                  <div key={i} className="slide">
-                    <img
+                  <div key={i} className="slide relative">
+                    <OptimizedImage
                       src={img}
                       alt={`${product.title} view ${i + 2}`}
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 550px"
                       className="w-full h-full object-cover"
                     />
                   </div>

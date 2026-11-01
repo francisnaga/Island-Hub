@@ -309,9 +309,10 @@ export function VendorDashboardClient({
     setUploadingPhoto(true)
     try {
       const { file: compressedFile, dataUrl } = await compressImageFile(file, {
-        maxWidth: 1280,
-        maxHeight: 1280,
-        quality: 0.82,
+        maxWidth: 960,
+        maxHeight: 960,
+        quality: 0.76,
+        mimeType: 'image/webp',
       })
 
       const formData = new FormData()

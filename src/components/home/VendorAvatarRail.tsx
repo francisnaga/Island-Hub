@@ -3,6 +3,7 @@ import { MapPin, ArrowRight } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
   return (
@@ -24,11 +25,12 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs group-hover:scale-105 transition-transform">
                 {vendor.logo_url ? (
-                  <img
+                  <OptimizedImage
                     src={vendor.logo_url}
                     alt={vendor.shop_name}
-                    loading="lazy"
-                    decoding="async"
+                    width={44}
+                    height={44}
+                    sizes="44px"
                     className="w-full h-full object-cover"
                   />
                 ) : (

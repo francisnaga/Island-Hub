@@ -6,6 +6,7 @@ import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ServicesChips } from '@/components/home/ServicesChips'
 import { VendorAvatarRail } from '@/components/home/VendorAvatarRail'
 import { FresherBanner } from '@/components/home/FresherBanner'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 import {
   getCurrentUserContext,
   getPublicLodges,
@@ -211,7 +212,7 @@ export default async function HomePage({
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs">
                         {vendor.logo_url ? (
-                          <img src={vendor.logo_url} alt={vendor.shop_name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                          <OptimizedImage src={vendor.logo_url} alt={vendor.shop_name} width={44} height={44} sizes="44px" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-[#17908D] to-[#0A4F4F] flex items-center justify-center text-white font-bold text-sm">
                             {vendor.shop_name.slice(0, 2).toUpperCase()}

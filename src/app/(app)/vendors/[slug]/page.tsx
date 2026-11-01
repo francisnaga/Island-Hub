@@ -15,6 +15,7 @@ import {
   getCanonicalUrl,
 } from '@/lib/whatsapp'
 import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export const dynamic = 'force-dynamic'
 
@@ -137,9 +138,13 @@ export default async function VendorStorefrontPage({
         {/* 88px Circular Avatar with Ring (.av) */}
         <div className="av">
           {vendor.logo_url ? (
-            <img
+            <OptimizedImage
               src={vendor.logo_url}
               alt={vendor.shop_name}
+              width={88}
+              height={88}
+              sizes="88px"
+              priority
               className="w-full h-full object-cover"
             />
           ) : (

@@ -34,8 +34,8 @@ export async function POST(request: NextRequest) {
     const { error: uploadError } = await adminDb.storage
       .from('product-images')
       .upload(filePath, buffer, {
-        contentType: file.type || 'image/jpeg',
-        cacheControl: '3600',
+        contentType: file.type || 'image/webp',
+        cacheControl: '31536000, public, immutable',
         upsert: false,
       })
 

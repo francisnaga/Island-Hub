@@ -4,6 +4,7 @@ import { Product } from '@/lib/types'
 import { getItemCampus } from '@/lib/queries'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export function WaterlineProductCard({
   product,
@@ -61,13 +62,17 @@ export function WaterlineProductCard({
       {/* 1:1 Image Container */}
       <div className="relative aspect-square w-full rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center text-[#0F6E6E] dark:text-[#E8B84A]">
         {product.images && product.images.length > 0 && product.images[0] ? (
-          <img
+          <OptimizedImage
             src={product.images[0]}
             alt={product.title}
-            loading={priority ? 'eager' : 'lazy'}
-            decoding="async"
-            fetchPriority={priority ? 'high' : 'low'}
+            priority={priority}
+            sizes={
+              variant === 'rail'
+                ? '156px'
+                : '(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 220px'
+            }
             className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
+            fallback={<ShoppingBag className="w-9 h-9 opacity-45" />}
           />
         ) : isService ? (
           <div className="flex flex-col items-center justify-center p-2 text-center text-[#0F6E6E] dark:text-[#22D3EE]">

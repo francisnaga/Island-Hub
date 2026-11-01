@@ -16,6 +16,7 @@ import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export const dynamic = 'force-dynamic'
 
@@ -100,10 +101,13 @@ export default async function HousingDetailPage({
           {/* 1. Image Gallery */}
           <div className="dimg relative aspect-square w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center md:col-span-6 md:sticky md:top-20">
             {lodge.image ? (
-              <img
+              <OptimizedImage
                 src={lodge.image}
                 alt={lodge.title}
+                priority
+                sizes="(max-width: 640px) 100vw, 550px"
                 className="w-full h-full object-cover"
+                fallback={<Building2 className="w-16 h-16 opacity-35 text-[#0F6E6E]" />}
               />
             ) : (
               <Building2 className="w-16 h-16 opacity-35 text-[#0F6E6E]" />

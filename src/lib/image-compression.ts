@@ -37,10 +37,10 @@ export async function compressImageFile(
   options: CompressionOptions = {}
 ): Promise<{ file: File; blob: Blob; dataUrl: string }> {
   const {
-    maxWidth = 1280,
-    maxHeight = 1280,
-    quality = 0.82,
-    mimeType = 'image/jpeg',
+    maxWidth = 960,
+    maxHeight = 960,
+    quality = 0.76,
+    mimeType = 'image/webp',
   } = options
 
   return new Promise((resolve, reject) => {
@@ -114,11 +114,22 @@ function calculateDimensions(
 function finalizeCanvas(
   canvas: HTMLCanvasElement,
   originalName: string,
-  mimeType: string,
+  requestedMimeType: string,
   quality: number,
   resolve: (value: { file: File; blob: Blob; dataUrl: string }) => void,
   reject: (reason?: unknown) => void
 ) {
+  // Check if requested MIME is supported by canvas (fall back to jpeg if webp unsupported)
+  let mimeType = requestedMimeType
+  try {
+    const testUrl = canvas.toDataURL(requestedMimeType, 0.5)
+    if (!testUrl.startsWith(`data:${requestedMimeType}`)) {
+      mimeType = 'image/jpeg'
+    }
+  } catch {
+    mimeType = 'image/jpeg'
+  }
+
   const dataUrl = canvas.toDataURL(mimeType, quality)
 
   canvas.toBlob(

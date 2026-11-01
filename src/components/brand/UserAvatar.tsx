@@ -14,6 +14,7 @@
  */
 import { useState } from 'react'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 interface UserAvatarProps {
   /** Real photo URL (logo_url / avatar_url / Google profile picture) */
@@ -47,15 +48,13 @@ export function UserAvatar({
   if (showReal) {
     return (
       <div className={`${rounded} ${className}`} style={style}>
-        <img
+        <OptimizedImage
           src={src}
           alt={alt || name}
           width={size}
           height={size}
+          sizes={`${size}px`}
           className="w-full h-full object-cover"
-          onError={() => setImgError(true)}
-          loading="lazy"
-          decoding="async"
         />
       </div>
     )

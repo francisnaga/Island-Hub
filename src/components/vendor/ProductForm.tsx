@@ -167,25 +167,27 @@ export function ProductForm({
 
     setUploadingImage(true)
     try {
-      // 1. Always compress client-side first so iPhone photos (12MP-48MP) become ~150KB
+      // 1. High-speed client compression: iPhone photos (12MP-48MP) become ~40KB WebP
       const { file: compressedFile, dataUrl } = await compressImageFile(file, {
-        maxWidth: 1280,
-        maxHeight: 1280,
-        quality: 0.82,
+        maxWidth: 960,
+        maxHeight: 960,
+        quality: 0.76,
+        mimeType: 'image/webp',
       })
 
       const supabase = createClient()
-      const ext = compressedFile.name.split('.').pop() || 'jpg'
+      const ext = compressedFile.name.split('.').pop() || 'webp'
       const path = `${vendor.id}/${Date.now()}-${Math.random()
         .toString(36)
         .slice(2, 7)}.${ext}`
 
-      // 2. Upload the compressed ~150KB file instead of the heavy raw iPhone image
+      // 2. Upload compressed WebP with 1-year immutable caching
       const { error: uploadErr } = await supabase.storage
         .from('product-images')
         .upload(path, compressedFile, {
           upsert: false,
-          contentType: compressedFile.type,
+          contentType: compressedFile.type || 'image/webp',
+          cacheControl: '31536000, public, immutable',
         })
 
       if (!uploadErr) {
