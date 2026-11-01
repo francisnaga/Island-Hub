@@ -159,8 +159,16 @@ export async function GET(request: Request) {
         }
       }
 
-      const safeRedirect = redirectTarget.startsWith('/') ? redirectTarget : `/${redirectTarget}`
-      return NextResponse.redirect(`${origin}${safeRedirect}`)
+      let safeRedirect = '/'
+      if (
+        typeof redirectTarget === 'string' &&
+        redirectTarget.startsWith('/') &&
+        !redirectTarget.startsWith('//') &&
+        !redirectTarget.startsWith('/\\')
+      ) {
+        safeRedirect = redirectTarget
+      }
+      return NextResponse.redirect(new URL(safeRedirect, origin).toString())
     }
   }
 

@@ -406,12 +406,35 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (typeof body.stock_status === 'string') {
-      updates.stock_status = body.stock_status
-      updates.last_confirmed_at = new Date().toISOString()
+      const allowedStock = ['available', 'low_stock', 'out_of_stock']
+      if (allowedStock.includes(body.stock_status)) {
+        updates.stock_status = body.stock_status
+        updates.last_confirmed_at = new Date().toISOString()
+      }
     }
 
     if (typeof body.status === 'string') {
-      updates.status = body.status
+      const isAdmin = isAdminEmail(user.email)
+      const allowedStatuses = ['approved', 'pending_review', 'paused', 'archived', 'draft']
+
+      if (isAdmin) {
+        if (allowedStatuses.includes(body.status)) {
+          updates.status = body.status
+        }
+      } else {
+        // Non-admin vendors cannot approve their own listings
+        if (body.status === 'approved') {
+          // If the product was already approved by admin, allow un-pausing back to approved
+          if (existing.status === 'approved' || existing.status === 'paused') {
+            updates.status = 'approved'
+          } else {
+            // Cannot self-approve from draft or pending_review
+            updates.status = 'pending_review'
+          }
+        } else if (body.status === 'paused' || body.status === 'archived' || body.status === 'draft') {
+          updates.status = body.status
+        }
+      }
     }
 
     const { data: updated, error } = await adminDb

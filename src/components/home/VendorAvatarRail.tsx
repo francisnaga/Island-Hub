@@ -1,9 +1,8 @@
 import Link from 'next/link'
 import { MapPin, ArrowRight } from 'lucide-react'
 import { Vendor } from '@/lib/types'
-import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
-import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
   return (
@@ -24,23 +23,14 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
             {/* Top row: Avatar + Name + Campus */}
             <div className="flex items-center gap-3 min-w-0">
               <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs group-hover:scale-105 transition-transform">
-                {vendor.logo_url ? (
-                  <OptimizedImage
-                    src={vendor.logo_url}
-                    alt={vendor.shop_name}
-                    width={44}
-                    height={44}
-                    sizes="44px"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <WavyAvatar
-                    name={vendor.shop_name}
-                    seed={vendor.id || vendor.slug}
-                    size={44}
-                    className="w-full h-full"
-                  />
-                )}
+                <UserAvatar
+                  src={vendor.logo_url}
+                  seed={vendor.id || vendor.slug}
+                  name={vendor.shop_name}
+                  size={44}
+                  className="w-full h-full"
+                  priority
+                />
               </div>
 
               <div className="min-w-0 flex-1 overflow-hidden">

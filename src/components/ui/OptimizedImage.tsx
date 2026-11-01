@@ -18,12 +18,16 @@ export interface OptimizedImageProps {
   fallback?: React.ReactNode
 }
 
+// Low-overhead instant placeholder SVG so layout never jumps and empty grey boxes don't hang
+const INSTANT_BLUR_DATA_URL =
+  'data:image/svg+xml;charset=utf-8,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect width="100" height="100" fill="%23DCE8E8"/%3E%3C/svg%3E'
+
 /**
  * High-performance Next.js Image wrapper:
  * - AVIF & WebP auto-conversion via Next.js optimizer
- * - Responsive srcset sizing (phones download 8KB-15KB thumbnails, not 2MB originals)
- * - Shimmer skeleton placeholder while loading
- * - Cache-first service worker integration
+ * - Responsive srcset sizing (phones download 8KB-18KB thumbnails, not 2MB originals)
+ * - Instant SVG blur placeholder prevents layout shift & hanging empty holes
+ * - Progressive rendering on poor 2G/3G networks
  * - Graceful fallback on error
  */
 export function OptimizedImage({
@@ -35,7 +39,7 @@ export function OptimizedImage({
   fill = true,
   width,
   height,
-  quality = 75,
+  quality = 70,
   aspectClass,
   fallback,
 }: OptimizedImageProps) {
@@ -57,7 +61,7 @@ export function OptimizedImage({
   return (
     <span
       className={cn(
-        'relative block w-full h-full overflow-hidden',
+        'relative block w-full h-full overflow-hidden bg-[#E6F2F2] dark:bg-[#132A2A]',
         aspectClass
       )}
     >
@@ -65,7 +69,7 @@ export function OptimizedImage({
       {!loaded && (
         <span
           aria-hidden="true"
-          className="absolute inset-0 bg-[#E6F2F2] dark:bg-[#132A2A] animate-pulse pointer-events-none z-0"
+          className="absolute inset-0 bg-gradient-to-r from-[#E6F2F2] via-[#F0F7F7] to-[#E6F2F2] dark:from-[#132A2A] dark:via-[#193737] dark:to-[#132A2A] animate-pulse pointer-events-none z-0"
         />
       )}
       <Image
@@ -79,11 +83,13 @@ export function OptimizedImage({
         priority={priority}
         loading={priority ? 'eager' : 'lazy'}
         decoding="async"
+        placeholder={bypassOptimizer ? 'empty' : 'blur'}
+        blurDataURL={bypassOptimizer ? undefined : INSTANT_BLUR_DATA_URL}
         unoptimized={bypassOptimizer}
         onLoad={() => setLoaded(true)}
         onError={() => setErrored(true)}
         className={cn(
-          'transition-opacity duration-200 z-1',
+          'transition-opacity duration-300 z-1',
           loaded ? 'opacity-100' : 'opacity-0',
           className
         )}

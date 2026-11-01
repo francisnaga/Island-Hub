@@ -29,6 +29,21 @@ export function isImageFile(file: File): boolean {
 }
 
 /**
+ * Optimized for store logos and user profile pictures.
+ * Compresses to 320x320 WebP (~15KB–25KB) so avatars load instantaneously even on 2G/3G edge networks.
+ */
+export async function compressAvatarFile(
+  file: File
+): Promise<{ file: File; blob: Blob; dataUrl: string }> {
+  return compressImageFile(file, {
+    maxWidth: 320,
+    maxHeight: 320,
+    quality: 0.82,
+    mimeType: 'image/webp',
+  })
+}
+
+/**
  * Compresses an image File using the browser's HTMLCanvasElement.
  * Automatically handles image orientation and scales large camera captures.
  */

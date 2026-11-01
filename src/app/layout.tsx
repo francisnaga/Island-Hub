@@ -81,6 +81,8 @@ export default function RootLayout({
         <link rel="icon" type="image/svg+xml" href="/jetty-favicon.svg?v=2" />
         <link rel="preconnect" href="https://zagfgxhewhwothrbyesw.supabase.co" />
         <link rel="dns-prefetch" href="https://zagfgxhewhwothrbyesw.supabase.co" />
+        <link rel="preconnect" href="https://lh3.googleusercontent.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="https://lh3.googleusercontent.com" />
       </head>
       <body
         className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground antialiased`}

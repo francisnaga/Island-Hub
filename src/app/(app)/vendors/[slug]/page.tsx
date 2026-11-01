@@ -16,6 +16,7 @@ import {
 } from '@/lib/whatsapp'
 import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -137,19 +138,14 @@ export default async function VendorStorefrontPage({
 
         {/* 88px Circular Avatar with Ring (.av) */}
         <div className="av">
-          {vendor.logo_url ? (
-            <OptimizedImage
-              src={vendor.logo_url}
-              alt={vendor.shop_name}
-              width={88}
-              height={88}
-              sizes="88px"
-              priority
-              className="w-full h-full object-cover"
-            />
-          ) : (
-            <span>{initials}</span>
-          )}
+          <UserAvatar
+            src={vendor.logo_url}
+            seed={vendor.id || vendor.slug}
+            name={vendor.shop_name}
+            size={88}
+            className="w-full h-full"
+            priority
+          />
         </div>
 
         {/* Name, Role & Campus (+ Optional Location if added) */}

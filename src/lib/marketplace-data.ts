@@ -231,8 +231,11 @@ export function sanitizePublicVendor(vendor: Vendor): Vendor {
     !LEGACY_DEFAULT_COORDS.has(coordKey) &&
     vendor.location_type !== 'delivery_only'
 
+  // Omit internal moderation & private fields from public queries
+  const { rejection_reason, pause_reason, ...safeFields } = vendor as any
+
   return {
-    ...vendor,
+    ...safeFields,
     campus: resolvedCampus,
     location_label: cleanLocationLabel,
     latitude: hasRealPinnedCoords ? vendor.latitude : null,

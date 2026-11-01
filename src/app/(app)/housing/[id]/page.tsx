@@ -15,7 +15,7 @@ import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
-import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
 export const dynamic = 'force-dynamic'
@@ -228,20 +228,13 @@ export default async function HousingDetailPage({
               className="flex items-center gap-3 py-2 group cursor-pointer"
               aria-label={`Contact ${lodge.contact_name}`}
             >
-              {lodge.contact_avatar ? (
-                <img
-                  src={lodge.contact_avatar}
-                  alt={lodge.contact_name}
-                  className="w-12 h-12 rounded-full object-cover shrink-0 border border-border/60"
-                />
-              ) : (
-                <WavyAvatar
-                  name={lodge.contact_name}
-                  seed={lodge.vendor_slug || lodge.contact_name}
-                  size={48}
-                  className="shrink-0"
-                />
-              )}
+              <UserAvatar
+                src={lodge.contact_avatar}
+                seed={lodge.vendor_slug || lodge.contact_name}
+                name={lodge.contact_name}
+                size={48}
+                className="shrink-0 border border-border/60"
+              />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
                   <span>{lodge.contact_name}</span>

@@ -1,3 +1,4 @@
+import { cache } from 'react'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { INITIAL_CATEGORIES, sanitizePublicVendor } from './marketplace-data'
@@ -13,7 +14,7 @@ import { Category, CategoryRequest, isAdminEmail, Product, UserProfile, Vendor }
 
 const SYSTEM_SECTION_SLUGS = new Set(['campus-services', 'student-housing'])
 
-export async function getPublicCategories(): Promise<Category[]> {
+export const getPublicCategories = cache(async function getPublicCategories(): Promise<Category[]> {
   try {
     const supabase = await createClient()
     const { data, error } = await supabase
@@ -52,7 +53,7 @@ export async function getPublicCategories(): Promise<Category[]> {
     // Fallback to initial categories taxonomy if DB is unreachable
   }
   return INITIAL_CATEGORIES
-}
+})
 
 export async function getPublicVendors(options?: {
   query?: string
@@ -694,7 +695,7 @@ export async function getPublicServiceBySlug(
   )
 }
 
-export async function getCurrentUserContext(): Promise<{
+export const getCurrentUserContext = cache(async function getCurrentUserContext(): Promise<{
   user: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
   profile: UserProfile | null
   vendor: Vendor | null
@@ -788,7 +789,7 @@ export async function getCurrentUserContext(): Promise<{
   } catch {
     return { user: null, profile: null, vendor: null }
   }
-}
+})
 
 export async function getCategoryRequests(): Promise<CategoryRequest[]> {
   try {

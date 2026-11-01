@@ -20,6 +20,7 @@ import { createClient } from '@/lib/supabase/client'
 import { UserProfile, Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 
 interface ProfileClientProps {
   user: { id: string; email?: string }
@@ -124,17 +125,14 @@ export function ProfileClient({ user, profile, vendor }: ProfileClientProps) {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-border pb-6">
         <div className="flex items-center gap-3.5">
-          {profile.avatar_url ? (
-            <img
-              src={profile.avatar_url}
-              alt={profile.full_name}
-              className="h-14 w-14 rounded-2xl object-cover border border-border"
-            />
-          ) : (
-            <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-[#E6F2F2] border border-[#0F6E6E]/25 text-[#0F6E6E]">
-              <UserCircle className="h-8 w-8" />
-            </div>
-          )}
+          <UserAvatar
+            src={profile.avatar_url}
+            seed={profile.id || user.id}
+            name={profile.full_name}
+            size={56}
+            className="rounded-2xl border border-border shadow-2xs"
+            priority
+          />
           <div>
             <h1 className="text-2xl font-extrabold tracking-tight text-foreground">
               {profile.full_name}

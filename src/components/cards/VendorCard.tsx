@@ -3,6 +3,7 @@ import { Ban, PauseCircle, MapPin } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 interface VendorCardProps {
@@ -81,22 +82,13 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
       {/* Center: Compact Circular Avatar */}
       <div className="flex justify-center">
         <div className="relative h-14 w-14 sm:h-16 sm:w-16 shrink-0 rounded-full overflow-hidden bg-muted ring-2 ring-border/70 shadow-2xs flex items-center justify-center group-hover:scale-105 transition-transform">
-          {vendor.logo_url ? (
-            <img
-              src={vendor.logo_url}
-              alt={vendor.shop_name}
-              loading="lazy"
-              decoding="async"
-              className="h-full w-full object-cover"
-            />
-          ) : (
-            <WavyAvatar
-              name={vendor.shop_name}
-              seed={vendor.id || vendor.slug}
-              size={64}
-              className="h-full w-full"
-            />
-          )}
+          <UserAvatar
+            src={vendor.logo_url}
+            seed={vendor.id || vendor.slug}
+            name={vendor.shop_name}
+            size={64}
+            className="h-full w-full"
+          />
         </div>
       </div>
 

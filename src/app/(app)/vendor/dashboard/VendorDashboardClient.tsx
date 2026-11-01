@@ -38,6 +38,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import { ImageCropperModal } from '@/components/vendor/ImageCropperModal'
 import {
   CampusArea,
@@ -58,7 +59,7 @@ import {
   getCanonicalUrl,
   normalizeWhatsAppNumber,
 } from '@/lib/whatsapp'
-import { isImageFile, compressImageFile } from '@/lib/image-compression'
+import { isImageFile, compressImageFile, compressAvatarFile } from '@/lib/image-compression'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -776,14 +777,15 @@ export function VendorDashboardClient({
     try {
       let finalLogoUrl = croppedDataUrl
 
-      // 1. Convert Data URL to Blob and upload to Supabase storage bucket
+      // 1. Convert Data URL to ultra-compressed WebP avatar (~15KB) and upload to Supabase storage bucket
       try {
         const blob = await (await fetch(croppedDataUrl)).blob()
-        const avatarFile = new File([blob], `avatar-${Date.now()}.jpg`, {
-          type: 'image/jpeg',
+        const rawFile = new File([blob], `avatar-${Date.now()}.png`, {
+          type: blob.type || 'image/png',
         })
+        const { file: compressedAvatar } = await compressAvatarFile(rawFile)
         const uploadForm = new FormData()
-        uploadForm.append('file', avatarFile)
+        uploadForm.append('file', compressedAvatar)
         uploadForm.append('folder', `avatars/${vendor.id}`)
 
         const uploadRes = await fetch('/api/upload', {
@@ -1823,24 +1825,23 @@ export function VendorDashboardClient({
                     type="button"
                     onClick={() => avatarFileInputRef.current?.click()}
                     disabled={savingCroppedAvatar}
-                    className="relative w-24 h-24 rounded-full overflow-hidden grid place-items-center text-white font-[family-name:var(--font-bricolage)] font-semibold text-3xl bg-gradient-to-br from-[#17908D] to-[#0A4F4F] shadow-sm ring-4 ring-card hover:opacity-95 transition-all cursor-pointer group"
+                    className="relative w-24 h-24 rounded-full overflow-hidden shadow-sm ring-4 ring-card hover:opacity-95 transition-all cursor-pointer group"
                     aria-label="Change store profile photo"
                   >
-                    {vendor.logo_url ? (
-                      <img
-                        src={vendor.logo_url}
-                        alt={vendor.shop_name}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : (
-                      <span>{getVendorInitials(vendor.shop_name)}</span>
-                    )}
+                    <UserAvatar
+                      src={vendor.logo_url}
+                      seed={vendor.id || vendor.slug}
+                      name={vendor.shop_name}
+                      size={96}
+                      className="w-full h-full"
+                      priority
+                    />
                     {savingCroppedAvatar ? (
-                      <div className="absolute inset-0 bg-black/55 flex items-center justify-center">
+                      <div className="absolute inset-0 bg-black/55 flex items-center justify-center z-10">
                         <Loader2 className="w-6 h-6 text-white animate-spin" />
                       </div>
                     ) : (
-                      <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity">
+                      <div className="absolute inset-0 bg-black/35 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity z-10">
                         <Camera className="w-6 h-6 text-white" />
                       </div>
                     )}
