@@ -643,6 +643,7 @@ export async function getPublicServices(campus?: string): Promise<ServiceItem[]>
           priceFrom: `₦${Number(item.price || 0).toLocaleString('en-NG')}`,
           whatsapp: vendor.whatsapp_number,
           verified: vendor.verification_status === 'verified',
+          logo_url: vendor.logo_url || null,
           vendorSlug: vendor.slug || vendor.id,
           productSlug: item.slug,
           landmark: item.service_area || vendor.location_label,

@@ -24,6 +24,7 @@ export interface ServiceProvider {
   priceFrom: string
   whatsapp: string
   verified: boolean
+  logo_url?: string | null
   vendorSlug?: string
   productSlug?: string
   landmark?: string
