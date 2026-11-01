@@ -1938,79 +1938,64 @@ export function VendorDashboardClient({
               </div>
             )}
 
-            {/* Categorized Settings Groups (Claude mobile style) */}
+            {/* Categorized Settings Groups (Minimal & Professional iOS style) */}
             <div className="mt-6 px-4 space-y-6 pb-24">
               {/* Category 1: STORE PROFILE */}
               <div className="space-y-2">
-                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <h3 className="px-1 text-[13px] font-medium text-muted-foreground">
                   Store Profile
                 </h3>
-                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                <div className="rounded-2xl border border-border/80 bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
                   {/* Shop name */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('name')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <Store className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">Shop name</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                    <Store className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Shop name
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {vendor.shop_name}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
 
                   {/* Store handle (@username) */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('username')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <AtSign className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">Store handle</p>
-                    </div>
-                    <span className="text-sm font-mono text-[#0F6E6E] dark:text-[#22D3EE] truncate max-w-[150px] text-right">
+                    <AtSign className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Store handle
+                    </span>
+                    <span className="text-sm font-mono text-[#0F6E6E] dark:text-[#22D3EE] truncate max-w-[150px] text-right font-normal">
                       {vendor.username
                         ? `@${vendor.username}`
                         : vendor.slug
                         ? `@${vendor.slug}`
                         : 'Set handle'}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
 
                   {/* About */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('about')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <FileText className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">About</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                    <FileText className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      About
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {vendor.description ? 'Added' : 'Add'}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
 
                   {/* Store photo */}
@@ -2018,147 +2003,115 @@ export function VendorDashboardClient({
                     type="button"
                     onClick={() => avatarFileInputRef.current?.click()}
                     disabled={savingCroppedAvatar}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <Camera className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">Store logo / photo</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                    <Camera className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Store logo / photo
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {savingCroppedAvatar
                         ? 'Updating...'
                         : vendor.logo_url
                         ? 'Custom photo'
                         : 'Initial monogram'}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
                 </div>
               </div>
 
               {/* Category 2: LOCATION & CONTACT */}
               <div className="space-y-2">
-                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <h3 className="px-1 text-[13px] font-medium text-muted-foreground">
                   Location &amp; Contact
                 </h3>
-                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                <div className="rounded-2xl border border-border/80 bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
                   {/* WhatsApp number */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('phone')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <Phone className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">WhatsApp number</p>
-                    </div>
-                    <span className="text-sm font-mono text-muted-foreground truncate max-w-[150px] text-right">
+                    <Phone className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      WhatsApp number
+                    </span>
+                    <span className="text-sm font-mono text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {vendor.whatsapp_number}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
 
                   {/* Campus */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('campus')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <Navigation className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">Campus</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                    <Navigation className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Campus
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {campusDisplay}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
 
                   {/* Location description */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('location')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <MapPin className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">Location description</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                    <MapPin className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Location description
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {vendor.location_label ? vendor.location_label : 'Add'}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
 
                   {/* GPS map pin */}
                   <button
                     type="button"
                     onClick={() => openStoreEdit('map_pin')}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-fuchsia-600 via-purple-600 to-blue-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-fuchsia-600 via-purple-600 to-blue-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <Compass className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">Map location (GPS)</p>
-                    </div>
-                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                    <Compass className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Map location (GPS)
+                    </span>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {vendor.latitude != null && vendor.longitude != null
                         ? 'Pinned on map'
                         : 'Add'}
                     </span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
                 </div>
               </div>
 
               {/* Category 3: PUBLIC STOREFRONT */}
               <div className="space-y-2">
-                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <h3 className="px-1 text-[13px] font-medium text-muted-foreground">
                   Public Storefront
                 </h3>
-                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                <div className="rounded-2xl border border-border/80 bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
                   {/* See store as a buyer */}
                   <Link
                     href={`/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <ExternalLink className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">
-                        See your store as a buyer
-                      </p>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Preview</span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ExternalLink className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      See your store as a buyer
+                    </span>
+                    <span className="text-sm text-muted-foreground font-normal">Preview</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </Link>
 
                   {/* Share on WhatsApp */}
@@ -2170,49 +2123,35 @@ export function VendorDashboardClient({
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <Share2 className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">
-                        Share your store on WhatsApp
-                      </p>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Share link</span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <Share2 className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Share your store on WhatsApp
+                    </span>
+                    <span className="text-sm text-muted-foreground font-normal">Share link</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </a>
                 </div>
               </div>
 
               {/* Category 4: ACCOUNT & APP */}
               <div className="space-y-2">
-                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                <h3 className="px-1 text-[13px] font-medium text-muted-foreground">
                   Account &amp; App
                 </h3>
-                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                <div className="rounded-2xl border border-border/80 bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
                   {/* Switch to buying */}
                   <Link
                     href="/"
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-400 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-400 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                        <ArrowLeftRight className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">
-                        Switch to buying
-                      </p>
-                    </div>
-                    <span className="text-sm text-muted-foreground">Consumer mode</span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <ArrowLeftRight className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Switch to buying
+                    </span>
+                    <span className="text-sm text-muted-foreground font-normal">Consumer mode</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </Link>
 
                   {/* Admin moderation queue */}
@@ -2221,21 +2160,14 @@ export function VendorDashboardClient({
                     isAdminEmail(profile?.email)) && (
                     <Link
                       href="/admin"
-                      className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                      className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                     >
-                      <div className="relative shrink-0 flex items-center justify-center">
-                        <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
-                        <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
-                          <ShieldAlert className="w-5 h-5 stroke-[2.2]" />
-                        </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-[15px] text-foreground leading-snug">
-                          Admin moderation queue
-                        </p>
-                      </div>
-                      <span className="text-sm text-muted-foreground">Admin only</span>
-                      <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                      <ShieldAlert className="w-5 h-5 text-amber-500/80 group-hover:text-amber-500 shrink-0 stroke-[1.75] transition-colors" />
+                      <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                        Admin moderation queue
+                      </span>
+                      <span className="text-sm text-muted-foreground font-normal">Admin only</span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                     </Link>
                   )}
 
@@ -2249,41 +2181,29 @@ export function VendorDashboardClient({
                       router.push('/')
                       router.refresh()
                     }}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-slate-600 via-zinc-700 to-neutral-800 blur-[6px] opacity-35 dark:opacity-25 group-hover:opacity-65 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-slate-600 via-zinc-700 to-neutral-800 flex items-center justify-center text-white shadow-xs ring-1 ring-white/20">
-                        <LogOut className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-[15px] text-foreground leading-snug">
-                        Log out
-                      </p>
-                    </div>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    <LogOut className="w-5 h-5 text-muted-foreground group-hover:text-foreground shrink-0 stroke-[1.75] transition-colors" />
+                    <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
+                      Log out
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
                   </button>
                 </div>
               </div>
 
               {/* Category 5: DANGER ZONE */}
               <div className="space-y-2">
-                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+                <h3 className="px-1 text-[13px] font-medium text-red-500 dark:text-red-400">
                   Danger Zone
                 </h3>
-                <div className="rounded-2xl border border-red-500/30 bg-card overflow-hidden shadow-2xs">
+                <div className="rounded-2xl border border-red-500/20 bg-card overflow-hidden shadow-2xs">
                   <button
                     type="button"
                     onClick={() => setShowDeleteAccountModal(true)}
-                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3.5 text-left hover:bg-red-500/10 active:bg-red-500/15 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[56px] px-4 py-3.5 text-left hover:bg-red-500/5 active:bg-red-500/10 transition-colors cursor-pointer group"
                   >
-                    <div className="relative shrink-0 flex items-center justify-center">
-                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-rose-600 via-red-600 to-red-800 blur-[6px] opacity-45 dark:opacity-40 group-hover:opacity-85 transition-opacity duration-300" />
-                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-rose-600 via-red-600 to-red-800 flex items-center justify-center text-white shadow-xs ring-1 ring-white/25">
-                        <Trash2 className="w-5 h-5 stroke-[2.2]" />
-                      </div>
-                    </div>
+                    <Trash2 className="w-5 h-5 text-red-500/80 group-hover:text-red-500 shrink-0 stroke-[1.75] transition-colors" />
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-red-600 dark:text-red-400 leading-snug">
                         Delete account &amp; store
@@ -2292,7 +2212,7 @@ export function VendorDashboardClient({
                         Permanently purges your shop, listings, and profile
                       </p>
                     </div>
-                    <ChevronRight className="w-4 h-4 text-red-400/60 shrink-0" />
+                    <ChevronRight className="w-4 h-4 text-red-400/40 group-hover:text-red-400/70 shrink-0 transition-colors ml-0.5" />
                   </button>
                 </div>
               </div>
