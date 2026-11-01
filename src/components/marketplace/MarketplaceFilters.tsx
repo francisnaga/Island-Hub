@@ -177,7 +177,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
         <span className="text-[11px]">Physical goods only</span>
         <Link
           href="/services"
-          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0F6E6E] dark:text-[#E8B84A] hover:underline"
+          className="inline-flex items-center gap-1 text-[11px] font-medium text-[#0F6E6E] dark:text-foreground hover:underline"
         >
           <span>Need Tailoring, Laundry, Barbing or Repairs? View Campus Services</span>
           <ArrowRight className="h-3 w-3" />

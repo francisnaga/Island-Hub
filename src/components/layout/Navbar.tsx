@@ -131,13 +131,13 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
         )}
 
         {/* Right Actions */}
-        <div className="flex items-center gap-2 shrink-0">
-          {/* Buying | Selling Segmented Pill (exact match to prototype .mode) */}
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+          {/* Desktop: Buying | Selling Segmented Pill */}
           {user && vendor && (
             <div
               role="group"
               aria-label="Mode"
-              className="inline-flex items-center p-[3px] rounded-full bg-muted border border-border"
+              className="hidden md:inline-flex items-center p-[3px] rounded-full bg-muted border border-border"
             >
               <Link
                 href="/"
@@ -157,7 +157,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 className={cn(
                   'h-8 px-3 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors',
                   isSellingMode
-                    ? 'bg-[#0F6E6E] text-white shadow-2xs font-semibold'
+                    ? 'bg-foreground text-background shadow-2xs font-semibold'
                     : 'text-muted-foreground hover:text-foreground'
                 )}
               >
@@ -166,20 +166,39 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             </div>
           )}
 
-          {/* Campus Selector (Hidden in Selling Mode, matching prototype body[data-mode="sell"] .campus{display:none}) */}
-          {!isSellingMode && <CampusSelectorModal />}
+          {/* Mobile: Compact single-button mode switch so top nav is never cramped */}
+          {user && vendor && (
+            isSellingMode ? (
+              <Link
+                href="/"
+                className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-full border border-border bg-card px-3 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              >
+                <span>Buying</span>
+              </Link>
+            ) : (
+              <Link
+                href="/vendor/dashboard"
+                aria-label="Open my vendor store"
+                className="md:hidden inline-flex h-8 items-center gap-1 rounded-full border border-border bg-card px-2.5 text-xs font-semibold text-foreground hover:bg-muted transition-colors"
+              >
+                <Store className="h-3.5 w-3.5 text-muted-foreground" />
+                <span>Store</span>
+              </Link>
+            )
+          )}
 
           {user && isAdmin && (
             <Link
               href="/admin"
               className={cn(
-                'inline-flex h-8 md:h-9 items-center gap-1 rounded-lg px-2.5 text-xs font-semibold transition-colors',
+                'inline-flex h-8 md:h-9 items-center gap-1 rounded-full md:rounded-lg px-2.5 text-xs font-semibold transition-colors',
+                !isSellingMode && 'hidden sm:inline-flex',
                 pathname.startsWith('/admin')
-                  ? 'bg-[#0A4F4F] text-white'
+                  ? 'bg-foreground text-background'
                   : 'border border-border bg-card text-foreground hover:bg-muted'
               )}
             >
-              <ShieldAlert className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
+              <ShieldAlert className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="hidden sm:inline">Admin</span>
             </Link>
           )}
@@ -187,7 +206,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {user && !vendor && !isSellingMode && (
             <Link
               href="/vendor/apply"
-              className="inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full bg-[#0F6E6E] px-3 text-xs font-semibold text-white hover:bg-[#0A4F4F] transition-colors"
+              className="hidden sm:inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full bg-foreground px-3 text-xs font-semibold text-background hover:opacity-90 transition-opacity"
             >
               <Store className="h-3.5 w-3.5" />
               <span>Start selling</span>
@@ -203,6 +222,9 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               <span>Sell</span>
             </Link>
           )}
+
+          {/* Campus Selector directly beside DarkModeToggle in Buyer Mode */}
+          {!isSellingMode && <CampusSelectorModal />}
 
           <DarkModeToggle />
 

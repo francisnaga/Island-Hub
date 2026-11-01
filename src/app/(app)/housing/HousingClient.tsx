@@ -97,8 +97,8 @@ export function HousingClient({
         </div>
 
         <Link
-          href="/vendor/products/new?type=housing"
-          className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-[#0A4F4F] text-white text-xs font-semibold hover:bg-[#0F6E6E] transition-colors shrink-0 shadow-2xs"
+          href="/vendor/dashboard?tab=new&kind=room"
+          className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 shadow-2xs"
         >
           <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
           <span>Post a room</span>
@@ -156,7 +156,7 @@ export function HousingClient({
                 className={cn(
                   'h-8 px-3.5 rounded-full text-xs font-medium whitespace-nowrap border transition-colors cursor-pointer shrink-0',
                   active
-                    ? 'bg-[#0A4F4F] border-[#0A4F4F] text-white dark:bg-[#E8B84A] dark:border-[#E8B84A] dark:text-[#0E1B1B] font-semibold'
+                    ? 'bg-foreground text-background border-foreground font-semibold'
                     : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
                 )}
               >

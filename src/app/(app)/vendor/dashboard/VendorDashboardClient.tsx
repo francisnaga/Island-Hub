@@ -21,11 +21,14 @@ import {
   Store,
   MessageCircle,
   Image as ImageIcon,
+  LogOut,
+  ShieldAlert,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import {
   CampusArea,
   Category,
+  isAdminEmail,
   ListingType,
   Product,
   ProductCondition,
@@ -1557,88 +1560,99 @@ export function VendorDashboardClient({
                 </b>
                 <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
               </Link>
-            </div>
 
-            <Link
-              href="/"
-              className="block mx-auto mt-5 min-h-[44px] px-4 text-sm text-muted-foreground underline text-center leading-[44px]"
-            >
-              Switch to buying
-            </Link>
+              {(profile?.role === 'admin' ||
+                isAdminEmail(user?.email) ||
+                isAdminEmail(profile?.email)) && (
+                <Link
+                  href="/admin"
+                  className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] hover:bg-muted/40 transition-colors"
+                >
+                  <ShieldAlert className="w-4 h-4 text-muted-foreground shrink-0" />
+                  <b className="font-semibold flex-1 text-foreground">
+                    Admin moderation queue
+                  </b>
+                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+                </Link>
+              )}
+
+              <Link
+                href="/"
+                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] hover:bg-muted/40 transition-colors"
+              >
+                <b className="font-semibold flex-1 text-foreground">
+                  Switch to buying
+                </b>
+                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
+              </Link>
+
+              <button
+                type="button"
+                onClick={async () => {
+                  const supabase = createClient()
+                  await supabase.auth.signOut()
+                  toast.success('Signed out')
+                  router.push('/')
+                  router.refresh()
+                }}
+                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-red-500/5 transition-colors cursor-pointer"
+              >
+                <b className="font-semibold flex-1 text-red-600 dark:text-red-400">
+                  Log out
+                </b>
+                <LogOut className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+              </button>
+            </div>
           </div>
         )}
       </div>
 
-      {/* ================= VENDOR 3-TAB BOTTOM NAV (#vnav from prototype) ================= */}
+      {/* ================= VENDOR 3-TAB BOTTOM NAV (Matches Buyer Bottom Nav) ================= */}
       {screen !== 'v:form' && (
         <nav
           role="tablist"
-          aria-label="Selling"
-          className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[480px] h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] bg-card/95 backdrop-blur-md border-t border-border grid grid-cols-3 z-30"
+          aria-label="Selling navigation"
+          className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md transform-gpu will-change-transform"
+          style={{ transform: 'translate3d(0, 0, 0)' }}
         >
-          {/* Top Sliding Indicator (.ind) */}
-          <span
-            className="absolute -top-[1px] left-0 w-1/3 h-[3px] pointer-events-none transition-transform duration-300"
-            style={{
-              transform: `translateX(${
-                activeNavTab === 'v:listings'
-                  ? '0%'
-                  : activeNavTab === 'v:new'
-                  ? '100%'
-                  : '200%'
-              })`,
-            }}
-          >
-            <i className="block w-7 h-[3px] rounded-full bg-[#0F6E6E] mx-auto" />
-          </span>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeNavTab === 'v:listings'}
-            onClick={() => setScreen('v:listings')}
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 text-xs font-medium cursor-pointer',
-              activeNavTab === 'v:listings'
-                ? 'text-[#0F6E6E] dark:text-[#22D3EE] font-semibold'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <List className="w-[22px] h-[22px]" />
-            <span>Listings</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeNavTab === 'v:new'}
-            onClick={() => setScreen('v:new')}
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 text-xs font-medium cursor-pointer',
-              activeNavTab === 'v:new'
-                ? 'text-[#0F6E6E] dark:text-[#22D3EE] font-semibold'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Plus className="w-[22px] h-[22px]" />
-            <span>Add</span>
-          </button>
-
-          <button
-            type="button"
-            role="tab"
-            aria-selected={activeNavTab === 'v:store'}
-            onClick={() => setScreen('v:store')}
-            className={cn(
-              'flex flex-col items-center justify-center gap-1 text-xs font-medium cursor-pointer',
-              activeNavTab === 'v:store'
-                ? 'text-[#0F6E6E] dark:text-[#22D3EE] font-semibold'
-                : 'text-muted-foreground hover:text-foreground'
-            )}
-          >
-            <Store className="w-[22px] h-[22px]" />
-            <span>Store</span>
-          </button>
+          <div className="grid h-full grid-cols-3 max-w-[480px] mx-auto">
+            {(
+              [
+                { key: 'v:listings' as const, label: 'Listings', icon: List },
+                { key: 'v:new' as const, label: 'Add', icon: Plus },
+                { key: 'v:store' as const, label: 'Store', icon: Store },
+              ] as const
+            ).map((tab) => {
+              const Icon = tab.icon
+              const active = activeNavTab === tab.key
+              return (
+                <button
+                  key={tab.key}
+                  type="button"
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => setScreen(tab.key)}
+                  className={cn(
+                    'relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer select-none',
+                    active
+                      ? 'text-foreground font-semibold'
+                      : 'text-muted-foreground hover:text-foreground'
+                  )}
+                >
+                  <Icon
+                    strokeWidth={active ? 2.4 : 1.75}
+                    className={cn(
+                      'h-[22px] w-[22px] shrink-0 transition-all',
+                      active && 'scale-105'
+                    )}
+                  />
+                  <span className="truncate max-w-[72px] leading-none tracking-tight">
+                    {tab.label}
+                  </span>
+                </button>
+              )
+            })}
+          </div>
         </nav>
       )}
 

@@ -220,7 +220,7 @@ export function MarketplaceClient({
                           href={`/services/${svc.slug}`}
                           className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl border border-border bg-card hover:border-foreground/30 text-xs font-semibold text-foreground shadow-2xs"
                         >
-                          <Icon className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] stroke-[1.75]" />
+                          <Icon className="w-4 h-4 text-[#0F6E6E] dark:text-foreground stroke-[1.75]" />
                           <span>{svc.title}</span>
                           <ChevronRight className="w-3.5 h-3.5 text-muted-foreground" />
                         </Link>
