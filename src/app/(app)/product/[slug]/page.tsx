@@ -14,17 +14,16 @@ import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getVendorInitials } from '@/components/cards/VendorCard'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { ProductOrderBox } from '@/components/marketplace/ProductOrderBox'
 import {
   getPublicProductBySlugOrId,
   getPublicProducts,
 } from '@/lib/queries'
 import {
   formatNaira,
-  buildProductWhatsAppUrl,
   daysSinceConfirmed,
   getCanonicalUrl,
 } from '@/lib/whatsapp'
-import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 
 export const dynamic = 'force-dynamic'
 
@@ -122,13 +121,6 @@ export default async function ProductDetailPage({
 
   const productPath = `/product/${product.slug || product.id}`
   const productUrl = getCanonicalUrl(productPath)
-
-  const whatsappResult = buildProductWhatsAppUrl({
-    whatsappNumber: vendor?.whatsapp_number || '',
-    productTitle: product.title,
-    price: product.price,
-    productUrl,
-  })
 
   const locationExplanation =
     product.variants?.location_label?.trim() ||
@@ -265,6 +257,13 @@ export default async function ProductDetailPage({
               ))}
             </div>
 
+            {/* Interactive Quantity Selector & Options Box */}
+            <ProductOrderBox
+              product={product}
+              vendor={vendor || null}
+              productUrl={productUrl}
+            />
+
             {/* Location Section: Typed explanation vs Pinned GPS Map Link */}
             {(hasLocationExplanation || googleMapsPinUrl) && (
               <div className="p-3.5 rounded-2xl bg-card border border-border/80 text-xs flex items-start gap-3 text-muted-foreground shadow-2xs">
@@ -358,32 +357,6 @@ export default async function ProductDetailPage({
               />
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* 3. Sticky Bottom Action Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border px-4 py-3 pb-[calc(14px+env(safe-area-inset-bottom,0px))] shadow-lg">
-        <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between gap-4">
-          <div className="pp min-w-0">
-            <b className="text-xl font-bold text-foreground block font-[family-name:var(--font-bricolage)] tracking-tight">
-              {formatNaira(product.price)}
-            </b>
-            <small className="text-xs text-muted-foreground block">Pay when you meet</small>
-          </div>
-
-          {whatsappResult.valid ? (
-            <a
-              href={whatsappResult.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex-1 sm:flex-initial sm:min-w-[220px] h-12 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
-            >
-              <WhatsAppIcon className="w-5 h-5 text-white" />
-              <span>Message seller</span>
-            </a>
-          ) : (
-            <span className="text-xs text-red-500 font-semibold">Unavailable</span>
-          )}
         </div>
       </div>
     </div>

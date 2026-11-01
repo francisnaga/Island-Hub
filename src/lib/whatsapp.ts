@@ -72,16 +72,22 @@ export function buildProductWhatsAppUrl(params: WhatsAppProductInquiryParams): {
 
   const qty = params.quantity || 1
   const total = formatNaira(params.price * qty)
+  const unitPrice = formatNaira(params.price)
 
   const variantList: string[] = []
   if (params.selectedSize) variantList.push(`Size: ${params.selectedSize}`)
   if (params.selectedColor) variantList.push(`Colour: ${params.selectedColor}`)
   const variantStr = variantList.length > 0 ? ` (${variantList.join(', ')})` : ''
 
+  const qtyTotalLine =
+    qty > 1
+      ? `• Qty: ${qty} (${unitPrice} each) · Total: ${total}`
+      : `• Qty: 1 · Price: ${total}`
+
   const lines: string[] = [
     `Hi! I want to order from your Jetty store:`,
     `• ${params.productTitle}${variantStr}`,
-    `• Qty: ${qty} · Total: ${total}`,
+    qtyTotalLine,
   ]
 
   if (params.productUrl) {
