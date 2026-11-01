@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation'
 import {
@@ -28,6 +28,26 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   const pathname = usePathname()
   const router = useRouter()
   const [searchQuery, setSearchQuery] = useState('')
+  const [isScrolledPastGreen, setIsScrolledPastGreen] = useState(false)
+
+  useEffect(() => {
+    const checkScroll = () => {
+      // Find any green header/hero element on the page (WaterlineHero or vendor profile banner)
+      const greenHero = document.querySelector('[data-teal-hero]')
+      if (greenHero) {
+        const rect = greenHero.getBoundingClientRect()
+        // When bottom of green hero passes under the navbar (approx 56px-64px), we've scrolled past the green region
+        setIsScrolledPastGreen(rect.bottom <= 58)
+      } else {
+        // On pages without a green hero, show subtle border when scrolled
+        setIsScrolledPastGreen(window.scrollY > 8)
+      }
+    }
+
+    checkScroll()
+    window.addEventListener('scroll', checkScroll, { passive: true })
+    return () => window.removeEventListener('scroll', checkScroll)
+  }, [pathname])
 
   // Hide main header on full-screen form flows (onboarding & listing forms have their own .ftop bar)
   if (
@@ -68,7 +88,14 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   ]
 
   return (
-    <header className="sticky top-0 z-50 w-full border-b border-white/10 bg-[#0A4F4F] text-white">
+    <header
+      className={cn(
+        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white transition-[border-color,box-shadow] duration-200',
+        isScrolledPastGreen
+          ? 'border-b border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
+          : 'border-b border-transparent shadow-none'
+      )}
+    >
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Official Jetty Brand Lockup */}
         <div className="flex items-center shrink-0">

@@ -121,7 +121,7 @@ export default async function VendorStorefrontPage({
   return (
     <div className="min-w-0 max-w-full pb-24">
       {/* 1. Deep Teal Top Header (.pb) matching Prototype — Stays #0A4F4F in both Light and Dark mode */}
-      <section className="pb bg-[#0A4F4F] text-white">
+      <section data-teal-hero className="pb bg-[#0A4F4F] text-white">
         <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between">
           <Link href="/marketplace?tab=stores" className="bk" aria-label="Back to stores">
             <ChevronLeft className="w-5 h-5 -ml-1 stroke-[2]" />

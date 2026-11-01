@@ -19,7 +19,7 @@ export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'Jetty | Everything NMU, one jetty away (Okerenkoko & Kurutie)',
   description:
-    'Rooms, services and gear from verified students across Okerenkoko and Kurutie.',
+    'Rooms, services and items from students and businesses across Okerenkoko and Kurutie.',
 }
 
 export default async function HomePage({

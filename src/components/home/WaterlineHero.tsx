@@ -34,7 +34,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
   }
 
   return (
-    <div className="relative">
+    <div id="waterline-hero" data-teal-hero className="relative">
       {/* Deep Teal Hero Water Body */}
       <section className="bg-[#0A4F4F] text-white pt-4 px-4 pb-1 sm:pt-6 sm:px-6 md:py-10 md:px-8">
         <div className="mx-auto max-w-xl md:max-w-6xl md:flex md:items-center md:justify-between md:gap-10">
@@ -43,7 +43,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
               Everything NMU, one jetty away.
             </h1>
             <p className="mt-1.5 text-sm md:text-base text-white/85 font-normal leading-relaxed">
-              Rooms, services and gear from verified students.
+              Rooms, services and items from students and businesses
             </p>
 
             {/* Search Field */}
