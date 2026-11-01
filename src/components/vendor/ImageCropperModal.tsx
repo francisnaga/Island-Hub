@@ -55,7 +55,22 @@ export function ImageCropperModal({
       setZoom(1)
       setRotation(0)
       setOffset({ x: 0, y: 0 })
-      setImageLoaded(false)
+
+      // Preload image in memory to ensure natural dimensions & loaded state even if DOM event misses
+      const img = new Image()
+      img.onload = () => {
+        setNaturalSize({ w: img.naturalWidth || 400, h: img.naturalHeight || 400 })
+        setImageLoaded(true)
+      }
+      img.onerror = () => {
+        setNaturalSize({ w: 400, h: 400 })
+        setImageLoaded(true)
+      }
+      img.src = imageSrc
+      if (img.complete && img.naturalWidth > 0) {
+        setNaturalSize({ w: img.naturalWidth, h: img.naturalHeight })
+        setImageLoaded(true)
+      }
     }
   }, [isOpen, imageSrc])
 
@@ -194,7 +209,29 @@ export function ImageCropperModal({
 
   // Canvas Crop & Export
   const handleApplyCrop = async () => {
-    if (!imageRef.current || !imageLoaded) return
+    if (!imageSrc) return
+
+    // Resilient source resolution: use ref or temporary image
+    let sourceImg: HTMLImageElement | null = imageRef.current
+    let sW = naturalSize.w || 400
+    let sH = naturalSize.h || 400
+
+    if (!sourceImg || !sourceImg.complete || sourceImg.naturalWidth === 0) {
+      const tempImg = new Image()
+      tempImg.crossOrigin = 'anonymous'
+      tempImg.src = imageSrc
+      await new Promise<void>((resolve) => {
+        if (tempImg.complete) {
+          resolve()
+        } else {
+          tempImg.onload = () => resolve()
+          tempImg.onerror = () => resolve()
+        }
+      })
+      sourceImg = tempImg
+      sW = tempImg.naturalWidth || 400
+      sH = tempImg.naturalHeight || 400
+    }
 
     const canvas = document.createElement('canvas')
     canvas.width = OUTPUT_SIZE
@@ -215,11 +252,14 @@ export function ImageCropperModal({
     // Apply rotation
     ctx.rotate((rotation * Math.PI) / 180)
 
-    // Draw unrotated image scaled
-    const drawW = naturalSize.w * baseScale * zoom * scaleFactor
-    const drawH = naturalSize.h * baseScale * zoom * scaleFactor
+    const effW = rotation % 180 === 0 ? sW : sH
+    const effH = rotation % 180 === 0 ? sH : sW
+    const bScale = effW && effH ? Math.max(CROP_DIAMETER / effW, CROP_DIAMETER / effH) : 1
 
-    ctx.drawImage(imageRef.current, -drawW / 2, -drawH / 2, drawW, drawH)
+    const drawW = sW * bScale * zoom * scaleFactor
+    const drawH = sH * bScale * zoom * scaleFactor
+
+    ctx.drawImage(sourceImg, -drawW / 2, -drawH / 2, drawW, drawH)
 
     const croppedDataUrl = canvas.toDataURL('image/jpeg', 0.9)
     await onSave(croppedDataUrl)
@@ -399,7 +439,7 @@ export function ImageCropperModal({
           <button
             type="button"
             onClick={handleApplyCrop}
-            disabled={!imageLoaded || isSaving}
+            disabled={!imageSrc || isSaving}
             className="flex-1 h-11 rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-sm flex items-center justify-center gap-1.5 shadow-xs transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? (

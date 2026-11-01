@@ -1,4 +1,5 @@
 import Link from 'next/link'
+import { Wrench } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { formatNaira } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
@@ -16,7 +17,6 @@ const CATEGORY_FALLBACK_IMAGES: Record<string, string> = {
   'hostel-daily-essentials': '/products/rechargeable-table-fan-white.jpg',
   'fashion-accessories': '/products/cadet-beret-gloves-pack.jpg',
   'food-beauty-other': '/products/fresh-fruit-salad-bowl.jpg',
-  'campus-services': '/products/cadet-uniform-tailoring.jpg',
 }
 
 function isVideoMedia(url: string): boolean {
@@ -25,11 +25,13 @@ function isVideoMedia(url: string): boolean {
 
 export function ProductCard({ product }: ProductCardProps) {
   const categorySlug = product.category?.slug || ''
-  const mediaUrl =
-    product.images?.[0] ||
-    CATEGORY_FALLBACK_IMAGES[categorySlug] ||
-    '/products/cadet-action-rig-navy.jpg'
-  const isVideo = isVideoMedia(mediaUrl)
+  const isService = product.listing_type === 'service'
+  const rawImage = product.images?.[0]
+  const fallbackImage = isService
+    ? null
+    : CATEGORY_FALLBACK_IMAGES[categorySlug] || '/products/cadet-action-rig-navy.jpg'
+  const mediaUrl = rawImage || fallbackImage
+  const isVideo = mediaUrl ? isVideoMedia(mediaUrl) : false
 
   const hasValidLowStock =
     product.stock_status === 'low_stock' &&
@@ -49,30 +51,39 @@ export function ProductCard({ product }: ProductCardProps) {
       className="group flex min-w-0 flex-col rounded-2xl border border-border bg-card overflow-hidden transition-all hover:border-primary/60 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
       {/* 1. Large Visual-First Product Media */}
-      <div className="relative aspect-square w-full bg-muted overflow-hidden">
-        {isVideo ? (
-          <video
-            src={mediaUrl}
-            muted
-            loop
-            playsInline
-            autoPlay
-            className={cn(
-              'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
-              product.stock_status === 'out_of_stock' && 'opacity-60 grayscale'
-            )}
-          />
+      <div className="relative aspect-square w-full bg-muted overflow-hidden flex items-center justify-center">
+        {mediaUrl ? (
+          isVideo ? (
+            <video
+              src={mediaUrl}
+              muted
+              loop
+              playsInline
+              autoPlay
+              className={cn(
+                'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
+                product.stock_status === 'out_of_stock' && 'opacity-60 grayscale'
+              )}
+            />
+          ) : (
+            <img
+              src={mediaUrl}
+              alt={product.title}
+              loading="lazy"
+              decoding="async"
+              className={cn(
+                'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
+                product.stock_status === 'out_of_stock' && 'opacity-60 grayscale'
+              )}
+            />
+          )
         ) : (
-          <img
-            src={mediaUrl}
-            alt={product.title}
-            loading="lazy"
-            decoding="async"
-            className={cn(
-              'h-full w-full object-cover transition-transform duration-300 group-hover:scale-105',
-              product.stock_status === 'out_of_stock' && 'opacity-60 grayscale'
-            )}
-          />
+          <div className="w-full h-full bg-[#E6F2F2] dark:bg-[#132A2A] flex flex-col items-center justify-center text-[#0F6E6E] dark:text-[#22D3EE] p-4 text-center">
+            <Wrench className="w-10 h-10 stroke-[1.75] mb-2 opacity-75" />
+            <span className="text-xs font-semibold text-foreground line-clamp-2">
+              {product.title}
+            </span>
+          </div>
         )}
 
         {/* Minimal Status / Featured Pill */}

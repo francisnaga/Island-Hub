@@ -188,13 +188,54 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const incomingVariants =
+      body.variants && typeof body.variants === 'object' ? body.variants : {}
+
+    // 2b. Prevent Duplicate Service Listings
+    if (listingType === 'service') {
+      const incomingServiceSlug = String(
+        incomingVariants.service_slug || body.service_slug || ''
+      ).toLowerCase().trim()
+
+      const currentEditingId = body.id || body.product_id
+
+      const { data: existingVendorServices } = await adminDb
+        .from('products')
+        .select('id, title, status, variants')
+        .eq('vendor_id', vendor.id)
+        .eq('listing_type', 'service')
+        .neq('status', 'rejected')
+
+      if (existingVendorServices && existingVendorServices.length > 0) {
+        const duplicate = existingVendorServices.find((p: any) => {
+          if (currentEditingId && p.id === currentEditingId) {
+            return false
+          }
+          const existingSlug = String(
+            p.variants?.service_slug || ''
+          ).toLowerCase().trim()
+
+          if (incomingServiceSlug && existingSlug) {
+            return incomingServiceSlug === existingSlug
+          }
+          return p.title.toLowerCase().trim() === title.toLowerCase().trim()
+        })
+
+        if (duplicate) {
+          return NextResponse.json(
+            {
+              error: `You already have an existing listing for "${duplicate.title}". You cannot create duplicate service listings. Please edit your existing listing instead.`,
+            },
+            { status: 400 }
+          )
+        }
+      }
+    }
+
     const campus =
       body.campus === 'Kurutie' || body.campus === 'Both'
         ? body.campus
         : 'Okerenkoko'
-
-    const incomingVariants =
-      body.variants && typeof body.variants === 'object' ? body.variants : {}
 
     const variants = {
       ...incomingVariants,

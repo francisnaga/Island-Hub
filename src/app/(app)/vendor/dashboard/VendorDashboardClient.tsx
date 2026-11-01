@@ -237,7 +237,15 @@ export function VendorDashboardClient({
     setRoomAmenities([])
     setOtherFeesChoice('None')
     setOtherFeesText('')
-    setServiceSlug(SERVICES_LIST[0]?.slug || 'haircuts')
+    const firstUnlisted = SERVICES_LIST.find((s) => {
+      return !products.some(
+        (p) =>
+          p.listing_type === 'service' &&
+          p.status !== 'rejected' &&
+          ((p.variants as any)?.service_slug === s.slug || p.title.toLowerCase().includes(s.slug))
+      )
+    })
+    setServiceSlug(firstUnlisted?.slug || SERVICES_LIST[0]?.slug || 'haircuts')
     setServiceAvail('')
     setServiceIncluded('')
     setFormCampus(
@@ -352,6 +360,27 @@ export function VendorDashboardClient({
         formKind === 'svc'
           ? title.trim() || `${selectedService?.title || 'Service'} by ${vendor.shop_name}`
           : title.trim() || (asDraft ? 'Untitled Draft' : '')
+
+      // Prevent duplicate service listings
+      if (formKind === 'svc') {
+        const existingDuplicate = products.find((p) => {
+          if (editId && p.id === editId) return false
+          if (p.listing_type !== 'service' || p.status === 'rejected') return false
+          const pSlug = String((p.variants as any)?.service_slug || '').toLowerCase().trim()
+          if (pSlug && serviceSlug) {
+            return pSlug === serviceSlug.toLowerCase().trim()
+          }
+          return p.title.toLowerCase().trim() === resolvedTitle.toLowerCase().trim()
+        })
+
+        if (existingDuplicate) {
+          toast.error(
+            `You already have an existing listing for "${existingDuplicate.title}". Please edit your existing listing instead of creating a duplicate.`
+          )
+          setPublishing(false)
+          return
+        }
+      }
 
       const existing = editId ? products.find((p) => p.id === editId) : null
       const listingType: ListingType =
@@ -730,24 +759,54 @@ export function VendorDashboardClient({
   const handleSaveCroppedAvatar = async (croppedDataUrl: string) => {
     setSavingCroppedAvatar(true)
     try {
+      let finalLogoUrl = croppedDataUrl
+
+      // 1. Convert Data URL to Blob and upload to Supabase storage bucket
+      try {
+        const blob = await (await fetch(croppedDataUrl)).blob()
+        const avatarFile = new File([blob], `avatar-${Date.now()}.jpg`, {
+          type: 'image/jpeg',
+        })
+        const uploadForm = new FormData()
+        uploadForm.append('file', avatarFile)
+        uploadForm.append('folder', `avatars/${vendor.id}`)
+
+        const uploadRes = await fetch('/api/upload', {
+          method: 'POST',
+          body: uploadForm,
+        })
+        if (uploadRes.ok) {
+          const uploadJson = await uploadRes.json()
+          if (uploadJson?.url) {
+            finalLogoUrl = uploadJson.url
+          }
+        }
+      } catch (uploadErr) {
+        console.warn('Storage upload fallback to direct data url:', uploadErr)
+      }
+
+      // 2. Persist to vendor store profile
       const res = await fetch('/api/vendor/store', {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           vendor_id: vendor.id,
-          logo_url: croppedDataUrl,
+          logo_url: finalLogoUrl,
         }),
       })
+
+      const json = await res.json().catch(() => null)
       if (!res.ok) {
-        throw new Error('Failed to update store photo')
+        throw new Error(json?.error || 'Failed to update store photo')
       }
-      setVendor((prev) => ({ ...prev, logo_url: croppedDataUrl }))
+
+      setVendor((prev) => ({ ...prev, logo_url: finalLogoUrl }))
       setCropModalOpen(false)
       setRawImageForCrop(null)
       toast.success('Profile photo updated successfully')
       router.refresh()
-    } catch {
-      toast.error('Could not update profile photo.')
+    } catch (err: any) {
+      toast.error(err?.message || 'Could not update profile photo.')
     } finally {
       setSavingCroppedAvatar(false)
     }
@@ -1068,20 +1127,43 @@ export function VendorDashboardClient({
                   <div className="flex flex-wrap gap-2">
                     {SERVICES_LIST.map((s) => {
                       const active = serviceSlug === s.slug
+                      const alreadyListed = products.some((p) => {
+                        if (editId && p.id === editId) return false
+                        if (p.listing_type !== 'service' || p.status === 'rejected') return false
+                        const pSlug = String((p.variants as any)?.service_slug || '').toLowerCase().trim()
+                        return pSlug === s.slug.toLowerCase().trim()
+                      })
+
                       return (
                         <button
                           key={s.slug}
                           type="button"
                           aria-pressed={active}
-                          onClick={() => setServiceSlug(s.slug)}
+                          onClick={() => {
+                            if (alreadyListed) {
+                              toast.info(
+                                `You already have a listing for ${s.title}. Please edit that listing instead.`
+                              )
+                              return
+                            }
+                            setServiceSlug(s.slug)
+                          }}
                           className={cn(
                             'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
                             active
                               ? 'bg-[#0F6E6E] border-[#0F6E6E] text-white'
+                              : alreadyListed
+                              ? 'bg-muted/60 border-border/60 text-muted-foreground/60 cursor-not-allowed'
                               : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
                           )}
+                          title={alreadyListed ? 'Already listed in your shop' : undefined}
                         >
-                          {s.title}
+                          <span>{s.title}</span>
+                          {alreadyListed && (
+                            <span className="ml-1.5 text-[11px] font-normal text-muted-foreground/70">
+                              (Listed)
+                            </span>
+                          )}
                         </button>
                       )
                     })}

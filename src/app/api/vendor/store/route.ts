@@ -282,6 +282,13 @@ export async function PATCH(request: NextRequest) {
 
     if (typeof body.logo_url === 'string') {
       updates.logo_url = body.logo_url
+      // Also synchronize to the vendor user's profile avatar
+      if (existingVendor.user_id) {
+        await adminDb
+          .from('profiles')
+          .update({ avatar_url: body.logo_url })
+          .eq('id', existingVendor.user_id)
+      }
     }
 
     const { data: updated, error } = await adminDb

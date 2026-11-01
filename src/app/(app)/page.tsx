@@ -52,10 +52,8 @@ export default async function HomePage({
 
   const hasStore = Boolean(user && vendor && vendor.shop_name)
 
-  // In "Just landed", display physical items & goods (services & rooms have dedicated sections below)
-  const justLandedItems = allProducts.filter(
-    (p) => p.listing_type !== 'service' && p.listing_type !== 'housing'
-  )
+  // In "Just landed", display all market items including services & goods (housing has its dedicated section below)
+  const justLandedItems = allProducts.filter((p) => p.listing_type !== 'housing')
 
   return (
     <div className="min-w-0 max-w-full pb-16">

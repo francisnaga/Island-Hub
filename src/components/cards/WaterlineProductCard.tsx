@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { ShoppingBag } from 'lucide-react'
+import { ShoppingBag, Wrench } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { getItemCampus } from '@/lib/queries'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
@@ -40,6 +40,8 @@ export function WaterlineProductCard({
             decoding="async"
             className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
           />
+        ) : isService ? (
+          <Wrench className="w-9 h-9 opacity-50" />
         ) : (
           <ShoppingBag className="w-9 h-9 opacity-45" />
         )}
