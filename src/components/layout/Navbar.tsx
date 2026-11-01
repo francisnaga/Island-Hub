@@ -181,7 +181,6 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               href="/admin"
               className={cn(
                 'inline-flex h-8 md:h-9 items-center gap-1 rounded-full md:rounded-lg px-2.5 text-xs font-semibold transition-colors',
-                !isSellingMode && 'hidden sm:inline-flex',
                 pathname.startsWith('/admin')
                   ? 'bg-foreground text-background'
                   : 'border border-border bg-card text-foreground hover:bg-muted'
@@ -190,6 +189,26 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               <ShieldAlert className="h-3.5 w-3.5 text-muted-foreground" />
               <span className="hidden sm:inline">Admin</span>
             </Link>
+          )}
+
+          {/* Mobile: mode switch visible for admin in admin panel */}
+          {user && isAdmin && pathname.startsWith('/admin') && (
+            <div className="md:hidden inline-flex items-center p-[3px] rounded-full bg-muted border border-border">
+              <Link
+                href="/"
+                className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+              >
+                Buy
+              </Link>
+              {vendor && (
+                <Link
+                  href="/vendor/dashboard"
+                  className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-muted-foreground hover:text-foreground"
+                >
+                  Sell
+                </Link>
+              )}
+            </div>
           )}
 
           {user && !vendor && !isSellingMode && (

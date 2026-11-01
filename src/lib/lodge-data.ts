@@ -18,6 +18,7 @@ export interface LodgeListing {
   features: string[]
   whatsapp_number: string
   contact_name: string
+  contact_avatar?: string | null
   vendor_slug?: string
   is_verified: boolean
   bedspaces?: string
@@ -81,6 +82,7 @@ export function mapProductToLodgeListing(p: Product): LodgeListing {
         : ['Water', 'Fenced compound', 'Tiled floor'],
     whatsapp_number: p.vendor?.whatsapp_number || '',
     contact_name: p.vendor?.shop_name || 'Verified Campus Caretaker',
+    contact_avatar: p.vendor?.logo_url || null,
     vendor_slug: p.vendor?.slug || p.vendor?.id,
     is_verified: p.vendor?.verification_status === 'verified',
     bedspaces: v.bedspaces || '1 to 2',

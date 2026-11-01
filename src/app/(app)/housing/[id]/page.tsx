@@ -15,6 +15,7 @@ import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { WavyAvatar } from '@/components/brand/WavyAvatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -78,12 +79,6 @@ export default async function HousingDetailPage({
   )
   const waUrl = `https://wa.me/${lodge.whatsapp_number}?text=${waText}`
 
-  const initials = lodge.contact_name
-    .split(' ')
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0].toUpperCase())
-    .join('')
 
   const hasLocationExplanation = Boolean(
     lodge.location_label && lodge.location_label.trim().length > 0
@@ -229,9 +224,20 @@ export default async function HousingDetailPage({
               className="flex items-center gap-3 py-2 group cursor-pointer"
               aria-label={`Contact ${lodge.contact_name}`}
             >
-              <div className="w-12 h-12 rounded-full bg-[#0F6E6E] text-white flex items-center justify-center font-bold text-sm shrink-0">
-                {initials || 'CL'}
-              </div>
+              {lodge.contact_avatar ? (
+                <img
+                  src={lodge.contact_avatar}
+                  alt={lodge.contact_name}
+                  className="w-12 h-12 rounded-full object-cover shrink-0 border border-border/60"
+                />
+              ) : (
+                <WavyAvatar
+                  name={lodge.contact_name}
+                  seed={lodge.vendor_slug || lodge.contact_name}
+                  size={48}
+                  className="shrink-0"
+                />
+              )}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
                   <span>{lodge.contact_name}</span>
@@ -317,7 +323,10 @@ export default async function HousingDetailPage({
       </div>
 
       {/* 3. Sticky Bottom Action Bar */}
-      <div className="fixed bottom-0 inset-x-0 z-50 bg-card/95 backdrop-blur-md border-t border-border">
+      <div
+        className="fixed bottom-0 inset-x-0 z-50 bg-card/95 backdrop-blur-md border-t border-border"
+        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+      >
         <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[72px] flex items-center justify-between gap-4">
           <div className="pp min-w-0">
             <b className="block text-[20px] font-bold text-foreground leading-none font-[family-name:var(--font-bricolage)]">

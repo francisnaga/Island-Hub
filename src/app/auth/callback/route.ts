@@ -126,13 +126,28 @@ export async function GET(request: Request) {
 
       let redirectTarget = next
       if (admin) {
-        if (next === '/admin' || next === '/' || next === '/login' || !hasCompleteVendor) {
+        // Admin always goes to /admin unless they explicitly requested somewhere else
+        if (next === '/admin' || next === '/' || next === '/login') {
           redirectTarget = '/admin'
         }
       } else if (!hasCompleteVendor) {
-        redirectTarget = '/vendor/apply'
-      } else if (next === '/' || next === '/login') {
-        redirectTarget = '/vendor/dashboard'
+        // Only force onboarding if user came FROM vendor apply / login-to-sell flow
+        const wantsToSell =
+          next === '/vendor/apply' ||
+          next === '/vendor/dashboard' ||
+          next === '/login?next=/vendor/apply'
+        if (wantsToSell) {
+          redirectTarget = '/vendor/apply'
+        } else if (next === '/' || next === '/login') {
+          // Buyer with no vendor — send to marketplace, not onboarding
+          redirectTarget = '/marketplace'
+        }
+        // else: respect whatever `next` they had
+      } else {
+        // Has complete vendor profile
+        if (next === '/' || next === '/login') {
+          redirectTarget = '/vendor/dashboard'
+        }
       }
 
       const safeRedirect = redirectTarget.startsWith('/') ? redirectTarget : `/${redirectTarget}`
