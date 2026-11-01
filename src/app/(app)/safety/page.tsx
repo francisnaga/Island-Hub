@@ -23,6 +23,16 @@ export const metadata = {
   title: 'Trust, Safety & Guidelines | Jetty NMU',
   description:
     'Comprehensive safety rules, verified seller standards, campus meeting landmarks, privacy architecture, and terms of service for Nigeria Maritime University (NMU).',
+  keywords: [
+    'NMU campus safety',
+    'safe shopping Okerenkoko',
+    'verified vendors NMU',
+    'campus meeting points Kurutie',
+    'Nigeria Maritime University marketplace rules',
+  ],
+  alternates: {
+    canonical: 'https://jetty.francisnaga.site/safety',
+  },
 }
 
 export default function SafetyAndHelpPage() {

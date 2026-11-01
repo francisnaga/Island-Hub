@@ -19,7 +19,19 @@ export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'Jetty | Everything NMU, one jetty away (Okerenkoko & Kurutie)',
   description:
-    'Rooms, services and items from students and businesses across Okerenkoko and Kurutie.',
+    'Rooms, services and items from students and businesses across Okerenkoko and Kurutie. Compare cadet uniforms, lodges, haircuts, and campus trades freely on Jetty.',
+  keywords: [
+    'Nigeria Maritime University marketplace',
+    'NMU campus market',
+    'NMU cadet gear',
+    'NMU lodges Okerenkoko',
+    'Kurutie student hostels',
+    'NMU campus services',
+    'buy and sell NMU',
+  ],
+  alternates: {
+    canonical: 'https://jetty.francisnaga.site',
+  },
 }
 
 export default async function HomePage({

@@ -82,8 +82,36 @@ export default async function ServiceDetailPage({
       ? '1 provider'
       : `${filteredProviders.length} providers`
 
+  const serviceJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Service',
+    name: service.title,
+    serviceType: service.shortTitle || service.title,
+    description: service.description || service.tagline,
+    provider: {
+      '@type': 'Organization',
+      name: 'Jetty NMU Campus Marketplace',
+      url: 'https://jetty.francisnaga.site',
+    },
+    areaServed: {
+      '@type': 'AdministrativeArea',
+      name: 'Nigeria Maritime University (Okerenkoko & Kurutie)',
+    },
+    offers: {
+      '@type': 'AggregateOffer',
+      priceCurrency: 'NGN',
+      lowPrice: service.startingPrice
+        ? parseInt(service.startingPrice.replace(/\D/g, ''), 10) || 0
+        : 0,
+    },
+  }
+
   return (
     <div className="min-w-0 max-w-full pb-20">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(serviceJsonLd) }}
+      />
       <div className="mx-auto max-w-2xl min-w-0">
         {/* Top Back Link matching prototype: < Services */}
         <div className="pt-4 pb-2 px-4">

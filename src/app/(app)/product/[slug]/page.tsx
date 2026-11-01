@@ -152,8 +152,35 @@ export default async function ProductDetailPage({
     facts.push(['Colors', product.variants.colors.join(', ')])
   }
 
+  const productJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Product',
+    name: product.title,
+    description: product.description,
+    image:
+      product.images && product.images.length > 0
+        ? product.images.map((img) => (img.startsWith('http') ? img : `https://jetty.francisnaga.site${img}`))
+        : ['https://jetty.francisnaga.site/og-image.png'],
+    category: product.category?.name,
+    offers: {
+      '@type': 'Offer',
+      price: product.price,
+      priceCurrency: 'NGN',
+      availability: 'https://schema.org/InStock',
+      url: productUrl,
+      seller: {
+        '@type': 'Person',
+        name: vendor?.shop_name || 'Jetty NMU Vendor',
+      },
+    },
+  }
+
   return (
     <div className="min-w-0 max-w-full pb-28 sm:pb-32">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(productJsonLd) }}
+      />
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
           {/* 1. Image Gallery */}

@@ -10,6 +10,24 @@ import { MarketplaceClient } from '@/components/marketplace/MarketplaceClient'
 
 export const dynamic = 'force-dynamic'
 
+export const metadata = {
+  title: 'NMU Campus Marketplace | Browse Cadet Gear, Items & Stores | Jetty',
+  description:
+    'Search and browse products, action rigs, safety boots, electronics, and verified student stores across Nigeria Maritime University (Okerenkoko & Kurutie campuses).',
+  keywords: [
+    'NMU marketplace',
+    'Nigeria Maritime University products',
+    'NMU cadet gear',
+    'NMU safety boots',
+    'student merchants Okerenkoko',
+    'Kurutie campus stores',
+    'buy and sell NMU',
+  ],
+  alternates: {
+    canonical: 'https://jetty.francisnaga.site/marketplace',
+  },
+}
+
 const ITEMS_PER_PAGE = 12
 
 export default async function MarketplacePage({

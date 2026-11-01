@@ -118,8 +118,32 @@ export default async function VendorStorefrontPage({
       vendor.location_label.trim().length > 0
   )
 
+  const storeJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Store',
+    name: vendor.shop_name,
+    description: vendor.description,
+    image: vendor.logo_url
+      ? vendor.logo_url.startsWith('http')
+        ? vendor.logo_url
+        : `https://jetty.francisnaga.site${vendor.logo_url}`
+      : 'https://jetty.francisnaga.site/og-image.png',
+    telephone: vendor.whatsapp_number,
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: vendor.campus,
+      addressRegion: 'Delta State',
+      addressCountry: 'NG',
+    },
+    url: getCanonicalUrl(vendorPath),
+  }
+
   return (
     <div className="min-w-0 max-w-full pb-24">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
+      />
       {/* 1. Deep Teal Top Header (.pb) matching Prototype — Stays #0A4F4F in both Light and Dark mode */}
       <section data-teal-hero className="pb bg-[#0A4F4F] text-white">
         <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between">

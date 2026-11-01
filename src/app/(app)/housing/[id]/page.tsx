@@ -94,8 +94,42 @@ export default async function HousingDetailPage({
     ? `https://www.google.com/maps/search/?api=1&query=${lodge.latitude},${lodge.longitude}`
     : null
 
+  const housingJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Accommodation',
+    name: lodge.title,
+    description: `${lodge.room_type_label} near NMU ${lodge.campus}. ${lodge.distance_hint}`,
+    image: lodge.image
+      ? lodge.image.startsWith('http')
+        ? lodge.image
+        : `https://jetty.francisnaga.site${lodge.image}`
+      : 'https://jetty.francisnaga.site/og-image.png',
+    address: {
+      '@type': 'PostalAddress',
+      addressLocality: lodge.campus,
+      addressRegion: 'Delta State',
+      addressCountry: 'NG',
+    },
+    offers: {
+      '@type': 'Offer',
+      price: lodge.price,
+      priceCurrency: 'NGN',
+      priceSpecification: {
+        '@type': 'UnitPriceSpecification',
+        price: lodge.price,
+        priceCurrency: 'NGN',
+        unitText: lodge.period,
+      },
+      availability: 'https://schema.org/InStock',
+    },
+  }
+
   return (
     <div className="min-w-0 max-w-full pb-28">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(housingJsonLd) }}
+      />
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
           {/* 1. Image Gallery */}

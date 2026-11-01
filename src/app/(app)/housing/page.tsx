@@ -8,6 +8,17 @@ export const metadata = {
   title: 'Student Lodges & Bedspaces near NMU | Jetty',
   description:
     'Find inspected and verified student rooms, self-contains, and bedspaces around NMU Okerenkoko and Kurutie campuses. No inspection fees, direct WhatsApp contact with caretakers.',
+  keywords: [
+    'NMU lodges',
+    'NMU student hostels',
+    'student accommodation Okerenkoko',
+    'bedspaces Kurutie campus',
+    'rooms near Nigeria Maritime University',
+    'hostels around NMU',
+  ],
+  alternates: {
+    canonical: 'https://jetty.francisnaga.site/housing',
+  },
 }
 
 export default async function HousingPage({

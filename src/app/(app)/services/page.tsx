@@ -6,8 +6,20 @@ import { getPublicServices } from '@/lib/queries'
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Services | Jetty NMU',
-  description: 'Pick a service to see who offers it across NMU Okerenkoko and Kurutie campuses.',
+  title: 'Campus Services | Tailoring, Barbers, Meals & Repairs | Jetty NMU',
+  description:
+    'Discover trusted campus service providers around Nigeria Maritime University (Okerenkoko & Kurutie). Uniform tailoring, haircuts, laundry, meals, gadget repairs, and errands.',
+  keywords: [
+    'NMU campus services',
+    'Nigeria Maritime University tailoring',
+    'cadet uniform tailoring Okerenkoko',
+    'NMU haircut barber Kurutie',
+    'student laundry Okerenkoko',
+    'NMU food vendors',
+  ],
+  alternates: {
+    canonical: 'https://jetty.francisnaga.site/services',
+  },
 }
 
 export default async function ServicesPage({
