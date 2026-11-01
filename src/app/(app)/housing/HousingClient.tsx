@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Search, X, Building2, ShieldCheck, Plus } from 'lucide-react'
+import { Search, X, Building2, ShieldCheck } from 'lucide-react'
 import { LodgeListing } from '@/lib/lodge-data'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { cn } from '@/lib/utils'
@@ -86,23 +86,13 @@ export function HousingClient({
   return (
     <div className="space-y-4 min-w-0 pb-16">
       {/* Page Header */}
-      <div className="flex items-end justify-between gap-3">
-        <div className="space-y-1">
-          <h1 className="text-[28px] sm:text-[32px] font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
-            Lodge
-          </h1>
-          <p className="text-[14px] text-muted-foreground">
-            Rooms and hostels near campus.
-          </p>
-        </div>
-
-        <Link
-          href="/vendor/dashboard?tab=new&kind=room"
-          className="inline-flex items-center gap-1.5 h-9 px-3.5 rounded-full bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity shrink-0 shadow-2xs"
-        >
-          <Plus className="w-3.5 h-3.5 stroke-[2.2]" />
-          <span>Post a room</span>
-        </Link>
+      <div className="space-y-1">
+        <h1 className="text-[28px] sm:text-[32px] font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
+          Lodge
+        </h1>
+        <p className="text-[14px] text-muted-foreground">
+          Rooms and hostels near campus.
+        </p>
       </div>
 
       {/* Scoped Search Bar & Room Type / Rent Filters */}
@@ -196,16 +186,14 @@ export function HousingClient({
           </button>
         </div>
       ) : (
-        <div className="py-12 px-4 text-center">
-          <p className="text-sm text-muted-foreground">
-            No rooms listed at this campus yet.
+        <div className="py-14 px-4 text-center">
+          <Building2 className="mx-auto w-8 h-8 text-muted-foreground/60 mb-2" />
+          <p className="text-sm font-medium text-foreground">
+            No rooms listed for this campus yet
           </p>
-          <Link
-            href="/vendor/dashboard?tab=new&kind=room"
-            className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
-          >
-            List a room →
-          </Link>
+          <p className="text-xs text-muted-foreground mt-0.5">
+            Check back soon or select another campus from the top bar.
+          </p>
         </div>
       )}
     </div>

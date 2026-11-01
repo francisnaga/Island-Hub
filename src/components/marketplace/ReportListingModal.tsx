@@ -82,28 +82,28 @@ export function ReportListingModal({
           setSubmitted(false)
           setOpen(true)
         }}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-slate-500 hover:text-red-700 transition-colors cursor-pointer"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-red-700 transition-colors cursor-pointer"
       >
         <Flag className="h-3.5 w-3.5" />
         Report this {targetType}
       </button>
 
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 backdrop-blur-xs p-4">
-          <div className="w-full max-w-md rounded-2xl border border-slate-200 bg-white p-6 shadow-xl space-y-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-xl space-y-4">
             <div className="flex items-start justify-between gap-3">
               <div>
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-base font-bold text-foreground">
                   Report {targetType === 'product' ? 'Listing' : 'Vendor'}
                 </h3>
-                <p className="text-xs text-slate-500 line-clamp-1 mt-0.5">
+                <p className="text-xs text-muted-foreground line-clamp-1 mt-0.5">
                   {targetName}
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setOpen(false)}
-                className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
+                className="rounded-lg p-1 text-muted-foreground hover:bg-slate-100 hover:text-foreground"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -112,16 +112,16 @@ export function ReportListingModal({
             {submitted ? (
               <div className="py-6 text-center space-y-3">
                 <CheckCircle2 className="mx-auto h-10 w-10 text-emerald-600" />
-                <h4 className="text-sm font-bold text-slate-900">
+                <h4 className="text-sm font-bold text-foreground">
                   Thank you for helping keep Jetty safe
                 </h4>
-                <p className="text-xs text-slate-600 leading-relaxed">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   Your report has been added to the administrator review queue. We investigate misleading listings, inactive stock, and policy violations promptly.
                 </p>
                 <button
                   type="button"
                   onClick={() => setOpen(false)}
-                  className="mt-2 inline-flex items-center justify-center rounded-xl bg-slate-900 px-5 py-2.5 text-xs font-semibold text-white hover:bg-slate-800"
+                  className="mt-2 inline-flex items-center justify-center rounded-xl bg-foreground px-5 py-2.5 text-xs font-semibold text-white hover:opacity-90"
                 >
                   Close
                 </button>
@@ -129,13 +129,13 @@ export function ReportListingModal({
             ) : (
               <form onSubmit={handleSubmit} className="space-y-3.5">
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-foreground mb-1">
                     Reason for report
                   </label>
                   <select
                     value={reason}
                     onChange={(e) => setReason(e.target.value)}
-                    className="w-full h-10 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
+                    className="w-full h-10 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
                   >
                     {REPORT_REASONS.map((r) => (
                       <option key={r} value={r}>
@@ -146,7 +146,7 @@ export function ReportListingModal({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-foreground mb-1">
                     Additional details (optional)
                   </label>
                   <textarea
@@ -154,12 +154,12 @@ export function ReportListingModal({
                     value={details}
                     onChange={(e) => setDetails(e.target.value)}
                     placeholder="What happened when you contacted the seller or checked this item?"
-                    className="w-full rounded-lg border border-slate-300 p-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#0F6E6E] focus:outline-none"
+                    className="w-full rounded-lg border border-border p-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-[#0F6E6E] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-foreground mb-1">
                     Your WhatsApp or email (optional, if follow-up is needed)
                   </label>
                   <input
@@ -167,7 +167,7 @@ export function ReportListingModal({
                     value={contact}
                     onChange={(e) => setContact(e.target.value)}
                     placeholder="e.g. 0803... or student@nmu.edu.ng"
-                    className="w-full h-9 rounded-lg border border-slate-300 px-3 text-xs text-slate-900 placeholder:text-slate-400 focus:border-[#0F6E6E] focus:outline-none"
+                    className="w-full h-9 rounded-lg border border-border px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-[#0F6E6E] focus:outline-none"
                   />
                 </div>
 
@@ -175,7 +175,7 @@ export function ReportListingModal({
                   <button
                     type="button"
                     onClick={() => setOpen(false)}
-                    className="rounded-lg border border-slate-200 px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                    className="rounded-lg border border-border px-4 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted/50"
                   >
                     Cancel
                   </button>

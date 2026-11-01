@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronLeft, ChevronRight, MapPin, Navigation } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MapPin, Navigation, ShoppingBag } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
@@ -261,9 +261,15 @@ export default async function VendorStorefrontPage({
         )}
 
         {products.length === 0 && !isBanned && (
-          <p className="py-8 text-center text-sm text-muted-foreground">
-            No active listings right now.
-          </p>
+          <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-8 text-center my-4">
+            <ShoppingBag className="mx-auto h-7 w-7 text-muted-foreground/50 mb-2 stroke-[1.6]" />
+            <p className="text-sm font-semibold text-foreground">
+              No active listings
+            </p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              This store hasn't posted any items yet.
+            </p>
+          </div>
         )}
 
         {/* Quiet Report Link */}

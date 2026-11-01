@@ -25,6 +25,7 @@ import {
   ShieldAlert,
   MapPin,
   Navigation,
+  Loader2,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
@@ -180,6 +181,30 @@ export function VendorDashboardClient({
   const [savingStoreField, setSavingStoreField] = useState(false)
   const [locatingGps, setLocatingGps] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
+  const [showDeleteAccountModal, setShowDeleteAccountModal] = useState(false)
+  const [deletingAccount, setDeletingAccount] = useState(false)
+
+  const handleDeleteAccount = async () => {
+    setDeletingAccount(true)
+    try {
+      const res = await fetch('/api/user/delete-account', {
+        method: 'POST',
+      })
+      const data = await res.json()
+      if (!res.ok || data.error) {
+        toast.error(data.error || 'Failed to delete account')
+        return
+      }
+      toast.success('Your store and account have been deleted.')
+      setShowDeleteAccountModal(false)
+      router.push('/')
+      router.refresh()
+    } catch {
+      toast.error('An error occurred while deleting account.')
+    } finally {
+      setDeletingAccount(false)
+    }
+  }
 
   // Load initial edit product if initialEditId was passed
   useEffect(() => {
@@ -1720,17 +1745,78 @@ export function VendorDashboardClient({
                   router.push('/')
                   router.refresh()
                 }}
-                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-red-500/5 transition-colors cursor-pointer"
+                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-muted/40 transition-colors cursor-pointer"
               >
-                <b className="font-semibold flex-1 text-red-600 dark:text-red-400">
+                <b className="font-semibold flex-1 text-foreground">
                   Log out
                 </b>
-                <LogOut className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
+                <LogOut className="w-4 h-4 text-muted-foreground shrink-0" />
+              </button>
+
+              <button
+                type="button"
+                onClick={() => setShowDeleteAccountModal(true)}
+                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-red-500/10 transition-colors cursor-pointer"
+              >
+                <div className="flex-1">
+                  <b className="font-semibold text-red-600 dark:text-red-400 block">
+                    Delete account &amp; store
+                  </b>
+                  <span className="text-xs text-muted-foreground block">
+                    Permanently purges your shop, listings, and profile
+                  </span>
+                </div>
+                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
               </button>
             </div>
           </div>
         )}
       </div>
+
+      {/* Delete Account Confirmation Modal */}
+      {showDeleteAccountModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+          <div className="w-full max-w-md rounded-2xl border border-border bg-card p-6 shadow-2xl space-y-4">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                <Trash2 className="w-5 h-5" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-foreground text-base">
+                  Delete Account &amp; Storefront?
+                </h3>
+                <p className="text-xs text-muted-foreground">
+                  This action cannot be undone.
+                </p>
+              </div>
+            </div>
+
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              Permanently delete your account, your vendor shop profile, and purge all your active listings (products, rooms, and services).
+            </p>
+
+            <div className="flex items-center justify-end gap-2 pt-2">
+              <button
+                type="button"
+                disabled={deletingAccount}
+                onClick={() => setShowDeleteAccountModal(false)}
+                className="px-4 py-2 rounded-xl border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted transition-colors cursor-pointer"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                disabled={deletingAccount}
+                onClick={handleDeleteAccount}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-red-600 hover:bg-red-700 text-white text-xs font-semibold transition-colors cursor-pointer disabled:opacity-50"
+              >
+                {deletingAccount && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                <span>{deletingAccount ? 'Deleting...' : 'Yes, Delete Store & Account'}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ================= VENDOR 3-TAB BOTTOM NAV (Matches Buyer Bottom Nav) ================= */}
       {screen !== 'v:form' && (

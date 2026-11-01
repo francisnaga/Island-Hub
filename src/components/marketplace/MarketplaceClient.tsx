@@ -256,25 +256,22 @@ export function MarketplaceClient({
           )}
 
           {products.length === 0 ? (
-            <div className="py-12 px-4 text-center">
-              <p className="text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-8 sm:p-12 text-center max-w-md mx-auto my-6">
+              <ShoppingBag className="mx-auto h-8 w-8 text-muted-foreground/50 mb-3 stroke-[1.6]" />
+              <h3 className="text-sm sm:text-base font-semibold text-foreground">
+                {hasItemFilters ? 'No listings match your search' : 'No items listed yet'}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
                 {hasItemFilters
-                  ? 'Nothing here yet. Try another category or search.'
-                  : 'Nothing listed here yet.'}
+                  ? 'Try adjusting your search terms, changing categories, or clearing active filters.'
+                  : 'Items posted by verified campus vendors will appear here.'}
               </p>
-              {hasItemFilters ? (
+              {hasItemFilters && (
                 <Link
                   href="/marketplace"
-                  className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
+                  className="inline-flex items-center justify-center mt-4 h-9 px-4 rounded-full border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-2xs"
                 >
                   Clear filters
-                </Link>
-              ) : (
-                <Link
-                  href="/vendor/dashboard?tab=new&kind=item"
-                  className="inline-block mt-2 text-sm font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
-                >
-                  Add a listing →
                 </Link>
               )}
             </div>
@@ -428,11 +425,26 @@ export function MarketplaceClient({
           </div>
 
           {filteredVendors.length === 0 && (
-            <p className="py-8 px-4 text-center text-sm text-muted-foreground">
-              {storeSearch.trim()
-                ? 'No vendors match your search.'
-                : 'No vendors listed yet.'}
-            </p>
+            <div className="rounded-2xl border border-dashed border-border/70 bg-card/40 p-8 sm:p-12 text-center max-w-md mx-auto my-6">
+              <Store className="mx-auto h-8 w-8 text-muted-foreground/50 mb-3 stroke-[1.6]" />
+              <h3 className="text-sm sm:text-base font-semibold text-foreground">
+                {storeSearch.trim() ? 'No stores match your search' : 'No stores registered yet'}
+              </h3>
+              <p className="text-xs text-muted-foreground mt-1 max-w-xs mx-auto leading-relaxed">
+                {storeSearch.trim()
+                  ? 'Try searching by a different name or clear the search query.'
+                  : 'Verified student and campus vendor stores will appear here.'}
+              </p>
+              {storeSearch.trim() && (
+                <button
+                  type="button"
+                  onClick={() => setStoreSearch('')}
+                  className="inline-flex items-center justify-center mt-4 h-9 px-4 rounded-full border border-border bg-card text-xs font-semibold text-foreground hover:bg-muted transition-colors shadow-2xs cursor-pointer"
+                >
+                  Clear search
+                </button>
+              )}
+            </div>
           )}
         </div>
       )}

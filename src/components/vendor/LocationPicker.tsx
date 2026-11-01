@@ -174,20 +174,20 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
   })
 
   return (
-    <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 sm:p-6">
+    <div className="space-y-6 rounded-2xl border border-border bg-card p-5 sm:p-6">
       <div className="space-y-1">
-        <h3 className="text-base font-bold text-slate-900 flex items-center gap-2">
+        <h3 className="text-base font-bold text-foreground flex items-center gap-2">
           <MapPin className="h-5 w-5 text-[#0F6E6E]" />
           Vendor Location, Privacy & Google Maps Directions
         </h3>
-        <p className="text-xs text-slate-600 leading-relaxed">
+        <p className="text-xs text-muted-foreground leading-relaxed">
           Help buyers know where to pick up their items or whether you deliver. Remember: your current phone GPS is not necessarily your permanent shop address—always confirm your saved pin.
         </p>
       </div>
 
       {/* Step 1: What kind of location is this? */}
       <div className="space-y-2.5">
-        <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+        <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
           1. What kind of location is this?
         </label>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2.5">
@@ -240,17 +240,17 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                   'flex flex-col items-start rounded-xl border p-3.5 text-left transition-all cursor-pointer',
                   active
                     ? 'border-[#0F6E6E] bg-[#E6F2F2]/70 ring-1 ring-[#0F6E6E]'
-                    : 'border-slate-200 bg-white hover:border-slate-300'
+                    : 'border-border bg-card hover:border-border'
                 )}
               >
                 <Icon
                   className={cn(
                     'h-4 w-4 mb-2',
-                    active ? 'text-[#0F6E6E]' : 'text-slate-500'
+                    active ? 'text-[#0F6E6E]' : 'text-muted-foreground'
                   )}
                 />
-                <span className="text-xs font-bold text-slate-900">{opt.title}</span>
-                <span className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                <span className="text-xs font-bold text-foreground">{opt.title}</span>
+                <span className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
                   {opt.desc}
                 </span>
               </button>
@@ -263,7 +263,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
       {value.location_type !== 'delivery_only' && (
         <div className="space-y-4 pt-2 border-t border-slate-100">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+            <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
               2. Set & Confirm Your Map Pin (3 Methods)
             </label>
             <button
@@ -282,7 +282,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
             <div className="space-y-2">
               <div className="flex gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-slate-400" />
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
                   <input
                     type="text"
                     value={searchQuery}
@@ -294,21 +294,21 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                       }
                     }}
                     placeholder="Search place or address (e.g. Okerenkoko, Warri)..."
-                    className="w-full h-9 pl-8 pr-3 rounded-lg border border-slate-300 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
+                    className="w-full h-9 pl-8 pr-3 rounded-lg border border-border text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
                   />
                 </div>
                 <button
                   type="button"
                   onClick={() => handlePlaceSearch()}
                   disabled={searching}
-                  className="h-9 px-3 rounded-lg border border-slate-300 bg-slate-50 text-xs font-semibold text-slate-700 hover:bg-slate-100 cursor-pointer"
+                  className="h-9 px-3 rounded-lg border border-border bg-muted/50 text-xs font-semibold text-foreground hover:bg-slate-100 cursor-pointer"
                 >
                   {searching ? '...' : 'Find'}
                 </button>
               </div>
 
               {searchResults.length > 0 && (
-                <div className="rounded-lg border border-slate-200 bg-slate-50 p-1.5 space-y-1 max-h-36 overflow-y-auto">
+                <div className="rounded-lg border border-border bg-muted/50 p-1.5 space-y-1 max-h-36 overflow-y-auto">
                   {searchResults.map((item, idx) => (
                     <button
                       key={idx}
@@ -323,7 +323,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                         })
                         setSearchResults([])
                       }}
-                      className="w-full text-left px-2.5 py-1.5 rounded-md text-xs text-slate-700 hover:bg-[#E6F2F2] hover:text-[#0A4F4F] truncate"
+                      className="w-full text-left px-2.5 py-1.5 rounded-md text-xs text-foreground hover:bg-[#E6F2F2] hover:text-[#0A4F4F] truncate"
                     >
                       {item.display_name}
                     </button>
@@ -349,7 +349,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                   }
                 }}
                 defaultValue=""
-                className="w-full h-9 rounded-lg border border-slate-300 bg-white px-3 text-xs text-slate-700 focus:border-[#0F6E6E] focus:outline-none"
+                className="w-full h-9 rounded-lg border border-border bg-card px-3 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
               >
                 <option value="" disabled>
                   Or jump to an NMU / Okerenkoko landmark...
@@ -364,7 +364,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
           </div>
 
           {/* Interactive Map Canvas & Pin Adjuster */}
-          <div className="rounded-xl border border-slate-300 overflow-hidden bg-slate-100">
+          <div className="rounded-xl border border-border overflow-hidden bg-slate-100">
             <div
               ref={mapBoxRef}
               onClick={handleMapCanvasInteraction}
@@ -386,7 +386,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                   onMouseDown={() => setDraggingPin(true)}
                   className="flex flex-col items-center -mt-6 pointer-events-auto cursor-grab active:cursor-grabbing"
                 >
-                  <span className="rounded-full bg-slate-900/90 text-white px-2.5 py-0.5 text-[10px] font-bold shadow-md mb-1">
+                  <span className="rounded-full bg-foreground/90 text-white px-2.5 py-0.5 text-[10px] font-bold shadow-md mb-1">
                     Click map to adjust pin
                   </span>
                 </div>
@@ -394,8 +394,8 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
             </div>
 
             {/* Coordinate readout + Confirm Pin bar */}
-            <div className="bg-slate-50 px-4 py-3 border-t border-slate-200 flex flex-wrap items-center justify-between gap-3">
-              <div className="flex flex-wrap items-center gap-3 text-xs text-slate-600">
+            <div className="bg-muted/50 px-4 py-3 border-t border-border flex flex-wrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground">
                 <span>
                   <strong>Saved Coordinates:</strong> {lat.toFixed(5)}, {lng.toFixed(5)}
                 </span>
@@ -431,7 +431,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
       {/* Step 3: Human-Readable Area Label & Pickup Instructions */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2 border-t border-slate-100">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-semibold text-foreground mb-1">
             Area / Pickup Landmark Name *
           </label>
           <input
@@ -440,12 +440,12 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
             value={value.location_label}
             onChange={(e) => onChange({ ...value, location_label: e.target.value })}
             placeholder="e.g. Near NMU Main Gate, Okerenkoko"
-            className="w-full h-10 rounded-lg border border-slate-300 px-3 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
+            className="w-full h-10 rounded-lg border border-border px-3 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-semibold text-slate-700 mb-1">
+          <label className="block text-xs font-semibold text-foreground mb-1">
             Pickup Hours / Collection Arrangement *
           </label>
           <input
@@ -454,27 +454,27 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
             value={value.pickup_options}
             onChange={(e) => onChange({ ...value, pickup_options: e.target.value })}
             placeholder="e.g. Mon–Sat 9am–6pm at shop or campus gate"
-            className="w-full h-10 rounded-lg border border-slate-300 px-3 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
+            className="w-full h-10 rounded-lg border border-border px-3 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
           />
         </div>
       </div>
 
       {/* Delivery Options */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <label className="flex items-center gap-2.5 rounded-xl border border-slate-200 p-3 cursor-pointer">
+        <label className="flex items-center gap-2.5 rounded-xl border border-border p-3 cursor-pointer">
           <input
             type="checkbox"
             checked={value.delivery_available || value.location_type === 'delivery_only'}
             onChange={(e) =>
               onChange({ ...value, delivery_available: e.target.checked })
             }
-            className="h-4 w-4 rounded border-slate-300 text-[#0F6E6E]"
+            className="h-4 w-4 rounded border-border text-[#0F6E6E]"
           />
           <div>
-            <span className="block text-xs font-bold text-slate-900">
+            <span className="block text-xs font-bold text-foreground">
               I also offer delivery to hostels / campus
             </span>
-            <span className="block text-[11px] text-slate-500">
+            <span className="block text-[11px] text-muted-foreground">
               Let buyers know if you can bring items to their hostel or jetty
             </span>
           </div>
@@ -482,7 +482,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
 
         {(value.delivery_available || value.location_type === 'delivery_only') && (
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">
+            <label className="block text-xs font-semibold text-foreground mb-1">
               Delivery Coverage Area
             </label>
             <input
@@ -492,7 +492,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                 onChange({ ...value, delivery_coverage: e.target.value })
               }
               placeholder="e.g. All NMU Hostels & Okerenkoko"
-              className="w-full h-10 rounded-lg border border-slate-300 px-3 text-xs text-slate-900 focus:border-[#0F6E6E] focus:outline-none"
+              className="w-full h-10 rounded-lg border border-border px-3 text-xs text-foreground focus:border-[#0F6E6E] focus:outline-none"
             />
           </div>
         )}
@@ -501,7 +501,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
       {/* Step 4: What should buyers see? (Visibility Controls) */}
       {value.location_type !== 'delivery_only' && (
         <div className="space-y-2.5 pt-2 border-t border-slate-100">
-          <label className="block text-xs font-bold uppercase tracking-wider text-slate-600">
+          <label className="block text-xs font-bold uppercase tracking-wider text-muted-foreground">
             3. What should buyers see publicly?
           </label>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -541,17 +541,17 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                     'flex flex-col items-start rounded-xl border p-3.5 text-left transition-all cursor-pointer',
                     active
                       ? 'border-[#0F6E6E] bg-[#E6F2F2]/70 ring-1 ring-[#0F6E6E]'
-                      : 'border-slate-200 bg-white hover:border-slate-300'
+                      : 'border-border bg-card hover:border-border'
                   )}
                 >
                   <Icon
                     className={cn(
                       'h-4 w-4 mb-1.5',
-                      active ? 'text-[#0F6E6E]' : 'text-slate-500'
+                      active ? 'text-[#0F6E6E]' : 'text-muted-foreground'
                     )}
                   />
-                  <span className="text-xs font-bold text-slate-900">{vis.title}</span>
-                  <span className="text-[11px] text-slate-500 mt-0.5 leading-snug">
+                  <span className="text-xs font-bold text-foreground">{vis.title}</span>
+                  <span className="text-[11px] text-muted-foreground mt-0.5 leading-snug">
                     {vis.desc}
                   </span>
                 </button>
@@ -567,12 +567,12 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
           <span className="text-[11px] font-bold uppercase tracking-wider text-[#0A4F4F]">
             Live Buyer Preview on Product Page
           </span>
-          <span className="text-[11px] font-medium text-slate-600 capitalize">
+          <span className="text-[11px] font-medium text-muted-foreground capitalize">
             Location type: {value.location_type.replace('_', ' ')}
           </span>
         </div>
 
-        <div className="rounded-lg bg-white border border-slate-200 p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+        <div className="rounded-lg bg-card border border-border p-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
           <div>
             {value.location_type === 'delivery_only' ? (
               <p className="font-semibold text-slate-800">
@@ -580,7 +580,7 @@ export function LocationPicker({ value, onChange }: LocationPickerProps) {
                 {value.delivery_coverage || 'NMU & Okerenkoko'}
               </p>
             ) : value.location_visibility === 'hidden' ? (
-              <p className="font-semibold text-slate-700">
+              <p className="font-semibold text-foreground">
                 Exact location hidden publicly · Buyers see &ldquo;Ask vendor for pickup location&rdquo;.
               </p>
             ) : value.location_visibility === 'approximate' ? (

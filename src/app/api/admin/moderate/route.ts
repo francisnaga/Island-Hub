@@ -309,6 +309,17 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
+    if (action === 'delete_vendor') {
+      const { vendor_id } = body
+      // Cascade: delete all products by this vendor
+      await adminDb.from('products').delete().eq('vendor_id', vendor_id)
+      await adminDb.from('category_requests').delete().eq('vendor_id', vendor_id)
+      const { error } = await adminDb.from('vendors').delete().eq('id', vendor_id)
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+      revalidatePath('/', 'layout')
+      return NextResponse.json({ success: true })
+    }
+
     if (action === 'resolve_report') {
       const { report_id, status } = body
       const { error } = await adminDb

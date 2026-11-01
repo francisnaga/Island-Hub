@@ -83,15 +83,11 @@ export default async function HomePage({
               ))}
             </div>
           ) : (
-            <p className="px-4 py-4 text-sm text-muted-foreground">
-              Nothing listed here yet.{' '}
-              <Link
-                href="/vendor/dashboard?tab=new&kind=item"
-                className="font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
-              >
-                Add the first item →
-              </Link>
-            </p>
+            <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                No items listed yet at this campus. Check back soon.
+              </p>
+            </div>
           )}
         </section>
 
@@ -120,15 +116,11 @@ export default async function HomePage({
               ))}
             </div>
           ) : (
-            <p className="px-4 py-4 text-sm text-muted-foreground">
-              No rooms listed yet.{' '}
-              <Link
-                href="/vendor/dashboard?tab=new&kind=room"
-                className="font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
-              >
-                List a room →
-              </Link>
-            </p>
+            <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                No rooms listed yet at this campus. Check back soon.
+              </p>
+            </div>
           )}
         </section>
 
@@ -165,15 +157,11 @@ export default async function HomePage({
           {vendors.length > 0 ? (
             <VendorAvatarRail vendors={vendors} />
           ) : (
-            <p className="px-4 py-4 text-sm text-muted-foreground">
-              No stores yet.{' '}
-              <Link
-                href="/vendor/apply"
-                className="font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
-              >
-                Start selling →
-              </Link>
-            </p>
+            <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
+              <p className="text-xs text-muted-foreground">
+                No stores registered yet at this campus.
+              </p>
+            </div>
           )}
         </section>
 

@@ -253,6 +253,41 @@ export function AdminDashboardClient({
     }
   }
 
+  const handleDeleteVendor = async (vendor: Vendor) => {
+    if (
+      !confirm(
+        `Are you sure you want to permanently delete "${vendor.shop_name}" and ALL its products? This cannot be undone.`
+      )
+    ) {
+      return
+    }
+    setBusyId(vendor.id)
+    try {
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete_vendor',
+          vendor_id: vendor.id,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not delete vendor.')
+        return
+      }
+      setVendors((prev) => prev.filter((v) => v.id !== vendor.id))
+      setProducts((prev) => prev.filter((p) => p.vendor_id !== vendor.id))
+      await recordLog('vendor_deleted', 'vendor', vendor.id, vendor.shop_name)
+      toast.success(`Deleted vendor ${vendor.shop_name} and purged listings.`)
+      router.refresh()
+    } catch {
+      toast.error('Failed to delete vendor.')
+    } finally {
+      setBusyId(null)
+    }
+  }
+
   // ── Listing Actions ──
   const handleProductStatus = async (
     product: Product,
@@ -1278,9 +1313,20 @@ export function AdminDashboardClient({
                             disabled={busyId === v.id}
                             onClick={() => handleVendorStatus(v, 'suspended')}
                             title="Suspend store and archive listings"
-                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-amber-600 hover:border-amber-500/30 transition-colors cursor-pointer"
                           >
                             <Ban className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Delete Store & Purge Listings */}
+                          <button
+                            type="button"
+                            disabled={busyId === v.id}
+                            onClick={() => handleDeleteVendor(v)}
+                            title="Permanently delete store and purge all listings"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
                           </button>
                         </>
                       )}
