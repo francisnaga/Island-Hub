@@ -1,11 +1,14 @@
 // Jetty PWA Service Worker — Offline Cache + Push Notifications
-// Version: 4.0 — cache-first for images (Next.js image optimizer, Supabase Storage, static assets)
+// Version: 5.0 — updated official PWA maskable icons and unified brand assets
 
-const CACHE_NAME = 'jetty-v4'
+const CACHE_NAME = 'jetty-v5'
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
   '/jetty-icon-192.png',
+  '/jetty-icon-192-maskable.png',
+  '/jetty-icon-512.png',
+  '/jetty-icon-512-maskable.png',
   '/jetty-favicon.svg',
 ]
 

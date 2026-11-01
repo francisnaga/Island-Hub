@@ -4,8 +4,8 @@
   "description": "Campus marketplace for Nigeria Maritime University (NMU) covering Okerenkoko and Kurutie. Buy & sell cadet gear, find housing, and discover campus services.",
   "start_url": "/",
   "display": "standalone",
-  "background_color": "#FFFFFF",
-  "theme_color": "#0F6E6E",
+  "background_color": "#0A4F4F",
+  "theme_color": "#0A4F4F",
   "icons": [
     {
       "src": "/jetty-favicon.svg",
@@ -17,6 +17,12 @@
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any"
+    },
+    {
+      "src": "/jetty-icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
       "src": "/jetty-icon-512.png",
