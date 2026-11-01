@@ -62,13 +62,13 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
           </div>
 
           {/* The 4 Gateway Doors */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-3 mt-4.5 md:mt-0 pb-2 md:pb-0 md:w-[340px] shrink-0">
+          <div className="grid grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-5 md:mt-0 pb-2 md:pb-0 md:w-[340px] shrink-0">
             <Link
               href="/marketplace"
               className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-white/[0.09] border border-white/[0.16] flex items-center justify-center transition-transform active:scale-95 group-hover:bg-white/[0.14]">
-                <ShoppingBag className="w-6 h-6 stroke-[1.75]" />
+              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#0F6E6E]/60 border border-white/20 flex items-center justify-center transition-all active:scale-95 hover:bg-[#0F6E6E]/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+                <ShoppingBag className="w-6 h-6 stroke-[1.75] text-white" />
               </span>
               <span>Market</span>
             </Link>
@@ -77,8 +77,8 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
               href="/housing"
               className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-white/[0.09] border border-white/[0.16] flex items-center justify-center transition-transform active:scale-95 group-hover:bg-white/[0.14]">
-                <Bed className="w-6 h-6 stroke-[1.75]" />
+              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#0F6E6E]/60 border border-white/20 flex items-center justify-center transition-all active:scale-95 hover:bg-[#0F6E6E]/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+                <Bed className="w-6 h-6 stroke-[1.75] text-white" />
               </span>
               <span>Lodge</span>
             </Link>
@@ -87,8 +87,8 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
               href="/services"
               className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-white/[0.09] border border-white/[0.16] flex items-center justify-center transition-transform active:scale-95 group-hover:bg-white/[0.14]">
-                <Briefcase className="w-6 h-6 stroke-[1.75]" />
+              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#0F6E6E]/60 border border-white/20 flex items-center justify-center transition-all active:scale-95 hover:bg-[#0F6E6E]/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
+                <Briefcase className="w-6 h-6 stroke-[1.75] text-white" />
               </span>
               <span>Services</span>
             </Link>
@@ -97,7 +97,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
               href={hasStore ? '/vendor/dashboard' : '/vendor/apply'}
               className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] bg-[#E8B84A] border border-[#E8B84A] text-[#0E1B1B] flex items-center justify-center transition-transform active:scale-95 shadow-sm">
+              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#E8B84A] border border-[#E8B84A] text-[#0E1B1B] flex items-center justify-center transition-transform active:scale-95 shadow-sm">
                 {hasStore ? (
                   <Store className="w-6 h-6 stroke-[2]" />
                 ) : (
