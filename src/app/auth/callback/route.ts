@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { isAdminEmail } from '@/lib/types'
 import type { User } from '@supabase/supabase-js'
 import { sendAdminPush } from '@/lib/push'
@@ -76,7 +77,15 @@ export async function GET(request: Request) {
       const admin = isAdminEmail(user.email)
 
       try {
-        await supabase.from('profiles').upsert(
+        const adminDb = await createAdminClient()
+        const { data: existingProfile } = await adminDb
+          .from('profiles')
+          .select('id')
+          .eq('id', user.id)
+          .maybeSingle()
+        const isNewUser = !existingProfile
+
+        await adminDb.from('profiles').upsert(
           {
             id: user.id,
             full_name:
@@ -92,8 +101,8 @@ export async function GET(request: Request) {
           { onConflict: 'id' }
         )
 
-        // Notify admin of new sign-up (non-admin users only to avoid self-ping)
-        if (!admin) {
+        // Notify admin of new sign-up (only for brand-new non-admin accounts)
+        if (isNewUser && !admin) {
           const displayName =
             user.user_metadata?.full_name ||
             user.user_metadata?.name ||
@@ -101,9 +110,9 @@ export async function GET(request: Request) {
             'Someone'
           await sendAdminPush({
             title: '👤 New Sign-Up',
-            body: `${displayName} (${user.email}) just joined Jetty`,
+            body: `${displayName} (${user.email || 'Google User'}) just joined Jetty`,
             url: '/admin',
-            tag: 'new-user',
+            tag: `signup-${user.id}`,
           })
         }
       } catch (profileErr) {

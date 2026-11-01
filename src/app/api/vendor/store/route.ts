@@ -431,6 +431,15 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
+    if (updates.username || updates.shop_name) {
+      await sendAdminPush({
+        title: '✏️ Store Updated',
+        body: `"${updated.shop_name}" updated store profile${updates.username ? ` (@${updates.username})` : ''}`,
+        url: '/admin',
+        tag: `vendor-update-${vendorId}`,
+      })
+    }
+
     revalidatePath('/', 'layout')
     return NextResponse.json({ vendor: updated })
   } catch (err: any) {

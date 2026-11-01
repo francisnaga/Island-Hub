@@ -8,6 +8,7 @@ import {
 } from '@/lib/marketplace-data'
 import { isAdminEmail, ProductCondition, StockStatus } from '@/lib/types'
 import { sendAdminPush } from '@/lib/push'
+import { formatNaira } from '@/lib/whatsapp'
 
 function slugifyTitle(title: string): string {
   const base = title
@@ -135,6 +136,14 @@ export async function POST(request: NextRequest) {
           status: 'open',
         })
       }
+
+      // Notify admin: new category requested
+      await sendAdminPush({
+        title: '🏷️ Category Requested',
+        body: `"${name}" requested by ${body.vendor_name || 'Vendor'} (${body.vendor_whatsapp || 'WhatsApp'})`,
+        url: '/admin',
+        tag: `category-request-${Date.now()}`,
+      })
 
       return NextResponse.json({ success: true })
     }
@@ -329,12 +338,19 @@ export async function POST(request: NextRequest) {
 
     // Notify admin: new listing pending review
     const pushListingType = body.listing_type || 'product'
-    const typeEmoji = pushListingType === 'service' ? '🛠️' : pushListingType === 'housing' ? '🏠' : '📦'
+    const typeEmoji =
+      pushListingType === 'service'
+        ? '🛠️'
+        : pushListingType === 'housing'
+        ? '🏠'
+        : pushListingType === 'food'
+        ? '🍲'
+        : '📦'
     await sendAdminPush({
-      title: `${typeEmoji} New Listing Posted`,
-      body: `"${title}" by ${vendor.shop_name} — pending review`,
+      title: `${typeEmoji} New Listing: ${title}`,
+      body: `Posted by ${vendor.shop_name} (${campus} campus) · ${formatNaira(Number(body.price || 0))}`,
       url: '/admin',
-      tag: 'new-listing',
+      tag: `listing-${created.id}`,
     })
 
     return NextResponse.json({

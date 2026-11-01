@@ -7,12 +7,21 @@
 import webPush from 'web-push'
 import { createAdminClient } from '@/lib/supabase/admin'
 
-// Configure VAPID once at module load
-webPush.setVapidDetails(
-  process.env.VAPID_EMAIL!,
-  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!,
-  process.env.VAPID_PRIVATE_KEY!
-)
+function initVapid() {
+  const email = process.env.VAPID_EMAIL || 'mailto:efobifrancis53@gmail.com'
+  const pubKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+  const privKey = process.env.VAPID_PRIVATE_KEY
+
+  if (pubKey && privKey) {
+    try {
+      webPush.setVapidDetails(email, pubKey, privKey)
+    } catch (e) {
+      console.error('[Push] VAPID configuration error:', e)
+    }
+  }
+}
+
+initVapid()
 
 export interface PushPayload {
   title: string
@@ -27,18 +36,29 @@ export interface PushPayload {
  */
 export async function sendAdminPush(payload: PushPayload): Promise<void> {
   try {
+    initVapid()
     const adminDb = await createAdminClient()
-    const { data: subs } = await adminDb
+    const { data: subs, error: subsError } = await adminDb
       .from('push_subscriptions')
       .select('endpoint, p256dh, auth_key')
 
-    if (!subs || subs.length === 0) return
+    if (subsError) {
+      console.error('[Push] Error loading subscriptions:', subsError)
+      return
+    }
+
+    if (!subs || subs.length === 0) {
+      console.log('[Push] No active admin push subscriptions registered in database.')
+      return
+    }
+
+    console.log(`[Push] Dispatching "${payload.title}" to ${subs.length} admin device(s)...`)
 
     const message = JSON.stringify({
       title: payload.title,
       body: payload.body,
       url: payload.url || '/admin',
-      tag: payload.tag || 'jetty-admin',
+      tag: payload.tag || `jetty-${Date.now()}`,
     })
 
     await Promise.allSettled(
@@ -51,18 +71,23 @@ export async function sendAdminPush(payload: PushPayload): Promise<void> {
             },
             message
           )
+          .then((res) => {
+            console.log(`[Push] Successfully delivered to ${sub.endpoint.slice(0, 35)}... (status: ${res.statusCode})`)
+          })
           .catch(async (err: any) => {
-            // HTTP 410 = subscription gone; 404 = endpoint not found — clean both up
+            console.error(`[Push] Failed to deliver to ${sub.endpoint.slice(0, 35)}... status: ${err?.statusCode}, message: ${err?.message}`)
+            // HTTP 410 = subscription expired/unregistered; 404 = endpoint gone
             if (err?.statusCode === 410 || err?.statusCode === 404) {
               await adminDb
                 .from('push_subscriptions')
                 .delete()
                 .eq('endpoint', sub.endpoint)
+              console.log('[Push] Cleaned up expired subscription.')
             }
           })
       )
     )
-  } catch {
-    // Silently ignore — push is best-effort, must never break an API route
+  } catch (err: any) {
+    console.error('[Push] Unexpected error in sendAdminPush:', err?.message || err)
   }
 }

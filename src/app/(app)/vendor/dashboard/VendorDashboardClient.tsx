@@ -1950,10 +1950,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('name')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <Store className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <Store className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">Shop name</p>
@@ -1968,10 +1971,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('username')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <AtSign className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-cyan-400 via-teal-500 to-emerald-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <AtSign className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">Store handle</p>
@@ -1990,10 +1996,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('about')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <FileText className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-violet-500 via-fuchsia-500 to-pink-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <FileText className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">About</p>
@@ -2009,10 +2018,13 @@ export function VendorDashboardClient({
                     type="button"
                     onClick={() => avatarFileInputRef.current?.click()}
                     disabled={savingCroppedAvatar}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <Camera className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-rose-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <Camera className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">Store logo / photo</p>
@@ -2039,10 +2051,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('phone')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <Phone className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-emerald-400 via-green-500 to-teal-600 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <Phone className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">WhatsApp number</p>
@@ -2057,10 +2072,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('campus')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <Navigation className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-blue-500 via-indigo-500 to-cyan-400 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <Navigation className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">Campus</p>
@@ -2075,10 +2093,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('location')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <MapPin className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-rose-500 via-pink-500 to-amber-400 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <MapPin className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">Location description</p>
@@ -2093,10 +2114,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => openStoreEdit('map_pin')}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <Compass className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-fuchsia-600 via-purple-600 to-blue-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-fuchsia-600 via-purple-600 to-blue-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <Compass className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">Map location (GPS)</p>
@@ -2120,10 +2144,13 @@ export function VendorDashboardClient({
                   {/* See store as a buyer */}
                   <Link
                     href={`/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <ExternalLink className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-teal-400 via-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <ExternalLink className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">
@@ -2143,10 +2170,13 @@ export function VendorDashboardClient({
                     )}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-[#0F6E6E]/10 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shrink-0 group-hover:bg-[#0F6E6E]/20 transition-colors">
-                      <Share2 className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-green-400 via-emerald-500 to-teal-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <Share2 className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">
@@ -2168,10 +2198,13 @@ export function VendorDashboardClient({
                   {/* Switch to buying */}
                   <Link
                     href="/"
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <ArrowLeftRight className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-400 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-indigo-500 via-blue-500 to-cyan-400 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                        <ArrowLeftRight className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">
@@ -2188,10 +2221,13 @@ export function VendorDashboardClient({
                     isAdminEmail(profile?.email)) && (
                     <Link
                       href="/admin"
-                      className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                      className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
                     >
-                      <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-                        <ShieldAlert className="w-4 h-4" />
+                      <div className="relative shrink-0 flex items-center justify-center">
+                        <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 blur-[6px] opacity-45 dark:opacity-35 group-hover:opacity-75 transition-opacity duration-300" />
+                        <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-amber-400 via-orange-500 to-red-500 flex items-center justify-center text-white shadow-xs ring-1 ring-white/30">
+                          <ShieldAlert className="w-5 h-5 stroke-[2.2]" />
+                        </div>
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-[15px] text-foreground leading-snug">
@@ -2213,10 +2249,13 @@ export function VendorDashboardClient({
                       router.push('/')
                       router.refresh()
                     }}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
-                      <LogOut className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-slate-600 via-zinc-700 to-neutral-800 blur-[6px] opacity-35 dark:opacity-25 group-hover:opacity-65 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-slate-600 via-zinc-700 to-neutral-800 flex items-center justify-center text-white shadow-xs ring-1 ring-white/20">
+                        <LogOut className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-foreground leading-snug">
@@ -2237,10 +2276,13 @@ export function VendorDashboardClient({
                   <button
                     type="button"
                     onClick={() => setShowDeleteAccountModal(true)}
-                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3.5 text-left hover:bg-red-500/10 active:bg-red-500/15 transition-colors cursor-pointer group"
+                    className="flex items-center gap-3.5 w-full min-h-[58px] px-4 py-3.5 text-left hover:bg-red-500/10 active:bg-red-500/15 transition-colors cursor-pointer group"
                   >
-                    <div className="w-8 h-8 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
-                      <Trash2 className="w-4 h-4" />
+                    <div className="relative shrink-0 flex items-center justify-center">
+                      <div className="absolute -inset-0.5 rounded-xl bg-gradient-to-br from-rose-600 via-red-600 to-red-800 blur-[6px] opacity-45 dark:opacity-40 group-hover:opacity-85 transition-opacity duration-300" />
+                      <div className="relative w-9.5 h-9.5 rounded-xl bg-gradient-to-br from-rose-600 via-red-600 to-red-800 flex items-center justify-center text-white shadow-xs ring-1 ring-white/25">
+                        <Trash2 className="w-5 h-5 stroke-[2.2]" />
+                      </div>
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-medium text-[15px] text-red-600 dark:text-red-400 leading-snug">
