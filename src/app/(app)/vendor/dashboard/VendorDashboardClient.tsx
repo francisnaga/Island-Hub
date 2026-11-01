@@ -419,7 +419,7 @@ export function VendorDashboardClient({
           images:
             photos.length > 0
               ? photos
-              : ['/products/cadet-uniform-tailoring.jpg'],
+              : [],
           condition: (condition === 'New' ? 'new' : 'good') as ProductCondition,
           stock_status: (existing?.stock_status || 'available') as StockStatus,
           service_turnaround: formKind === 'svc' ? serviceAvail.trim() || null : null,

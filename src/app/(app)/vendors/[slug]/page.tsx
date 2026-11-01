@@ -28,16 +28,39 @@ export async function generateMetadata({
   const canonicalPath = `/vendors/${vendor.slug || vendor.id}`
   const canonicalUrl = getCanonicalUrl(canonicalPath)
   const title = `${vendor.shop_name} | Jetty NMU`
+  const description =
+    vendor.description ||
+    `Browse verified listings, products, kits and services from ${vendor.shop_name} at Nigeria Maritime University (${vendor.campus || 'Okerenkoko'}).`
+
+  const previewImg =
+    vendor.logo_url && !vendor.logo_url.startsWith('data:')
+      ? vendor.logo_url
+      : '/og-image.png'
 
   return {
     title,
-    description: vendor.description,
+    description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
-      title,
-      description: vendor.description,
+      type: 'website',
       url: canonicalUrl,
-      images: vendor.logo_url ? [{ url: vendor.logo_url }] : undefined,
+      title,
+      description,
+      siteName: 'Jetty NMU',
+      images: [
+        {
+          url: previewImg,
+          width: 1200,
+          height: 630,
+          alt: vendor.shop_name,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [previewImg],
     },
   }
 }

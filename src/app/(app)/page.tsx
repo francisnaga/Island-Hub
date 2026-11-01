@@ -52,6 +52,11 @@ export default async function HomePage({
 
   const hasStore = Boolean(user && vendor && vendor.shop_name)
 
+  // In "Just landed", display physical items & goods (services & rooms have dedicated sections below)
+  const justLandedItems = allProducts.filter(
+    (p) => p.listing_type !== 'service' && p.listing_type !== 'housing'
+  )
+
   return (
     <div className="min-w-0 max-w-full pb-16">
       {/* 1. Deep Teal Hero & Waterline Wave */}
@@ -72,9 +77,9 @@ export default async function HomePage({
             </Link>
           </div>
 
-          {allProducts.length > 0 ? (
+          {justLandedItems.length > 0 ? (
             <div className="rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
-              {allProducts.slice(0, 8).map((product) => (
+              {justLandedItems.slice(0, 8).map((product) => (
                 <WaterlineProductCard
                   key={product.id}
                   product={product}

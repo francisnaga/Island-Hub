@@ -7,6 +7,7 @@ import {
   Navigation,
   Clock,
   ShieldCheck,
+  ShoppingBag,
 } from 'lucide-react'
 import { WaterlineProductCard } from '@/components/cards/WaterlineProductCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
@@ -49,15 +50,37 @@ export async function generateMetadata({
   const canonicalUrl = getCanonicalUrl(canonicalPath)
   const title = `${product.title} — ${formatNaira(product.price)} | Jetty NMU`
 
+  const previewImg =
+    product.images?.[0] &&
+    !product.images[0].startsWith('data:') &&
+    !product.images[0].includes('cadet-uniform-tailoring.jpg')
+      ? product.images[0]
+      : '/og-image.png'
+
   return {
     title,
     description: product.description,
     alternates: { canonical: canonicalUrl },
     openGraph: {
+      type: 'website',
+      url: canonicalUrl,
       title,
       description: product.description,
-      url: canonicalUrl,
-      images: product.images?.[0] ? [{ url: product.images[0] }] : undefined,
+      siteName: 'Jetty NMU',
+      images: [
+        {
+          url: previewImg,
+          width: 1200,
+          height: 630,
+          alt: product.title,
+        },
+      ],
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description: product.description,
+      images: [previewImg],
     },
   }
 }
@@ -76,7 +99,9 @@ export default async function ProductDetailPage({
 
   const vendor = product.vendor
   const primaryMedia =
-    product.images?.[0] || '/products/cadet-action-rig-navy.jpg'
+    product.images?.[0] && !product.images[0].includes('cadet-uniform-tailoring.jpg')
+      ? product.images[0]
+      : null
 
   // Fetch more from this vendor
   const { products: vendorProducts } = await getPublicProducts({
@@ -137,11 +162,21 @@ export default async function ProductDetailPage({
           <div className="dimg mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs md:col-span-6 md:sticky md:top-20">
             <div className="slides">
               <div className="slide">
-                <img
-                  src={primaryMedia}
-                  alt={product.title}
-                  className="w-full h-full object-cover"
-                />
+                {primaryMedia ? (
+                  <img
+                    src={primaryMedia}
+                    alt={product.title}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#E6F2F2] to-[#D5E7E7] dark:from-[#112323] dark:to-[#0D1818] p-6 text-center">
+                    <div className="w-20 h-20 rounded-3xl bg-[#0F6E6E]/15 dark:bg-[#14B8A6]/15 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center mb-3 shadow-2xs">
+                      <ShoppingBag className="w-10 h-10 stroke-[1.8]" />
+                    </div>
+                    <b className="text-base font-semibold text-foreground">{product.title}</b>
+                    <span className="text-xs text-muted-foreground mt-1 capitalize">{product.listing_type} · {product.campus || 'NMU'}</span>
+                  </div>
+                )}
               </div>
               {product.images &&
                 product.images.slice(1).map((img, i) => (

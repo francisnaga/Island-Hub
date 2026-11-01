@@ -222,7 +222,7 @@ export async function POST(request: NextRequest) {
       images:
         Array.isArray(body.images) && body.images.length > 0
           ? body.images
-          : ['/products/cadet-uniform-tailoring.jpg'],
+          : [],
       service_turnaround: body.service_turnaround || null,
       service_area: body.service_area || null,
       variants,

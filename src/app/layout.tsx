@@ -26,7 +26,11 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "Jetty | NMU Campus Marketplace (Okerenkoko & Kurutie)",
+  metadataBase: new URL("https://jetty.francisnaga.site"),
+  title: {
+    default: "Jetty | NMU Campus Marketplace (Okerenkoko & Kurutie)",
+    template: "%s | Jetty NMU",
+  },
   description:
     "Jetty is the sovereign campus marketplace for Nigeria Maritime University (NMU), covering Okerenkoko and Kurutie. Discover uniforms & cadet kits, lodges & bedspaces, campus services, electronics, and daily essentials.",
   manifest: "/manifest.json",
@@ -37,6 +41,30 @@ export const metadata: Metadata = {
       { url: "/jetty-icon-512.png?v=2", sizes: "512x512", type: "image/png" },
     ],
     apple: [{ url: "/jetty-icon-192.png?v=2", sizes: "192x192", type: "image/png" }],
+  },
+  openGraph: {
+    type: "website",
+    locale: "en_NG",
+    url: "https://jetty.francisnaga.site",
+    siteName: "Jetty NMU",
+    title: "Jetty | NMU Campus Marketplace (Okerenkoko & Kurutie)",
+    description:
+      "The sovereign campus marketplace for Nigeria Maritime University. Direct WhatsApp ordering, verified student vendors, cadet kits, lodges, and campus services.",
+    images: [
+      {
+        url: "/og-image.png",
+        width: 1200,
+        height: 630,
+        alt: "Jetty — NMU Campus Marketplace",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Jetty | NMU Campus Marketplace",
+    description:
+      "The sovereign campus marketplace for Nigeria Maritime University. Direct WhatsApp ordering, verified student vendors, cadet kits, lodges, and campus services.",
+    images: ["/og-image.png"],
   },
 };
 

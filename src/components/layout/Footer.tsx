@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation'
 import { MapPin, ExternalLink } from 'lucide-react'
 import { NagaLogo } from '@/components/brand/NagaLogo'
 import { JettyMark } from '@/components/brand/JettyMark'
+import { cn } from '@/lib/utils'
 
 export function Footer() {
   const pathname = usePathname()
@@ -18,8 +19,16 @@ export function Footer() {
     return null
   }
 
+  // On mobile view, show footer ONLY on the home page so subpages stay clean above the mobile bottom nav
+  const isHomePage = pathname === '/'
+
   return (
-    <footer className="border-t border-border bg-card text-muted-foreground mt-auto">
+    <footer
+      className={cn(
+        'border-t border-border bg-card text-muted-foreground mt-auto',
+        !isHomePage && 'hidden md:block'
+      )}
+    >
       <div className="container mx-auto max-w-7xl px-4 py-8 sm:py-10 space-y-6">
         {/* Compact Links Row */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">

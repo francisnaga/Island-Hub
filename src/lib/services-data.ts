@@ -13,6 +13,7 @@ import {
   type LucideIcon,
 } from 'lucide-react'
 import { BootIcon } from '@/components/brand/BootIcon'
+import { HappyManIcon } from '@/components/brand/HappyManIcon'
 import { Product } from './types'
 
 export interface ServiceProvider {
@@ -203,7 +204,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     slug: 'happy-ending',
     title: 'Happy Ending',
     shortTitle: 'Happy Ending',
-    icon: Sparkles,
+    icon: HappyManIcon,
     tagline: 'Relaxation, massage, wellness & personal care sessions near campus.',
     description:
       'Private relaxation, body massage, stress relief, and personal wellness sessions across Okerenkoko and Kurutie. Message directly on WhatsApp to book.',
