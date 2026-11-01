@@ -2,7 +2,6 @@ import Link from 'next/link'
 import { Ban, PauseCircle, MapPin } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
-import { WavyAvatar } from '@/components/brand/WavyAvatar'
 import { UserAvatar } from '@/components/brand/UserAvatar'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 

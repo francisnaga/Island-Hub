@@ -22,6 +22,7 @@ import {
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import { AdminPushToggle } from '@/components/admin/AdminPushToggle'
 import {
   Category,
@@ -1217,17 +1218,13 @@ export function AdminDashboardClient({
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       {/* Avatar */}
-                      <div className="w-10 h-10 rounded-full bg-muted border border-border overflow-hidden shrink-0 grid place-items-center text-xs font-semibold text-foreground">
-                        {v.logo_url ? (
-                          <img
-                            src={v.logo_url}
-                            alt={v.shop_name}
-                            className="w-full h-full object-cover"
-                          />
-                        ) : (
-                          <span>{getVendorInitials(v.shop_name)}</span>
-                        )}
-                      </div>
+                      <UserAvatar
+                        src={v.logo_url}
+                        seed={v.id || v.slug}
+                        name={v.shop_name}
+                        size={40}
+                        className="w-10 h-10 shrink-0 border border-border shadow-2xs"
+                      />
 
                       <div className="min-w-0 flex-1 space-y-0.5">
                         <div className="flex flex-wrap items-center gap-1.5">

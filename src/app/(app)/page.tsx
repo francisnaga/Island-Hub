@@ -7,6 +7,7 @@ import { ServicesChips } from '@/components/home/ServicesChips'
 import { VendorAvatarRail } from '@/components/home/VendorAvatarRail'
 import { FresherBanner } from '@/components/home/FresherBanner'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import {
   getCurrentUserContext,
   getPublicLodges,
@@ -222,15 +223,13 @@ export default async function HomePage({
                     className="flex-none rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] overflow-hidden min-w-0"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs">
-                        {vendor.logo_url ? (
-                          <OptimizedImage src={vendor.logo_url} alt={vendor.shop_name} width={44} height={44} sizes="44px" className="w-full h-full object-cover" />
-                        ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[#17908D] to-[#0A4F4F] flex items-center justify-center text-white font-bold text-sm">
-                            {vendor.shop_name.slice(0, 2).toUpperCase()}
-                          </div>
-                        )}
-                      </div>
+                      <UserAvatar
+                        src={vendor.logo_url}
+                        seed={vendor.id || vendor.slug}
+                        name={vendor.shop_name}
+                        size={44}
+                        className="w-11 h-11 shrink-0 border border-border/80 shadow-2xs group-hover:scale-105 transition-transform"
+                      />
                       <div className="min-w-0 flex-1 overflow-hidden">
                         <h3 className="font-bold text-[13px] text-foreground leading-snug truncate max-w-full">{vendor.shop_name}</h3>
                         {vendor.username ? (

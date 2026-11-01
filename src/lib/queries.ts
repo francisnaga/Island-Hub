@@ -71,7 +71,7 @@ export async function getPublicVendors(options?: {
     const supabase = await createClient()
     let dbQuery = supabase
       .from('vendors')
-      .select('*')
+      .select('*, profile:profiles(avatar_url)')
       .eq('is_demo', false)
       .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
@@ -103,8 +103,9 @@ export async function getPublicVendors(options?: {
           countMap[p.vendor_id] = (countMap[p.vendor_id] || 0) + 1
         }
       }
-      list = (data as Vendor[]).map((v) => ({
+      list = (data as any[]).map((v) => ({
         ...v,
+        logo_url: v.logo_url || v.profile?.avatar_url || null,
         products_count: countMap[v.id] || 0,
       }))
     }
@@ -176,7 +177,10 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
 }> {
   try {
     const supabase = await createClient()
-    let vQuery = supabase.from('vendors').select('*').eq('is_demo', false)
+    let vQuery = supabase
+      .from('vendors')
+      .select('*, profile:profiles(avatar_url)')
+      .eq('is_demo', false)
     // Strip leading '@' for username lookups (e.g. '@gripstore' → 'gripstore')
     const cleanParam = slugOrId.startsWith('@') ? slugOrId.slice(1) : slugOrId
     if (isUuidString(slugOrId)) {
@@ -188,8 +192,12 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
     const { data: vendorData } = await vQuery.maybeSingle()
 
     if (vendorData) {
-      const v = vendorData as Vendor
-      const sanitized = sanitizePublicVendor(v)
+      const v = vendorData as any
+      const effectiveLogo = v.logo_url || v.profile?.avatar_url || null
+      const sanitized = sanitizePublicVendor({
+        ...v,
+        logo_url: effectiveLogo,
+      })
 
       // Only rejected vendors are hidden; unverified ('pending') vendors are live without a tick
       if (v.verification_status === 'rejected') {
@@ -776,15 +784,29 @@ export const getCurrentUserContext = cache(async function getCurrentUserContext(
           created_at: new Date().toISOString(),
         }
 
+    const effectiveAvatar = profileData?.avatar_url || googleAvatar || null
+    let resolvedVendor: Vendor | null = null
+    if (vendorData) {
+      const v = vendorData as Vendor
+      const effectiveLogo = v.logo_url || effectiveAvatar || null
+      resolvedVendor = {
+        ...v,
+        logo_url: effectiveLogo,
+      }
+      if (!v.logo_url && effectiveAvatar) {
+        adminDb.from('vendors').update({ logo_url: effectiveAvatar }).eq('id', v.id).then(() => {})
+      }
+    }
+
     return {
       user: {
         id: user.id,
         email: user.email,
         full_name: googleName,
-        avatar_url: googleAvatar,
+        avatar_url: effectiveAvatar,
       },
       profile,
-      vendor: (vendorData as Vendor) || null,
+      vendor: resolvedVendor,
     }
   } catch {
     return { user: null, profile: null, vendor: null }

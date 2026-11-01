@@ -17,6 +17,7 @@ import { toast } from 'sonner'
 import { DarkModeToggle } from './DarkModeToggle'
 import { JettyMark } from '@/components/brand/JettyMark'
 import { CampusSelectorModal } from './CampusSelectorModal'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 
 interface NavbarProps {
   user: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
@@ -262,6 +263,23 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {!isSellingMode && <CampusSelectorModal />}
 
           <DarkModeToggle />
+
+          {user && (
+            <Link
+              href={isSellingMode ? '/profile' : vendor ? '/vendor/dashboard' : '/profile'}
+              title={profile?.full_name || user.full_name || 'My Profile'}
+              className="inline-flex items-center justify-center rounded-full transition-transform active:scale-95 shrink-0 cursor-pointer"
+            >
+              <UserAvatar
+                src={vendor?.logo_url || profile?.avatar_url || user.avatar_url}
+                seed={user.id}
+                name={profile?.full_name || user.full_name || 'User'}
+                size={32}
+                className="w-8 h-8 rounded-full border border-white/30 shadow-2xs hover:border-white/80 transition-colors"
+                priority
+              />
+            </Link>
+          )}
 
           {user && (
             <button

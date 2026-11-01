@@ -52,7 +52,7 @@ export function VendorApplyForm({
 
   const [shopName, setShopName] = useState(existingVendor?.shop_name || '')
   const [logoUrl, setLogoUrl] = useState<string | null>(
-    existingVendor?.logo_url || null
+    existingVendor?.logo_url || profile?.avatar_url || user?.avatar_url || null
   )
   const [uploadingImage, setUploadingImage] = useState(false)
   const fileInputRef = useRef<HTMLInputElement | null>(null)

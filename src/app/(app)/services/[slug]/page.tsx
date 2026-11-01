@@ -7,6 +7,7 @@ import { getServiceBySlug } from '@/lib/services-data'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { getCanonicalUrl, buildServiceInquiryWhatsAppUrl } from '@/lib/whatsapp'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 
 export const dynamic = 'force-dynamic'
 
@@ -164,21 +165,14 @@ export default async function ServiceDetailPage({
                   className="flex items-center justify-between gap-3.5 px-4 py-3.5 sm:py-4 hover:bg-muted/30 transition-colors group cursor-pointer"
                 >
                   <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                    {/* 56px Dark Teal Circular Avatar matching prototype */}
-                    <div className="w-14 h-14 rounded-full bg-[#0F6E6E] dark:bg-[#0A4F4F] text-white flex items-center justify-center font-[family-name:var(--font-bricolage)] font-bold text-lg shrink-0 overflow-hidden shadow-2xs">
-                      {provider.logo_url ? (
-                        <OptimizedImage
-                          src={provider.logo_url}
-                          alt={provider.name}
-                          width={56}
-                          height={56}
-                          sizes="56px"
-                          className="w-full h-full object-cover"
-                        />
-                      ) : (
-                        <span>{provider.initials}</span>
-                      )}
-                    </div>
+                    {/* 56px Provider Avatar */}
+                    <UserAvatar
+                      src={provider.logo_url}
+                      seed={provider.id || provider.vendorSlug || provider.name}
+                      name={provider.name}
+                      size={56}
+                      className="w-14 h-14 shrink-0 shadow-2xs border border-border/60 group-hover:scale-105 transition-transform"
+                    />
 
                     {/* Provider Info */}
                     <div className="min-w-0 flex-1 space-y-0.5">

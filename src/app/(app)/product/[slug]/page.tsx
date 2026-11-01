@@ -16,6 +16,7 @@ import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { ProductOrderBox } from '@/components/marketplace/ProductOrderBox'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import {
   getPublicProductBySlugOrId,
   getPublicProducts,
@@ -330,17 +331,13 @@ export default async function ProductDetailPage({
                 className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-card border border-border/80 hover:border-[#0F6E6E]/40 hover:bg-muted/30 transition-all group cursor-pointer"
                 aria-label={`View ${vendor.shop_name}'s storefront`}
               >
-                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 grid place-items-center text-white font-[family-name:var(--font-bricolage)] font-semibold text-lg bg-gradient-to-br from-[#17908D] to-[#0A4F4F] ring-2 ring-border">
-                  {vendor.logo_url ? (
-                    <img
-                      src={vendor.logo_url}
-                      alt={vendor.shop_name}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <span>{vendorInitials}</span>
-                  )}
-                </div>
+                <UserAvatar
+                  src={vendor.logo_url}
+                  seed={vendor.id || vendor.slug}
+                  name={vendor.shop_name}
+                  size={48}
+                  className="w-12 h-12 shrink-0 ring-2 ring-border/80 shadow-2xs group-hover:scale-105 transition-transform"
+                />
 
                 <div className="flex-1 min-w-0">
                   <b className="flex items-center gap-1.5 text-base font-semibold text-foreground truncate">

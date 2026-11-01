@@ -101,6 +101,27 @@ export async function GET(request: Request) {
           { onConflict: 'id' }
         )
 
+        // Automatically sync Google avatar to vendor storefront if missing or Google-based
+        const googlePhoto =
+          user.user_metadata?.avatar_url || user.user_metadata?.picture || null
+        if (googlePhoto) {
+          const { data: vendorRecord } = await adminDb
+            .from('vendors')
+            .select('id, logo_url')
+            .eq('user_id', user.id)
+            .maybeSingle()
+
+          if (
+            vendorRecord &&
+            (!vendorRecord.logo_url || vendorRecord.logo_url.includes('googleusercontent.com'))
+          ) {
+            await adminDb
+              .from('vendors')
+              .update({ logo_url: googlePhoto })
+              .eq('id', vendorRecord.id)
+          }
+        }
+
         // Notify admin of new sign-up (only for brand-new non-admin accounts)
         if (isNewUser && !admin) {
           const displayName =

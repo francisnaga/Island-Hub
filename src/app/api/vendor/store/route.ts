@@ -181,7 +181,11 @@ export async function POST(request: NextRequest) {
           whatsapp_number: normalizedPhone,
           campus,
           location_label: trimmedLocation,
-          ...(chosenLogo !== undefined ? { logo_url: chosenLogo } : {}),
+          ...(chosenLogo !== undefined
+            ? { logo_url: chosenLogo }
+            : !existingVendor.logo_url && googleAvatar
+            ? { logo_url: googleAvatar }
+            : {}),
           ...(rawUsername && rawUsername !== existingVendor.username
             ? { username: rawUsername, username_changed_at: new Date().toISOString() }
             : {}),
@@ -224,7 +228,7 @@ export async function POST(request: NextRequest) {
         shop_name: shopName,
         slug: slugifyShopName(shopName),
         description: `Student seller at ${campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}.`,
-        logo_url: chosenLogo !== undefined ? chosenLogo : null,
+        logo_url: chosenLogo !== undefined ? chosenLogo : (googleAvatar || null),
         whatsapp_number: normalizedPhone,
         categories_offered: [],
         pickup_options: trimmedLocation || pickupDefault,
