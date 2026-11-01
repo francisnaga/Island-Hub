@@ -95,6 +95,8 @@ export interface Vendor {
   location_visibility: LocationVisibility
   location_label: string
   location_confirmed_at?: string | null
+  username?: string | null
+  username_changed_at?: string | null
   products_count?: number
   created_at: string
   updated_at?: string

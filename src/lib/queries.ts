@@ -176,10 +176,13 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
   try {
     const supabase = await createClient()
     let vQuery = supabase.from('vendors').select('*').eq('is_demo', false)
+    // Strip leading '@' for username lookups (e.g. '@gripstore' → 'gripstore')
+    const cleanParam = slugOrId.startsWith('@') ? slugOrId.slice(1) : slugOrId
     if (isUuidString(slugOrId)) {
       vQuery = vQuery.or(`slug.eq.${slugOrId},id.eq.${slugOrId}`)
     } else {
-      vQuery = vQuery.eq('slug', slugOrId)
+      // Try username first (case-insensitive), then fall back to slug for backward compat
+      vQuery = vQuery.or(`username.ilike.${cleanParam},slug.eq.${cleanParam}`)
     }
     const { data: vendorData } = await vQuery.maybeSingle()
 

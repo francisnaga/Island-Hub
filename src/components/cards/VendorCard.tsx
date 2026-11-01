@@ -38,10 +38,13 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
   const campusLabel =
     vendor.campus === 'Both' ? 'Both campuses' : vendor.campus || 'Okerenkoko'
   const count = listingsCount ?? vendor.products_count ?? 0
+  const vendorHref = vendor.username
+    ? `/vendors/${vendor.username}`
+    : `/vendors/${vendor.slug || vendor.id}`
 
   return (
     <Link
-      href={`/vendors/${vendor.slug || vendor.id}`}
+      href={vendorHref}
       className={cn(
         'group relative block rounded-2xl border p-4 sm:p-5 transition-all bg-card shadow-2xs hover:border-foreground/30 hover:shadow-xs text-center cursor-pointer overflow-hidden min-w-0',
         isBanned
@@ -71,7 +74,7 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
       {isPaused && (
         <div className="mb-2 flex items-center justify-center gap-1 rounded-md bg-amber-500/10 border border-amber-500/20 px-2 py-0.5 text-[10px] font-semibold text-amber-500">
           <PauseCircle className="h-3 w-3 shrink-0" />
-          <span>Away · {vendor.pause_reason || 'Paused'}</span>
+          <span className="truncate max-w-full">Away · {vendor.pause_reason || 'Paused'}</span>
         </div>
       )}
 
@@ -96,15 +99,20 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
       </div>
 
       {/* Name, Role & Campus */}
-      <div className="mt-2.5 space-y-0.5 min-w-0 w-full">
-        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base sm:text-lg text-foreground leading-snug group-hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-0">
-          <span className="truncate min-w-0">{vendor.shop_name}</span>
+      <div className="mt-2.5 space-y-0.5 min-w-0 w-full overflow-hidden">
+        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base sm:text-lg text-foreground leading-snug group-hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-0 max-w-full">
+          <span className="truncate min-w-0 max-w-full block">{vendor.shop_name}</span>
           {isVerified && !isBanned && <VerifiedBadge size={15} />}
         </h3>
-        <p className="text-[11px] text-muted-foreground font-medium truncate">
+        {vendor.username && (
+          <p className="text-[11px] text-muted-foreground/70 font-medium truncate max-w-full">
+            @{vendor.username}
+          </p>
+        )}
+        <p className="text-[11px] text-muted-foreground font-medium truncate max-w-full">
           {roleLabel}
         </p>
-        <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground pt-0.5">
+        <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground pt-0.5 min-w-0">
           <MapPin className="h-2.5 w-2.5 shrink-0" />
           <span className="truncate max-w-[140px]">{campusLabel}</span>
         </div>

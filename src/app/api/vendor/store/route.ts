@@ -6,6 +6,14 @@ import { isAdminEmail, CampusArea } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { sendAdminPush } from '@/lib/push'
 
+const USERNAME_RE = /^[a-z0-9_]{3,20}$/
+const RESERVED = new Set([
+  'admin', 'api', 'marketplace', 'vendors', 'vendor', 'safety', 'housing',
+  'services', 'login', 'profile', 'settings', 'help', 'support', 'about',
+  'contact', 'health', 'migrate', 'push',
+])
+const COOLDOWN_DAYS = 14
+
 function slugifyShopName(name: string): string {
   const base = name
     .toLowerCase()
@@ -41,6 +49,24 @@ export async function POST(request: NextRequest) {
 
     const pinnedLat = hasCoordinates ? Number(body.latitude) : null
     const pinnedLng = hasCoordinates ? Number(body.longitude) : null
+
+    // --- Username handling ---
+    const rawUsername =
+      typeof body.username === 'string'
+        ? body.username.trim().replace(/^@/, '').toLowerCase()
+        : null
+
+    if (rawUsername) {
+      if (!USERNAME_RE.test(rawUsername)) {
+        return NextResponse.json(
+          { error: 'Username must be 3–20 characters using only a–z, 0–9, or _' },
+          { status: 400 }
+        )
+      }
+      if (RESERVED.has(rawUsername)) {
+        return NextResponse.json({ error: 'That username is reserved.' }, { status: 400 })
+      }
+    }
 
     if (shopName.length < 2) {
       return NextResponse.json(
@@ -88,12 +114,58 @@ export async function POST(request: NextRequest) {
       .eq('user_id', user.id)
       .maybeSingle()
 
+    // 3. For new vendors: check username uniqueness up-front
+    if (!existingVendor && rawUsername) {
+      const { data: usernameTaken } = await adminDb
+        .from('vendors')
+        .select('id')
+        .ilike('username', rawUsername)
+        .maybeSingle()
+      if (usernameTaken) {
+        return NextResponse.json(
+          { error: `@${rawUsername} is already taken.` },
+          { status: 409 }
+        )
+      }
+    }
+
     const pickupDefault =
       campus === 'Both'
         ? 'Okerenkoko & Kurutie pickup'
         : `${campus} campus pickup`
 
     if (existingVendor) {
+      // --- Username cooldown check for existing vendor ---
+      if (rawUsername && rawUsername !== existingVendor.username) {
+        // Check uniqueness
+        const { data: taken } = await adminDb
+          .from('vendors')
+          .select('id')
+          .ilike('username', rawUsername)
+          .neq('id', existingVendor.id)
+          .maybeSingle()
+        if (taken) {
+          return NextResponse.json(
+            { error: `@${rawUsername} is already taken.` },
+            { status: 409 }
+          )
+        }
+        // Check cooldown
+        if (existingVendor.username_changed_at) {
+          const lastChanged = new Date(existingVendor.username_changed_at).getTime()
+          const diffDays = (Date.now() - lastChanged) / (1000 * 60 * 60 * 24)
+          if (diffDays < COOLDOWN_DAYS) {
+            const remaining = Math.ceil(COOLDOWN_DAYS - diffDays)
+            return NextResponse.json(
+              {
+                error: `You can change your username again in ${remaining} day${remaining === 1 ? '' : 's'}.`,
+              },
+              { status: 429 }
+            )
+          }
+        }
+      }
+
       const { data: updated, error: updateErr } = await adminDb
         .from('vendors')
         .update({
@@ -101,6 +173,9 @@ export async function POST(request: NextRequest) {
           whatsapp_number: normalizedPhone,
           campus,
           location_label: trimmedLocation,
+          ...(rawUsername && rawUsername !== existingVendor.username
+            ? { username: rawUsername, username_changed_at: new Date().toISOString() }
+            : {}),
           ...(body.latitude !== undefined
             ? {
                 latitude: pinnedLat,
@@ -161,6 +236,7 @@ export async function POST(request: NextRequest) {
         location_confirmed_at: new Date().toISOString(),
         verification_status: 'pending',
         is_demo: false,
+        ...(rawUsername ? { username: rawUsername, username_changed_at: new Date().toISOString() } : {}),
       })
       .select('*')
       .single()
@@ -297,6 +373,50 @@ export async function PATCH(request: NextRequest) {
           .from('profiles')
           .update({ avatar_url: body.logo_url })
           .eq('id', existingVendor.user_id)
+      }
+    }
+
+    // Username update via PATCH
+    if (typeof body.username === 'string') {
+      const newUsername = body.username.trim().replace(/^@/, '').toLowerCase()
+      if (!USERNAME_RE.test(newUsername)) {
+        return NextResponse.json(
+          { error: 'Username must be 3–20 characters using only a–z, 0–9, or _' },
+          { status: 400 }
+        )
+      }
+      if (RESERVED.has(newUsername)) {
+        return NextResponse.json({ error: 'That username is reserved.' }, { status: 400 })
+      }
+      if (newUsername !== existingVendor.username) {
+        const { data: taken } = await adminDb
+          .from('vendors')
+          .select('id')
+          .ilike('username', newUsername)
+          .neq('id', vendorId)
+          .maybeSingle()
+        if (taken) {
+          return NextResponse.json(
+            { error: `@${newUsername} is already taken.` },
+            { status: 409 }
+          )
+        }
+        if (existingVendor.username_changed_at) {
+          const diffDays =
+            (Date.now() - new Date(existingVendor.username_changed_at).getTime()) /
+            (1000 * 60 * 60 * 24)
+          if (diffDays < COOLDOWN_DAYS) {
+            const remaining = Math.ceil(COOLDOWN_DAYS - diffDays)
+            return NextResponse.json(
+              {
+                error: `You can change your username again in ${remaining} day${remaining === 1 ? '' : 's'}.`,
+              },
+              { status: 429 }
+            )
+          }
+        }
+        updates.username = newUsername
+        updates.username_changed_at = new Date().toISOString()
       }
     }
 

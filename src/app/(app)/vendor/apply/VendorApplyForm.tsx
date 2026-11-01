@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { ChevronLeft, Navigation, Check, X } from 'lucide-react'
+import { ChevronLeft, Navigation, Check, X, AtSign, Loader2 } from 'lucide-react'
 import { CampusArea, UserProfile, Vendor } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
@@ -20,6 +20,17 @@ function digitsOnly(val: string): string {
 }
 
 const LEGACY_COORDS = new Set(['5.580668,5.34693', '5.6278,5.3915'])
+const USERNAME_RE = /^[a-z0-9_]{3,20}$/
+
+/** Turn a shop name into a suggested @username */
+function suggestUsername(name: string): string {
+  return name
+    .toLowerCase()
+    .replace(/[^a-z0-9_]/g, '')
+    .slice(0, 20)
+}
+
+type UsernameStatus = 'idle' | 'checking' | 'available' | 'taken' | 'invalid'
 
 export function VendorApplyForm({
   existingVendor,
@@ -54,14 +65,89 @@ export function VendorApplyForm({
   const [locating, setLocating] = useState(false)
   const [submitting, setSubmitting] = useState(false)
 
+  // --- Username state ---
+  const existingUsername = existingVendor?.username || ''
+  const [username, setUsername] = useState(existingUsername)
+  const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>(
+    existingUsername ? 'available' : 'idle'
+  )
+  const [usernameMessage, setUsernameMessage] = useState(
+    existingUsername ? `@${existingUsername} is your current username` : ''
+  )
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null)
+
+  // Auto-suggest username from shop name (only for new vendors)
+  useEffect(() => {
+    if (!existingVendor && shopName && !username) {
+      const suggested = suggestUsername(shopName)
+      if (suggested.length >= 3) {
+        setUsername(suggested)
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [shopName])
+
+  // Debounced availability check
+  useEffect(() => {
+    if (debounceRef.current) clearTimeout(debounceRef.current)
+
+    const cleaned = username.toLowerCase().replace(/^@/, '')
+
+    // If unchanged from existing and we already have it
+    if (existingVendor && cleaned === existingVendor.username) {
+      setUsernameStatus('available')
+      setUsernameMessage(`@${cleaned} is your current username`)
+      return
+    }
+
+    if (!cleaned) {
+      setUsernameStatus('idle')
+      setUsernameMessage('')
+      return
+    }
+
+    if (!USERNAME_RE.test(cleaned)) {
+      setUsernameStatus('invalid')
+      setUsernameMessage('3–20 characters: letters, numbers, underscores only')
+      return
+    }
+
+    setUsernameStatus('checking')
+    setUsernameMessage('Checking availability…')
+
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/vendor/username-check?username=${encodeURIComponent(cleaned)}`)
+        const json = await res.json()
+        setUsernameStatus(json.available ? 'available' : 'taken')
+        setUsernameMessage(json.message || '')
+      } catch {
+        setUsernameStatus('idle')
+        setUsernameMessage('')
+      }
+    }, 500)
+  }, [username, existingVendor])
+
+  const usernameOk =
+    usernameStatus === 'available' ||
+    // Existing vendors can submit even with idle (keep old username)
+    (Boolean(existingVendor) && usernameStatus === 'idle')
+
   const nameOk = shopName.trim().length > 1
   const phoneOk = digitsOnly(whatsappNumber).length >= 10
-  const isReady = nameOk && phoneOk
+  // New vendors: username required. Existing vendors: username optional.
+  const isReady = nameOk && phoneOk && (existingVendor ? usernameOk : usernameStatus === 'available')
 
   const statusText = isReady
     ? existingVendor
       ? 'Save changes'
       : 'Open your store'
+    : usernameStatus === 'checking'
+    ? 'Checking username…'
+    : usernameStatus === 'taken' || usernameStatus === 'invalid'
+    ? 'Fix your username'
+    : !existingVendor && usernameStatus === 'idle' && nameOk && phoneOk
+    ? 'Choose a username'
     : nameOk
     ? 'Add your WhatsApp number'
     : 'Add your shop name'
@@ -104,6 +190,7 @@ export function VendorApplyForm({
 
     setSubmitting(true)
     try {
+      const cleanedUsername = username.toLowerCase().replace(/^@/, '').trim()
       const res = await fetch('/api/vendor/store', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -114,6 +201,7 @@ export function VendorApplyForm({
           location_label: locationLabel.trim(),
           latitude,
           longitude,
+          ...(cleanedUsername ? { username: cleanedUsername } : {}),
         }),
       })
       const json = await res.json()
@@ -181,7 +269,72 @@ export function VendorApplyForm({
           />
         </div>
 
-        {/* Field 2: WhatsApp number */}
+        {/* Field 2: Username */}
+        <div className="px-4 md:px-0 mt-[22px]">
+          <label
+            htmlFor="s-username"
+            className="block mb-2 text-[15px] font-semibold text-foreground"
+          >
+            Username{' '}
+            {!existingVendor && (
+              <span className="font-normal text-xs text-muted-foreground">(required — used in your store link)</span>
+            )}
+            {existingVendor && (
+              <span className="font-normal text-xs text-muted-foreground">(optional — change every 14 days)</span>
+            )}
+          </label>
+          <div className="relative">
+            <AtSign className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+            <input
+              id="s-username"
+              type="text"
+              autoComplete="username"
+              maxLength={20}
+              value={username}
+              onChange={(e) => {
+                const val = e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, '').slice(0, 20)
+                setUsername(val)
+              }}
+              placeholder="amakafreshbowls"
+              className={cn(
+                'w-full h-[52px] pl-9 pr-10 rounded-xl border bg-card md:bg-background text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-foreground/50 transition-all',
+                usernameStatus === 'available' && 'border-emerald-500/50',
+                usernameStatus === 'taken' || usernameStatus === 'invalid' ? 'border-red-500/50' : 'border-border',
+              )}
+            />
+            {/* Status icon */}
+            <div className="absolute right-3.5 top-1/2 -translate-y-1/2">
+              {usernameStatus === 'checking' && (
+                <Loader2 className="h-4 w-4 text-muted-foreground animate-spin" />
+              )}
+              {usernameStatus === 'available' && (
+                <Check className="h-4 w-4 text-emerald-600 dark:text-emerald-400" />
+              )}
+              {(usernameStatus === 'taken' || usernameStatus === 'invalid') && (
+                <X className="h-4 w-4 text-red-500" />
+              )}
+            </div>
+          </div>
+          {usernameMessage && (
+            <small
+              className={cn(
+                'block mt-1.5 text-[13px]',
+                usernameStatus === 'available' ? 'text-emerald-600 dark:text-emerald-400' : '',
+                usernameStatus === 'taken' || usernameStatus === 'invalid' ? 'text-red-500' : '',
+                usernameStatus === 'checking' || usernameStatus === 'idle' ? 'text-muted-foreground' : '',
+              )}
+            >
+              {usernameMessage}
+            </small>
+          )}
+          {!usernameMessage && (
+            <small className="block mt-1.5 text-[13px] text-muted-foreground">
+              Your store link: islandhub.com/vendors/@{username || 'yourname'}
+            </small>
+          )}
+        </div>
+
+        {/* Field 3: WhatsApp number */}
         <div className="px-4 md:px-0 mt-[22px]">
           <label
             htmlFor="s-phone"
@@ -204,7 +357,7 @@ export function VendorApplyForm({
           </small>
         </div>
 
-        {/* Field 3: Where do you sell? */}
+        {/* Field 4: Where do you sell? */}
         <div className="px-4 md:px-0 mt-[22px]">
           <span className="block mb-2 text-[15px] font-semibold text-foreground">
             Where do you sell?

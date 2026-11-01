@@ -8,7 +8,9 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
   return (
     <div className="flex gap-3 overflow-x-auto pb-2 px-4 scroll-px-4 scrollbar-none snap-x">
       {vendors.map((vendor) => {
-        const href = `/vendors/${vendor.slug || vendor.id}`
+        const href = vendor.username
+          ? `/vendors/${vendor.username}`
+          : `/vendors/${vendor.slug || vendor.id}`
         const isGolden = vendor.slug === 'naga' || vendor.slug === 'francis-naga'
         const displayCampus = vendor.campus || 'Okerenkoko'
 
@@ -44,10 +46,16 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
                     <VerifiedBadge size={13} variant={isGolden ? 'gold' : 'blue'} />
                   )}
                 </h3>
-                <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
-                  <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/80" />
-                  <span className="truncate">{displayCampus}</span>
-                </div>
+                {vendor.username ? (
+                  <p className="text-[11px] text-muted-foreground/70 font-medium truncate mt-0.5">
+                    @{vendor.username}
+                  </p>
+                ) : (
+                  <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
+                    <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/80" />
+                    <span className="truncate">{displayCampus}</span>
+                  </div>
+                )}
               </div>
             </div>
 
