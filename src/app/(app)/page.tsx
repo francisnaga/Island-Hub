@@ -80,21 +80,23 @@ export default async function HomePage({
           {justLandedItems.length > 0 ? (
             <>
               <div className="md:hidden rail flex gap-3 overflow-x-auto pb-1 px-4 scroll-px-4 scrollbar-none snap-x">
-                {justLandedItems.slice(0, 8).map((product) => (
+                {justLandedItems.slice(0, 8).map((product, idx) => (
                   <WaterlineProductCard
                     key={product.id}
                     product={product}
                     selectedCampus={selectedCampus}
+                    priority={idx < 2}
                   />
                 ))}
               </div>
               <div className="hidden md:grid md:grid-cols-4 lg:grid-cols-5 gap-4 px-4">
-                {justLandedItems.slice(0, 10).map((product) => (
+                {justLandedItems.slice(0, 10).map((product, idx) => (
                   <WaterlineProductCard
                     key={product.id}
                     product={product}
                     selectedCampus={selectedCampus}
                     variant="grid"
+                    priority={idx < 4}
                   />
                 ))}
               </div>
@@ -197,26 +199,32 @@ export default async function HomePage({
           {vendors.length > 0 && (
             <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
               {vendors.slice(0, 8).map((vendor) => {
-                const href = `/vendors/${vendor.slug || vendor.id}`
+                const href = vendor.username
+                  ? `/vendors/${vendor.username}`
+                  : `/vendors/${vendor.slug || vendor.id}`
                 return (
                   <Link
                     key={vendor.id}
                     href={href}
-                    className="flex-none rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E]"
+                    className="flex-none rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] overflow-hidden min-w-0"
                   >
                     <div className="flex items-center gap-3 min-w-0">
                       <div className="w-11 h-11 rounded-full overflow-hidden shrink-0 border border-border/80 shadow-2xs">
                         {vendor.logo_url ? (
-                          <img src={vendor.logo_url} alt={vendor.shop_name} className="w-full h-full object-cover" />
+                          <img src={vendor.logo_url} alt={vendor.shop_name} loading="lazy" decoding="async" className="w-full h-full object-cover" />
                         ) : (
                           <div className="w-full h-full bg-gradient-to-br from-[#17908D] to-[#0A4F4F] flex items-center justify-center text-white font-bold text-sm">
                             {vendor.shop_name.slice(0, 2).toUpperCase()}
                           </div>
                         )}
                       </div>
-                      <div className="min-w-0 flex-1">
-                        <h3 className="font-bold text-[13px] text-foreground line-clamp-1 leading-snug truncate">{vendor.shop_name}</h3>
-                        <p className="text-[11px] text-muted-foreground truncate">{vendor.campus || 'Okerenkoko'}</p>
+                      <div className="min-w-0 flex-1 overflow-hidden">
+                        <h3 className="font-bold text-[13px] text-foreground leading-snug truncate max-w-full">{vendor.shop_name}</h3>
+                        {vendor.username ? (
+                          <p className="text-[11px] text-muted-foreground/70 font-medium truncate">@{vendor.username}</p>
+                        ) : (
+                          <p className="text-[11px] text-muted-foreground truncate">{vendor.campus || 'Okerenkoko'}</p>
+                        )}
                       </div>
                     </div>
                     <p className="text-[11px] text-muted-foreground line-clamp-1">{vendor.department_or_business_info || vendor.description || 'Verified Campus Merchant'}</p>

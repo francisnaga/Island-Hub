@@ -85,6 +85,8 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
             <img
               src={vendor.logo_url}
               alt={vendor.shop_name}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           ) : (

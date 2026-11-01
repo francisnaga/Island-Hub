@@ -9,10 +9,12 @@ export function WaterlineProductCard({
   product,
   selectedCampus = 'all',
   variant = 'rail',
+  priority = false,
 }: {
   product: Product
   selectedCampus?: string
   variant?: 'rail' | 'grid'
+  priority?: boolean
 }) {
   const campus = getItemCampus(product)
   const isSingleCampusSelected =
@@ -62,8 +64,9 @@ export function WaterlineProductCard({
           <img
             src={product.images[0]}
             alt={product.title}
-            loading="lazy"
+            loading={priority ? 'eager' : 'lazy'}
             decoding="async"
+            fetchPriority={priority ? 'high' : 'low'}
             className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
           />
         ) : isService ? (

@@ -27,6 +27,8 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
                   <img
                     src={vendor.logo_url}
                     alt={vendor.shop_name}
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover"
                   />
                 ) : (

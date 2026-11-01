@@ -38,6 +38,7 @@ export function WaterlineRoomCard({
             alt={lodge.title}
             loading="lazy"
             decoding="async"
+            fetchPriority="low"
             className="h-full w-full object-cover transition-transform group-hover:scale-105 duration-200"
           />
         ) : (

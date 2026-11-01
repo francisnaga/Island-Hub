@@ -110,24 +110,24 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
         </div>
       </section>
 
-      {/* The Waterline SVG Wave (Gold Crest) */}
+      {/* The Waterline SVG Wave (Gold Crest) — gentle 8-hump wave matching prototype */}
       <svg
         className="w-full h-7 block -mt-px pointer-events-none"
-        viewBox="0 0 1440 28"
-        preserveAspectRatio="none"
+        viewBox="0 0 432 28"
+        preserveAspectRatio="xMidYMax slice"
         aria-hidden="true"
       >
-        <rect width="1440" height="28" fill="#0A4F4F" />
+        <rect width="432" height="28" fill="#0A4F4F" />
         <g style={{ transformOrigin: '50% 100%', transform: `scaleY(${amplitude})` }}>
           <path
-            d="M0 14q45-14 90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0V28H0z"
+            d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
             className="fill-background"
           />
           <path
-            d="M0 14q45-14 90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0t90 0"
+            d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
             fill="none"
             stroke="#E8B84A"
-            strokeWidth="2.5"
+            strokeWidth="2"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
           />

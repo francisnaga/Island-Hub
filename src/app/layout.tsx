@@ -79,6 +79,8 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning className={`${inter.variable} ${bricolage.variable}`}>
       <head>
         <link rel="icon" type="image/svg+xml" href="/jetty-favicon.svg?v=2" />
+        <link rel="preconnect" href="https://zagfgxhewhwothrbyesw.supabase.co" />
+        <link rel="dns-prefetch" href="https://zagfgxhewhwothrbyesw.supabase.co" />
       </head>
       <body
         className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground antialiased`}
