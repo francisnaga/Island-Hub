@@ -29,6 +29,12 @@ import {
   FileText,
   AlertCircle,
   Send,
+  AtSign,
+  Phone,
+  ExternalLink,
+  Share2,
+  ArrowLeftRight,
+  Compass,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
@@ -1889,20 +1895,32 @@ export function VendorDashboardClient({
 
             {/* Verification Banner (.verif from prototype) */}
             {vendor.verification_status === 'verified' ? (
-              <div className="mx-4 mt-5 p-4 rounded-xl bg-[#E6F2F2] dark:bg-[#132A2A] text-foreground">
-                <b className="block text-base font-semibold">
-                  {vendor.is_featured ? 'Verified & Featured' : 'Verified'}
-                </b>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  Your shop shows a tick and appears first in Stores and Listings.
-                </p>
+              <div className="mx-4 mt-5 p-4 rounded-2xl border border-teal-500/20 bg-teal-500/10 dark:bg-teal-950/30 text-foreground flex items-start gap-3">
+                <div className="w-8 h-8 rounded-lg bg-teal-500/20 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shrink-0 mt-0.5">
+                  <VerifiedBadge size={18} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <b className="block text-[15px] font-semibold text-foreground">
+                    {vendor.is_featured ? 'Verified & Featured' : 'Verified Vendor'}
+                  </b>
+                  <p className="mt-0.5 text-xs text-muted-foreground leading-relaxed">
+                    Your shop shows a blue tick badge and appears first in Stores and Listings.
+                  </p>
+                </div>
               </div>
             ) : (
-              <div className="mx-4 mt-5 p-4 rounded-xl bg-[#FBF1D6] dark:bg-amber-950/30 text-[#0E1B1B] dark:text-amber-100">
-                <b className="block text-base font-semibold">Not verified yet</b>
-                <p className="mt-1 text-sm leading-relaxed opacity-90">
-                  Your store is live. Verified shops get a tick and appear first at the top of Stores and Listings. Message the Jetty team on WhatsApp to get verified and featured.
-                </p>
+              <div className="mx-4 mt-5 p-4 rounded-2xl border border-amber-500/30 bg-[#FBF1D6] dark:bg-amber-950/30 text-[#0E1B1B] dark:text-amber-100 space-y-2.5">
+                <div className="flex items-start gap-3">
+                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 text-amber-700 dark:text-amber-400 flex items-center justify-center shrink-0 mt-0.5">
+                    <AlertCircle className="w-4 h-4" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <b className="block text-[15px] font-semibold">Not verified yet</b>
+                    <p className="mt-0.5 text-xs text-muted-foreground dark:text-amber-200/80 leading-relaxed">
+                      Your store is live. Verified shops get a blue tick and top placement in search. Message the Jetty team on WhatsApp to get verified.
+                    </p>
+                  </div>
+                </div>
                 <a
                   href={buildJettyTeamWhatsAppUrl(
                     `Hi Jetty Team! I'd like to get my store "${vendor.shop_name}" (${getCanonicalUrl(
@@ -1911,141 +1929,330 @@ export function VendorDashboardClient({
                   )}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="mt-3 h-11 w-full rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors"
+                  className="h-10 w-full rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
-                  <MessageCircle className="w-[18px] h-[18px]" />
+                  <MessageCircle className="w-4 h-4" />
                   Message the Jetty team
                 </a>
               </div>
             )}
 
-            {/* Settings Rows (.list > .lrow) */}
-            <div className="mt-5 border-t border-border">
-              {[
-                {
-                  key: 'name' as const,
-                  label: 'Shop name',
-                  val: vendor.shop_name,
-                },
-                {
-                  key: 'username' as const,
-                  label: 'Store handle (@username)',
-                  val: vendor.username
-                    ? `@${vendor.username}`
-                    : vendor.slug
-                    ? `@${vendor.slug}`
-                    : 'Set handle',
-                },
-                {
-                  key: 'phone' as const,
-                  label: 'WhatsApp number',
-                  val: vendor.whatsapp_number,
-                },
-                {
-                  key: 'campus' as const,
-                  label: 'Campus',
-                  val: campusDisplay,
-                },
-                {
-                  key: 'location' as const,
-                  label: 'Location description',
-                  val: vendor.location_label ? vendor.location_label : 'Add',
-                },
-                {
-                  key: 'map_pin' as const,
-                  label: 'Map location (GPS)',
-                  val:
-                    vendor.latitude != null && vendor.longitude != null
-                      ? 'Pinned on map'
-                      : 'Add',
-                },
-                {
-                  key: 'about' as const,
-                  label: 'About',
-                  val: vendor.description ? 'Added' : 'Add',
-                },
-              ].map((r) => (
-                <button
-                  key={r.key}
-                  type="button"
-                  onClick={() => openStoreEdit(r.key)}
-                  className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-muted/40 transition-colors cursor-pointer"
-                >
-                  <b className="font-semibold flex-1 text-foreground">{r.label}</b>
-                  <span className="text-sm text-muted-foreground truncate max-w-[180px]">
-                    {r.val}
-                  </span>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-                </button>
-              ))}
+            {/* Categorized Settings Groups (Claude mobile style) */}
+            <div className="mt-6 px-4 space-y-6 pb-24">
+              {/* Category 1: STORE PROFILE */}
+              <div className="space-y-2">
+                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Store Profile
+                </h3>
+                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                  {/* Shop name */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('name')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <Store className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">Shop name</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                      {vendor.shop_name}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
 
-              <Link
-                href={`/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`}
-                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] hover:bg-muted/40 transition-colors"
-              >
-                <b className="font-semibold flex-1 text-foreground">
-                  See your store as a buyer
-                </b>
-                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-              </Link>
+                  {/* Store handle (@username) */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('username')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <AtSign className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">Store handle</p>
+                    </div>
+                    <span className="text-sm font-mono text-[#0F6E6E] dark:text-[#22D3EE] truncate max-w-[150px] text-right">
+                      {vendor.username
+                        ? `@${vendor.username}`
+                        : vendor.slug
+                        ? `@${vendor.slug}`
+                        : 'Set handle'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
 
-              {(profile?.role === 'admin' ||
-                isAdminEmail(user?.email) ||
-                isAdminEmail(profile?.email)) && (
-                <Link
-                  href="/admin"
-                  className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] hover:bg-muted/40 transition-colors"
-                >
-                  <ShieldAlert className="w-4 h-4 text-muted-foreground shrink-0" />
-                  <b className="font-semibold flex-1 text-foreground">
-                    Admin moderation queue
-                  </b>
-                  <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-                </Link>
-              )}
+                  {/* About */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('about')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <FileText className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">About</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                      {vendor.description ? 'Added' : 'Add'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
 
-              <Link
-                href="/"
-                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] hover:bg-muted/40 transition-colors"
-              >
-                <b className="font-semibold flex-1 text-foreground">
-                  Switch to buying
-                </b>
-                <ChevronRight className="w-5 h-5 text-muted-foreground shrink-0" />
-              </Link>
-
-              <button
-                type="button"
-                onClick={async () => {
-                  const supabase = createClient()
-                  await supabase.auth.signOut()
-                  toast.success('Signed out')
-                  router.push('/')
-                  router.refresh()
-                }}
-                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-muted/40 transition-colors cursor-pointer"
-              >
-                <b className="font-semibold flex-1 text-foreground">
-                  Log out
-                </b>
-                <LogOut className="w-4 h-4 text-muted-foreground shrink-0" />
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setShowDeleteAccountModal(true)}
-                className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] text-left hover:bg-red-500/10 transition-colors cursor-pointer"
-              >
-                <div className="flex-1">
-                  <b className="font-semibold text-red-600 dark:text-red-400 block">
-                    Delete account &amp; store
-                  </b>
-                  <span className="text-xs text-muted-foreground block">
-                    Permanently purges your shop, listings, and profile
-                  </span>
+                  {/* Store photo */}
+                  <button
+                    type="button"
+                    onClick={() => avatarFileInputRef.current?.click()}
+                    disabled={savingCroppedAvatar}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <Camera className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">Store logo / photo</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                      {savingCroppedAvatar
+                        ? 'Updating...'
+                        : vendor.logo_url
+                        ? 'Custom photo'
+                        : 'Initial monogram'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
                 </div>
-                <Trash2 className="w-4 h-4 text-red-600 dark:text-red-400 shrink-0" />
-              </button>
+              </div>
+
+              {/* Category 2: LOCATION & CONTACT */}
+              <div className="space-y-2">
+                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Location &amp; Contact
+                </h3>
+                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                  {/* WhatsApp number */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('phone')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <Phone className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">WhatsApp number</p>
+                    </div>
+                    <span className="text-sm font-mono text-muted-foreground truncate max-w-[150px] text-right">
+                      {vendor.whatsapp_number}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
+
+                  {/* Campus */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('campus')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <Navigation className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">Campus</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                      {campusDisplay}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
+
+                  {/* Location description */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('location')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <MapPin className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">Location description</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                      {vendor.location_label ? vendor.location_label : 'Add'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
+
+                  {/* GPS map pin */}
+                  <button
+                    type="button"
+                    onClick={() => openStoreEdit('map_pin')}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <Compass className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">Map location (GPS)</p>
+                    </div>
+                    <span className="text-sm text-muted-foreground truncate max-w-[150px] text-right">
+                      {vendor.latitude != null && vendor.longitude != null
+                        ? 'Pinned on map'
+                        : 'Add'}
+                    </span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Category 3: PUBLIC STOREFRONT */}
+              <div className="space-y-2">
+                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Public Storefront
+                </h3>
+                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                  {/* See store as a buyer */}
+                  <Link
+                    href={`/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <ExternalLink className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">
+                        See your store as a buyer
+                      </p>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Preview</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </Link>
+
+                  {/* Share on WhatsApp */}
+                  <a
+                    href={`https://wa.me/?text=${encodeURIComponent(
+                      `Check out my store "${vendor.shop_name}" on Jetty: ${getCanonicalUrl(
+                        `/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`
+                      )}`
+                    )}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-[#0F6E6E]/10 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shrink-0 group-hover:bg-[#0F6E6E]/20 transition-colors">
+                      <Share2 className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">
+                        Share your store on WhatsApp
+                      </p>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Share link</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </a>
+                </div>
+              </div>
+
+              {/* Category 4: ACCOUNT & APP */}
+              <div className="space-y-2">
+                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-muted-foreground">
+                  Account &amp; App
+                </h3>
+                <div className="rounded-2xl border border-border bg-card overflow-hidden divide-y divide-border/60 shadow-2xs">
+                  {/* Switch to buying */}
+                  <Link
+                    href="/"
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <ArrowLeftRight className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">
+                        Switch to buying
+                      </p>
+                    </div>
+                    <span className="text-sm text-muted-foreground">Consumer mode</span>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </Link>
+
+                  {/* Admin moderation queue */}
+                  {(profile?.role === 'admin' ||
+                    isAdminEmail(user?.email) ||
+                    isAdminEmail(profile?.email)) && (
+                    <Link
+                      href="/admin"
+                      className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 hover:bg-muted/40 active:bg-muted/60 transition-colors group"
+                    >
+                      <div className="w-8 h-8 rounded-xl bg-amber-500/10 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+                        <ShieldAlert className="w-4 h-4" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[15px] text-foreground leading-snug">
+                          Admin moderation queue
+                        </p>
+                      </div>
+                      <span className="text-sm text-muted-foreground">Admin only</span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                    </Link>
+                  )}
+
+                  {/* Log out */}
+                  <button
+                    type="button"
+                    onClick={async () => {
+                      const supabase = createClient()
+                      await supabase.auth.signOut()
+                      toast.success('Signed out')
+                      router.push('/')
+                      router.refresh()
+                    }}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3 text-left hover:bg-muted/40 active:bg-muted/60 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-muted/70 flex items-center justify-center text-muted-foreground shrink-0 group-hover:text-foreground group-hover:bg-muted transition-colors">
+                      <LogOut className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-foreground leading-snug">
+                        Log out
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-muted-foreground/60 shrink-0" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Category 5: DANGER ZONE */}
+              <div className="space-y-2">
+                <h3 className="px-1 text-[11px] font-bold uppercase tracking-wider text-red-600 dark:text-red-400">
+                  Danger Zone
+                </h3>
+                <div className="rounded-2xl border border-red-500/30 bg-card overflow-hidden shadow-2xs">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteAccountModal(true)}
+                    className="flex items-center gap-3.5 w-full min-h-[54px] px-4 py-3.5 text-left hover:bg-red-500/10 active:bg-red-500/15 transition-colors cursor-pointer group"
+                  >
+                    <div className="w-8 h-8 rounded-xl bg-red-500/10 text-red-600 dark:text-red-400 flex items-center justify-center shrink-0">
+                      <Trash2 className="w-4 h-4" />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-medium text-[15px] text-red-600 dark:text-red-400 leading-snug">
+                        Delete account &amp; store
+                      </p>
+                      <p className="text-xs text-muted-foreground truncate">
+                        Permanently purges your shop, listings, and profile
+                      </p>
+                    </div>
+                    <ChevronRight className="w-4 h-4 text-red-400/60 shrink-0" />
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
         )}
