@@ -1,5 +1,4 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { ShoppingBag } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { getItemCampus } from '@/lib/queries'
@@ -29,22 +28,22 @@ export function WaterlineProductCard({
   return (
     <Link
       href={`/product/${product.slug}`}
-      className="card flex-none block w-[156px] snap-start text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-[12px]"
+      className="card flex-none block w-[156px] snap-start text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-2xl"
     >
       {/* 1:1 Image Container */}
-      <div className="relative aspect-square w-full rounded-[12px] bg-[#E6F2F2] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center text-[#0F6E6E] dark:text-[#E8B84A]">
-        {product.images && product.images.length > 0 ? (
-          <Image
+      <div className="relative aspect-square w-full rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center text-[#0F6E6E] dark:text-[#E8B84A]">
+        {product.images && product.images.length > 0 && product.images[0] ? (
+          <img
             src={product.images[0]}
             alt={product.title}
-            fill
-            sizes="156px"
-            className="object-cover transition-transform group-hover:scale-105 duration-200"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
           />
         ) : (
           <ShoppingBag className="w-9 h-9 opacity-45" />
         )}
-        <span className="absolute left-2 top-2 h-[22px] px-2 rounded-full bg-white dark:bg-[#0B1414] text-[#0E1B1B] dark:text-[#E8F1F1] text-[11px] font-medium flex items-center shadow-xs">
+        <span className="absolute left-2.5 top-2.5 h-[22px] px-2.5 rounded-full bg-white dark:bg-[#0B1414] text-[#0E1B1B] dark:text-[#E8F1F1] text-[11px] font-semibold flex items-center shadow-xs">
           {typeLabel}
         </span>
       </div>

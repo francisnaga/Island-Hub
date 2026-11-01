@@ -82,6 +82,12 @@
   --input: #DCE8E8;
   --ring: #0F6E6E;
   --radius: 0.75rem;
+
+  /* Curved radius system */
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-l: 20px;
+  --r-xl: 28px;
 }
 
 /* ── Dark Mode (Linear / Raycast High-Precision Obsidian Dark) ── */
@@ -103,6 +109,11 @@
   --bg: #090A0C;
   --line: #22252A;
   --white: #ffffff;
+
+  --r-s: 8px;
+  --r-m: 14px;
+  --r-l: 20px;
+  --r-xl: 28px;
 
   --background: #090A0C;
   --foreground: #F7F8F8;
@@ -356,7 +367,7 @@
   margin: 20px auto 0;
   height: 48px;
   width: 100%;
-  border-radius: var(--r-m);
+  border-radius: 16px;
   background: var(--teal);
   color: #fff;
   font-weight: 600;
@@ -364,7 +375,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.15s;
 }
 .cta-btn:hover {
   opacity: 0.92;
@@ -609,7 +620,7 @@
   gap: 12px;
   padding: 14px;
   background: var(--tint);
-  border-radius: var(--r-m);
+  border-radius: 16px;
   font-size: 14px;
   line-height: 1.45;
   color: var(--foreground);
@@ -622,7 +633,7 @@
   bottom: 0;
   left: 50%;
   transform: translateX(-50%);
-  width: min(430px, 100%);
+  width: min(480px, 100%);
   background: #fff;
   border-top: 1px solid var(--line);
   padding: 12px 16px calc(12px + env(safe-area-inset-bottom, 0px));
@@ -649,7 +660,7 @@
 .bar .go {
   flex: 1;
   height: 48px;
-  border-radius: var(--r-m);
+  border-radius: 16px;
   background: var(--teal);
   color: #fff;
   font-weight: 600;
@@ -657,7 +668,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
-  transition: opacity 0.2s;
+  transition: opacity 0.2s, transform 0.15s;
 }
 .bar .go:hover {
   opacity: 0.92;

@@ -187,7 +187,7 @@ export default async function VendorStorefrontPage({
               href={whatsappStore.url}
               target="_blank"
               rel="noopener noreferrer"
-              className="cta-btn cursor-pointer"
+              className="w-full h-12 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer mt-3"
             >
               <WhatsAppIcon className="w-5 h-5 text-white" />
               <span>Message on WhatsApp</span>
@@ -197,7 +197,7 @@ export default async function VendorStorefrontPage({
 
         {/* Location Section: Typed Location Explanation + Optional Pinned GPS Map Link */}
         {(hasLocation || directionsUrl) && (
-          <div className="mt-4 p-3.5 rounded-[14px] bg-card border border-border/80 text-xs flex items-start gap-2.5 text-muted-foreground shadow-2xs">
+          <div className="mt-4 p-4 rounded-2xl bg-card border border-border/80 text-xs flex items-start gap-3 text-muted-foreground shadow-2xs">
             <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
             <div className="space-y-1">
               {hasLocation && (

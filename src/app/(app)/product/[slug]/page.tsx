@@ -133,8 +133,8 @@ export default async function ProductDetailPage({
     <div className="min-w-0 max-w-full pb-28">
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
-          {/* 1. Image Gallery matching Prototype (.dimg) */}
-          <div className="dimg md:col-span-6 md:rounded-2xl md:overflow-hidden md:border md:border-border md:sticky md:top-20">
+          {/* 1. Image Gallery */}
+          <div className="dimg mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs md:col-span-6 md:sticky md:top-20">
             <div className="slides">
               <div className="slide">
                 <img
@@ -180,56 +180,62 @@ export default async function ProductDetailPage({
             )}
           </div>
 
-          {/* 2. Detail Body matching Prototype (.db) */}
-          <div className="db md:col-span-6">
-            {/* Price (.dp) */}
-            <div className="dp">{formatNaira(product.price)}</div>
+          {/* 2. Detail Body */}
+          <div className="db md:col-span-6 space-y-5">
+            {/* Price & Title */}
+            <div>
+              <div className="font-[family-name:var(--font-bricolage)] font-bold text-2xl sm:text-3xl text-foreground tracking-tight">
+                {formatNaira(product.price)}
+              </div>
+              <h1 className="mt-1 font-semibold text-lg sm:text-xl text-foreground leading-snug">
+                {product.title}
+              </h1>
 
-            {/* Title (.dt) */}
-            <h1 className="dt">{product.title}</h1>
-
-            {/* Metadata Row (.dmeta) */}
-            <div className="dmeta">
-              {isVerifiedVendor && (
-                <span className="ver">
-                  <VerifiedBadge size={14} />
-                  <span>Verified seller</span>
+              {/* Metadata Row */}
+              <div className="mt-2.5 flex flex-wrap items-center gap-2 sm:gap-4 text-xs text-muted-foreground">
+                {isVerifiedVendor && (
+                  <span className="inline-flex items-center gap-1 font-medium text-[#0F6E6E] dark:text-[#22D3EE]">
+                    <VerifiedBadge size={14} />
+                    <span>Verified seller</span>
+                  </span>
+                )}
+                <span className="inline-flex items-center gap-1">
+                  <MapPin className="w-3.5 h-3.5 stroke-[2]" />
+                  <span>{product.campus || vendor?.campus || 'NMU Campus'}</span>
                 </span>
-              )}
-              <span>
-                <MapPin className="w-3.5 h-3.5 stroke-[2]" />
-                <span>{product.campus || vendor?.campus || 'NMU Campus'}</span>
-              </span>
-              <span>
-                <Clock className="w-3.5 h-3.5 stroke-[2]" />
-                <span>
-                  {daysConfirmed === 0 ? 'Confirmed today' : `Confirmed ${daysConfirmed}d ago`}
+                <span className="inline-flex items-center gap-1">
+                  <Clock className="w-3.5 h-3.5 stroke-[2]" />
+                  <span>
+                    {daysConfirmed === 0 ? 'Confirmed today' : `Confirmed ${daysConfirmed}d ago`}
+                  </span>
                 </span>
-              </span>
+              </div>
             </div>
 
-            {/* Divider (.dv) */}
-            <div className="dv" />
-
-            {/* Facts Definition List (.facts) */}
-            <dl className="facts">
+            {/* Facts Badges (Condition, Category, Sizes) */}
+            <div className="grid grid-cols-2 gap-2.5">
               {facts.map(([label, val]) => (
-                <div key={label}>
-                  <dt>{label}</dt>
-                  <dd>{val}</dd>
+                <div
+                  key={label}
+                  className="p-3 rounded-2xl bg-card border border-border/80"
+                >
+                  <span className="text-[11px] font-medium text-muted-foreground block">{label}</span>
+                  <span className="text-sm font-semibold text-foreground block mt-0.5 truncate">{val}</span>
                 </div>
               ))}
-            </dl>
+            </div>
 
             {/* Location Section: Typed explanation vs Pinned GPS Map Link */}
             {(hasLocationExplanation || googleMapsPinUrl) && (
-              <div className="mt-4 p-3.5 rounded-[12px] bg-card border border-border/80 text-xs flex items-start gap-2.5 text-muted-foreground shadow-2xs">
-                <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
+              <div className="p-3.5 rounded-2xl bg-card border border-border/80 text-xs flex items-start gap-3 text-muted-foreground shadow-2xs">
+                <div className="w-8 h-8 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shrink-0 mt-0.5">
+                  <MapPin className="w-4 h-4" />
+                </div>
                 <div className="space-y-1.5 flex-1 min-w-0">
                   {hasLocationExplanation && (
                     <div>
-                      <b className="text-foreground">Pickup / Location: </b>
-                      <span>{locationExplanation}</span>
+                      <b className="text-foreground text-sm block">Pickup & Location</b>
+                      <span className="text-xs text-muted-foreground">{locationExplanation}</span>
                     </div>
                   )}
                   {googleMapsPinUrl && (
@@ -237,7 +243,7 @@ export default async function ProductDetailPage({
                       href={googleMapsPinUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 font-semibold text-[#0F6E6E] dark:text-[#22D3EE] hover:underline"
+                      className="inline-flex items-center gap-1.5 font-semibold text-[#0F6E6E] dark:text-[#22D3EE] hover:underline pt-0.5"
                     >
                       <Navigation className="w-3.5 h-3.5" />
                       <span>Open pinned location in Google Maps &rarr;</span>
@@ -247,67 +253,59 @@ export default async function ProductDetailPage({
               </div>
             )}
 
-            {/* Divider (.dv) */}
-            <div className="dv" />
-
-            {/* Seller Row (.sr) */}
+            {/* Seller Card */}
             {vendor && (
               <Link
                 href={`/vendors/${vendor.slug || vendor.id}`}
-                className="sr group"
+                className="flex items-center gap-3.5 p-3.5 rounded-2xl bg-card border border-border/80 hover:border-[#0F6E6E]/40 hover:bg-muted/30 transition-all group cursor-pointer"
                 aria-label={`View ${vendor.shop_name}'s storefront`}
               >
-                <div className="av">
+                <div className="w-12 h-12 rounded-full overflow-hidden shrink-0 grid place-items-center text-white font-[family-name:var(--font-bricolage)] font-semibold text-lg bg-gradient-to-br from-[#17908D] to-[#0A4F4F] ring-2 ring-border">
                   {vendor.logo_url ? (
                     <img
                       src={vendor.logo_url}
                       alt={vendor.shop_name}
-                      className="w-full h-full object-cover rounded-full"
+                      className="w-full h-full object-cover"
                     />
                   ) : (
                     <span>{vendorInitials}</span>
                   )}
                 </div>
 
-                <div className="bd">
-                  <b>
+                <div className="flex-1 min-w-0">
+                  <b className="flex items-center gap-1.5 text-base font-semibold text-foreground truncate">
                     <span>{vendor.shop_name}</span>
-                    {isVerifiedVendor && <VerifiedBadge size={15} />}
+                    {isVerifiedVendor && <VerifiedBadge size={16} />}
                   </b>
-                  <small>Visit seller storefront</small>
+                  <small className="text-xs text-muted-foreground block mt-0.5">Visit seller storefront & listings &rarr;</small>
                 </div>
 
-                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform shrink-0" />
               </Link>
             )}
 
-            {/* Divider (.dv) */}
-            <div className="dv" />
+            {/* About this item */}
+            <div className="space-y-1.5 pt-1">
+              <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-lg text-foreground">About this item</h3>
+              <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">{product.description}</p>
+            </div>
 
-            {/* About this item (.hh & .dd) */}
-            <h3 className="hh">About this item</h3>
-            <p className="dd">{product.description}</p>
-
-            {/* Divider (.dv) */}
-            <div className="dv" />
-
-            {/* Campus Safety Tip (.tip) */}
-            <div className="tip">
+            {/* Campus Safety Tip */}
+            <div className="flex items-start gap-3 p-4 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/20 text-xs leading-relaxed text-foreground">
               <ShieldCheck className="w-5 h-5 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0 mt-0.5" />
               <span>Meet on campus in a public spot and inspect the item before you pay.</span>
             </div>
 
             {/* More from this seller rail */}
             {moreFromVendor.length > 0 && (
-              <>
-                <div className="dv" />
-                <h3 className="hh">More from {vendor?.shop_name || 'seller'}</h3>
+              <div className="space-y-2.5 pt-2">
+                <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base text-foreground">More from {vendor?.shop_name || 'seller'}</h3>
                 <div className="rail flex gap-3 overflow-x-auto pb-1 scrollbar-none snap-x">
                   {moreFromVendor.map((p) => (
                     <WaterlineProductCard key={p.id} product={p} />
                   ))}
                 </div>
-              </>
+              </div>
             )}
 
             {/* Report listing button */}
@@ -323,26 +321,30 @@ export default async function ProductDetailPage({
         </div>
       </div>
 
-      {/* 3. Sticky Bottom Action Bar (.bar) matching Prototype */}
-      <div className="bar">
-        <div className="pp min-w-0">
-          <b>{formatNaira(product.price)}</b>
-          <small>Pay when you meet</small>
-        </div>
+      {/* 3. Sticky Bottom Action Bar */}
+      <div className="fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border px-4 py-3 pb-[calc(14px+env(safe-area-inset-bottom,0px))] shadow-lg">
+        <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between gap-4">
+          <div className="pp min-w-0">
+            <b className="text-xl font-bold text-foreground block font-[family-name:var(--font-bricolage)] tracking-tight">
+              {formatNaira(product.price)}
+            </b>
+            <small className="text-xs text-muted-foreground block">Pay when you meet</small>
+          </div>
 
-        {whatsappResult.valid ? (
-          <a
-            href={whatsappResult.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="go"
-          >
-            <WhatsAppIcon className="w-4.5 h-4.5 text-white" />
-            <span>Message seller</span>
-          </a>
-        ) : (
-          <span className="text-xs text-red-500 font-semibold">Unavailable</span>
-        )}
+          {whatsappResult.valid ? (
+            <a
+              href={whatsappResult.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex-1 sm:flex-initial sm:min-w-[220px] h-12 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer"
+            >
+              <WhatsAppIcon className="w-5 h-5 text-white" />
+              <span>Message seller</span>
+            </a>
+          ) : (
+            <span className="text-xs text-red-500 font-semibold">Unavailable</span>
+          )}
+        </div>
       </div>
     </div>
   )

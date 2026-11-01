@@ -87,7 +87,7 @@ export default async function HousingDetailPage({
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
           {/* 1. Image Gallery */}
-          <div className="dimg relative aspect-square w-full bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center md:col-span-6 md:rounded-2xl md:border md:border-border md:sticky md:top-20">
+          <div className="dimg relative aspect-square w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center md:col-span-6 md:sticky md:top-20">
             {lodge.image ? (
               <img
                 src={lodge.image}
@@ -313,7 +313,7 @@ export default async function HousingDetailPage({
           href={waUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex-1 flex items-center justify-center gap-2 h-12 rounded-xl bg-[#0A4F4F] hover:bg-[#0F6E6E] text-white font-semibold text-[15px] transition-colors shadow-sm"
+          className="flex-1 flex items-center justify-center gap-2 h-12 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm sm:text-base transition-colors shadow-sm cursor-pointer"
         >
           <MessageCircle className="w-5 h-5 stroke-[2] fill-white/20" />
           <span>Request viewing</span>
