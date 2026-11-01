@@ -1,8 +1,9 @@
 import Link from 'next/link'
-import { ShoppingBag, Wrench } from 'lucide-react'
+import { Briefcase, ShoppingBag } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { getItemCampus } from '@/lib/queries'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
 
 export function WaterlineProductCard({
   product,
@@ -23,11 +24,30 @@ export function WaterlineProductCard({
 
   const isFood = product.listing_type === 'food'
   const isService = product.listing_type === 'service'
-  const typeLabel = isFood ? 'Food' : isService ? 'Service' : 'Item'
+
+  const serviceSlug = isService ? inferServiceSlugFromProduct(product) : ''
+  const matchedService = isService ? getServiceBySlug(serviceSlug) : null
+  const ServiceIcon = (matchedService?.icon as any) || Briefcase
+
+  const typeLabel = isFood
+    ? 'Food'
+    : isService
+    ? matchedService?.shortTitle || 'Service'
+    : 'Item'
+
+  // When a service card is clicked from home page, it opens the service provider's profile
+  const vendorStoreHref = product.vendor?.slug
+    ? `/vendors/${product.vendor.slug}`
+    : product.vendor?.id
+    ? `/vendors/${product.vendor.id}`
+    : `/product/${product.slug || product.id}`
+
+  const targetHref = isService ? vendorStoreHref : `/product/${product.slug || product.id}`
+  const priceDisplay = isService && product.price > 0 ? `From ${priceNaira}` : priceNaira
 
   return (
     <Link
-      href={`/product/${product.slug}`}
+      href={targetHref}
       className="card flex-none block w-[156px] snap-start text-left text-inherit no-underline group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] rounded-2xl"
     >
       {/* 1:1 Image Container */}
@@ -41,18 +61,23 @@ export function WaterlineProductCard({
             className="w-full h-full object-cover transition-transform group-hover:scale-105 duration-200"
           />
         ) : isService ? (
-          <Wrench className="w-9 h-9 opacity-50" />
+          <div className="flex flex-col items-center justify-center p-2 text-center text-[#0F6E6E] dark:text-[#22D3EE]">
+            <ServiceIcon className="w-10 h-10 opacity-80 stroke-[1.75] mb-1" />
+            <span className="text-[11px] font-semibold text-foreground/80 line-clamp-1 max-w-[120px]">
+              {matchedService?.shortTitle || 'Service'}
+            </span>
+          </div>
         ) : (
           <ShoppingBag className="w-9 h-9 opacity-45" />
         )}
-        <span className="absolute left-2.5 top-2.5 h-[22px] px-2.5 rounded-full bg-white dark:bg-[#0B1414] text-[#0E1B1B] dark:text-[#E8F1F1] text-[11px] font-semibold flex items-center shadow-xs">
+        <span className="absolute left-2.5 top-2.5 h-[22px] px-2.5 rounded-full bg-white/95 dark:bg-[#0B1414]/95 backdrop-blur-xs text-[#0E1B1B] dark:text-[#E8F1F1] text-[11px] font-semibold flex items-center shadow-xs border border-black/5 dark:border-white/10">
           {typeLabel}
         </span>
       </div>
 
       {/* Price */}
       <div className="mt-2.5 font-semibold text-[16px] text-foreground tracking-tight">
-        {priceNaira}
+        {priceDisplay}
       </div>
 
       {/* Title (2-Line Clamp) */}
@@ -65,9 +90,13 @@ export function WaterlineProductCard({
         {product.vendor?.verification_status === 'verified' ? (
           <>
             <VerifiedBadge size={14} />
-            <span>Verified</span>
+            <span className="truncate font-medium text-foreground/80">
+              {product.vendor?.shop_name || 'Verified'}
+            </span>
             {!isSingleCampusSelected && (
-              <span className="truncate">· {campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}</span>
+              <span className="truncate">
+                · {campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}
+              </span>
             )}
           </>
         ) : (

@@ -235,6 +235,7 @@ export interface ProductQueryFilters {
   limit?: number
   page?: number
   includeHousing?: boolean
+  includeServices?: boolean
 }
 
 function matchesSearchQuery(p: Product, rawQuery: string): boolean {
@@ -321,6 +322,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     limit = 24,
     page = 1,
     includeHousing = false,
+    includeServices = false,
   } = filters
 
   let productsList: Product[] = []
@@ -335,6 +337,9 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
 
     if (!includeHousing) {
       query = query.neq('listing_type', 'housing')
+    }
+    if (!includeServices) {
+      query = query.neq('listing_type', 'service')
     }
 
     if (availability === 'available_only') {
@@ -372,7 +377,9 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
             !item.is_demo &&
             item.vendor &&
             item.vendor.verification_status !== 'rejected' &&
-            item.vendor.verification_status !== 'suspended'
+            item.vendor.verification_status !== 'suspended' &&
+            (includeHousing || item.listing_type !== 'housing') &&
+            (includeServices || item.listing_type !== 'service')
         )
         .map((item) => ({
           ...item,

@@ -1,9 +1,10 @@
 import Link from 'next/link'
-import { Wrench } from 'lucide-react'
+import { Briefcase, ShoppingBag } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { formatNaira } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
 
 interface ProductCardProps {
   product: Product
@@ -26,6 +27,11 @@ function isVideoMedia(url: string): boolean {
 export function ProductCard({ product }: ProductCardProps) {
   const categorySlug = product.category?.slug || ''
   const isService = product.listing_type === 'service'
+  const matchedService = isService
+    ? getServiceBySlug(inferServiceSlugFromProduct(product))
+    : null
+  const ServiceIcon = (matchedService?.icon as any) || Briefcase
+
   const rawImage = product.images?.[0]
   const fallbackImage = isService
     ? null
@@ -42,11 +48,23 @@ export function ProductCard({ product }: ProductCardProps) {
     product.campus ||
     (product.vendor?.campus === 'Kurutie' ? 'Kurutie' : 'Okerenkoko')
 
+  const vendorStoreHref = product.vendor?.slug
+    ? `/vendors/${product.vendor.slug}`
+    : product.vendor?.id
+    ? `/vendors/${product.vendor.id}`
+    : `/product/${product.slug || product.id}`
+
+  const targetHref = isService ? vendorStoreHref : `/product/${product.slug || product.id}`
+  const priceDisplay =
+    isService && product.price > 0
+      ? `From ${formatNaira(product.price)}`
+      : formatNaira(product.price)
+
   return (
     <Link
-      href={`/product/${product.slug || product.id}`}
-      aria-label={`${product.title}, ${formatNaira(product.price)}${
-        product.vendor ? `, sold by ${product.vendor.shop_name}` : ''
+      href={targetHref}
+      aria-label={`${product.title}, ${priceDisplay}${
+        product.vendor ? `, offered by ${product.vendor.shop_name}` : ''
       }`}
       className="group flex min-w-0 flex-col rounded-2xl border border-border bg-card overflow-hidden transition-all hover:border-primary/60 hover:shadow-lg focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
     >
@@ -79,10 +97,24 @@ export function ProductCard({ product }: ProductCardProps) {
           )
         ) : (
           <div className="w-full h-full bg-[#E6F2F2] dark:bg-[#132A2A] flex flex-col items-center justify-center text-[#0F6E6E] dark:text-[#22D3EE] p-4 text-center">
-            <Wrench className="w-10 h-10 stroke-[1.75] mb-2 opacity-75" />
-            <span className="text-xs font-semibold text-foreground line-clamp-2">
-              {product.title}
-            </span>
+            {isService ? (
+              <>
+                <ServiceIcon className="w-10 h-10 stroke-[1.75] mb-2 opacity-80" />
+                <span className="text-xs font-semibold text-foreground line-clamp-2">
+                  {product.title}
+                </span>
+                <span className="mt-1 text-[11px] font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
+                  {matchedService?.shortTitle || 'Service'}
+                </span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-10 h-10 stroke-[1.75] mb-2 opacity-75" />
+                <span className="text-xs font-semibold text-foreground line-clamp-2">
+                  {product.title}
+                </span>
+              </>
+            )}
           </div>
         )}
 
@@ -91,6 +123,10 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.is_featured ? (
             <span className="inline-flex items-center rounded-md bg-slate-950/80 backdrop-blur-xs border border-white/15 px-2 py-0.5 text-[10px] font-semibold text-slate-200">
               Featured
+            </span>
+          ) : isService ? (
+            <span className="inline-flex items-center rounded-md bg-white/95 dark:bg-slate-950/90 backdrop-blur-xs border border-black/5 dark:border-white/15 px-2 py-0.5 text-[10px] font-bold text-[#0F6E6E] dark:text-[#22D3EE]">
+              {matchedService?.shortTitle || 'Service'}
             </span>
           ) : (
             <span />
@@ -109,7 +145,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <div className="space-y-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2">
             <div className="text-sm sm:text-base font-extrabold text-foreground tracking-tight">
-              {formatNaira(product.price)}
+              {priceDisplay}
             </div>
             {hasValidLowStock && (
               <span className="text-[11px] font-bold text-amber-600 dark:text-amber-400 shrink-0">

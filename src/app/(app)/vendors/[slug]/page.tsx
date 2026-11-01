@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
-import { ChevronLeft, ChevronRight, MapPin, Navigation, ShoppingBag } from 'lucide-react'
+import { Briefcase, ChevronLeft, ChevronRight, MapPin, Navigation, ShoppingBag } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
 import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
@@ -10,9 +10,11 @@ import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 import {
   buildVendorStoreWhatsAppUrl,
+  buildProductWhatsAppUrl,
   formatNaira,
   getCanonicalUrl,
 } from '@/lib/whatsapp'
+import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
 
 export const dynamic = 'force-dynamic'
 
@@ -254,19 +256,38 @@ export default async function VendorStorefrontPage({
           <div className="mt-4">
             <h3 className="h3-proto">Services</h3>
             <div className="border-t border-[#DCE8E8] dark:border-border divide-y divide-[#DCE8E8] dark:divide-border">
-              {serviceListings.map((s) => (
-                <Link
-                  key={s.id}
-                  href={`/product/${s.slug || s.id}`}
-                  className="flex items-center justify-between py-3 min-h-[52px] hover:opacity-90 transition-opacity group"
-                >
-                  <b className="text-[15px] font-semibold text-foreground">{s.title}</b>
-                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                    <span>From {formatNaira(s.price)}</span>
-                    <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
-                  </div>
-                </Link>
-              ))}
+              {serviceListings.map((s) => {
+                const svcSlug = inferServiceSlugFromProduct(s)
+                const matchedSvc = getServiceBySlug(svcSlug)
+                const SvcIcon = (matchedSvc?.icon as any) || Briefcase
+                const serviceWa = buildProductWhatsAppUrl({
+                  whatsappNumber: vendor.whatsapp_number,
+                  productTitle: s.title,
+                  price: s.price,
+                  productUrl: storeUrl,
+                })
+
+                return (
+                  <a
+                    key={s.id}
+                    href={serviceWa.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-between py-3 min-h-[52px] hover:opacity-90 transition-opacity group"
+                  >
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className="w-8 h-8 rounded-lg bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shrink-0">
+                        <SvcIcon className="w-4 h-4 stroke-[1.8]" />
+                      </div>
+                      <b className="text-[15px] font-semibold text-foreground truncate">{s.title}</b>
+                    </div>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
+                      <span>From {formatNaira(s.price)}</span>
+                      <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
+                    </div>
+                  </a>
+                )
+              })}
             </div>
           </div>
         )}

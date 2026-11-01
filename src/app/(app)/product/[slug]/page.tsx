@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { notFound } from 'next/navigation'
+import { notFound, redirect } from 'next/navigation'
 import {
   ChevronLeft,
   ChevronRight,
@@ -98,6 +98,11 @@ export default async function ProductDetailPage({
   }
 
   const vendor = product.vendor
+
+  // If this item is a service listing, direct users to the provider's storefront profile
+  if (product.listing_type === 'service' && vendor) {
+    redirect(`/vendors/${vendor.slug || vendor.id}`)
+  }
   const primaryMedia =
     product.images?.[0] && !product.images[0].includes('cadet-uniform-tailoring.jpg')
       ? product.images[0]

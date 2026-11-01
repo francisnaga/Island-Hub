@@ -39,6 +39,7 @@ export default async function HomePage({
         sort: 'newest',
         availability: 'available_only',
         campus: selectedCampus,
+        includeServices: true,
       }),
       getPublicVendors({
         verifiedOnly: false,
