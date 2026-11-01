@@ -200,6 +200,30 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: true })
     }
 
+    if (action === 'delete_product') {
+      const { product_id } = body
+      const { error } = await adminDb
+        .from('products')
+        .delete()
+        .eq('id', product_id)
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+      return NextResponse.json({ success: true })
+    }
+
+    if (action === 'resolve_report') {
+      const { report_id, status } = body
+      const { error } = await adminDb
+        .from('reports')
+        .update({
+          status,
+          resolved_at: new Date().toISOString(),
+          resolved_by: user.id,
+        })
+        .eq('id', report_id)
+      if (error) return NextResponse.json({ error: error.message }, { status: 400 })
+      return NextResponse.json({ success: true })
+    }
+
     return NextResponse.json({ error: 'Unknown action.' }, { status: 400 })
   } catch (err: any) {
     return NextResponse.json(

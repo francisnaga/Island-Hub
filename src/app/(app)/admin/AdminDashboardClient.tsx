@@ -1,23 +1,23 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import {
-  Store,
-  Package,
-  Flag,
-  FolderKanban,
-  History,
-  CheckCircle2,
-  XCircle,
-  Ban,
+  Search,
+  Check,
+  X,
   Plus,
-  Sparkles,
+  Star,
+  Ban,
   RotateCcw,
   Trash2,
-  Building2,
   ExternalLink,
+  MessageCircle,
+  Package,
+  Bed,
+  Briefcase,
+  BadgeCheck,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
 import {
@@ -30,7 +30,8 @@ import {
   Vendor,
   VendorVerificationStatus,
 } from '@/lib/types'
-import { formatNaira } from '@/lib/whatsapp'
+import { getVendorInitials } from '@/components/cards/VendorCard'
+import { formatNaira, normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
 
@@ -43,6 +44,8 @@ interface AdminDashboardClientProps {
   initialCategoryRequests?: CategoryRequest[]
   initialLogs: ModerationLog[]
 }
+
+type AdminTab = 'products' | 'vendors' | 'categories' | 'reports' | 'logs'
 
 export function AdminDashboardClient({
   adminId,
@@ -58,28 +61,46 @@ export function AdminDashboardClient({
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [reports, setReports] = useState<ReportRecord[]>(initialReports)
   const [categories, setCategories] = useState<Category[]>(initialCategories)
-  const [categoryRequests, setCategoryRequests] = useState<CategoryRequest[]>(initialCategoryRequests)
+  const [categoryRequests, setCategoryRequests] =
+    useState<CategoryRequest[]>(initialCategoryRequests)
   const [logs, setLogs] = useState<ModerationLog[]>(initialLogs)
 
-  const [activeTab, setActiveTab] = useState<
-    'vendors' | 'products' | 'reports' | 'categories' | 'logs'
-  >('products')
+  const [activeTab, setActiveTab] = useState<AdminTab>('products')
   const [busyId, setBusyId] = useState<string | null>(null)
-  const [purgingDemo, setPurgingDemo] = useState(false)
+
+  // Filters & search
+  const [productSearch, setProductSearch] = useState('')
+  const [productFilter, setProductFilter] = useState<
+    'all' | 'pending_review' | 'approved' | 'inactive'
+  >('all')
+
+  const [vendorSearch, setVendorSearch] = useState('')
+  const [vendorFilter, setVendorFilter] = useState<
+    'all' | 'verified' | 'unverified' | 'featured' | 'suspended'
+  >('all')
 
   // New Category Form
   const [newCatName, setNewCatName] = useState('')
-  const [newCatSlug, setNewCatSlug] = useState('')
   const [newCatDesc, setNewCatDesc] = useState('')
-  const [newCatPriority, setNewCatPriority] = useState(false)
   const [creatingCat, setCreatingCat] = useState(false)
 
-  const pendingVendors = vendors.filter((v) => v.verification_status === 'pending')
-  const bannedVendors = vendors.filter((v) => v.verification_status === 'suspended')
-  const pendingProducts = products.filter((p) => p.status === 'pending_review')
-  const openReports = reports.filter((r) => r.status === 'open')
-  const demoVendorsCount = vendors.filter((v) => v.is_demo).length
-  const demoProductsCount = products.filter((p) => p.is_demo).length
+  // Counts
+  const pendingProductsCount = useMemo(
+    () => products.filter((p) => p.status === 'pending_review').length,
+    [products]
+  )
+  const pendingCategoryRequestsCount = useMemo(
+    () => categoryRequests.filter((r) => r.status === 'pending').length,
+    [categoryRequests]
+  )
+  const openReportsCount = useMemo(
+    () => reports.filter((r) => r.status === 'open').length,
+    [reports]
+  )
+  const verifiedVendorsCount = useMemo(
+    () => vendors.filter((v) => v.verification_status === 'verified').length,
+    [vendors]
+  )
 
   const recordLog = async (
     actionType: string,
@@ -105,32 +126,15 @@ export function AdminDashboardClient({
         setLogs((prev) => [data as ModerationLog, ...prev])
       }
     } catch {
-      // Ignore if moderation_logs table is pending
+      // Ignore if moderation_logs table is unavailable
     }
   }
 
-  // Ban or Unban / Verify Vendor + Archive or Restore all vendor items
+  // ── Vendor Actions ──
   const handleVendorStatus = async (
     vendor: Vendor,
     nextStatus: VendorVerificationStatus
   ) => {
-    let reason: string | undefined
-    if (nextStatus === 'suspended') {
-      const input = window.prompt(
-        `Ban vendor "${vendor.shop_name}" and archive all their listings from the public marketplace? Enter reason:`,
-        'Banned due to marketplace policy violation or scam report.'
-      )
-      if (input === null) return
-      reason = input.trim()
-    } else if (nextStatus === 'rejected') {
-      const input = window.prompt(
-        `Enter reason for rejecting vendor "${vendor.shop_name}":`,
-        'Could not verify WhatsApp contact or campus identity.'
-      )
-      if (input === null) return
-      reason = input.trim()
-    }
-
     setBusyId(vendor.id)
     try {
       const res = await fetch('/api/admin/moderate', {
@@ -140,7 +144,7 @@ export function AdminDashboardClient({
           action: 'vendor_status',
           vendor_id: vendor.id,
           status: nextStatus,
-          reason: reason || null,
+          reason: null,
         }),
       })
       const json = await res.json()
@@ -164,9 +168,7 @@ export function AdminDashboardClient({
               : p
           )
         )
-      }
-
-      if (nextStatus === 'verified' && vendor.verification_status === 'suspended') {
+      } else if (nextStatus === 'verified' && vendor.verification_status === 'suspended') {
         setProducts((prev) =>
           prev.map((p) =>
             p.vendor_id === vendor.id && p.status === 'archived'
@@ -188,20 +190,19 @@ export function AdminDashboardClient({
             ? {
                 ...v,
                 verification_status: nextStatus,
-                rejection_reason: reason || null,
                 ...(nextStatus === 'suspended' ? { is_featured: false } : {}),
               }
             : v
         )
       )
 
-      await recordLog(`vendor_${nextStatus}`, 'vendor', vendor.id, reason)
+      await recordLog(`vendor_${nextStatus}`, 'vendor', vendor.id, vendor.shop_name)
       toast.success(
-        nextStatus === 'suspended'
-          ? `Banned "${vendor.shop_name}" and archived all their listings.`
-          : nextStatus === 'verified' && vendor.verification_status === 'suspended'
-          ? `Unbanned "${vendor.shop_name}" and restored their listings!`
-          : `Vendor "${vendor.shop_name}" marked as ${nextStatus}.`
+        nextStatus === 'verified'
+          ? `${vendor.shop_name} verified`
+          : nextStatus === 'pending'
+          ? `Removed verification from ${vendor.shop_name}`
+          : `${vendor.shop_name} suspended`
       )
       router.refresh()
     } finally {
@@ -209,7 +210,6 @@ export function AdminDashboardClient({
     }
   }
 
-  // Toggle Featured Vendor
   const handleToggleVendorFeatured = async (vendor: Vendor) => {
     const nextFeatured = !vendor.is_featured
     setBusyId(vendor.id)
@@ -230,9 +230,7 @@ export function AdminDashboardClient({
       }
 
       setVendors((prev) =>
-        prev.map((v) =>
-          v.id === vendor.id ? { ...v, is_featured: nextFeatured } : v
-        )
+        prev.map((v) => (v.id === vendor.id ? { ...v, is_featured: nextFeatured } : v))
       )
       await recordLog(
         nextFeatured ? 'vendor_featured' : 'vendor_unfeatured',
@@ -242,8 +240,8 @@ export function AdminDashboardClient({
       )
       toast.success(
         nextFeatured
-          ? `"${vendor.shop_name}" is now Featured!`
-          : `Removed Featured badge from "${vendor.shop_name}".`
+          ? `${vendor.shop_name} featured`
+          : `${vendor.shop_name} unfeatured`
       )
       router.refresh()
     } finally {
@@ -251,61 +249,11 @@ export function AdminDashboardClient({
     }
   }
 
-  // Toggle Business Verified
-  const handleToggleBusinessVerified = async (vendor: Vendor) => {
-    const nextBiz = !vendor.business_verified
-    setBusyId(vendor.id)
-    try {
-      const res = await fetch('/api/admin/moderate', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          action: 'vendor_business',
-          vendor_id: vendor.id,
-          business_verified: nextBiz,
-        }),
-      })
-      const json = await res.json()
-      if (!res.ok || json.error) {
-        toast.error(json.error || 'Could not update business verification.')
-        return
-      }
-
-      setVendors((prev) =>
-        prev.map((v) =>
-          v.id === vendor.id
-            ? { ...v, business_verified: nextBiz, seller_type: 'business' }
-            : v
-        )
-      )
-      toast.success(
-        nextBiz
-          ? `Marked "${vendor.shop_name}" as a Verified Business`
-          : `Removed Business Verification from "${vendor.shop_name}"`
-      )
-      router.refresh()
-    } finally {
-      setBusyId(null)
-    }
-  }
-
-  // Product Moderation Action
+  // ── Listing Actions ──
   const handleProductStatus = async (
     product: Product,
     nextStatus: ProductApprovalStatus
   ) => {
-    let reason: string | undefined
-    if (nextStatus === 'rejected' || nextStatus === 'suspended' || nextStatus === 'archived') {
-      const input = window.prompt(
-        `Enter reason for marking "${product.title}" as ${nextStatus}:`,
-        nextStatus === 'rejected'
-          ? 'Please upload clearer photos or provide an accurate product description.'
-          : 'Archived/suspended by moderator.'
-      )
-      if (input === null) return
-      reason = input.trim()
-    }
-
     setBusyId(product.id)
     try {
       const res = await fetch('/api/admin/moderate', {
@@ -315,7 +263,7 @@ export function AdminDashboardClient({
           action: 'product_status',
           product_id: product.id,
           status: nextStatus,
-          reason: reason || null,
+          reason: null,
         }),
       })
       const json = await res.json()
@@ -330,21 +278,25 @@ export function AdminDashboardClient({
             ? {
                 ...p,
                 status: nextStatus,
-                rejection_reason: reason || null,
                 ...(nextStatus !== 'approved' ? { is_featured: false } : {}),
               }
             : p
         )
       )
-      await recordLog(`product_${nextStatus}`, 'product', product.id, reason)
-      toast.success(`Listing "${product.title}" marked as ${nextStatus}`)
+      await recordLog(`product_${nextStatus}`, 'product', product.id, product.title)
+      toast.success(
+        nextStatus === 'approved'
+          ? 'Listing approved and live'
+          : nextStatus === 'rejected'
+          ? 'Listing rejected'
+          : 'Listing archived'
+      )
       router.refresh()
     } finally {
       setBusyId(null)
     }
   }
 
-  // Toggle Featured Product
   const handleToggleProductFeatured = async (product: Product) => {
     const nextFeatured = !product.is_featured
     setBusyId(product.id)
@@ -365,9 +317,7 @@ export function AdminDashboardClient({
       }
 
       setProducts((prev) =>
-        prev.map((p) =>
-          p.id === product.id ? { ...p, is_featured: nextFeatured } : p
-        )
+        prev.map((p) => (p.id === product.id ? { ...p, is_featured: nextFeatured } : p))
       )
       await recordLog(
         nextFeatured ? 'product_featured' : 'product_unfeatured',
@@ -375,91 +325,51 @@ export function AdminDashboardClient({
         product.id,
         product.title
       )
-      toast.success(
-        nextFeatured
-          ? `"${product.title}" is now Featured on the homepage!`
-          : `Removed "${product.title}" from Featured items.`
-      )
+      toast.success(nextFeatured ? 'Listing featured' : 'Removed from featured')
       router.refresh()
     } finally {
       setBusyId(null)
     }
   }
 
-  // Purge All Demo / Mock Data for Production Launch
-  const handlePurgeDemoData = async () => {
-    if (
-      !window.confirm(
-        `Remove all ${demoVendorsCount} demo vendor storefronts, ${demoProductsCount} demo items, and mock user profiles for production launch? Real signed-up vendors will NOT be affected.`
-      )
-    ) {
-      return
-    }
-
-    setPurgingDemo(true)
+  const handleDeleteProduct = async (product: Product) => {
+    setBusyId(product.id)
     try {
-      const supabase = createClient()
-      await supabase.from('products').delete().eq('is_demo', true)
-      await supabase.from('vendors').delete().eq('is_demo', true)
-      await supabase.from('profiles').delete().eq('is_demo', true)
-
-      setProducts((prev) => prev.filter((p) => !p.is_demo))
-      setVendors((prev) => prev.filter((v) => !v.is_demo))
-      toast.success('All demo vendors, mock profiles, and demo items purged!')
-      router.refresh()
-    } catch {
-      toast.error('Could not purge demo data.')
-    } finally {
-      setPurgingDemo(false)
-    }
-  }
-
-  // Report Resolution Action
-  const handleResolveReport = async (
-    report: ReportRecord,
-    nextStatus: 'resolved' | 'dismissed'
-  ) => {
-    setBusyId(report.id)
-    try {
-      const supabase = createClient()
-      const { error } = await supabase
-        .from('reports')
-        .update({
-          status: nextStatus,
-          resolved_at: new Date().toISOString(),
-          resolved_by: adminId,
-        })
-        .eq('id', report.id)
-
-      if (error) {
-        toast.error(error.message)
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'delete_product',
+          product_id: product.id,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not delete listing.')
         return
       }
-
-      setReports((prev) =>
-        prev.map((r) => (r.id === report.id ? { ...r, status: nextStatus } : r))
-      )
-      await recordLog(`report_${nextStatus}`, 'report', report.id, report.reason)
-      toast.success(`Report marked as ${nextStatus}`)
+      setProducts((prev) => prev.filter((p) => p.id !== product.id))
+      await recordLog('product_deleted', 'product', product.id, product.title)
+      toast.success('Listing deleted')
+      router.refresh()
     } finally {
       setBusyId(null)
     }
   }
 
-  // Create Category Action
+  // ── Category Actions ──
   const handleCreateCategory = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!newCatName.trim() || !newCatDesc.trim()) {
-      toast.error('Please enter category name and description.')
+    if (!newCatName.trim()) {
+      toast.error('Enter a category name.')
       return
     }
 
-    const slug =
-      newCatSlug.trim() ||
-      newCatName
-        .toLowerCase()
-        .replace(/[^a-z0-9]+/g, '-')
-        .replace(/^-+|-+$/g, '')
+    const slug = newCatName
+      .trim()
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '')
 
     setCreatingCat(true)
     try {
@@ -470,9 +380,9 @@ export function AdminDashboardClient({
           action: 'create_category',
           name: newCatName.trim(),
           slug,
-          description: newCatDesc.trim(),
+          description: newCatDesc.trim() || `Browse ${newCatName.trim()} on Jetty`,
           display_order: categories.length + 1,
-          is_priority: newCatPriority,
+          is_priority: false,
         }),
       })
       const json = await res.json()
@@ -483,20 +393,23 @@ export function AdminDashboardClient({
 
       const data = json.category as Category
       if (data) {
-        setCategories((prev) => [...prev, data])
+        setCategories((prev) => {
+          const exists = prev.some((c) => c.id === data.id || c.slug === data.slug)
+          return exists
+            ? prev.map((c) => (c.id === data.id || c.slug === data.slug ? data : c))
+            : [...prev, data]
+        })
         await recordLog('category_created', 'category', data.id, data.name)
       }
       setNewCatName('')
-      setNewCatSlug('')
       setNewCatDesc('')
-      setNewCatPriority(false)
-      toast.success('Category added!')
+      toast.success(`Category "${newCatName.trim()}" added`)
+      router.refresh()
     } finally {
       setCreatingCat(false)
     }
   }
 
-  // Handle Vendor Category Requests
   const handleApproveCategoryRequest = async (req: CategoryRequest) => {
     setBusyId(req.id)
     try {
@@ -524,7 +437,7 @@ export function AdminDashboardClient({
         prev.map((r) => (r.id === req.id ? { ...r, status: 'approved' } : r))
       )
       await recordLog('category_approved', 'category', req.id, req.name)
-      toast.success(`Category "${req.name}" approved and live across Jetty!`)
+      toast.success(`Category "${req.name}" approved`)
       router.refresh()
     } finally {
       setBusyId(null)
@@ -547,732 +460,1018 @@ export function AdminDashboardClient({
         prev.map((r) => (r.id === req.id ? { ...r, status: 'rejected' } : r))
       )
       await recordLog('category_rejected', 'category', req.id, req.name)
-      toast.info(`Category request for "${req.name}" rejected`)
+      toast.success(`Request "${req.name}" dismissed`)
       router.refresh()
     } finally {
       setBusyId(null)
     }
   }
 
+  // ── Report Actions ──
+  const handleResolveReport = async (
+    report: ReportRecord,
+    nextStatus: 'resolved' | 'dismissed'
+  ) => {
+    setBusyId(report.id)
+    try {
+      const res = await fetch('/api/admin/moderate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'resolve_report',
+          report_id: report.id,
+          status: nextStatus,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not update report.')
+        return
+      }
+
+      setReports((prev) =>
+        prev.map((r) => (r.id === report.id ? { ...r, status: nextStatus } : r))
+      )
+      await recordLog(`report_${nextStatus}`, 'report', report.id, report.reason)
+      toast.success(`Report ${nextStatus}`)
+    } finally {
+      setBusyId(null)
+    }
+  }
+
+  // ── Filtered & Sorted Lists ──
+  const filteredProducts = useMemo(() => {
+    const q = productSearch.trim().toLowerCase()
+    return products
+      .filter((p) => {
+        if (productFilter === 'pending_review' && p.status !== 'pending_review') {
+          return false
+        }
+        if (productFilter === 'approved' && p.status !== 'approved') {
+          return false
+        }
+        if (
+          productFilter === 'inactive' &&
+          p.status !== 'rejected' &&
+          p.status !== 'archived' &&
+          p.status !== 'suspended'
+        ) {
+          return false
+        }
+        if (q) {
+          const hay = [
+            p.title,
+            p.description,
+            p.vendor?.shop_name || '',
+            p.category?.name || '',
+            p.listing_type || '',
+          ]
+            .join(' ')
+            .toLowerCase()
+          if (!hay.includes(q)) return false
+        }
+        return true
+      })
+      .sort((a, b) => {
+        // Always prioritize pending_review at the top
+        if (a.status === 'pending_review' && b.status !== 'pending_review') return -1
+        if (b.status === 'pending_review' && a.status !== 'pending_review') return 1
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
+  }, [products, productFilter, productSearch])
+
+  const filteredVendors = useMemo(() => {
+    const q = vendorSearch.trim().toLowerCase()
+    return vendors.filter((v) => {
+      if (vendorFilter === 'verified' && v.verification_status !== 'verified') {
+        return false
+      }
+      if (
+        vendorFilter === 'unverified' &&
+        (v.verification_status === 'verified' || v.verification_status === 'suspended')
+      ) {
+        return false
+      }
+      if (vendorFilter === 'featured' && !v.is_featured) {
+        return false
+      }
+      if (vendorFilter === 'suspended' && v.verification_status !== 'suspended') {
+        return false
+      }
+      if (q) {
+        const hay = [
+          v.shop_name,
+          v.whatsapp_number,
+          v.campus || '',
+          v.location_label || '',
+          v.description || '',
+        ]
+          .join(' ')
+          .toLowerCase()
+        if (!hay.includes(q)) return false
+      }
+      return true
+    })
+  }, [vendors, vendorFilter, vendorSearch])
+
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 flex flex-col lg:flex-row lg:items-center justify-between gap-4 min-w-0">
+    <div className="max-w-5xl mx-auto space-y-6 pb-20 min-w-0">
+      {/* ── Linear-Style Minimal Header ── */}
+      <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-5">
         <div className="space-y-1">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-3 py-0.5 text-[11px] font-bold text-[#0A4F4F] dark:text-[#E8B84A]">
-            Jetty Super Admin · efobifrancis53@gmail.com
+          <div className="flex items-center gap-2">
+            <h1 className="text-2xl sm:text-[26px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+              Admin
+            </h1>
+            <span className="inline-flex items-center h-5 px-2 rounded-md bg-muted border border-border text-[11px] font-medium text-muted-foreground">
+              Moderation
+            </span>
           </div>
-          <h1 className="text-xl sm:text-3xl font-extrabold tracking-tight text-foreground">
-            Vendor &amp; Marketplace Moderation Console
-          </h1>
-          <p className="text-xs text-muted-foreground">
-            Verify or feature vendors, ban/unban storefronts (auto-archiving their listings), approve new items, and manage demo data.
+          <p className="text-xs sm:text-[13px] text-muted-foreground">
+            Review listings, verify and feature stores, and manage categories.
           </p>
         </div>
 
-        {/* Summary Counters */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 shrink-0">
-          <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-center">
-            <span className="block text-lg font-extrabold text-[#0F6E6E] dark:text-[#E8B84A]">
-              {vendors.length}
+        {/* Compact Inline Telemetry Strip */}
+        <div className="flex flex-wrap items-center gap-1.5">
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('products')
+              setProductFilter('pending_review')
+            }}
+            className={cn(
+              'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer',
+              pendingProductsCount > 0
+                ? 'border-amber-500/40 bg-amber-500/10 text-foreground'
+                : 'border-border bg-card text-muted-foreground hover:text-foreground'
+            )}
+          >
+            <span
+              className={cn(
+                'w-1.5 h-1.5 rounded-full',
+                pendingProductsCount > 0 ? 'bg-amber-500' : 'bg-muted-foreground/40'
+              )}
+            />
+            <span>Pending</span>
+            <span className="font-semibold text-foreground">{pendingProductsCount}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('products')
+              setProductFilter('all')
+            }}
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            <span>Listings</span>
+            <span className="font-semibold text-foreground">{products.length}</span>
+          </button>
+
+          <button
+            type="button"
+            onClick={() => {
+              setActiveTab('vendors')
+              setVendorFilter('all')
+            }}
+            className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+          >
+            <span>Stores</span>
+            <span className="font-semibold text-foreground">
+              {verifiedVendorsCount}/{vendors.length}
             </span>
-            <span className="text-[11px] font-semibold text-muted-foreground">
-              Total Vendors
-            </span>
-          </div>
-          <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-center">
-            <span className="block text-lg font-extrabold text-amber-600">
-              {pendingProducts.length + pendingVendors.length}
-            </span>
-            <span className="text-[11px] font-semibold text-muted-foreground">
-              Pending Queue
-            </span>
-          </div>
-          <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-center">
-            <span className="block text-lg font-extrabold text-red-600">
-              {bannedVendors.length}
-            </span>
-            <span className="text-[11px] font-semibold text-muted-foreground">
-              Banned Vendors
-            </span>
-          </div>
-          <div className="rounded-xl border border-border bg-muted/40 px-3.5 py-2 text-center">
-            <span className="block text-lg font-extrabold text-foreground">
-              {openReports.length}
-            </span>
-            <span className="text-[11px] font-semibold text-muted-foreground">
-              Open Reports
-            </span>
-          </div>
+          </button>
+
+          {openReportsCount > 0 && (
+            <button
+              type="button"
+              onClick={() => setActiveTab('reports')}
+              className="inline-flex items-center gap-1.5 h-7 px-2.5 rounded-lg border border-red-500/30 bg-red-500/10 text-xs font-medium text-red-600 dark:text-red-400 cursor-pointer"
+            >
+              <span>Reports</span>
+              <span className="font-semibold">{openReportsCount}</span>
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Demo / Mock Data Production Purge Bar */}
-      {(demoVendorsCount > 0 || demoProductsCount > 0) && (
-        <div className="rounded-2xl border border-[#E8B84A]/50 bg-[#E8B84A]/10 p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div className="space-y-0.5 text-xs">
-            <p className="font-bold text-foreground">
-              Demo / Seeded Storefronts Active ({demoVendorsCount} demo vendors · {demoProductsCount} approved demo items)
-            </p>
-            <p className="text-muted-foreground">
-              These mock vendors and items are connected to mock profiles so you can test verifying, featuring, banning, and unbanning. Purge them in one click when ready for production.
-            </p>
-          </div>
-          <button
-            type="button"
-            disabled={purgingDemo}
-            onClick={handlePurgeDemoData}
-            className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-red-300 bg-white dark:bg-red-950/50 px-4 py-2.5 text-xs font-bold text-red-700 dark:text-red-300 hover:bg-red-50 shrink-0 cursor-pointer"
-          >
-            <Trash2 className="h-3.5 w-3.5" />
-            {purgingDemo ? 'Purging Demo Data...' : 'Purge Demo Data for Production'}
-          </button>
-        </div>
-      )}
-
-      {/* Tabs */}
-      <div className="flex items-center gap-1.5 w-full max-w-full overflow-x-auto no-scrollbar pb-1 border-b border-border">
-        {[
-          {
-            id: 'vendors',
-            label: `Manage Vendors (${vendors.length})`,
-            icon: Store,
-          },
-          {
-            id: 'products',
-            label: `Manage Listings (${products.length})`,
-            icon: Package,
-          },
-          {
-            id: 'reports',
-            label: `Buyer Reports (${openReports.length} open)`,
-            icon: Flag,
-          },
-          {
-            id: 'categories',
-            label: `Categories (${categories.length})`,
-            icon: FolderKanban,
-          },
-          {
-            id: 'logs',
-            label: 'Audit Logs',
-            icon: History,
-          },
-        ].map((tab) => {
-          const Icon = tab.icon
+      {/* ── Primary Navigation Bar ── */}
+      <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+        {(
+          [
+            {
+              id: 'products' as const,
+              label: 'Listings',
+              count: products.length,
+              alert: pendingProductsCount > 0,
+            },
+            {
+              id: 'vendors' as const,
+              label: 'Stores',
+              count: vendors.length,
+              alert: false,
+            },
+            {
+              id: 'categories' as const,
+              label: 'Categories',
+              count: categories.length,
+              alert: pendingCategoryRequestsCount > 0,
+            },
+            {
+              id: 'reports' as const,
+              label: 'Reports',
+              count: openReportsCount,
+              alert: openReportsCount > 0,
+            },
+            {
+              id: 'logs' as const,
+              label: 'Activity',
+              count: logs.length,
+              alert: false,
+            },
+          ] as const
+        ).map((tab) => {
           const active = activeTab === tab.id
           return (
             <button
               key={tab.id}
               type="button"
-              onClick={() => setActiveTab(tab.id as typeof activeTab)}
+              onClick={() => setActiveTab(tab.id)}
               className={cn(
-                'inline-flex items-center gap-1.5 shrink-0 rounded-t-xl px-4 py-2.5 text-xs font-semibold border-b-2 transition-colors cursor-pointer',
+                'inline-flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer shrink-0',
                 active
-                  ? 'border-[#0F6E6E] text-[#0F6E6E] dark:text-[#E8B84A] bg-card'
-                  : 'border-transparent text-muted-foreground hover:text-foreground'
+                  ? 'bg-foreground text-background font-semibold'
+                  : 'text-muted-foreground hover:text-foreground hover:bg-muted/60'
               )}
             >
-              <Icon className="h-3.5 w-3.5" />
-              {tab.label}
+              <span>{tab.label}</span>
+              <span
+                className={cn(
+                  'text-[11px]',
+                  active ? 'text-background/70' : 'text-muted-foreground/70'
+                )}
+              >
+                {tab.count}
+              </span>
+              {tab.alert && (
+                <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+              )}
             </button>
           )
         })}
       </div>
 
-      {/* Tab 1: Vendors Management (Verify, Feature, Ban/Archive, Unban) */}
-      {activeTab === 'vendors' && (
+      {/* ── TAB 1: LISTINGS (ITEMS, ROOMS, SERVICES) ── */}
+      {activeTab === 'products' && (
         <div className="space-y-3">
-          {vendors.length > 0 ? (
-            vendors.map((v) => {
-              const isBanned = v.verification_status === 'suspended'
-              return (
-                <div
-                  key={v.id}
-                  className={cn(
-                    'rounded-2xl border p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-card',
-                    isBanned
-                      ? 'border-red-300 bg-red-50/30 dark:border-red-900/60 dark:bg-red-950/20'
-                      : v.verification_status === 'pending'
-                      ? 'border-amber-300'
-                      : 'border-border'
-                  )}
+          {/* Toolbar: Search + Status Pills */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+              {(
+                [
+                  { id: 'all' as const, label: 'All', count: products.length },
+                  {
+                    id: 'pending_review' as const,
+                    label: 'Pending',
+                    count: pendingProductsCount,
+                  },
+                  {
+                    id: 'approved' as const,
+                    label: 'Approved',
+                    count: products.filter((p) => p.status === 'approved').length,
+                  },
+                  {
+                    id: 'inactive' as const,
+                    label: 'Archived / Rejected',
+                    count: products.filter(
+                      (p) =>
+                        p.status === 'rejected' ||
+                        p.status === 'archived' ||
+                        p.status === 'suspended'
+                    ).length,
+                  },
+                ] as const
+              ).map((f) => {
+                const active = productFilter === f.id
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setProductFilter(f.id)}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium whitespace-nowrap border transition-colors cursor-pointer shrink-0',
+                      active
+                        ? 'bg-card border-foreground/30 text-foreground font-semibold shadow-2xs'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <span>{f.label}</span>
+                    <span className="text-[11px] text-muted-foreground">{f.count}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+              <input
+                type="search"
+                value={productSearch}
+                onChange={(e) => setProductSearch(e.target.value)}
+                placeholder="Filter listings..."
+                className="w-full h-8 pl-8 pr-7 rounded-lg border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none"
+              />
+              {productSearch && (
+                <button
+                  type="button"
+                  onClick={() => setProductSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
                 >
-                  <div className="space-y-1.5 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/vendors/${v.slug || v.id}`}
-                        className={cn(
-                          'text-base font-bold hover:text-[#0F6E6E] inline-flex items-center gap-1',
-                          isBanned
-                            ? 'text-red-800 dark:text-red-300 line-through'
-                            : 'text-foreground'
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Linear-Style Divided List */}
+          {filteredProducts.length > 0 ? (
+            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+              {filteredProducts.map((product) => {
+                const isPending = product.status === 'pending_review'
+                const isApproved = product.status === 'approved'
+                const kind =
+                  product.listing_type === 'housing'
+                    ? 'Room'
+                    : product.listing_type === 'service'
+                    ? 'Service'
+                    : 'Item'
+                const KindIcon =
+                  product.listing_type === 'housing'
+                    ? Bed
+                    : product.listing_type === 'service'
+                    ? Briefcase
+                    : Package
+                const rawVariants =
+                  product.variants && typeof product.variants === 'object'
+                    ? (product.variants as Record<string, unknown>)
+                    : null
+                const campus =
+                  (rawVariants && typeof rawVariants.campus === 'string'
+                    ? rawVariants.campus
+                    : null) ||
+                  product.vendor?.campus ||
+                  'Okerenkoko'
+
+                const detailHref =
+                  product.listing_type === 'housing'
+                    ? `/housing/${product.slug || product.id}`
+                    : `/product/${product.slug || product.id}`
+
+                return (
+                  <div
+                    key={product.id}
+                    className={cn(
+                      'p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-muted/30 transition-colors',
+                      isPending && 'bg-amber-500/[0.03]'
+                    )}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Thumbnail */}
+                      <div className="w-11 h-11 rounded-lg bg-muted border border-border/70 overflow-hidden shrink-0 grid place-items-center text-muted-foreground">
+                        {product.images?.[0] ? (
+                          <img
+                            src={product.images[0]}
+                            alt={product.title}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <KindIcon className="w-4 h-4" />
                         )}
-                      >
-                        <span>{v.shop_name}</span>
-                        <ExternalLink className="h-3.5 w-3.5 opacity-60" />
-                      </Link>
+                      </div>
 
-                      <span
-                        className={cn(
-                          'rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase',
-                          isBanned
-                            ? 'bg-red-600 text-white'
-                            : v.verification_status === 'verified'
-                            ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
-                            : 'bg-amber-100 text-amber-900'
-                        )}
-                      >
-                        {isBanned ? 'BANNED (ARCHIVED)' : v.verification_status}
-                      </span>
+                      {/* Primary Meta */}
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span
+                            className={cn(
+                              'w-2 h-2 rounded-full shrink-0',
+                              isPending
+                                ? 'bg-amber-500'
+                                : isApproved
+                                ? 'bg-emerald-500'
+                                : 'bg-muted-foreground/50'
+                            )}
+                            title={product.status.replace('_', ' ')}
+                          />
+                          <Link
+                            href={detailHref}
+                            className="text-sm font-medium text-foreground hover:underline truncate max-w-[260px] sm:max-w-[360px]"
+                          >
+                            {product.title}
+                          </Link>
 
-                      <span className="rounded-md bg-muted px-2 py-0.5 text-[10px] font-semibold text-foreground uppercase">
-                        {v.seller_type || (v.is_student ? 'student' : 'independent')}
-                      </span>
+                          <span className="inline-flex items-center h-4 px-1.5 rounded bg-muted text-[10px] font-medium text-muted-foreground">
+                            {kind}
+                          </span>
 
-                      {v.is_featured && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#E8B84A]/25 border border-[#E8B84A] px-2 py-0.5 text-[10px] font-bold text-foreground">
-                          <Sparkles className="h-2.5 w-2.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                          Featured
-                        </span>
-                      )}
+                          {isPending && (
+                            <span className="inline-flex items-center h-4 px-1.5 rounded bg-amber-500/15 text-[10px] font-semibold text-amber-600 dark:text-amber-400">
+                              Pending
+                            </span>
+                          )}
 
-                      {v.business_verified && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 border border-emerald-200 px-2 py-0.5 text-[10px] font-bold text-emerald-800">
-                          <Building2 className="h-2.5 w-2.5" />
-                          Verified Business
-                        </span>
-                      )}
+                          {!isPending && !isApproved && (
+                            <span className="inline-flex items-center h-4 px-1.5 rounded bg-muted text-[10px] font-medium text-muted-foreground capitalize">
+                              {product.status}
+                            </span>
+                          )}
 
-                      {v.is_demo && (
-                        <span className="rounded-full bg-slate-200 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-semibold text-slate-700 dark:text-slate-300">
-                          Demo Profile
-                        </span>
-                      )}
+                          {product.is_featured && (
+                            <span className="inline-flex items-center gap-0.5 h-4 px-1.5 rounded bg-foreground/10 text-[10px] font-semibold text-foreground">
+                              <Star className="w-2.5 h-2.5 fill-current" />
+                              Featured
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <span className="font-medium text-foreground">
+                            {formatNaira(product.price)}
+                          </span>
+                          <span>·</span>
+                          <span>{product.vendor?.shop_name || 'Store'}</span>
+                          <span>·</span>
+                          <span>{campus}</span>
+                          {product.category?.name && (
+                            <>
+                              <span>·</span>
+                              <span>{product.category.name}</span>
+                            </>
+                          )}
+                        </div>
+                      </div>
                     </div>
 
-                    <p className="text-xs text-muted-foreground max-w-2xl">
-                      {v.description}
-                    </p>
+                    {/* Right Action Controls */}
+                    <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                      {!isApproved && (
+                        <button
+                          type="button"
+                          disabled={busyId === product.id}
+                          onClick={() => handleProductStatus(product, 'approved')}
+                          className="inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 transition-opacity cursor-pointer"
+                        >
+                          <Check className="w-3.5 h-3.5 stroke-[2.2]" />
+                          <span>Approve</span>
+                        </button>
+                      )}
 
-                    <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-muted-foreground">
-                      <span>
-                        <strong>WhatsApp:</strong> +{v.whatsapp_number}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        <strong>Campus:</strong> {v.campus || 'Okerenkoko'}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        <strong>Landmark:</strong> {v.location_label}
-                      </span>
-                      <span>·</span>
-                      <span>
-                        <strong>Enquiries:</strong> {v.whatsapp_clicks || 0} clicks / {v.store_views || 0} views
-                      </span>
-                    </div>
-                  </div>
+                      {isApproved && (
+                        <button
+                          type="button"
+                          disabled={busyId === product.id}
+                          onClick={() => handleToggleProductFeatured(product)}
+                          title="Toggle featured placement"
+                          className={cn(
+                            'inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer',
+                            product.is_featured
+                              ? 'border-foreground bg-foreground text-background'
+                              : 'border-border bg-card text-muted-foreground hover:text-foreground'
+                          )}
+                        >
+                          <Star
+                            className={cn(
+                              'w-3.5 h-3.5',
+                              product.is_featured && 'fill-current'
+                            )}
+                          />
+                          <span>{product.is_featured ? 'Featured' : 'Feature'}</span>
+                        </button>
+                      )}
 
-                  {/* Admin Controls: Verify, Feature, Business Verify, Ban / Unban */}
-                  <div className="flex flex-wrap items-center gap-2 shrink-0">
-                    {isBanned ? (
+                      {product.status !== 'rejected' && isPending && (
+                        <button
+                          type="button"
+                          disabled={busyId === product.id}
+                          onClick={() => handleProductStatus(product, 'rejected')}
+                          className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                          <span>Reject</span>
+                        </button>
+                      )}
+
+                      {isApproved && (
+                        <button
+                          type="button"
+                          disabled={busyId === product.id}
+                          onClick={() => handleProductStatus(product, 'archived')}
+                          className="inline-flex items-center h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground transition-colors cursor-pointer"
+                        >
+                          Archive
+                        </button>
+                      )}
+
                       <button
                         type="button"
-                        disabled={busyId === v.id}
-                        onClick={() => handleVendorStatus(v, 'verified')}
-                        className="inline-flex items-center gap-1.5 rounded-xl bg-emerald-600 px-4 py-2 text-xs font-bold text-white hover:bg-emerald-700 cursor-pointer"
+                        disabled={busyId === product.id}
+                        onClick={() => handleDeleteProduct(product)}
+                        title="Delete listing"
+                        className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
                       >
-                        <RotateCcw className="h-3.5 w-3.5" />
-                        Unban &amp; Restore Vendor
+                        <Trash2 className="w-3.5 h-3.5" />
                       </button>
-                    ) : (
-                      <>
-                        {v.verification_status !== 'verified' && (
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-card py-12 px-4 text-center text-xs text-muted-foreground">
+              {productSearch || productFilter !== 'all'
+                ? 'No listings match this filter.'
+                : 'No listings submitted yet.'}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB 2: STORES (VENDORS) ── */}
+      {activeTab === 'vendors' && (
+        <div className="space-y-3">
+          {/* Toolbar: Filter Pills + Search */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+            <div className="flex items-center gap-1 overflow-x-auto no-scrollbar">
+              {(
+                [
+                  { id: 'all' as const, label: 'All', count: vendors.length },
+                  {
+                    id: 'verified' as const,
+                    label: 'Verified',
+                    count: verifiedVendorsCount,
+                  },
+                  {
+                    id: 'unverified' as const,
+                    label: 'Unverified',
+                    count: vendors.filter(
+                      (v) =>
+                        v.verification_status !== 'verified' &&
+                        v.verification_status !== 'suspended'
+                    ).length,
+                  },
+                  {
+                    id: 'featured' as const,
+                    label: 'Featured',
+                    count: vendors.filter((v) => v.is_featured).length,
+                  },
+                  {
+                    id: 'suspended' as const,
+                    label: 'Suspended',
+                    count: vendors.filter((v) => v.verification_status === 'suspended')
+                      .length,
+                  },
+                ] as const
+              ).map((f) => {
+                const active = vendorFilter === f.id
+                return (
+                  <button
+                    key={f.id}
+                    type="button"
+                    onClick={() => setVendorFilter(f.id)}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium whitespace-nowrap border transition-colors cursor-pointer shrink-0',
+                      active
+                        ? 'bg-card border-foreground/30 text-foreground font-semibold shadow-2xs'
+                        : 'border-transparent text-muted-foreground hover:text-foreground'
+                    )}
+                  >
+                    <span>{f.label}</span>
+                    <span className="text-[11px] text-muted-foreground">{f.count}</span>
+                  </button>
+                )
+              })}
+            </div>
+
+            <div className="relative w-full sm:w-64">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-muted-foreground pointer-events-none" />
+              <input
+                type="search"
+                value={vendorSearch}
+                onChange={(e) => setVendorSearch(e.target.value)}
+                placeholder="Filter stores..."
+                className="w-full h-8 pl-8 pr-7 rounded-lg border border-border bg-card text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none"
+              />
+              {vendorSearch && (
+                <button
+                  type="button"
+                  onClick={() => setVendorSearch('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground cursor-pointer"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+          </div>
+
+          {filteredVendors.length > 0 ? (
+            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+              {filteredVendors.map((v) => {
+                const isVerified = v.verification_status === 'verified'
+                const isSuspended = v.verification_status === 'suspended'
+                const storeListingsCount = products.filter(
+                  (p) => p.vendor_id === v.id
+                ).length
+
+                return (
+                  <div
+                    key={v.id}
+                    className={cn(
+                      'p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 hover:bg-muted/30 transition-colors',
+                      isSuspended && 'opacity-65'
+                    )}
+                  >
+                    <div className="flex items-center gap-3 min-w-0">
+                      {/* Avatar */}
+                      <div className="w-10 h-10 rounded-full bg-muted border border-border overflow-hidden shrink-0 grid place-items-center text-xs font-semibold text-foreground">
+                        {v.logo_url ? (
+                          <img
+                            src={v.logo_url}
+                            alt={v.shop_name}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <span>{getVendorInitials(v.shop_name)}</span>
+                        )}
+                      </div>
+
+                      <div className="min-w-0 flex-1 space-y-0.5">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <Link
+                            href={`/vendors/${v.slug || v.id}`}
+                            className={cn(
+                              'text-sm font-medium text-foreground hover:underline inline-flex items-center gap-1',
+                              isSuspended && 'line-through'
+                            )}
+                          >
+                            <span>{v.shop_name}</span>
+                            <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                          </Link>
+
+                          {isVerified ? (
+                            <span className="inline-flex items-center gap-0.5 h-4 px-1.5 rounded bg-emerald-500/15 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
+                              <BadgeCheck className="w-2.5 h-2.5" />
+                              Verified
+                            </span>
+                          ) : isSuspended ? (
+                            <span className="inline-flex items-center h-4 px-1.5 rounded bg-red-500/15 text-[10px] font-semibold text-red-600 dark:text-red-400">
+                              Suspended
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center h-4 px-1.5 rounded bg-muted text-[10px] font-medium text-muted-foreground">
+                              Unverified
+                            </span>
+                          )}
+
+                          {v.is_featured && (
+                            <span className="inline-flex items-center gap-0.5 h-4 px-1.5 rounded bg-foreground/10 text-[10px] font-semibold text-foreground">
+                              <Star className="w-2.5 h-2.5 fill-current" />
+                              Featured
+                            </span>
+                          )}
+                        </div>
+
+                        <div className="flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-muted-foreground">
+                          <a
+                            href={`https://wa.me/${normalizeWhatsAppNumber(v.whatsapp_number)}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center gap-1 hover:text-foreground hover:underline"
+                          >
+                            <MessageCircle className="w-3 h-3" />
+                            <span>+{v.whatsapp_number}</span>
+                          </a>
+                          <span>·</span>
+                          <span>{v.campus || 'Okerenkoko'}</span>
+                          {v.location_label && (
+                            <>
+                              <span>·</span>
+                              <span className="truncate max-w-[180px]">
+                                {v.location_label}
+                              </span>
+                            </>
+                          )}
+                          <span>·</span>
+                          <span>
+                            {storeListingsCount}{' '}
+                            {storeListingsCount === 1 ? 'listing' : 'listings'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Right Action Controls */}
+                    <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                      {isSuspended ? (
+                        <button
+                          type="button"
+                          disabled={busyId === v.id}
+                          onClick={() => handleVendorStatus(v, 'pending')}
+                          className="inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 transition-opacity cursor-pointer"
+                        >
+                          <RotateCcw className="w-3.5 h-3.5" />
+                          <span>Restore</span>
+                        </button>
+                      ) : (
+                        <>
+                          {/* 1-Click Verify / Unverify Toggle */}
                           <button
                             type="button"
                             disabled={busyId === v.id}
-                            onClick={() => handleVendorStatus(v, 'verified')}
-                            className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700 cursor-pointer"
+                            onClick={() =>
+                              handleVendorStatus(
+                                v,
+                                isVerified ? 'pending' : 'verified'
+                              )
+                            }
+                            className={cn(
+                              'inline-flex items-center gap-1 h-8 px-3 rounded-lg border text-xs font-medium transition-colors cursor-pointer',
+                              isVerified
+                                ? 'border-foreground bg-foreground text-background'
+                                : 'border-border bg-card text-foreground hover:bg-muted'
+                            )}
                           >
-                            <CheckCircle2 className="h-3.5 w-3.5" />
-                            Approve &amp; Verify
+                            <Check className="w-3.5 h-3.5 stroke-[2.2]" />
+                            <span>{isVerified ? 'Verified' : 'Verify'}</span>
                           </button>
-                        )}
 
-                        <button
-                          type="button"
-                          disabled={busyId === v.id}
-                          onClick={() => handleToggleVendorFeatured(v)}
-                          className={cn(
-                            'inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold cursor-pointer transition-colors',
-                            v.is_featured
-                              ? 'border-[#E8B84A] bg-[#E8B84A]/20 text-foreground'
-                              : 'border-border bg-background text-muted-foreground hover:text-foreground'
-                          )}
-                        >
-                          <Sparkles className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                          {v.is_featured ? 'Featured ✓' : 'Feature'}
-                        </button>
+                          {/* 1-Click Feature Toggle */}
+                          <button
+                            type="button"
+                            disabled={busyId === v.id}
+                            onClick={() => handleToggleVendorFeatured(v)}
+                            className={cn(
+                              'inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border text-xs font-medium transition-colors cursor-pointer',
+                              v.is_featured
+                                ? 'border-foreground bg-foreground text-background'
+                                : 'border-border bg-card text-muted-foreground hover:text-foreground'
+                            )}
+                          >
+                            <Star
+                              className={cn(
+                                'w-3.5 h-3.5',
+                                v.is_featured && 'fill-current'
+                              )}
+                            />
+                            <span>{v.is_featured ? 'Featured' : 'Feature'}</span>
+                          </button>
 
-                        <button
-                          type="button"
-                          disabled={busyId === v.id}
-                          onClick={() => handleToggleBusinessVerified(v)}
-                          className={cn(
-                            'inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold cursor-pointer transition-colors',
-                            v.business_verified
-                              ? 'border-emerald-300 bg-emerald-50 text-emerald-900 dark:bg-emerald-950/60 dark:text-emerald-200'
-                              : 'border-border bg-background text-muted-foreground hover:text-foreground'
-                          )}
-                        >
-                          <Building2 className="h-3.5 w-3.5" />
-                          {v.business_verified ? 'Biz Verified ✓' : 'Verify Biz'}
-                        </button>
-
-                        <button
-                          type="button"
-                          disabled={busyId === v.id}
-                          onClick={() => handleVendorStatus(v, 'suspended')}
-                          className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/40 px-3 py-2 text-xs font-bold text-red-700 dark:text-red-300 hover:bg-red-100 cursor-pointer"
-                        >
-                          <Ban className="h-3.5 w-3.5" />
-                          Ban Vendor
-                        </button>
-                      </>
-                    )}
-                  </div>
-                </div>
-              )
-            })
-          ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center text-xs text-muted-foreground">
-              No vendors in the database yet.
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab 2: Products / Food / Services Queue */}
-      {activeTab === 'products' && (
-        <div className="space-y-3">
-          {products.length > 0 ? (
-            products.map((product) => (
-              <div
-                key={product.id}
-                className={cn(
-                  'rounded-2xl border p-4 sm:p-5 flex flex-col lg:flex-row lg:items-center justify-between gap-4 bg-card',
-                  product.status === 'pending_review'
-                    ? 'border-amber-300 ring-1 ring-amber-200'
-                    : product.status === 'archived' || product.status === 'suspended'
-                    ? 'border-red-200 bg-red-50/20 opacity-80'
-                    : 'border-border'
-                )}
-              >
-                <div className="flex items-start gap-4 min-w-0">
-                  <div className="h-18 w-18 rounded-xl bg-muted border border-border overflow-hidden shrink-0">
-                    {product.images?.[0] ? (
-                      <img
-                        src={product.images[0]}
-                        alt={product.title}
-                        className="h-full w-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-full w-full items-center justify-center text-muted-foreground">
-                        <Package className="h-6 w-6" />
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="space-y-1 min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link
-                        href={`/product/${product.slug || product.id}`}
-                        className="text-sm font-bold text-foreground hover:text-[#0F6E6E]"
-                      >
-                        {product.title}
-                      </Link>
-                      <span
-                        className={cn(
-                          'rounded-full px-2.5 py-0.5 text-[10px] font-bold uppercase',
-                          product.status === 'approved'
-                            ? 'bg-emerald-100 text-emerald-900 dark:bg-emerald-950 dark:text-emerald-300'
-                            : product.status === 'archived' || product.status === 'suspended'
-                            ? 'bg-red-100 text-red-800'
-                            : 'bg-amber-100 text-amber-900'
-                        )}
-                      >
-                        {product.status.replace('_', ' ')}
-                      </span>
-                      {product.listing_type && product.listing_type !== 'product' && (
-                        <span className="rounded-md bg-[#E6F2F2] dark:bg-[#132A2A] px-2 py-0.5 text-[10px] font-bold uppercase text-[#0A4F4F] dark:text-[#E8B84A]">
-                          {product.listing_type}
-                        </span>
-                      )}
-                      {product.is_featured && (
-                        <span className="inline-flex items-center gap-1 rounded-full bg-[#E8B84A]/25 border border-[#E8B84A] px-2 py-0.5 text-[10px] font-bold text-foreground">
-                          <Sparkles className="h-2.5 w-2.5" />
-                          Featured
-                        </span>
+                          {/* Suspend Store */}
+                          <button
+                            type="button"
+                            disabled={busyId === v.id}
+                            onClick={() => handleVendorStatus(v, 'suspended')}
+                            title="Suspend store and archive listings"
+                            className="inline-flex items-center justify-center w-8 h-8 rounded-lg border border-border bg-card text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
+                          >
+                            <Ban className="w-3.5 h-3.5" />
+                          </button>
+                        </>
                       )}
                     </div>
-
-                    <p className="text-xs text-muted-foreground line-clamp-2 max-w-2xl">
-                      {product.description}
-                    </p>
-
-                    <div className="flex flex-wrap items-center gap-3 text-xs text-muted-foreground pt-1">
-                      <strong className="text-foreground">
-                        {formatNaira(product.price)}
-                      </strong>
-                      <span>·</span>
-                      <span>
-                        Vendor: <strong>{product.vendor?.shop_name || 'Verified Seller'}</strong>
-                      </span>
-                      <span>·</span>
-                      <span>Category: {product.category?.name || 'Marketplace'}</span>
-                    </div>
                   </div>
-                </div>
-
-                <div className="flex flex-wrap items-center gap-2 shrink-0">
-                  {product.status !== 'approved' && (
-                    <button
-                      type="button"
-                      disabled={busyId === product.id}
-                      onClick={() => handleProductStatus(product, 'approved')}
-                      className="inline-flex items-center gap-1 rounded-lg bg-emerald-600 px-3.5 py-2 text-xs font-bold text-white hover:bg-emerald-700 cursor-pointer"
-                    >
-                      <CheckCircle2 className="h-3.5 w-3.5" />
-                      Approve &amp; Publish
-                    </button>
-                  )}
-
-                  {product.status === 'approved' && (
-                    <button
-                      type="button"
-                      disabled={busyId === product.id}
-                      onClick={() => handleToggleProductFeatured(product)}
-                      className={cn(
-                        'inline-flex items-center gap-1 rounded-lg border px-3 py-2 text-xs font-semibold cursor-pointer transition-colors',
-                        product.is_featured
-                          ? 'border-[#E8B84A] bg-[#E8B84A]/20 text-foreground'
-                          : 'border-border bg-background text-muted-foreground hover:text-foreground'
-                      )}
-                    >
-                      <Sparkles className="h-3.5 w-3.5 text-[#0F6E6E] dark:text-[#E8B84A]" />
-                      {product.is_featured ? 'Featured ✓' : 'Feature Item'}
-                    </button>
-                  )}
-
-                  {product.status !== 'rejected' && (
-                    <button
-                      type="button"
-                      disabled={busyId === product.id}
-                      onClick={() => handleProductStatus(product, 'rejected')}
-                      className="inline-flex items-center gap-1 rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-xs font-semibold text-red-800 hover:bg-red-100 cursor-pointer"
-                    >
-                      <XCircle className="h-3.5 w-3.5" />
-                      Reject
-                    </button>
-                  )}
-
-                  {product.status !== 'archived' && (
-                    <button
-                      type="button"
-                      disabled={busyId === product.id}
-                      onClick={() => handleProductStatus(product, 'archived')}
-                      className="inline-flex items-center gap-1 rounded-lg border border-border bg-background px-3 py-2 text-xs font-semibold text-muted-foreground hover:text-foreground cursor-pointer"
-                    >
-                      <Ban className="h-3.5 w-3.5" />
-                      Archive
-                    </button>
-                  )}
-                </div>
-              </div>
-            ))
+                )
+              })}
+            </div>
           ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center text-xs text-muted-foreground">
-              No product submissions in the database yet.
+            <div className="rounded-xl border border-border bg-card py-12 px-4 text-center text-xs text-muted-foreground">
+              {vendorSearch || vendorFilter !== 'all'
+                ? 'No stores match this filter.'
+                : 'No stores registered yet.'}
             </div>
           )}
         </div>
       )}
 
-      {/* Tab 3: Buyer Reports */}
-      {activeTab === 'reports' && (
-        <div className="space-y-3">
-          {reports.length > 0 ? (
-            reports.map((r) => (
-              <div
-                key={r.id}
-                className="rounded-2xl border border-border bg-card p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <span className="rounded-full bg-red-50 border border-red-200 px-2.5 py-0.5 text-[10px] font-bold uppercase text-red-800">
-                      {r.target_type} report
-                    </span>
-                    <span className="rounded-full bg-muted px-2.5 py-0.5 text-[10px] font-bold uppercase text-foreground">
-                      {r.status}
-                    </span>
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(r.created_at).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <h3 className="text-sm font-bold text-foreground">{r.reason}</h3>
-                  <p className="text-xs text-muted-foreground">{r.details}</p>
-                  {r.reporter_contact && (
-                    <p className="text-[11px] text-muted-foreground">
-                      Reporter contact: {r.reporter_contact}
-                    </p>
-                  )}
-                </div>
-
-                {r.status === 'open' && (
-                  <div className="flex items-center gap-2 shrink-0">
-                    <button
-                      type="button"
-                      disabled={busyId === r.id}
-                      onClick={() => handleResolveReport(r, 'resolved')}
-                      className="rounded-lg bg-[#0F6E6E] px-3.5 py-2 text-xs font-semibold text-white hover:bg-[#0A4F4F] cursor-pointer"
-                    >
-                      Mark Resolved
-                    </button>
-                    <button
-                      type="button"
-                      disabled={busyId === r.id}
-                      onClick={() => handleResolveReport(r, 'dismissed')}
-                      className="rounded-lg border border-border px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer"
-                    >
-                      Dismiss
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          ) : (
-            <div className="rounded-2xl border border-dashed border-border bg-card p-12 text-center text-xs text-muted-foreground">
-              No buyer reports submitted yet.
-            </div>
-          )}
-        </div>
-      )}
-
-      {/* Tab 4: Categories Manager */}
+      {/* ── TAB 3: CATEGORIES & REQUESTS ── */}
       {activeTab === 'categories' && (
         <div className="space-y-6">
-          {/* Vendor Category Requests Section */}
-          <div className="rounded-2xl border border-border bg-card p-5 space-y-4">
-            <div className="flex items-center justify-between gap-2 border-b border-border/60 pb-3">
-              <div>
-                <h3 className="text-base font-bold text-foreground flex items-center gap-2">
-                  <span>Vendor Category Requests</span>
-                  {categoryRequests.filter((r) => r.status === 'pending').length > 0 && (
-                    <span className="rounded-full bg-amber-500/20 border border-amber-500/40 px-2 py-0.5 text-[10px] font-bold text-amber-300">
-                      {categoryRequests.filter((r) => r.status === 'pending').length} pending
-                    </span>
-                  )}
-                </h3>
-                <p className="text-xs text-muted-foreground mt-0.5">
-                  When vendors request new categories from their dashboard, review and grant them here.
-                </p>
-              </div>
-            </div>
-
-            {categoryRequests.length > 0 ? (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+          {/* Pending Category Requests */}
+          {categoryRequests.length > 0 && (
+            <div className="space-y-2">
+              <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+                Category Requests ({categoryRequests.length})
+              </h2>
+              <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
                 {categoryRequests.map((req) => (
                   <div
                     key={req.id}
-                    className="rounded-xl border border-border bg-muted/40 p-4 space-y-2.5 flex flex-col justify-between"
+                    className="p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
                   >
-                    <div className="space-y-1.5">
-                      <div className="flex items-center justify-between gap-2">
-                        <span className="text-sm font-bold text-foreground">{req.name}</span>
+                    <div className="space-y-0.5 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium text-foreground">
+                          {req.name}
+                        </span>
                         <span
                           className={cn(
-                            'rounded-full px-2 py-0.5 text-[10px] font-bold uppercase',
-                            req.status === 'approved'
-                              ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30'
-                              : req.status === 'rejected'
-                              ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                              : 'bg-amber-500/20 text-amber-300 border border-amber-500/30'
+                            'inline-flex items-center h-4 px-1.5 rounded text-[10px] font-medium capitalize',
+                            req.status === 'pending'
+                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                              : req.status === 'approved'
+                              ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                              : 'bg-muted text-muted-foreground'
                           )}
                         >
                           {req.status}
                         </span>
                       </div>
-                      {req.description && (
-                        <p className="text-xs text-muted-foreground">{req.description}</p>
-                      )}
-                      {(req.vendor_name || req.vendor_whatsapp) && (
-                        <p className="text-[11px] text-muted-foreground">
-                          From: <strong className="text-foreground">{req.vendor_name || 'Vendor'}</strong>
-                          {req.vendor_whatsapp ? ` (${req.vendor_whatsapp})` : ''}
-                        </p>
-                      )}
+                      <p className="text-xs text-muted-foreground">
+                        {req.description || 'Requested by vendor'}
+                        {req.vendor_name ? ` · ${req.vendor_name}` : ''}
+                      </p>
                     </div>
 
                     {req.status === 'pending' && (
-                      <div className="pt-2 border-t border-border/60 flex items-center gap-2">
+                      <div className="flex items-center gap-1.5 shrink-0">
                         <button
                           type="button"
                           disabled={busyId === req.id}
                           onClick={() => handleApproveCategoryRequest(req)}
-                          className="flex-1 inline-flex h-9 items-center justify-center rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 cursor-pointer transition-opacity"
+                          className="inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 cursor-pointer"
                         >
-                          Approve &amp; Create Category
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Approve</span>
                         </button>
                         <button
                           type="button"
                           disabled={busyId === req.id}
                           onClick={() => handleRejectCategoryRequest(req)}
-                          className="inline-flex h-9 items-center justify-center px-3 rounded-lg border border-border text-xs font-semibold text-muted-foreground hover:bg-muted cursor-pointer transition-colors"
+                          className="inline-flex items-center h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
                         >
-                          Reject
+                          Dismiss
                         </button>
                       </div>
                     )}
                   </div>
                 ))}
               </div>
-            ) : (
-              <div className="rounded-xl border border-dashed border-border bg-background/50 p-6 text-center text-xs text-muted-foreground">
-                No category requests from vendors yet.
-              </div>
-            )}
-          </div>
-
-          {/* Existing Categories & Direct Creator Form */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
-            <div className="lg:col-span-7 space-y-3">
-              <h3 className="text-sm font-bold text-foreground">
-                Active Categories ({categories.length})
-              </h3>
-              {categories.map((cat) => (
-                <div
-                  key={cat.id}
-                  className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-4"
-                >
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-sm font-bold text-foreground">
-                        {cat.name}
-                      </span>
-                      <span className="text-xs text-muted-foreground">/{cat.slug}</span>
-                      {cat.is_priority && (
-                        <span className="rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/25 px-2 py-0.5 text-[10px] font-bold text-[#0A4F4F] dark:text-[#E8B84A]">
-                          Priority
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-xs text-muted-foreground mt-0.5">{cat.description}</p>
-                  </div>
-                </div>
-              ))}
             </div>
+          )}
 
-            <form
-              onSubmit={handleCreateCategory}
-              className="lg:col-span-5 rounded-2xl border border-border bg-card p-5 space-y-4"
-            >
-              <h3 className="text-sm font-bold text-foreground flex items-center gap-1.5">
-                <Plus className="h-4 w-4 text-[#0F6E6E]" />
-                Add New Marketplace Category
-              </h3>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Category Name *
-              </label>
-              <input
-                type="text"
-                required
-                value={newCatName}
-                onChange={(e) => setNewCatName(e.target.value)}
-                placeholder="e.g. Campus Laundry & Tailoring"
-                className="w-full h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                URL Slug (optional)
-              </label>
-              <input
-                type="text"
-                value={newCatSlug}
-                onChange={(e) => setNewCatSlug(e.target.value)}
-                placeholder="e.g. campus-laundry-tailoring"
-                className="w-full h-10 rounded-lg border border-input bg-background px-3 text-xs text-foreground"
-              />
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-foreground mb-1">
-                Description *
-              </label>
-              <textarea
-                rows={2}
-                required
-                value={newCatDesc}
-                onChange={(e) => setNewCatDesc(e.target.value)}
-                placeholder="What items belong in this category?"
-                className="w-full rounded-lg border border-input bg-background p-3 text-xs text-foreground"
-              />
-            </div>
-
-            <label className="flex items-center gap-2 text-xs text-foreground cursor-pointer">
-              <input
-                type="checkbox"
-                checked={newCatPriority}
-                onChange={(e) => setNewCatPriority(e.target.checked)}
-                className="rounded border-input"
-              />
-              Mark as Priority Category on Homepage
-            </label>
-
+          {/* Quick Add Category Bar */}
+          <form
+            onSubmit={handleCreateCategory}
+            className="rounded-xl border border-border bg-card p-3.5 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5"
+          >
+            <input
+              type="text"
+              required
+              value={newCatName}
+              onChange={(e) => setNewCatName(e.target.value)}
+              placeholder="New category name (e.g. Lab Coats & Coveralls)"
+              className="flex-1 h-9 rounded-lg border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none"
+            />
+            <input
+              type="text"
+              value={newCatDesc}
+              onChange={(e) => setNewCatDesc(e.target.value)}
+              placeholder="Short description (optional)"
+              className="flex-1 h-9 rounded-lg border border-border bg-background px-3 text-xs text-foreground placeholder:text-muted-foreground focus:border-foreground/40 focus:outline-none"
+            />
             <button
               type="submit"
               disabled={creatingCat}
-              className="w-full h-10 rounded-xl bg-foreground text-background text-xs font-bold hover:opacity-90 cursor-pointer transition-opacity"
+              className="inline-flex items-center justify-center gap-1.5 h-9 px-4 rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer shrink-0"
             >
-              {creatingCat ? 'Adding...' : 'Create Category'}
+              <Plus className="w-3.5 h-3.5" />
+              <span>{creatingCat ? 'Adding...' : 'Add category'}</span>
             </button>
           </form>
-        </div>
-      </div>
-    )}
 
-      {/* Tab 5: Moderation Audit Logs */}
-      {activeTab === 'logs' && (
-        <div className="rounded-2xl border border-border bg-card divide-y divide-border">
-          {logs.length > 0 ? (
-            logs.map((log) => (
+          {/* Active Categories List */}
+          <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+            {categories.map((cat) => (
               <div
-                key={log.id}
-                className="p-4 flex flex-wrap items-center justify-between gap-2 text-xs"
+                key={cat.id || cat.slug}
+                className="px-4 py-3 flex items-center justify-between gap-4 hover:bg-muted/30 transition-colors"
               >
-                <div className="space-y-0.5">
-                  <span className="font-bold text-foreground uppercase">
-                    {log.action_type.replace(/_/g, ' ')}
-                  </span>{' '}
-                  <span className="text-muted-foreground">
-                    ({log.target_type} ID: {log.target_id.slice(0, 8)}...)
-                  </span>
-                  {log.reason && (
-                    <p className="text-muted-foreground">Note: {log.reason}</p>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-2">
+                    <span className="text-sm font-medium text-foreground">
+                      {cat.name}
+                    </span>
+                    <span className="text-xs text-muted-foreground font-mono">
+                      /{cat.slug}
+                    </span>
+                  </div>
+                  {cat.description && (
+                    <p className="text-xs text-muted-foreground truncate max-w-xl">
+                      {cat.description}
+                    </p>
                   )}
                 </div>
-                <span className="text-muted-foreground">
-                  {new Date(log.created_at).toLocaleString()}
+                <span className="text-xs text-muted-foreground shrink-0">
+                  {products.filter((p) => p.category_id === cat.id).length} items
                 </span>
               </div>
-            ))
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* ── TAB 4: BUYER REPORTS ── */}
+      {activeTab === 'reports' && (
+        <div>
+          {reports.length > 0 ? (
+            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+              {reports.map((r) => (
+                <div
+                  key={r.id}
+                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                >
+                  <div className="space-y-0.5">
+                    <div className="flex items-center gap-2">
+                      <span
+                        className={cn(
+                          'w-2 h-2 rounded-full',
+                          r.status === 'open' ? 'bg-red-500' : 'bg-muted-foreground/40'
+                        )}
+                      />
+                      <span className="text-sm font-medium text-foreground">
+                        {r.reason}
+                      </span>
+                      <span className="text-[11px] text-muted-foreground capitalize">
+                        · {r.target_type} · {r.status}
+                      </span>
+                    </div>
+                    {r.details && (
+                      <p className="text-xs text-muted-foreground">{r.details}</p>
+                    )}
+                    <p className="text-[11px] text-muted-foreground">
+                      {new Date(r.created_at).toLocaleDateString()}
+                      {r.reporter_contact ? ` · Contact: ${r.reporter_contact}` : ''}
+                    </p>
+                  </div>
+
+                  {r.status === 'open' && (
+                    <div className="flex items-center gap-1.5 shrink-0">
+                      <button
+                        type="button"
+                        disabled={busyId === r.id}
+                        onClick={() => handleResolveReport(r, 'resolved')}
+                        className="h-8 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 cursor-pointer"
+                      >
+                        Resolve
+                      </button>
+                      <button
+                        type="button"
+                        disabled={busyId === r.id}
+                        onClick={() => handleResolveReport(r, 'dismissed')}
+                        className="h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                      >
+                        Dismiss
+                      </button>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
           ) : (
-            <div className="p-10 text-center text-xs text-muted-foreground">
-              No moderation actions recorded yet.
+            <div className="rounded-xl border border-border bg-card py-12 px-4 text-center text-xs text-muted-foreground">
+              No buyer reports.
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* ── TAB 5: ACTIVITY LOGS ── */}
+      {activeTab === 'logs' && (
+        <div>
+          {logs.length > 0 ? (
+            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
+              {logs.map((log) => (
+                <div
+                  key={log.id}
+                  className="px-4 py-3 flex items-center justify-between gap-4 text-xs"
+                >
+                  <div className="min-w-0 truncate">
+                    <span className="font-medium text-foreground capitalize">
+                      {log.action_type.replace(/_/g, ' ')}
+                    </span>
+                    {log.reason && (
+                      <span className="text-muted-foreground"> · {log.reason}</span>
+                    )}
+                  </div>
+                  <span className="text-muted-foreground shrink-0">
+                    {new Date(log.created_at).toLocaleString()}
+                  </span>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="rounded-xl border border-border bg-card py-12 px-4 text-center text-xs text-muted-foreground">
+              No moderation activity recorded yet.
             </div>
           )}
         </div>

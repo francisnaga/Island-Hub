@@ -1,0 +1,1140 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A4F4F">
+<title>Jetty: redesign prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --teal:#0F6E6E; --teal-l:#17908D; --deep:#0A4F4F; --tint:#E6F2F2; --gold:#E8B84A;
+  --ink:#0E1B1B; --muted:#5B6B6B; --bg:#F6FAFA; --line:#DCE8E8; --white:#fff;
+  --gold-tint:#FBF1D6;
+  --r-s:8px; --r-m:12px; --r-l:20px;
+  --display:'Bricolage Grotesque','Inter',system-ui,sans-serif;
+  --body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --ease:cubic-bezier(.22,.8,.2,1);
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+html{background:#E4ECEC}
+body{font-family:var(--body);color:var(--ink);background:var(--bg);max-width:430px;margin:0 auto;min-height:100vh;position:relative;font-size:15px;line-height:1.4}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+a{color:inherit;text-decoration:none}
+ul{list-style:none}
+svg.i{width:22px;height:22px;fill:none;stroke:currentColor;stroke-width:1.75;stroke-linecap:round;stroke-linejoin:round;flex:none}
+:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* header */
+.hd{position:sticky;top:0;z-index:20;height:60px;padding:0 16px;display:flex;align-items:center;justify-content:space-between;background:var(--deep);color:#fff;transition:box-shadow .2s}
+.hd.scrolled{box-shadow:0 1px 0 rgba(255,255,255,.12)}
+.brand{display:flex;align-items:center;gap:10px}
+.brand img{width:32px;height:32px;display:block;border-radius:25%;box-shadow:0 0 0 1px rgba(255,255,255,.16)}
+.brand b{font-family:var(--display);font-weight:600;font-size:24px;letter-spacing:.02em;line-height:1}
+.campus{position:relative;display:flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:999px;border:1px solid rgba(255,255,255,.22);font-size:13px;font-weight:500;color:#fff}
+.campus::after{content:'';position:absolute;inset:-4px 0}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--gold);flex:none}
+.dot.b{box-shadow:10px 0 0 var(--gold);margin-right:10px}
+body.detail .hd,body.detail .nav,body.detail .fabwrap{display:none}
+body.detail .sweep{top:0}
+
+/* hero */
+.hero{background:var(--deep);color:#fff;padding:8px 16px 0;position:relative}
+.hero h1{font-family:var(--display);font-weight:600;font-size:30px;line-height:1.08;letter-spacing:-.01em;margin-top:6px}
+.hero p{margin-top:8px;font-size:14px;color:rgba(255,255,255,.78)}
+.search{margin-top:16px;height:48px;border-radius:14px;background:#fff;display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--muted);font-size:15px;width:100%;text-align:left}
+.doors{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:18px;padding-bottom:6px}
+.door{display:flex;flex-direction:column;align-items:center;gap:8px;font-size:13px;font-weight:500;color:#fff}
+.door .t{width:100%;max-width:76px;aspect-ratio:1;border-radius:18px;background:rgba(255,255,255,.09);border:1px solid rgba(255,255,255,.16);display:grid;place-items:center;transition:transform .2s var(--ease),background .2s}
+.door:active .t{transform:scale(.95)}
+.door.sell .t{background:var(--gold);border-color:var(--gold);color:var(--ink)}
+.door svg.i{width:26px;height:26px}
+.wave{display:block;width:100%;height:28px;margin-top:-1px}
+.wave g{transform-box:fill-box;transform-origin:50% 100%;transform:scaleY(var(--amp,1))}
+
+
+.img img.cimg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s var(--ease)}
+.card:hover .img img.cimg{transform:scale(1.04)}
+.chip{z-index:2;box-shadow:0 1px 4px rgba(0,0,0,.14)}
+.slide img{width:100%;height:100%;object-fit:cover;display:block}
+.av{overflow:hidden}
+.av img{width:100%;height:100%;object-fit:cover;border-radius:50%;display:block}
+
+/* sections */
+.sec{padding:22px 0 0}
+.sh{display:flex;align-items:baseline;justify-content:space-between;padding:0 16px 12px}
+.sh h2{font-family:var(--display);font-weight:600;font-size:21px;letter-spacing:-.005em}
+.sh a{font-size:14px;font-weight:500;color:var(--teal);display:inline-flex;align-items:center;min-height:44px;margin:-14px 0;padding-left:16px}
+.rail{display:flex;gap:12px;overflow-x:auto;padding:0 16px 4px;scroll-snap-type:x mandatory;scroll-padding-left:16px;scrollbar-width:none}
+.rail::-webkit-scrollbar{display:none}
+.card{flex:none;display:block;width:156px;scroll-snap-align:start;text-align:left;color:inherit;text-decoration:none}
+.card.wide{width:244px}
+.img{position:relative;aspect-ratio:1;border-radius:var(--r-m);background:var(--tint);display:grid;place-items:center;color:var(--teal);overflow:hidden}
+.card.wide .img{aspect-ratio:16/10}
+.img svg.i{width:38px;height:38px;opacity:.45}
+.img.svc{background:var(--gold-tint);color:#6B4E0E}
+.img.room{background:#D7E8E8}
+.chip{position:absolute;left:8px;top:8px;height:22px;padding:0 8px;border-radius:999px;background:#fff;font-size:12px;font-weight:500;display:flex;align-items:center;color:var(--ink)}
+.price{margin-top:10px;font-weight:600;font-size:16px}
+.price small{font-weight:400;font-size:12px;color:var(--muted)}
+.ttl{margin-top:2px;font-size:14px;color:var(--ink);display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;min-height:2.8em}
+.meta{margin-top:6px;display:flex;align-items:center;gap:10px;font-size:12px;color:var(--muted);white-space:nowrap;min-width:0;overflow:hidden}
+.meta span{display:inline-flex;align-items:center;gap:4px}
+.meta svg{width:14px;height:14px;fill:none;stroke:var(--teal);stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pin{width:13px;height:13px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+body[data-campus]:not([data-campus="all"]) .cp{display:none}
+
+.chips{display:flex;flex-wrap:wrap;gap:8px;padding:0 16px}
+.sv{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;border-radius:999px;background:#fff;border:1px solid var(--line);font-size:14px;font-weight:500}
+.sv svg.i{width:18px;height:18px;color:var(--teal)}
+.vrail .v{flex:none;width:76px;display:flex;flex-direction:column;align-items:center;gap:8px;font-size:12px;text-align:center;scroll-snap-align:start}
+.av{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;color:#fff;font-family:var(--display);font-weight:600;font-size:20px;background:linear-gradient(135deg,var(--teal-l),var(--deep))}
+.v span{max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.banner{margin:22px 16px 0;height:72px;border-radius:var(--r-m);background:var(--tint);display:flex;align-items:center;gap:12px;padding:0 16px;width:calc(100% - 32px)}
+.banner .ic{width:40px;height:40px;border-radius:10px;background:#fff;display:grid;place-items:center;color:var(--teal)}
+.banner b{display:block;font-size:15px}
+.banner small{font-size:13px;color:var(--muted)}
+
+/* footer */
+.ft{margin-top:28px;padding:20px 16px 120px;border-top:1px solid var(--line);color:var(--muted);font-size:13px}
+.ft .row{display:flex;align-items:center;gap:8px;color:var(--ink)}
+.ft .row img{width:24px;height:24px}
+.ft .row b{font-family:var(--display);font-weight:600;font-size:18px}
+.ft p{margin-top:6px}
+.by{margin-top:14px;display:flex;align-items:center;gap:8px}
+.by i{width:20px;height:20px;border:1px dashed var(--muted);border-radius:4px;display:inline-block}
+
+/* bottom nav, 4 items */
+.nav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);height:calc(64px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(255,255,255,.96);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);z-index:30;backdrop-filter:blur(8px)}
+.tab{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:12px;font-weight:500;color:var(--muted);position:relative}
+.tab[aria-selected="true"]{color:var(--teal)}
+.ind{position:absolute;top:-1px;left:0;width:25%;height:3px;pointer-events:none;transition:transform .32s var(--ease)}
+.ind i{display:block;width:28px;height:3px;border-radius:3px;background:var(--teal);margin:0 auto}
+
+/* sell fab + sheets */
+.fabwrap{position:fixed;bottom:calc(64px + env(safe-area-inset-bottom) + 16px);left:50%;transform:translateX(-50%);width:min(430px,100%);display:flex;justify-content:flex-end;padding-right:16px;pointer-events:none;z-index:29}
+.fab{pointer-events:auto;height:48px;padding:0 18px 0 14px;border-radius:999px;background:var(--teal);color:#fff;font-weight:600;font-size:15px;display:flex;align-items:center;gap:8px;box-shadow:0 6px 16px rgba(10,79,79,.28)}
+.fab.off{display:none}
+.scrim{position:fixed;inset:0;background:rgba(10,31,31,.5);z-index:40;opacity:0;pointer-events:none;transition:opacity .28s var(--ease)}
+.scrim.open{opacity:1;pointer-events:auto}
+.sheet{position:fixed;bottom:0;left:50%;transform:translate(-50%,105%);width:min(430px,100%);background:#fff;border-radius:var(--r-l) var(--r-l) 0 0;padding:20px 16px calc(20px + env(safe-area-inset-bottom));z-index:41;transition:transform .32s var(--ease)}
+.sheet.open{transform:translate(-50%,0)}
+.sheet h3{font-family:var(--display);font-weight:600;font-size:21px;margin-bottom:8px}
+.opt{display:flex;align-items:center;gap:12px;width:100%;min-height:64px;padding:8px 0;text-align:left;border-top:1px solid var(--line)}
+.opt .ic{width:44px;height:44px;border-radius:12px;background:var(--tint);color:var(--teal);display:grid;place-items:center;flex:none}
+.opt b{display:block;font-size:16px}
+.opt small{font-size:13px;color:var(--muted)}
+.opt .ck{margin-left:auto;color:var(--teal);opacity:0}
+.opt[aria-checked="true"] .ck{opacity:1}
+.cancel{width:100%;height:48px;margin-top:8px;border-radius:12px;background:var(--bg);font-weight:500}
+
+/* views, sweep, skeleton */
+main{min-height:70vh}
+.sweep{position:fixed;top:60px;left:50%;transform:translateX(-50%);width:min(430px,100%);height:8px;z-index:45;pointer-events:none;opacity:0;
+  background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='8'%3E%3Cpath d='M0 4q6-4 12 0t12 0' fill='none' stroke='%2317908D' stroke-width='2' stroke-linecap='round'/%3E%3C/svg%3E") repeat-x}
+.sweep.go{animation:sweep .52s var(--ease)}
+@keyframes sweep{0%{clip-path:inset(0 100% 0 0);opacity:1}70%{clip-path:inset(0 0 0 0);opacity:1}100%{clip-path:inset(0 0 0 0);opacity:0}}
+.view{animation:vin .28s var(--ease)}
+@keyframes vin{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px;padding:0 16px}
+.grid .card{width:auto}
+.pgh{padding:20px 16px 4px;font-family:var(--display);font-weight:600;font-size:26px}
+.sub{padding:0 16px 8px;font-size:14px;color:var(--muted)}
+.sp{height:120px}
+.empty{padding:32px 16px;text-align:center;color:var(--muted);font-size:14px}
+.sk .img,.sk .l,.sk .av,.shim{background:linear-gradient(90deg,var(--tint) 0%,#CDE5E5 50%,var(--tint) 100%);background-size:200% 100%;animation:flow 1.6s linear infinite}
+.sk .img svg,.sk .chip{display:none}
+.sk .l{height:14px;border-radius:6px;margin-top:10px}
+.sk .l.s{width:55%}
+.shim{display:inline-block;height:14px;width:72px;border-radius:6px}
+@keyframes flow{to{background-position:-200% 0}}
+
+/* page controls */
+.bk{display:inline-flex;align-items:center;gap:4px;min-height:44px;font-size:14px;font-weight:500;color:#fff}
+.bk.light{color:var(--teal);padding:0 16px}
+.bk svg.i{width:20px;height:20px}
+.seg{display:flex;gap:4px;margin:12px 16px 0;padding:4px;background:var(--tint);border-radius:var(--r-m)}
+.seg button{flex:1;height:44px;border-radius:9px;font-weight:500;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 2px rgba(10,79,79,.14)}
+.cats{display:flex;gap:8px;overflow-x:auto;padding:12px 16px 16px;scrollbar-width:none}
+.cats::-webkit-scrollbar{display:none}
+.pill{flex:none;height:44px;padding:0 18px;border-radius:999px;border:1px solid var(--line);background:#fff;font-size:14px;font-weight:500}
+.pill[aria-pressed="true"]{background:var(--teal);border-color:var(--teal);color:#fff}
+.pills{display:flex;gap:8px;padding:12px 16px 4px}
+.vs{margin:12px 16px 0;height:48px;border-radius:var(--r-m);background:#fff;border:1px solid var(--line);display:flex;align-items:center;gap:10px;padding:0 14px;color:var(--muted)}
+.vs input{flex:1;min-width:0;height:100%;border:0;outline:0;background:none;font:inherit;font-size:15px;color:var(--ink)}
+.vs input::placeholder{color:var(--muted)}
+.vs:focus-within{border-color:var(--teal)}
+.count{padding:8px 16px 12px;font-size:13px;color:var(--muted)}
+.hint{display:block;width:calc(100% - 32px);margin:16px 16px 0;min-height:44px;font-size:14px;font-weight:500;color:var(--teal);text-align:center}
+
+/* vendor card: centered, after the IslandHub reference */
+.vc{display:block;position:relative;margin:0 16px 12px;padding:24px 16px 20px;background:#fff;border:1px solid var(--line);border-radius:var(--r-m);text-align:center}
+.vc .av{width:88px;height:88px;margin:0 auto;font-size:28px;box-shadow:0 0 0 3px #fff,0 0 0 4px var(--line)}
+.vbadge{position:absolute;top:14px;right:14px;width:28px;height:28px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center}
+.vbadge svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+.vn{margin-top:14px;font-family:var(--display);font-weight:600;font-size:20px;line-height:1.15;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.vk{margin-top:6px;font-size:14px;color:var(--muted)}
+.vk2{margin-top:2px;display:flex;align-items:center;justify-content:center;gap:4px;font-size:13px;color:var(--muted)}
+.vh{height:1px;background:var(--line);margin:16px 8px}
+.vr{display:flex;align-items:center;justify-content:center;gap:6px;font-weight:600;font-size:18px;color:var(--teal)}
+.vr.none{color:var(--muted);font-size:15px;font-weight:500}
+.st{width:18px;height:18px;fill:var(--teal)}
+.vq{margin-top:2px;font-size:13px;color:var(--muted)}
+.vc.sk .av{width:88px;height:88px}
+.vc.sk .l{margin:12px auto 0}
+
+/* service categories: tinted, count as the numeral */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 16px 0}
+.scard{display:flex;flex-direction:column;justify-content:space-between;gap:20px;padding:16px;background:var(--tint);border-radius:var(--r-m);text-align:left;min-height:148px}
+.scard .ic{width:44px;height:44px;border-radius:12px;background:#fff;color:var(--teal);display:grid;place-items:center}
+.scard b{display:block;font-size:17px;font-weight:600}
+.scard .ct{display:flex;align-items:baseline;gap:6px;margin-top:2px;font-size:14px;color:var(--muted)}
+.scard .ct em{font-style:normal;font-family:var(--display);font-weight:600;font-size:28px;line-height:1;color:var(--teal)}
+.scard.zero{opacity:.7}
+
+/* rows (no boxes) */
+.list{border-top:1px solid var(--line)}
+.pr{display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--line);min-height:76px}
+.pr .av{width:56px;height:56px;font-size:18px;flex:none}
+.pr .bd{flex:1;min-width:0}
+.pr .nm{display:flex;align-items:center;gap:6px;font-weight:600;font-size:15px}
+.pr .nm span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.pr .nm svg{width:16px;height:16px;fill:none;stroke:var(--teal);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.pr .ln{margin-top:2px;font-size:13px;color:var(--muted)}
+.pr .rt{display:flex;align-items:center;gap:4px;font-weight:600;font-size:14px;color:var(--teal)}
+.pr .rt .st{width:14px;height:14px}
+.cv{width:20px;height:20px;color:var(--muted);flex:none}
+.lrow{display:flex;align-items:center;gap:12px;min-height:56px;padding:0 16px;border-bottom:1px solid var(--line);font-size:15px}
+.lrow b{font-weight:600;flex:1}
+.lrow span{color:var(--muted);font-size:14px}
+
+/* storefront */
+.pb{background:var(--deep);color:#fff;padding:0 16px;text-align:center}
+.pb .bk{display:flex;justify-content:flex-start}
+.pb .av{width:88px;height:88px;margin:4px auto 0;font-size:28px;box-shadow:0 0 0 3px var(--deep),0 0 0 5px rgba(255,255,255,.35)}
+.pb h2{margin-top:14px;font-family:var(--display);font-weight:600;font-size:24px;line-height:1.12}
+.pb .vk{color:rgba(255,255,255,.78)}
+.pb .vk2{color:rgba(255,255,255,.78)}
+.pb .vf{display:inline-flex;align-items:center;gap:6px;margin-top:12px;height:28px;padding:0 12px;border-radius:999px;background:rgba(255,255,255,.12);font-size:13px;font-weight:500}
+.pb .vf svg{width:14px;height:14px;fill:none;stroke:#fff;stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round}
+.pb .stat{display:flex;justify-content:center;gap:40px;margin-top:16px;padding-bottom:6px}
+.pb .stat b{display:block;font-family:var(--display);font-size:22px;font-weight:600}
+.pb .stat small{font-size:13px;color:rgba(255,255,255,.78)}
+.cta{margin:20px 16px 0;height:48px;width:calc(100% - 32px);border-radius:var(--r-m);background:var(--teal);color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+.about{padding:18px 16px 0;font-size:15px;line-height:1.55}
+.h3{padding:24px 16px 12px;font-family:var(--display);font-weight:600;font-size:19px}
+.rep{display:block;margin:20px auto 0;min-height:44px;padding:0 16px;font-size:14px;color:var(--muted);text-decoration:underline}
+
+/* listing detail */
+.dimg{position:relative;background:var(--tint)}
+.slides{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none}
+.slides::-webkit-scrollbar{display:none}
+.slide{flex:none;width:100%;aspect-ratio:1;scroll-snap-align:center;display:grid;place-items:center;color:var(--teal);background:var(--tint)}
+.slide.room{background:#D7E8E8}
+.slide.svc{background:var(--gold-tint);color:#6B4E0E;aspect-ratio:16/9}
+.slide svg.i{width:64px;height:64px;opacity:.4}
+.ov{position:absolute;top:12px;width:44px;height:44px;border-radius:50%;background:rgba(255,255,255,.94);display:grid;place-items:center;color:var(--ink);z-index:2}
+.ov.l{left:12px}.ov.r{right:12px}
+.dots{position:absolute;bottom:12px;left:0;right:0;display:flex;justify-content:center;gap:6px;pointer-events:none}
+.dots i{width:6px;height:6px;border-radius:3px;background:rgba(14,27,27,.28);transition:width .2s var(--ease)}
+.dots i.on{background:var(--ink);width:18px}
+.db{padding:20px 16px 0}
+.dp{font-family:var(--display);font-weight:600;font-size:30px;letter-spacing:-.01em;line-height:1.05}
+.dp small{font-family:var(--body);font-weight:400;font-size:15px;color:var(--muted);letter-spacing:0}
+.dt{margin-top:8px;font-size:18px;font-weight:500;line-height:1.3}
+.dmeta{margin-top:12px;display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px;color:var(--muted)}
+.dmeta span{display:inline-flex;align-items:center;gap:6px}
+.dmeta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.dmeta .ver svg{stroke:var(--teal)}
+.dv{height:1px;background:var(--line);margin:20px 0}
+.facts{display:grid;grid-template-columns:1fr 1fr;gap:16px 12px}
+.facts dt{font-size:13px;color:var(--muted)}
+.facts dd{margin-top:2px;font-size:15px;font-weight:600}
+.sr{display:flex;align-items:center;gap:12px;min-height:64px}
+.sr .av{width:48px;height:48px;font-size:16px;flex:none}
+.sr .bd{flex:1;min-width:0}
+.sr b{display:flex;align-items:center;gap:6px;font-size:15px}
+.sr b svg{width:16px;height:16px;fill:none;stroke:var(--teal);stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.sr small{display:flex;align-items:center;gap:4px;font-size:13px;color:var(--muted);margin-top:2px}
+.sr small .st{width:13px;height:13px}
+.dd{font-size:15px;line-height:1.55}
+.hh{font-family:var(--display);font-weight:600;font-size:17px;margin-bottom:12px}
+.am{display:flex;flex-wrap:wrap;gap:8px}
+.am span{height:36px;padding:0 14px;border-radius:999px;background:var(--tint);font-size:14px;display:inline-flex;align-items:center}
+.inc li{display:flex;gap:10px;align-items:flex-start;padding:6px 0;font-size:15px}
+.inc svg{width:18px;height:18px;margin-top:2px;fill:none;stroke:var(--teal);stroke-width:2.4;stroke-linecap:round;stroke-linejoin:round;flex:none}
+.tip{display:flex;gap:12px;padding:14px;background:var(--tint);border-radius:var(--r-m);font-size:14px;line-height:1.45}
+.tip svg{color:var(--teal);width:22px;height:22px;flex:none}
+.bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:min(430px,100%);background:#fff;border-top:1px solid var(--line);padding:12px 16px calc(12px + env(safe-area-inset-bottom));display:none;align-items:center;gap:16px;z-index:30}
+body.detail .bar.on{display:flex}
+.bar .pp b{display:block;font-size:18px;font-weight:600}
+.bar .pp small{display:block;font-size:12px;color:var(--muted)}
+.bar .go{flex:1;height:48px;border-radius:var(--r-m);background:var(--teal);color:#fff;font-weight:600;display:flex;align-items:center;justify-content:center;gap:8px}
+
+
+/* mode switch and vendor nav */
+.mode{display:none;padding:3px;border-radius:999px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22)}
+.mode button{position:relative;height:34px;padding:0 14px;border-radius:999px;font-size:13px;font-weight:500;color:#fff}
+.mode button::after{content:'';position:absolute;inset:-5px 0}
+.mode button[aria-pressed="true"]{background:#fff;color:var(--deep)}
+body[data-mode="sell"] .mode{display:flex}
+body[data-mode="sell"] .campus{display:none}
+body[data-mode="sell"] .fabwrap{display:none}
+body[data-mode="sell"] #nav{display:none}
+body:not([data-mode="sell"]) #vnav{display:none}
+.snav{grid-template-columns:repeat(3,1fr)}
+.snav .ind{width:33.333%}
+
+/* vendor: listings */
+.mr{display:flex;align-items:center;gap:12px;width:100%;min-height:76px;padding:12px 16px;border-bottom:1px solid var(--line);text-align:left;color:inherit}
+.mt{width:52px;height:52px;border-radius:var(--r-m);background:var(--tint);color:var(--teal);display:grid;place-items:center;flex:none}
+.mt.svc{background:var(--gold-tint);color:#6B4E0E}
+.mt.room{background:#D7E8E8}
+.mr .bd{flex:1;min-width:0;display:block}
+.mr .bd b{display:block;font-size:15px;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mr .ln{display:block;margin-top:2px;font-size:13px;color:var(--muted)}
+.stt{height:24px;padding:0 10px;border-radius:999px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;background:var(--tint);color:var(--deep);flex:none}
+.stt.paused{background:var(--gold-tint);color:#6B4E0E}
+.stt.sold{background:#fff;border:1px solid var(--line);color:var(--muted)}
+.vempty{text-align:center;padding:48px 24px 0}
+.vempty b{display:block;font-family:var(--display);font-weight:600;font-size:20px}
+.vempty p{margin-top:6px;color:var(--muted);font-size:14px}
+.vopts{padding:8px 16px 0;border-bottom:1px solid var(--line);margin:0 0 0}
+.vopts .opt:last-child{border-bottom:0}
+.cta.ghost{background:#fff;color:var(--teal);border:1px solid var(--line)}
+.cta.sm{height:44px;margin:12px 0 0;width:100%}
+
+/* vendor: form */
+.ftop{position:sticky;top:0;z-index:15;display:flex;align-items:center;gap:4px;height:56px;padding:0 8px;background:#fff;border-bottom:1px solid var(--line)}
+.ftop b{font-family:var(--display);font-weight:600;font-size:18px}
+.ov2{width:44px;height:44px;display:grid;place-items:center;border-radius:50%}
+.fld{padding:0 16px;margin-top:22px}
+.fl{display:block;margin-bottom:8px;font-size:15px;font-weight:600}
+.fh{display:block;margin-top:6px;font-size:13px;color:var(--muted)}
+.in{width:100%;height:52px;padding:0 14px;border-radius:var(--r-m);border:1px solid var(--line);background:#fff;font:inherit;font-size:16px;color:var(--ink);outline:0}
+.in:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(15,110,110,.14)}
+.in::placeholder{color:var(--muted)}
+textarea.in{height:auto;min-height:96px;padding:12px 14px;line-height:1.45;resize:vertical}
+.pre{position:relative}
+.pre>span{position:absolute;left:14px;top:0;height:52px;display:flex;align-items:center;color:var(--muted);font-size:16px}
+.pre .in{padding-left:30px}
+.fc{display:flex;flex-wrap:wrap;gap:8px}
+.ph{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.ph::-webkit-scrollbar{display:none}
+.ph .t{position:relative;flex:none;width:88px;height:88px;border-radius:var(--r-m);background:var(--tint);color:var(--teal);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.ph .t.add{background:#fff;border:1.5px dashed var(--teal);font-size:12px;font-weight:500}
+.ph .t em{position:absolute;left:6px;bottom:6px;font-style:normal;font-size:11px;font-weight:500;padding:2px 6px;border-radius:999px;background:#fff;color:var(--ink)}
+.ph .t .rm{position:absolute;top:4px;right:4px;width:22px;height:22px;border-radius:50%;background:#fff;color:var(--ink);display:grid;place-items:center}
+.ph .t .rm svg{width:12px;height:12px}
+.bar .go:disabled{background:#CBDADA;color:#3E4F4F;cursor:default}
+.done{text-align:center;padding:48px 24px 8px}
+.done h2{margin-top:16px;font-family:var(--display);font-weight:600;font-size:26px}
+.done p{margin-top:4px;color:var(--muted);font-size:14px}
+.okc{width:64px;height:64px;border-radius:50%;background:var(--teal);color:#fff;display:inline-grid;place-items:center}
+.okc svg{width:30px;height:30px;stroke-width:2.4}
+.done+.list{margin-top:24px}
+.verif{margin:20px 16px 0;padding:16px;border-radius:var(--r-m);background:var(--gold-tint)}
+.verif b{display:block;font-size:16px}
+.verif p{margin-top:4px;font-size:14px;line-height:1.45}
+.verif.ok{background:var(--tint)}
+.sthead{text-align:center;padding:24px 16px 0}
+.sthead .av{width:72px;height:72px;margin:0 auto;font-size:24px}
+.sthead h2{margin-top:12px;font-family:var(--display);font-weight:600;font-size:22px}
+.sthead p{margin-top:2px;font-size:14px;color:var(--muted)}
+.sheet h3.one{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.opt.danger b{color:#A32020}
+
+/* location */
+.lbtn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;height:48px;border-radius:var(--r-m);border:1px solid var(--line);background:#fff;color:var(--teal);font-weight:600;font-size:15px}
+.lbtn[aria-pressed="true"]{background:var(--tint);border-color:var(--teal)}
+.lnk{display:inline-flex;align-items:center;min-height:44px;font-size:14px;font-weight:500;color:var(--teal);text-decoration:underline}
+.pmsg{min-height:0;margin-top:6px;font-size:13px;color:var(--muted)}
+/* boot loader */
+.boot{position:fixed;inset:0;z-index:99;background:#fff;display:grid;place-items:center;transition:opacity .28s var(--ease)}
+.boot.out{opacity:0;pointer-events:none}
+.boot img{width:88px;height:88px}
+
+@media (prefers-reduced-motion:reduce){
+  .sweep.go,.view,.sk .img,.sk .l,.sk .av,.shim{animation:none}
+  .ind,.door .t,.boot,.sheet,.scrim,.dots i{transition:none}
+}
+</style>
+</head>
+<body data-campus="all">
+
+<div class="boot" id="boot" role="status" aria-label="Loading"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiIgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkxvYWRpbmciPgogIDx0aXRsZT5Mb2FkaW5nPC90aXRsZT4KICA8c3R5bGU+CiAgICAuZmxvdy1mcm9udCB7IGFuaW1hdGlvbjogamV0dHktZmxvdyAxLjZzIGxpbmVhciBpbmZpbml0ZTsgfQogICAgLmZsb3ctYmFjayAgeyBhbmltYXRpb246IGpldHR5LWZsb3ctcmV2IDIuNnMgbGluZWFyIGluZmluaXRlOyB9CiAgICBAa2V5ZnJhbWVzIGpldHR5LWZsb3cgICAgIHsgZnJvbSB7IHRyYW5zZm9ybTogdHJhbnNsYXRlWCgwKTsgfSB0byB7IHRyYW5zZm9ybTogdHJhbnNsYXRlWCgtNDhweCk7IH0gfQogICAgQGtleWZyYW1lcyBqZXR0eS1mbG93LXJldiB7IGZyb20geyB0cmFuc2Zvcm06IHRyYW5zbGF0ZVgoLTQ4cHgpOyB9IHRvIHsgdHJhbnNmb3JtOiB0cmFuc2xhdGVYKDApOyB9IH0KICAgIEBtZWRpYSAocHJlZmVycy1yZWR1Y2VkLW1vdGlvbjogcmVkdWNlKSB7CiAgICAgIC5mbG93LWZyb250LCAuZmxvdy1iYWNrIHsgYW5pbWF0aW9uOiBub25lOyB9CiAgICB9CiAgPC9zdHlsZT4KICA8ZGVmcz4KICAgIDxsaW5lYXJHcmFkaWVudCBpZD0iamV0dHktbGciIHgxPSIwIiB5MT0iMCIgeDI9IjEiIHkyPSIxIj4KICAgICAgPHN0b3Agb2Zmc2V0PSIwIiBzdG9wLWNvbG9yPSIjMTc5MDhEIi8+CiAgICAgIDxzdG9wIG9mZnNldD0iMSIgc3RvcC1jb2xvcj0iIzBBNEY0RiIvPgogICAgPC9saW5lYXJHcmFkaWVudD4KICAgIDxjbGlwUGF0aCBpZD0iamV0dHktbGMiPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgcng9IjI0Ii8+PC9jbGlwUGF0aD4KICA8L2RlZnM+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2pldHR5LWxjKSI+CiAgICA8cmVjdCB3aWR0aD0iOTYiIGhlaWdodD0iOTYiIGZpbGw9InVybCgjamV0dHktbGcpIi8+CiAgICA8ZyBjbGFzcz0iZmxvdy1iYWNrIj4KICAgICAgPHBhdGggZD0iTTAgNzYgcTEyIC03IDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgVjk2IEgwIFoiIGZpbGw9IiNGRkZGRkYiIGZpbGwtb3BhY2l0eT0iMC4xMiIvPgogICAgPC9nPgogICAgPGcgY2xhc3M9ImZsb3ctZnJvbnQiPgogICAgICA8cGF0aCBkPSJNMCA2NiBxMTIgLTggMjQgMCB0MjQgMCB0MjQgMCB0MjQgMCB0MjQgMCB0MjQgMCB0MjQgMCB0MjQgMCBWOTYgSDAgWiIgZmlsbD0iIzBBNEY0RiIgZmlsbC1vcGFjaXR5PSIwLjU1Ii8+CiAgICAgIDxwYXRoIGQ9Ik0wIDY2IHExMiAtOCAyNCAwIHQyNCAwIHQyNCAwIHQyNCAwIHQyNCAwIHQyNCAwIHQyNCAwIHQyNCAwIiBmaWxsPSJub25lIiBzdHJva2U9IiNFOEI4NEEiIHN0cm9rZS13aWR0aD0iMy41IiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDwvZz4KICAgIDxwYXRoIGQ9Ik0yNCAyNCBMNzAgMjQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgICA8cGF0aCBkPSJNNTIgMjQgTDUyIDUwIFE1MiA2NiAzOCA2NiBRMjYgNjYgMjYgNTQiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0ZGRkZGRiIgc3Ryb2tlLXdpZHRoPSIxMCIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIi8+CiAgPC9nPgo8L3N2Zz4K" alt=""></div>
+<div class="sweep" id="sweep" aria-hidden="true"></div>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9H4z"/><path d="M10 20v-6h4v6"/></symbol>
+  <symbol id="i-bag" viewBox="0 0 24 24"><path d="M6 8h12l-1 12H7z"/><path d="M9 8V6a3 3 0 0 1 6 0v2"/></symbol>
+  <symbol id="i-bed" viewBox="0 0 24 24"><path d="M3 18V7"/><path d="M3 14h18v4"/><path d="M21 14v-3a3 3 0 0 0-3-3h-7v6"/></symbol>
+  <symbol id="i-cut" viewBox="0 0 24 24"><circle cx="6" cy="7" r="2.5"/><circle cx="6" cy="17" r="2.5"/><path d="M8 8.5L20 18M8 15.5L20 6"/></symbol>
+  <symbol id="i-brief" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="12" rx="2"/><path d="M9 8V6a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/><path d="M3 13h18"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M20 20l-4-4"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-kit" viewBox="0 0 24 24"><rect x="4" y="4" width="16" height="16" rx="3"/><path d="M8.5 12.5l2.5 2.5 4.5-5"/></symbol>
+  <symbol id="i-wash" viewBox="0 0 24 24"><rect x="5" y="3" width="14" height="18" rx="3"/><circle cx="12" cy="13" r="4"/><path d="M8 6.5h.01M11 6.5h.01"/></symbol>
+  <symbol id="i-fork" viewBox="0 0 24 24"><path d="M7 3v8a2 2 0 0 0 2 2v8M11 3v8M7 7h4M17 3c-2 2-2.5 5-2 8h2v10"/></symbol>
+  <symbol id="i-wrench" viewBox="0 0 24 24"><path d="M14.5 6a4 4 0 0 0 4.9 5.2L10 20.6a2.1 2.1 0 0 1-3-3L16.4 8.2A4 4 0 0 0 14.5 6z"/></symbol>
+  <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 5.5C6 4.5 9 4.5 12 6.5c3-2 6-2 8-1v13c-2-1-5-1-8 1-3-2-6-2-8-1z"/><path d="M12 6.5v13"/></symbol>
+  <symbol id="i-shirt" viewBox="0 0 24 24"><path d="M8 4L3 7l2 4 3-1v10h8V10l3 1 2-4-5-3a4 4 0 0 1-8 0z"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="M7 10l5 5 5-5"/></symbol>
+  <symbol id="i-chevr" viewBox="0 0 24 24"><path d="M10 7l5 5-5 5"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M5 19l1.2-3.6A7.5 7.5 0 1 1 9 18z"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V4"/><path d="M8 8l4-4 4 4"/><path d="M5 12v7h14v-7"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l7 3v5c0 5-3 8-7 10-4-2-7-5-7-10V6z"/><path d="M9 12l2 2 4-4"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><path d="M5 12h.01M12 12h.01M19 12h.01" stroke-width="3"/></symbol>
+  <symbol id="i-img" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><circle cx="9" cy="10.5" r="1.6"/><path d="M4 17l5-4.5 4 3.5 3-2.5 4 3.5"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l1.5-2h7L17 8h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+  <symbol id="i-list" viewBox="0 0 24 24"><path d="M9 6h11M9 12h11M9 18h11"/><path d="M4.5 6h.01M4.5 12h.01M4.5 18h.01" stroke-width="2.5"/></symbol>
+  <symbol id="i-store" viewBox="0 0 24 24"><path d="M4 9l1.5-5h13L20 9"/><path d="M4 9a2.7 2.7 0 0 0 5.3 0 2.7 2.7 0 0 0 5.4 0A2.7 2.7 0 0 0 20 9"/><path d="M5 12v8h14v-8"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M5 19l1-4L16.5 4.5a2 2 0 0 1 3 3L9 18z"/></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><path d="M9 5v14M15 5v14"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M5 7h14M10 7V5h4v2M7 7l1 13h8l1-13"/></symbol>
+</svg>
+
+<header class="hd" id="hd">
+  <div class="brand"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiIgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkpldHR5Ij4KICA8dGl0bGU+SmV0dHk8L3RpdGxlPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJqZXR0eS1nIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzE3OTA4RCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwQTRGNEYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImpldHR5LWMiPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgcng9IjI0Ii8+PC9jbGlwUGF0aD4KICA8L2RlZnM+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2pldHR5LWMpIj4KICAgIDxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgZmlsbD0idXJsKCNqZXR0eS1nKSIvPgogICAgPHBhdGggZD0iTTAgNjYgcTEyIC04IDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgVjk2IEgwIFoiIGZpbGw9IiMwQTRGNEYiIGZpbGwtb3BhY2l0eT0iMC41NSIvPgogICAgPHBhdGggZD0iTTAgNjYgcTEyIC04IDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0U4Qjg0QSIgc3Ryb2tlLXdpZHRoPSIzLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTI0IDI0IEw3MCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik01MiAyNCBMNTIgNTAgUTUyIDY2IDM4IDY2IFEyNiA2NiAyNiA1NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8L2c+Cjwvc3ZnPgo=" alt=""><b>jetty</b></div>
+  <button class="campus" id="campus" aria-label="Change campus"><span class="dot b" id="cdot"></span><span id="clabel">Both campuses</span><svg class="i" style="width:16px;height:16px"><use href="#i-chev"/></svg></button>
+  <div class="mode" id="mode" role="group" aria-label="Mode"><button data-mode-set="buy" aria-pressed="false">Buying</button><button data-mode-set="sell" aria-pressed="true">Selling</button></div>
+</header>
+
+<main id="main"></main>
+
+<div class="fabwrap"><button class="fab off" id="fab" data-go="sell"><svg class="i"><use href="#i-plus"/></svg>Sell</button></div>
+<div class="bar" id="bar"></div>
+
+<nav class="nav" id="nav" role="tablist" aria-label="Main">
+  <span class="ind" id="ind"><i></i></span>
+  <button class="tab" role="tab" data-tab="home" aria-selected="true"><svg class="i"><use href="#i-home"/></svg>Home</button>
+  <button class="tab" role="tab" data-tab="market" aria-selected="false"><svg class="i"><use href="#i-bag"/></svg>Market</button>
+  <button class="tab" role="tab" data-tab="services" aria-selected="false"><svg class="i"><use href="#i-brief"/></svg>Services</button>
+  <button class="tab" role="tab" data-tab="lodge" aria-selected="false"><svg class="i"><use href="#i-bed"/></svg>Lodge</button>
+</nav>
+<nav class="nav snav" id="vnav" role="tablist" aria-label="Selling">
+  <span class="ind" id="vind"><i></i></span>
+  <button class="tab" role="tab" data-vtab="v:listings" aria-selected="true"><svg class="i"><use href="#i-list"/></svg>Listings</button>
+  <button class="tab" role="tab" data-vtab="v:new" aria-selected="false"><svg class="i"><use href="#i-plus"/></svg>Add</button>
+  <button class="tab" role="tab" data-vtab="v:store" aria-selected="false"><svg class="i"><use href="#i-store"/></svg>Store</button>
+</nav>
+
+<div class="scrim" id="scrim"></div>
+<div class="sheet" id="asheet" role="dialog" aria-modal="true" aria-label="Listing actions"></div>
+<div class="sheet" id="csheet" role="dialog" aria-modal="true" aria-label="Choose campus">
+  <h3>Which campus?</h3>
+  <button class="opt" role="radio" data-camp="all"><span class="ic"><span class="dot b" style="margin-right:10px;background:var(--teal);box-shadow:10px 0 0 var(--teal)"></span></span><span><b>Both campuses</b><small>Okerenkoko and Kurutie</small></span><svg class="i ck"><use href="#i-check"/></svg></button>
+  <button class="opt" role="radio" data-camp="ok"><span class="ic"><span class="dot" style="background:var(--teal)"></span></span><span><b>Okerenkoko</b><small>Permanent site</small></span><svg class="i ck"><use href="#i-check"/></svg></button>
+  <button class="opt" role="radio" data-camp="ku"><span class="ic"><span class="dot" style="background:var(--teal)"></span></span><span><b>Kurutie</b><small>Take-off campus</small></span><svg class="i ck"><use href="#i-check"/></svg></button>
+  <button class="cancel" data-close>Close</button>
+</div>
+
+<script>
+/* SAMPLE DATA: names, prices, counts, amenities and fees are placeholders, except vendor names, descriptions and a few prices copied from the real app screenshots. */
+var LIST=[
+ {id:'l1',t:'item',cat:'study',p:'₦14,500',n:'Casio fx-991ES Plus scientific calculator',vid:'oc',c:'both',i:'bag',cond:'Like new',posted:'2 days ago',d:'Second-edition Casio fx-991ES Plus. Solar and battery. Comes with the hard cover. Covers every first and second year engineering course.',img:'https://images.unsplash.com/photo-1757256137041-0aab889db199?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1757256137041-0aab889db199?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1648201188793-418f2b9b4b32?w=600&auto=format&fit=crop&q=80']},
+ {id:'l2',t:'svc',k:'tailoring',p:'from ₦3,000',n:'Cadet uniform tailoring, alteration and nameplate',vid:'af',c:'ok',i:'shirt',img:'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1558769132-cb1aea458c5e?w=600&auto=format&fit=crop&q=80']},
+ {id:'l3',t:'room',p:'₦180,000',per:'session',n:'Self-contain, 5 min walk from the gate',vid:'lh',c:'ku',i:'bed',posted:'1 day ago',facts:[['Type','Self-contain'],['Bedspaces','1 to 2'],['Distance','5 min to gate'],['Rent covers','One session'],['Utilities','Water included'],['Other fees','Agent fee applies']],am:['Water','Power backup','Fenced compound','Tiled floor'],loc:'Kurutie',land:'Near the main gate',map:'https://www.google.com/maps/search/?api=1&query=Nigeria+Maritime+University',d:'Clean self-contain with its own bathroom and kitchenette. Quiet street, close to lecture halls.',img:'https://images.unsplash.com/photo-1632119289059-793dd347950f?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1632119289059-793dd347950f?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1522771739844-6a9f6d5f14af?w=600&auto=format&fit=crop&q=80']},
+ {id:'l4',t:'item',cat:'electronics',p:'₦24,000',n:'Xiaomi Mi 20,800mAh aluminium power bank',vid:'oc',c:'both',i:'bag',cond:'New',posted:'4 days ago',d:'20,800mAh aluminium power bank with fast charging. Enough for several phone charges between power cuts.',img:'https://images.unsplash.com/photo-1618478594486-c65b899c4936?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1618478594486-c65b899c4936?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1564286026180-dac17255aee1?w=600&auto=format&fit=crop&q=80']},
+ {id:'l5',t:'item',cat:'uniforms',p:'₦7,500',n:'Cadet beret, cap badge and white inspection gloves',vid:'nc',c:'ok',i:'shirt',cond:'New',posted:'3 days ago',d:'Regulation navy cadet beret with official badge and cotton white inspection gloves. NMU compliant.',img:'https://images.unsplash.com/photo-1514848162001-6c196f60118b?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1514848162001-6c196f60118b?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1749520130405-3d1b32edd46a?w=600&auto=format&fit=crop&q=80']},
+ {id:'l6',t:'item',cat:'hostel',p:'₦26,500',n:'Rechargeable 12-inch hostel table fan',vid:'ko',c:'both',i:'fan',cond:'Like new',posted:'5 days ago',d:'Runs 6 to 8 hours on low speed. USB charging port included. Essential for hostel power outages.',img:'https://images.unsplash.com/photo-1565151443833-29bf2ba5dd8d?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1565151443833-29bf2ba5dd8d?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1678080244743-8f662f0a56c3?w=600&auto=format&fit=crop&q=80']},
+ {id:'l7',t:'svc',k:'haircuts',p:'from ₦1,500',n:'Fresh haircut at your hostel',vid:'bh',c:'ku',i:'cut',img:'https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1503951914875-452162b0f3f1?w=600&auto=format&fit=crop&q=80']},
+ {id:'l8',t:'room',p:'₦120,000',per:'session',n:'Shared room, 2 per room, water included',vid:'lh',c:'ok',i:'bed',posted:'3 days ago',facts:[['Type','Shared room'],['Bedspaces','2 max'],['Distance','8 min to gate'],['Rent covers','One session'],['Utilities','Water included'],['Other fees','None']],am:['Running water','Borehole','Gated entry'],loc:'Okerenkoko',land:'Behind community secondary school',map:'https://www.google.com/maps/search/?api=1&query=Nigeria+Maritime+University+Okerenkoko',d:'Spacious room for two students. Big windows, quiet hostel atmosphere, stable borehole water.',img:'https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1555854877-bab0e564b8d5?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1584132967334-10e028bd69f7?w=600&auto=format&fit=crop&q=80']},
+ {id:'l9',t:'room',p:'₦240,000',per:'session',n:'Private room with ensuite',vid:'lh',c:'ku',i:'bed',posted:'5 days ago',facts:[['Type','Private ensuite'],['Bedspaces','1 (solo)'],['Distance','3 min to gate'],['Rent covers','One session'],['Utilities','Water and solar light'],['Other fees','Agent fee applies']],am:['Water','Solar inverter','Security guard','POP ceiling'],loc:'Kurutie',land:'Along campus road',map:'https://www.google.com/maps/search/?api=1&query=Nigeria+Maritime+University+Kurutie',d:'Executive student self-contain. Ensuite bath, dedicated prepaid solar connection, closest lodge to engineering lecture hall.',img:'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1590490360182-c33d57733427?w=600&auto=format&fit=crop&q=80']},
+ {id:'l10',t:'item',cat:'uniforms',p:'₦3,500',n:'Heavy cushion long cadet boot socks, pack of 3',vid:'nc',c:'ok',i:'bag',cond:'New',posted:'1 week ago',d:'Thick military boot socks for drill and daily cadet routines. Prevents blister wear during morning parades.',img:'https://images.unsplash.com/photo-1544341088-8f44e0e8ebd7?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1586350977771-b3b0abd50c82?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1549298916-b41d501d3772?w=600&auto=format&fit=crop&q=80']},
+ {id:'l11',t:'item',cat:'study',p:'₦16,000',n:'A2 engineering drawing board with tee-square and set squares',vid:'ko',c:'ku',i:'bag',cond:'Like new',posted:'4 days ago',d:'Complete engineering drawing board setup. Smooth wooden surface, detachable T-square and 30/60 & 45 degree triangles.',img:'https://images.unsplash.com/photo-1603901622056-0a5bee231395?w=600&auto=format&fit=crop&q=80',imgs:['https://images.unsplash.com/photo-1603901622056-0a5bee231395?w=600&auto=format&fit=crop&q=80','https://images.unsplash.com/photo-1503387762-592deb58ef4e?w=600&auto=format&fit=crop&q=80']}
+];
+var VENDORS=[
+ {id:'nc',a:'NC',img:'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&auto=format&fit=crop&q=80',n:'NMU Cadet Quartermaster & Gear Supply',sn:'Cadet Supply',k:'Campus merchant',c:'ok',v:true,svc:[],from:{},d:'Direct campus supplier of regulation NMU cadet uniform accessories, boots, berets and kits.'},
+ {id:'oc',a:'OC',img:'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&auto=format&fit=crop&q=80',n:'Okerenkoko Creek Tech & Power',sn:'Creek Tech',k:'Student seller',c:'both',v:true,svc:['repairs'],from:{repairs:'₦2,000'},d:'High-capacity power banks, fast Type-C chargers, rechargeable study lamps.'},
+ {id:'ko',a:'KO',img:'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=200&auto=format&fit=crop&q=80',n:'Kurutie & Okerenkoko Hostel Essentials',sn:'Hostel Essentials',k:'Verified business',c:'both',v:true,svc:[],from:{},d:'Rechargeable table fans, A2 engineering drawing boards, mattresses, mosquito nets.'},
+ {id:'af',a:'AF',img:'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80',n:'Amaka Fresh Bowls & Cadet Tailoring',sn:'Amaka Fresh',k:'Independent',c:'ok',v:true,svc:['meals','tailoring'],from:{meals:'₦2,500',tailoring:'₦3,000'},d:'Freshly prepared tropical fruit salad bowls made to order, plus cadet uniform tailoring and nameplates.'},
+ {id:'bh',a:'BH',img:'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&auto=format&fit=crop&q=80',n:'Barber Hub',sn:'Barber Hub',k:'Service team',c:'ku',v:false,svc:['haircuts'],from:{haircuts:'₦1,500'},d:'Hostel-call haircuts, fades and line-ups.'},
+ {id:'fl',a:'FL',img:'https://images.unsplash.com/photo-1492562080023-ab3db95bfbce?w=200&auto=format&fit=crop&q=80',n:'Fade Lab',sn:'Fade Lab',k:'Service team',c:'ok',v:true,svc:['haircuts'],from:{haircuts:'₦2,000'},d:'Clean fades and beard trims, booked by appointment.'},
+ {id:'cc',a:'CC',img:'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&auto=format&fit=crop&q=80',n:'Creek Cuts',sn:'Creek Cuts',k:'Student seller',c:'both',v:false,svc:['haircuts'],from:{haircuts:'₦1,000'},d:'Quick student-priced cuts.'},
+ {id:'sc',a:'SC',img:'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=200&auto=format&fit=crop&q=80',n:'StudyCraft Tutoring',sn:'StudyCraft',k:'Student collective',c:'both',v:true,svc:['tutoring'],from:{tutoring:'₦2,000'},d:'Peer-to-peer engineering tutoring, calculus, fluid mechanics and engineering drawing.'},
+ {id:'lh',a:'LH',img:'https://images.unsplash.com/photo-1566665797739-1674de7a421a?w=200&auto=format&fit=crop&q=80',n:'Lodge Hub Okerenkoko & Kurutie',sn:'Lodge Hub',k:'Housing agent',c:'both',v:true,svc:[],from:{},d:'Verified student lodge placements across both campuses. Water, light and distance confirmed.'}
+];
+var SERVICES=[
+ {k:'haircuts',n:'Haircuts',i:'cut',img:'https://images.unsplash.com/photo-1593702275687-f8b402bf1fb5?w=600&auto=format&fit=crop&q=80'},
+ {k:'laundry',n:'Laundry',i:'wash',img:'https://images.unsplash.com/photo-1517677208171-0bc6725a3e60?w=600&auto=format&fit=crop&q=80'},
+ {k:'tailoring',n:'Tailoring',i:'shirt',img:'https://images.unsplash.com/photo-1593030761757-71fae45fa0e7?w=600&auto=format&fit=crop&q=80'},
+ {k:'meals',n:'Meals',i:'fork',img:'https://images.unsplash.com/photo-1493770348161-369560ae357d?w=600&auto=format&fit=crop&q=80'},
+ {k:'repairs',n:'Repairs',i:'wrench',img:'https://images.unsplash.com/photo-1560846389-8c7e1d88eca8?w=600&auto=format&fit=crop&q=80'},
+ {k:'tutoring',n:'Tutoring',i:'book',img:'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?w=600&auto=format&fit=crop&q=80'}
+];
+var SVCINFO={
+ haircuts:{inc:['Cut and line-up','Beard trim on request','Hostel visits available'],av:'Daily, 4pm to 9pm'},
+ laundry:{inc:['Wash, dry and fold','Ironing on request','Hostel pickup and drop-off'],av:'Mon to Sat, pickup by 10am'},
+ tailoring:{inc:['Alterations and hemming','Nameplate and badge stitching','2 to 3 day turnaround'],av:'Mon to Sat, 9am to 6pm'},
+ meals:{inc:['Made to order','Packed for hostels','Pay on delivery'],av:'Daily, 11am to 7pm'},
+ repairs:{inc:['Phones, chargers and small electronics','Diagnosis before any charge','Pickup from your hostel'],av:'Mon to Sat, 10am to 6pm'},
+ tutoring:{inc:['One-on-one or small group','First and second year engineering courses','Past-question practice'],av:'Evenings and weekends'}
+};
+var CATS=[{k:'all',n:'All'},{k:'fresher',n:'Fresher kit'},{k:'uniforms',n:'Uniforms'},{k:'study',n:'Study'},{k:'hostel',n:'Hostel'},{k:'electronics',n:'Electronics'}];
+var TYPE={item:'Item',svc:'Service',room:'Room'};
+var CAMP={ok:'Okerenkoko',ku:'Kurutie',both:'Both campuses'};
+var CAMPS={ok:'Okerenkoko',ku:'Kurutie',both:'Both'};
+var CLS={item:'',svc:'svc',room:'room'};
+var campus='all',vq='',vfilter='all',mview='items',mcat='all',curBar='';
+
+var CHECK='<svg viewBox="0 0 24 24"><path d="M5 12.5l4.5 4.5L19 7.5"/></svg>';
+var PIN='<svg class="pin" viewBox="0 0 24 24"><path d="M12 21s-6-5.2-6-10a6 6 0 0 1 12 0c0 4.8-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>';
+var STAR='<svg class="st" viewBox="0 0 24 24"><path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1L3.2 9.5l6.1-.9z"/></svg>';
+var CLOCK='<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></svg>';
+
+function inCampus(c){return campus==='all'||c==='both'||c===campus}
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}
+function byId(id){return VENDORS.filter(function(v){return v.id===id})[0]}
+function lById(id){return LIST.filter(function(x){return x.id===id})[0]}
+function svcName(k){return SERVICES.filter(function(s){return s.k===k})[0].n}
+function providers(k){return VENDORS.filter(function(v){return v.svc.indexOf(k)>-1&&inCampus(v.c)})}
+function otherCampus(){return campus==='ok'?'Kurutie':'Okerenkoko'}
+function hint(total,shown){
+  var h=total-shown;
+  return (campus==='all'||h<=0)?'':`<button class="hint" data-camp-set="all">${h} more at ${otherCampus()}. Show both campuses</button>`;
+}
+function target(x){return x.t==='svc'?`service:${x.vid}:${x.k}`:`listing:${x.id}`}
+
+function card(x,wide){
+  var imgHtml = x.img
+    ? `<img src="${x.img}" alt="${esc(x.n)}" loading="lazy" class="cimg" onerror="this.style.display='none';this.nextElementSibling.style.display='block';"><svg class="i" style="display:none"><use href="#i-${x.i}"/></svg>`
+    : `<svg class="i"><use href="#i-${x.i}"/></svg>`;
+  return `<a class="card${wide?' wide':''}" data-c="${x.c}" data-go="${target(x)}" href="#">
+   <div class="img ${CLS[x.t]}"><span class="chip">${TYPE[x.t]}</span>${imgHtml}</div>
+   <div class="price">${x.p}${x.per?` <small>/ ${x.per}</small>`:''}</div><div class="ttl">${x.n}</div>
+   <div class="meta">${byId(x.vid).v?`<span>${CHECK}Verified</span>`:''}<span class="cp">${PIN}${CAMPS[x.c]}</span></div></a>`;
+}
+function skel(wide){
+  return `<div class="card sk${wide?' wide':''}"><div class="img"></div><div class="l" style="width:40%"></div><div class="l"></div><div class="l s"></div></div>`;
+}
+function dataFilter(){
+  document.querySelectorAll('[data-c]').forEach(function(el){
+    el.style.display=inCampus(el.getAttribute('data-c'))?'':'none';
+  });
+}
+
+/* ---------- home ---------- */
+function home(){
+  var all=LV().slice(0,8).map(function(x){return card(x)}).join('');
+  var rooms=LV().filter(function(x){return x.t==='room'}).map(function(x){return card(x,true)}).join('');
+  var chips=SERVICES.map(function(s){return `<button class="sv" data-go="svc:${s.k}"><svg class="i"><use href="#i-${s.i}"/></svg>${s.n}</button>`}).join('');
+  var rail=VENDORS.filter(function(v){return v.v&&v.id!=='lh'}).slice(0,6).map(function(v){return `<button class="v" data-go="vendor:${v.id}" data-c="${v.c}"><div class="av">${v.img?`<img src="${v.img}" alt="${esc(v.sn)}" loading="lazy">`:v.a}</div><span>${v.sn}</span></button>`}).join('');
+  return `<section class="hero" id="hero">
+   <h1>Everything NMU,<br>one jetty away.</h1>
+   <p>Rooms, services and gear from verified students.</p>
+   <button class="search"><svg class="i"><use href="#i-search"/></svg>Search rooms, haircuts, boots</button>
+   <div class="doors">${door('market','bag','Market')}${door('lodge','bed','Lodge')}${door('services','brief','Services')}${door('sell','plus','Sell','sell')}</div></section>
+   <svg class="wave" viewBox="0 0 432 28" preserveAspectRatio="xMidYMax slice" aria-hidden="true"><rect width="432" height="28" fill="#0A4F4F"/><g id="wv"><path d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z" fill="#F6FAFA"/><path d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0" fill="none" stroke="#E8B84A" stroke-width="2.5" stroke-linecap="round" vector-effect="non-scaling-stroke"/></g></svg>
+   <section class="sec" style="padding-top:8px"><div class="sh"><h2>Just landed</h2><a href="#" data-go="market">See all</a></div><div class="rail">${all}</div></section>
+   <section class="sec"><div class="sh"><h2>Rooms near campus</h2><a href="#" data-go="lodge">See all</a></div><div class="rail">${rooms}</div></section>
+   <section class="sec"><div class="sh"><h2>Services</h2><a href="#" data-go="services">See all</a></div><div class="chips">${chips}</div></section>
+   <section class="sec"><div class="sh"><h2>Verified vendors</h2><a href="#" data-go="market:stores">All vendors</a></div><div class="rail vrail">${rail}</div></section>
+   <button class="banner" data-go="market:fresher"><span class="ic"><svg class="i"><use href="#i-kit"/></svg></span><span style="text-align:left"><b>NMU Fresher Kit</b><small>Week-1 cadet and hostel checklist</small></span></button>
+   <footer class="ft"><div class="row"><img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA5NiA5NiIgd2lkdGg9Ijk2IiBoZWlnaHQ9Ijk2IiByb2xlPSJpbWciIGFyaWEtbGFiZWw9IkpldHR5Ij4KICA8dGl0bGU+SmV0dHk8L3RpdGxlPgogIDxkZWZzPgogICAgPGxpbmVhckdyYWRpZW50IGlkPSJqZXR0eS1nIiB4MT0iMCIgeTE9IjAiIHgyPSIxIiB5Mj0iMSI+CiAgICAgIDxzdG9wIG9mZnNldD0iMCIgc3RvcC1jb2xvcj0iIzE3OTA4RCIvPgogICAgICA8c3RvcCBvZmZzZXQ9IjEiIHN0b3AtY29sb3I9IiMwQTRGNEYiLz4KICAgIDwvbGluZWFyR3JhZGllbnQ+CiAgICA8Y2xpcFBhdGggaWQ9ImpldHR5LWMiPjxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgcng9IjI0Ii8+PC9jbGlwUGF0aD4KICA8L2RlZnM+CiAgPGcgY2xpcC1wYXRoPSJ1cmwoI2pldHR5LWMpIj4KICAgIDxyZWN0IHdpZHRoPSI5NiIgaGVpZ2h0PSI5NiIgZmlsbD0idXJsKCNqZXR0eS1nKSIvPgogICAgPHBhdGggZD0iTTAgNjYgcTEyIC04IDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAgVjk2IEgwIFoiIGZpbGw9IiMwQTRGNEYiIGZpbGwtb3BhY2l0eT0iMC41NSIvPgogICAgPHBhdGggZD0iTTAgNjYgcTEyIC04IDI0IDAgdDI0IDAgdDI0IDAgdDI0IDAiIGZpbGw9Im5vbmUiIHN0cm9rZT0iI0U4Qjg0QSIgc3Ryb2tlLXdpZHRoPSIzLjUiIHN0cm9rZS1saW5lY2FwPSJyb3VuZCIvPgogICAgPHBhdGggZD0iTTI0IDI0IEw3MCAyNCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICAgIDxwYXRoIGQ9Ik01MiAyNCBMNTIgNTAgUTUyIDY2IDM4IDY2IFEyNiA2NiAyNiA1NCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSIjRkZGRkZGIiBzdHJva2Utd2lkdGg9IjEwIiBzdHJva2UtbGluZWNhcD0icm91bmQiLz4KICA8L2c+Cjwvc3ZnPgo=" alt=""><b>jetty</b></div><p>NMU campus marketplace for Okerenkoko and Kurutie</p><p class="by"><i></i>Built by Naga <span style="opacity:.7">(replace the dashed box with the Naga logo file)</span></p></footer>`;
+}
+function door(go,ic,label,cls){return `<button class="door ${cls||''}" data-go="${go}"><span class="t"><svg class="i"><use href="#i-${ic}"/></svg></span>${label}</button>`}
+
+/* ---------- market: items and stores ---------- */
+function catMatch(x){return mcat==='all'||(mcat==='fresher'?x.fr:x.cat===mcat)}
+function itemsBody(loading){
+  var cats=CATS.map(function(c){return `<button class="pill" data-cat="${c.k}" aria-pressed="${mcat===c.k}">${c.n}</button>`}).join('');
+  var all=LV().filter(function(x){return x.t==='item'&&catMatch(x)});
+  var L=all.filter(function(x){return inCampus(x.c)});
+  var grid=loading?[1,2,3,4].map(function(){return skel()}).join(''):(L.length?L.map(function(x){return card(x)}).join(''):'');
+  var empty=(!loading&&!L.length)?'<p class="empty">Nothing here yet. Try another category.</p>':'';
+  return `<div class="cats">${cats}</div><div class="grid">${grid}</div>${empty}${loading?'':hint(all.length,L.length)}`;
+}
+function storesBody(loading){
+  var L=vendorList();
+  var body=loading
+    ? [1,2,3].map(function(){return `<div class="vc sk"><div class="av"></div><div class="l" style="width:60%"></div><div class="l" style="width:40%"></div><div class="l" style="width:30%"></div></div>`}).join('')
+    : (L.length?L.map(vcard).join(''):'<p class="empty">No vendors match your search.</p>');
+  var base=VENDORS.filter(function(v){return (vfilter==='all'||v.v)});
+  return `<label class="vs"><svg class="i"><use href="#i-search"/></svg><input id="vq" type="search" placeholder="Search vendors and service teams" value="${esc(vq)}" aria-label="Search vendors"></label>
+   <div class="pills"><button class="pill" data-f="all" aria-pressed="${vfilter==='all'}">All vendors</button><button class="pill" data-f="verified" aria-pressed="${vfilter==='verified'}">Verified</button></div>
+   <div class="count" id="vcount">${loading?'&nbsp;':L.length+(L.length===1?' vendor':' vendors')}</div>
+   <div id="vlist">${body}</div>${loading?'':hint(base.length,L.length)}`;
+}
+function marketPage(loading){
+  var seg=`<div class="seg"><button data-seg="items" aria-pressed="${mview==='items'}">Items</button><button data-seg="stores" aria-pressed="${mview==='stores'}">Stores</button></div>`;
+  return `<h2 class="pgh">Market</h2>${seg}${mview==='stores'?storesBody(loading):itemsBody(loading)}<div class="sp"></div>`;
+}
+
+function countBlock(v){
+  var n=nList(v);
+  return `<div class="vr${n?'':' none'}">${n?n+(n===1?' listing':' listings'):'No listings yet'}</div>`;
+}
+function vcard(v){
+  return `<a class="vc" href="#" data-go="vendor:${v.id}">
+    ${v.v?`<span class="vbadge" role="img" aria-label="Verified">${CHECK}</span>`:''}
+    <div class="av">${v.img ? `<img src="${v.img}" alt="${esc(v.n||v.sn||"")}" loading="lazy">` : v.a}</div>
+    <div class="vn">${v.n}</div>
+    <div class="vk">${v.k}</div>
+    <div class="vk2 cp">${PIN}${CAMP[v.c]}</div>
+    <div class="vh"></div>${countBlock(v)}</a>`;
+}
+function vendorList(){
+  var q=vq.trim().toLowerCase();
+  return VENDORS.filter(function(v){return inCampus(v.c)&&(vfilter==='all'||v.v)&&(!q||v.n.toLowerCase().indexOf(q)>-1)});
+}
+function refreshVendors(){
+  var l=document.getElementById('vlist');if(!l)return;
+  var L=vendorList();
+  l.innerHTML=L.length?L.map(vcard).join(''):'<p class="empty">No vendors match your search.</p>';
+  document.getElementById('vcount').textContent=L.length+(L.length===1?' vendor':' vendors');
+  document.querySelectorAll('.pill[data-f]').forEach(function(p){p.setAttribute('aria-pressed',p.dataset.f===vfilter)});
+  bind();
+}
+
+/* ---------- lodge ---------- */
+function lodgePage(loading){
+  var all=LV().filter(function(x){return x.t==='room'});
+  var L=all.filter(function(x){return inCampus(x.c)});
+  var grid=loading?[1,2,3,4].map(function(){return skel()}).join(''):L.map(function(x){return card(x)}).join('');
+  return `<h2 class="pgh">Lodge</h2><div class="sub">Rooms and hostels near campus.</div><div class="grid" style="padding-top:8px">${grid}</div>${loading?'':hint(all.length,L.length)}<div class="sp"></div>`;
+}
+
+/* ---------- services ---------- */
+function servicesPage(loading){
+  var cards=SERVICES.map(function(s){
+    var n=providers(s.k).length;
+    var ct=loading?'<span class="shim"></span>':`<em>${n}</em>${n===1?'provider':'providers'}`;
+    return `<button class="scard${!loading&&n===0?' zero':''}" data-go="svc:${s.k}"><span class="ic"><svg class="i"><use href="#i-${s.i}"/></svg></span><span><b>${s.n}</b><span class="ct">${ct}</span></span></button>`;
+  }).join('');
+  return `<h2 class="pgh">Services</h2><div class="sub">Pick a service to see who offers it.</div><div class="sgrid">${cards}</div><div class="sp"></div>`;
+}
+function providersPage(k,loading){
+  var name=svcName(k),L=providers(k),all=VENDORS.filter(function(v){return v.svc.indexOf(k)>-1});
+  var rows=loading
+    ? [1,2,3].map(function(){return `<div class="pr sk"><div class="av"></div><div class="bd"><div class="l" style="width:60%;margin-top:0"></div><div class="l s"></div></div></div>`}).join('')
+    : (L.length?L.map(function(v){return providerRow(v,k)}).join(''):`<p class="empty">No ${name.toLowerCase()} providers at this campus yet.</p>`);
+  return `<a class="bk light" href="#" data-go="services"><svg class="i"><use href="#i-back"/></svg>Services</a>
+   <h2 class="pgh" style="padding-top:4px">${name}</h2><div class="sub">${loading?'&nbsp;':L.length+(L.length===1?' provider':' providers')}</div><div class="list">${rows}</div>${loading?'':hint(all.length,L.length)}<div class="sp"></div>`;
+}
+function providerRow(v,k){
+  return `<a class="pr" href="#" data-go="vendor:${v.id}" data-c="${v.c}">
+   <div class="av">${v.img ? `<img src="${v.img}" alt="${esc(v.n||v.sn||"")}" loading="lazy">` : v.a}</div>
+   <div class="bd"><div class="nm"><span>${v.n}</span>${v.v?CHECK.replace('<svg','<svg role="img" aria-label="Verified"'):''}</div>
+   <div class="ln">From ${v.from[k]}</div><div class="ln cp" style="display:flex;align-items:center;gap:4px">${PIN}${CAMP[v.c]}</div></div>
+   <svg class="i cv"><use href="#i-chevr"/></svg></a>`;
+}
+
+/* ---------- storefront (vendors and service providers, one page) ---------- */
+function profilePage(id,loading){
+  curBar='';
+  var v=byId(id);
+  var items=LV().filter(function(x){return x.vid===id&&x.t!=='svc'});
+  var wave='<svg viewBox="0 0 432 28" preserveAspectRatio="xMidYMax slice" aria-hidden="true" style="display:block;width:100%;height:28px;margin-top:-1px"><rect width="432" height="28" fill="#0A4F4F"/><path d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z" fill="#F6FAFA"/><path d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0" fill="none" stroke="#E8B84A" stroke-width="2.5" stroke-linecap="round"/></svg>';
+  var head=`<section class="pb"><a class="bk" href="#" data-go="back"><svg class="i"><use href="#i-back"/></svg>Back</a>
+    <div class="av">${v.img ? `<img src="${v.img}" alt="${esc(v.n||v.sn||"")}" loading="lazy">` : v.a}</div><h2>${v.n}</h2><div class="vk">${v.k}</div>
+    <div class="vk2">${PIN}${CAMP[v.c]}</div>
+    ${v.v?`<div class="vf">${CHECK} Verified vendor</div>`:''}
+    <div class="stat"><div><b>${nList(v)}</b><small>${nList(v)===1?'Listing':'Listings'}</small></div></div></section>${wave}`;
+  if(loading)return head+`<div class="cta" style="background:var(--tint)"></div><div class="about"><span class="shim" style="width:100%"></span></div><div class="sp"></div>`;
+  var services=v.svc.length?`<h3 class="h3">Services</h3><div class="list" style="border-top:1px solid var(--line)">${v.svc.map(function(k){return `<a class="lrow" href="#" data-go="service:${v.id}:${k}"><b>${svcName(k)}</b><span>from ${v.from[k]}</span><svg class="i cv"><use href="#i-chevr"/></svg></a>`}).join('')}</div>`:'';
+  var listings=items.length?`<h3 class="h3">Listings</h3><div class="grid">${items.map(function(x){return card(x)}).join('')}</div>`:'';
+  return head+`<button class="cta"><svg class="i"><use href="#i-chat"/></svg>Message on WhatsApp</button>
+   <p class="about">${v.d}</p>${services}${listings}<button class="rep">Report this vendor</button><div class="sp"></div>`;
+}
+
+/* ---------- listing detail: item and room ---------- */
+function gallery(l){
+  var imgs = l.imgs && l.imgs.length ? l.imgs : (l.img ? [l.img] : []);
+  var slidesHtml = imgs.length
+    ? imgs.map(function(src){ return `<div class="slide ${CLS[l.t]}"><img src="${src}" alt="${esc(l.n)}" loading="lazy"></div>` }).join('')
+    : `<div class="slide ${CLS[l.t]}"><svg class="i"><use href="#i-${l.i}"/></svg></div>`;
+  var dotsCount = imgs.length || 1;
+  var dotsHtml = '';
+  for(var i=0; i<dotsCount; i++){
+    dotsHtml += `<i class="${i===0?'on':''}"></i>`;
+  }
+  return `<div class="dimg"><div class="slides" onscroll="onGalleryScroll(this)">${slidesHtml}</div>
+   <button class="ov l" data-go="back" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+   <button class="ov r" aria-label="Share"><svg class="i"><use href="#i-share"/></svg></button>
+   <div class="dots">${dotsHtml}</div></div>`;
+}
+function onGalleryScroll(el){
+  if(!el)return;
+  var idx = Math.round(el.scrollLeft / (el.clientWidth || 1));
+  var dots = el.parentNode.querySelectorAll('.dots i');
+  dots.forEach(function(dot, i){ dot.classList.toggle('on', i === idx); });
+}
+function sellerRow(v){
+  return `<a class="sr" href="#" data-go="vendor:${v.id}"><div class="av">${v.img?`<img src="${v.img}" alt="${esc(v.n)}" loading="lazy">`:v.a}</div>
+   <div class="bd"><b>${v.n}${v.v?CHECK.replace('<svg','<svg role="img" aria-label="Verified"'):''}</b>
+   <small>${nList(v)} ${nList(v)===1?'listing':'listings'}</small></div><svg class="i cv"><use href="#i-chevr"/></svg></a>`;
+}
+function detailSkel(){
+  curBar='';
+  return `<div class="dimg"><div class="slide shim" style="background-size:200% 100%;width:100%;border-radius:0;height:auto"></div></div>
+   <div class="db sk"><div class="l" style="width:35%;height:28px;margin-top:0"></div><div class="l" style="width:90%"></div><div class="l" style="width:60%"></div></div>`;
+}
+function listingPage(id,loading){
+  var l=lById(id);
+  if(l.t==='svc')return servicePage(l.vid,l.k,loading);
+  if(loading)return detailSkel();
+  var v=byId(l.vid),room=l.t==='room';
+  curBar=`<div class="pp"><b>${l.p}</b><small>${room?'per '+l.per:'Pay when you meet'}</small></div><button class="go"><svg class="i"><use href="#i-chat"/></svg>${room?'Request viewing':'Message seller'}</button>`;
+  var facts=room
+    ? l.facts
+    : [['Condition',l.cond],['Category',(CATS.filter(function(c){return c.k===l.cat})[0]||{n:''}).n]];
+  var more=LV().filter(function(x){return x.vid===l.vid&&x.id!==l.id&&x.t!=='svc'});
+  return `${gallery(l)}<div class="db">
+   <div class="dp">${l.p}${room?` <small>/ ${l.per}</small>`:''}</div>
+   <h1 class="dt">${l.n}</h1>
+   <div class="dmeta">${v.v?`<span class="ver">${CHECK}Verified seller</span>`:''}<span>${PIN}${room?l.loc:CAMP[l.c]}</span><span>${CLOCK}Posted ${l.posted}</span></div>
+   <div class="dv"></div>
+   <dl class="facts">${facts.map(function(f){return `<div><dt>${f[0]}</dt><dd>${f[1]}</dd></div>`}).join('')}</dl>
+   ${room&&l.am&&l.am.length?`<div class="dv"></div><h3 class="hh">What is there</h3><div class="am">${l.am.map(function(a){return `<span>${a}</span>`}).join('')}</div>`:''}
+   <div class="dv"></div>${sellerRow(v)}
+   <div class="dv"></div><h3 class="hh">About this ${room?'room':'item'}</h3><p class="dd">${l.d}</p>
+   ${locBlock(l)}
+   <div class="dv"></div>
+   <div class="tip"><svg class="i"><use href="#i-shield"/></svg><span>${room?'See the room before you pay anything. Never send rent to someone you have not met.':'Meet on campus in a public spot and check the item before you pay.'}</span></div>
+   ${more.length?`<div class="dv"></div><h3 class="hh">More from ${v.sn}</h3></div><div class="rail">${more.map(function(x){return card(x)}).join('')}</div><div class="db">`:''}
+   <button class="rep" style="margin-left:0">Report this listing</button></div><div class="sp"></div>`;
+}
+
+/* ---------- service detail ---------- */
+function servicePage(vid,k,loading){
+  if(loading)return detailSkel();
+  var v=byId(vid),info=SVCINFO[k],name=svcName(k);
+  var sl=LIST.filter(function(x){return x.t==='svc'&&x.vid===vid&&x.k===k})[0]||{};
+  var av=sl.av||info.av,inc=(sl.incl&&sl.incl.length)?sl.incl:info.inc;
+  var sv=SERVICES.filter(function(s){return s.k===k})[0]||{};
+  var svcImg = sl.img || sv.img;
+  curBar=`<div class="pp"><b>from ${v.from[k]}</b><small>Agree the final price first</small></div><button class="go"><svg class="i"><use href="#i-chat"/></svg>Book on WhatsApp</button>`;
+  var slideContent = svcImg
+    ? `<div class="slide svc"><img src="${svcImg}" alt="${esc(name)}" loading="lazy"></div>`
+    : `<div class="slide svc"><svg class="i"><use href="#i-${sv.i}"/></svg></div>`;
+  return `<div class="dimg"><div class="slides">${slideContent}</div>
+   <button class="ov l" data-go="back" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button>
+   <button class="ov r" aria-label="Share"><svg class="i"><use href="#i-share"/></svg></button></div>
+   <div class="db">
+   <div class="dp">from ${v.from[k]}</div>
+   <h1 class="dt">${name} by ${v.n}</h1>
+   <div class="dmeta">${v.v?`<span class="ver">${CHECK}Verified provider</span>`:''}<span>${PIN}${CAMP[v.c]}</span></div>
+   <div class="dv"></div>${sellerRow(v)}
+   <div class="dv"></div><h3 class="hh">What is included</h3><ul class="inc">${inc.map(function(t){return `<li>${CHECK}<span>${t}</span></li>`}).join('')}</ul>
+   <div class="dv"></div><dl class="facts"><div><dt>Available</dt><dd>${av}</dd></div><div><dt>Where</dt><dd>${CAMP[v.c]}</dd></div></dl>
+   ${locBlock(sl)}
+   <div class="dv"></div>
+   <div class="tip"><svg class="i"><use href="#i-shield"/></svg><span>Agree the price and the time before any work starts. Pay after you are happy with the result.</span></div>
+   <button class="rep" style="margin-left:0">Report this provider</button></div><div class="sp"></div>`;
+}
+
+/* ---------- vendor mode: sell flow ---------- */
+/* Prototype only: no real sign-in, upload or storage. Real build: phone OTP, image upload to Supabase Storage, rows in a listings table. */
+var mode='buy',me=null,F=null,S={},seq=100,lview='active';
+var ICATS=['Study','Uniforms','Hostel','Electronics','Other'];
+var CATKEY={Study:'study',Uniforms:'uniforms',Hostel:'hostel',Electronics:'electronics',Other:''};
+var RTYPES=['Self-contain','Shared room','Private room','Bedspace'];
+var RINC=['Water','Power backup','Fenced compound','Tiled floor'];
+var CAMPV={'Okerenkoko':'ok','Kurutie':'ku','Both campuses':'both'};
+
+function okMap(u){return /^https:\/\/(www\.google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|maps\.app\.goo\.gl|goo\.gl\/maps)/i.test(u)}
+function mapUrl(x){return x.geo?'https://www.google.com/maps/search/?api=1&query='+x.geo[0]+'%2C'+x.geo[1]:(x.map||'')}
+function locBlock(x){
+  var u=mapUrl(x);if(!x.land&&!u)return '';
+  return '<div class="dv"></div><h3 class="hh">Location</h3>'+(x.land?'<p class="dd">'+esc(x.land)+'</p>':'')
+   +(u?'<a class="lbtn" style="margin-top:12px" href="'+esc(u)+'" target="_blank" rel="noopener"><svg class="i"><use href="#i-pin"/></svg>Open in Google Maps</a>':'');
+}
+function live(x){return !x.st||x.st==='live'}
+function LV(){return LIST.filter(live)}
+function nList(v){return LV().filter(function(x){return x.vid===v.id&&x.t!=='svc'}).length+v.svc.length}
+function fmt(n){return '₦'+String(n).replace(/\B(?=(\d{3})+(?!\d))/g,',')}
+function digits(s){return String(s).replace(/\D/g,'')}
+function fld(label,inner,hint,forId){
+  return '<div class="fld">'+(forId?'<label class="fl" for="'+forId+'">':'<span class="fl">')+label+(forId?'</label>':'</span>')+inner+(hint?'<small class="fh">'+hint+'</small>':'')+'</div>';
+}
+function chips(key,label,opts,sel,multi){
+  return '<div class="fc" role="group" aria-label="'+label+'" data-fc="'+key+'" data-multi="'+(multi?1:0)+'">'+opts.map(function(o){
+    var on=multi?sel.indexOf(o)>-1:sel===o;
+    return '<button type="button" class="pill" data-v="'+o+'" aria-pressed="'+on+'">'+o+'</button>';
+  }).join('')+'</div>';
+}
+/* services a vendor offers are derived from their live service listings */
+function syncMe(){
+  homeHTML=null;
+  if(!me)return;
+  me.svc=[];me.from={};
+  LIST.forEach(function(x){
+    if(x.vid==='me'&&x.t==='svc'&&live(x)&&me.svc.indexOf(x.k)<0){me.svc.push(x.k);me.from[x.k]=x.p.replace('from ','')}
+  });
+}
+
+/* ---------- mode ---------- */
+function setMode(m){
+  if(m==='sell'&&!me){goV('v:signup');return}
+  mode=m;document.body.setAttribute('data-mode',m);
+  document.querySelectorAll('[data-mode-set]').forEach(function(b){b.setAttribute('aria-pressed',b.dataset.modeSet===m)});
+  hist=[];
+  if(m==='sell')goV('v:listings');else{cur='';go('home')}
+}
+function goV(name){
+  cur=name;
+  var t=(name.indexOf('v:form')===0||name.indexOf('v:edit')===0)?'v:new':(name.indexOf('v:done')===0?'v:listings':name);
+  if(mode==='sell')setTab(t);
+  window.scrollTo(0,0);
+  sweep.classList.remove('go');void sweep.offsetWidth;sweep.classList.add('go');
+  ++busy;show(render(name));
+}
+
+/* ---------- sign-up: name, WhatsApp number, campus ---------- */
+function vSignup(){
+  S={name:'',phone:'',camp:'Okerenkoko'};
+  curBar=signBar();
+  return '<div class="ftop"><button class="ov2" data-go="buy" aria-label="Back to buying"><svg class="i"><use href="#i-back"/></svg></button><b>Start selling</b></div><div id="vsign">'
+   +'<p class="sub" style="padding-top:16px">Students browse without an account. You only need one to sell.</p>'
+   +fld('Shop or seller name','<input class="in" id="s-name" data-s="name" autocomplete="organization" placeholder="Amaka Fresh Bowls" maxlength="60">','','s-name')
+   +fld('WhatsApp number','<input class="in" id="s-phone" data-s="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="0803 000 0000">','Buyers message you here. We send a code to confirm it.','s-phone')
+   +fld('Where do you sell?',chips('camp','Campus',['Okerenkoko','Kurutie','Both campuses'],S.camp))
+   +'</div><div class="sp"></div>';
+}
+function signBar(){
+  var nameOk=S.name.trim().length>1,ok=nameOk&&digits(S.phone).length>=10;
+  var m=ok?'':(nameOk?'Add your WhatsApp number':'Add your shop name');
+  return '<div class="pp"><small>'+(ok?'Ready':'Still needed')+'</small><b>'+(ok?'Next: confirm your number':m)+'</b></div><button class="go" id="signgo"'+(ok?'':' disabled')+'>Continue</button>';
+}
+function updateSign(){
+  bar.innerHTML=signBar();bar.classList.add('on');
+  var b=document.getElementById('signgo');
+  if(b)b.onclick=function(){
+    var w=S.name.trim().split(/\s+/);
+    var ini=(w[0][0]+(w[1]?w[1][0]:'')).toUpperCase();
+    me={id:'me',a:ini,n:S.name.trim(),sn:S.name.trim(),k:'Independent',c:CAMPV[S.camp],v:false,svc:[],from:{},d:'Message on WhatsApp to order.',phone:S.phone.trim()};
+    VENDORS.push(me);homeHTML=null;setMode('sell');
+  };
+}
+
+/* ---------- listings ---------- */
+function vListings(){
+  curBar='';
+  var all=LIST.filter(function(x){return x.vid==='me'});
+  var act=all.filter(function(x){return x.st!=='sold'}),sold=all.filter(function(x){return x.st==='sold'});
+  var L=lview==='active'?act:sold;
+  var rows=L.map(function(x){
+    var st=x.st==='paused'?'Paused':(x.st==='sold'?'Sold':'Live');
+    return '<button class="mr" data-act="'+x.id+'"><span class="mt '+CLS[x.t]+'"><svg class="i"><use href="#i-'+x.i+'"/></svg></span><span class="bd"><b>'+esc(x.n)+'</b><span class="ln">'+x.p+'</span></span><span class="stt '+(x.st||'live')+'">'+st+'</span><svg class="i cv"><use href="#i-more"/></svg></button>';
+  }).join('');
+  var empty=L.length?'':(lview==='active'
+    ?'<div class="vempty"><b>Nothing listed yet</b><p>Add your first listing. It takes about a minute.</p><button class="cta" data-go="v:new">Add a listing</button></div>'
+    :'<p class="empty">Items you mark as sold show up here.</p>');
+  return '<h2 class="pgh">Your listings</h2><div class="seg"><button data-lv="active" aria-pressed="'+(lview==='active')+'">Active '+act.length+'</button><button data-lv="sold" aria-pressed="'+(lview==='sold')+'">Sold '+sold.length+'</button></div><div class="list" style="margin-top:12px;'+(L.length?'':'border:0')+'">'+rows+'</div>'+empty+'<div class="sp"></div>';
+}
+function openAct(id){
+  var x=lById(id),sold=x.st==='sold',paused=x.st==='paused';
+  asheet.innerHTML='<h3 class="one">'+esc(x.n)+'</h3>'
+   +'<button class="opt" data-a="edit"><span class="ic"><svg class="i"><use href="#i-edit"/></svg></span><span><b>Edit</b></span></button>'
+   +'<button class="opt" data-a="sold"><span class="ic"><svg class="i"><use href="#i-check"/></svg></span><span><b>'+(sold?'List again':'Mark as sold')+'</b></span></button>'
+   +(sold?'':'<button class="opt" data-a="pause"><span class="ic"><svg class="i"><use href="#i-pause"/></svg></span><span><b>'+(paused?'Show again':'Pause')+'</b><small>'+(paused?'Buyers can see it again':'Hide it from buyers for now')+'</small></span></button>')
+   +'<button class="opt danger" data-a="del"><span class="ic"><svg class="i"><use href="#i-trash"/></svg></span><span><b>Delete</b></span></button>'
+   +'<button class="cancel" data-close>Close</button>';
+  asheet.querySelectorAll('[data-close]').forEach(function(b){b.onclick=closeSheets});
+  asheet.querySelectorAll('[data-a]').forEach(function(b){b.onclick=function(){
+    var a=b.dataset.a;
+    if(a==='edit'){closeSheets();go('v:edit:'+id);return}
+    if(a==='del'){confirmDel(id);return}
+    if(a==='sold')x.st=sold?'live':'sold';
+    if(a==='pause')x.st=paused?'live':'paused';
+    syncMe();closeSheets();show(render('v:listings'));
+  }});
+  openSheet(asheet);
+}
+function confirmDel(id){
+  var x=lById(id);
+  asheet.innerHTML='<h3>Delete this listing?</h3><p style="margin:-2px 0 12px;font-size:14px;color:var(--muted)">'+esc(x.n)+' will be removed for good. If it sold, mark it as sold instead.</p>'
+   +'<button class="opt danger" data-y><span class="ic"><svg class="i"><use href="#i-trash"/></svg></span><span><b>Delete</b></span></button><button class="cancel" data-close>Keep it</button>';
+  asheet.querySelector('[data-close]').onclick=closeSheets;
+  asheet.querySelector('[data-y]').onclick=function(){
+    LIST.splice(LIST.indexOf(x),1);syncMe();closeSheets();show(render('v:listings'));
+  };
+}
+
+/* ---------- add: pick a type, then one page ---------- */
+function vNew(){
+  curBar='';
+  var rows=[['item','bag','Item','Gear, books, electronics, kits'],['room','bed','Room','Hostel, self-contain, bedspace'],['svc','brief','Service','Haircuts, laundry, tailoring and more']];
+  return '<h2 class="pgh">Add a listing</h2><div class="sub">What are you listing?</div><div class="vopts">'+rows.map(function(r){
+    return '<button class="opt" data-go="v:form:'+r[0]+'"><span class="ic"><svg class="i"><use href="#i-'+r[1]+'"/></svg></span><span><b>'+r[2]+'</b><small>'+r[3]+'</small></span><svg class="i cv" style="margin-left:auto"><use href="#i-chevr"/></svg></button>';
+  }).join('')+'</div><div class="sp"></div>';
+}
+function phHtml(){
+  var h='';
+  for(var i=0;i<F.photos;i++)h+='<button type="button" class="t" data-rm="'+i+'" aria-label="Remove photo '+(i+1)+'"><svg class="i"><use href="#i-img"/></svg>'+(i===0?'<em>Cover</em>':'')+'<span class="rm"><svg class="i"><use href="#i-x"/></svg></span></button>';
+  if(F.photos<5)h+='<button type="button" class="t add" id="addph" aria-label="Add photo"><svg class="i"><use href="#i-camera"/></svg>Add photo</button>';
+  return h;
+}
+function vForm(kind,editId){
+  var x=editId?lById(editId):null;
+  if(x)kind=x.t;
+  var def=me.c==='both'?'Both campuses':CAMP[me.c];
+  F={kind:kind,editId:editId||'',photos:x?1:0,title:x&&x.t!=='svc'?x.n:'',price:x?digits(x.p):'',cat:'',cond:x&&x.cond?x.cond:'New',rtype:'',inc:[],fees:'None',feesText:'',svck:x&&x.k?svcName(x.k):'',avail:x&&x.av?x.av:'',d:x&&x.t!=='svc'&&x.d?x.d:'',incl:x&&x.incl?x.incl.join('\n'):'',camp:x?CAMP[x.c]:(kind==='room'&&def==='Both campuses'?'Okerenkoko':def)};
+  F.land=x&&x.land||'';F.geo=x&&x.geo||null;F.maplink=x&&x.map||'';
+  if(x&&x.cat){var c=CATS.filter(function(c){return c.k===x.cat})[0];F.cat=c?c.n:'Other'}
+  if(x&&x.facts){x.facts.forEach(function(f){if(f[0]==='Type')F.rtype=f[1]});F.inc=(x.am||[]).slice()}
+  var T={item:'New item',room:'New room',svc:'New service'}[kind];
+  var h='<div class="ftop"><button class="ov2" data-go="'+(editId?'v:listings':'v:new')+'" aria-label="Back"><svg class="i"><use href="#i-back"/></svg></button><b>'+(editId?'Edit listing':T)+'</b></div><div id="vform">';
+  if(kind==='svc'){
+    h+=fld('Service',chips('svck','Service',SERVICES.map(function(s){return s.n}),F.svck));
+  }else{
+    h+=fld('Photos','<div class="ph" id="ph"></div>','Up to 5. The first photo is the cover.');
+    h+=fld('Title','<input class="in" id="f-title" data-k="title" maxlength="70" value="'+esc(F.title)+'" placeholder="'+(kind==='room'?'Self-contain near the gate':'What are you selling?')+'">','','f-title');
+  }
+  h+=fld({item:'Price',room:'Rent per session',svc:'Starting price'}[kind],'<div class="pre"><span>₦</span><input class="in" id="f-price" data-k="price" inputmode="numeric" value="'+esc(F.price)+'" placeholder="0"></div>','','f-price');
+  if(kind==='item'){
+    h+=fld('Category',chips('cat','Category',ICATS,F.cat));
+    h+=fld('Condition',chips('cond','Condition',['New','Used'],F.cond));
+  }
+  if(kind==='room'){
+    h+=fld('Room type',chips('rtype','Room type',RTYPES,F.rtype));
+    h+=fld('What is there',chips('inc','What is there',RINC,F.inc,true));
+    h+=fld('Other fees',chips('fees','Other fees',['None','Yes'],F.fees),'Agent, caution or service fees. Buyers see this on the listing.')
+      +'<div class="fld" id="feesbox" style="display:none;margin-top:10px"><input class="in" data-k="feesText" aria-label="Fee details" placeholder="Agent fee ₦10,000" value=""></div>';
+  }
+  if(kind==='svc'){
+    h+=fld('When are you available?','<input class="in" id="f-av" data-k="avail" value="'+esc(F.avail)+'" placeholder="Daily, 4pm to 9pm">','Optional','f-av');
+    h+=fld('What is included','<textarea class="in" id="f-inc" data-k="incl" placeholder="One item per line">'+esc(F.incl)+'</textarea>','Optional','f-inc');
+  }
+  h+=fld('Campus',chips('camp','Campus',kind==='room'?['Okerenkoko','Kurutie']:['Okerenkoko','Kurutie','Both campuses'],F.camp));
+  h+=fld('Location','<input class="in" id="f-land" data-k="land" maxlength="80" value="'+esc(F.land)+'" placeholder="'+(kind==='room'?'Near the main gate':'Meeting spot, e.g. Admin block')+'">'
+    +'<button type="button" class="lbtn" id="pinbtn" style="margin-top:10px"></button><div class="pmsg" id="pmsg" role="status"></div>'
+    +'<button type="button" class="lnk" id="lnkbtn">Not there now? Paste a Google Maps link</button>'
+    +'<div id="linkbox" style="display:'+(F.maplink?'':'none')+'"><input class="in" data-k="maplink" aria-label="Google Maps link" placeholder="https://maps.app.goo.gl/..." value="'+esc(F.maplink)+'"></div>',
+    kind==='room'?'Buyers see this and can open it in Google Maps.':'Optional. For safety, a meeting spot is better than your hostel.')
+  if(kind!=='svc')h+=fld('Description','<textarea class="in" id="f-d" data-k="d" placeholder="Condition, size, anything a buyer should know">'+esc(F.d)+'</textarea>','Optional','f-d');
+  h+='<p class="fh" style="padding:20px 16px 0">Buyers message you on WhatsApp at '+esc(me.phone)+'. You can change this in Store.</p></div><div class="sp"></div>';
+  curBar=formBar();
+  return h;
+}
+function missing(){
+  var k=F.kind;
+  if(k!=='svc'&&F.photos<1)return 'Add a photo';
+  if(k==='svc'&&!F.svck)return 'Pick a service';
+  if(k!=='svc'&&F.title.trim().length<3)return 'Add a title';
+  if(!digits(F.price))return 'Add a price';
+  if(k==='item'&&!F.cat)return 'Pick a category';
+  if(k==='room'&&!F.rtype)return 'Pick a room type';
+  if(k==='room'&&!F.land.trim()&&!F.geo&&!F.maplink.trim())return 'Add a location';
+  if(F.maplink.trim()&&!F.geo&&!okMap(F.maplink.trim()))return 'Fix the Google Maps link';
+  return '';
+}
+function formBar(){
+  var m=missing();
+  return '<div class="pp"><small>'+(m?'Still needed':'Ready')+'</small><b>'+(m||'Looks good')+'</b></div><button class="go" id="pub"'+(m?' disabled':'')+'>'+(F.editId?'Save':'Publish')+'</button>';
+}
+function updateBar(){
+  bar.innerHTML=formBar();bar.classList.add('on');
+  var b=document.getElementById('pub');if(b)b.onclick=publish;
+}
+function bindPh(){
+  var h=document.getElementById('ph');if(!h)return;
+  h.innerHTML=phHtml();
+  var a=document.getElementById('addph');
+  if(a)a.onclick=function(){F.photos++;bindPh();updateBar()};
+  h.querySelectorAll('[data-rm]').forEach(function(b){b.onclick=function(){F.photos--;bindPh();updateBar()}});
+}
+function bindChips(root,state,onChange){
+  root.querySelectorAll('.fc').forEach(function(g){
+    g.querySelectorAll('.pill').forEach(function(p){p.onclick=function(){
+      var key=g.dataset.fc,v=p.dataset.v;
+      if(g.dataset.multi==='1'){var i=state[key].indexOf(v);if(i>-1)state[key].splice(i,1);else state[key].push(v);p.setAttribute('aria-pressed',i<0)}
+      else{state[key]=v;g.querySelectorAll('.pill').forEach(function(q){q.setAttribute('aria-pressed',q===p)})}
+      onChange(key);
+    }});
+  });
+}
+function bindV(){
+  document.querySelectorAll('[data-lv]').forEach(function(b){b.onclick=function(){lview=b.dataset.lv;show(render('v:listings'))}});
+  document.querySelectorAll('[data-act]').forEach(function(b){b.onclick=function(){openAct(b.dataset.act)}});
+  var f=document.getElementById('vform');
+  if(f){
+    f.querySelectorAll('[data-k]').forEach(function(el){el.oninput=function(){F[el.dataset.k]=el.value;updateBar()}});
+    bindChips(f,F,function(key){
+      if(key==='fees'){document.getElementById('feesbox').style.display=F.fees==='Yes'?'':'none'}
+      updateBar();
+    });
+    bindPh();updateBar();
+    var pb=document.getElementById('pinbtn'),pm=document.getElementById('pmsg'),lb=document.getElementById('linkbox');
+    var paint=function(){pb.setAttribute('aria-pressed',!!F.geo);pb.innerHTML='<svg class="i"><use href="#i-pin"/></svg>'+(F.geo?'Location pinned. Tap to remove':'Pin my location')};
+    var fail=function(){pm.textContent="Couldn't get your location. Paste a Google Maps link instead.";lb.style.display=''};
+    paint();
+    pb.onclick=function(){
+      if(F.geo){F.geo=null;paint();updateBar();return}
+      pm.textContent='Getting your location...';
+      if(!navigator.geolocation){fail();return}
+      navigator.geolocation.getCurrentPosition(function(p){F.geo=[+p.coords.latitude.toFixed(5),+p.coords.longitude.toFixed(5)];pm.textContent='';paint();updateBar()},fail,{enableHighAccuracy:true,timeout:10000});
+    };
+    document.getElementById('lnkbtn').onclick=function(){lb.style.display=lb.style.display==='none'?'':'none'};
+  }
+  var g=document.getElementById('vsign');
+  if(g){
+    g.querySelectorAll('[data-s]').forEach(function(el){el.oninput=function(){S[el.dataset.s]=el.value;updateSign()}});
+    bindChips(g,S,function(){});
+    updateSign();
+  }
+}
+function publish(){
+  var K=F.kind,price=Number(digits(F.price)),camp=CAMPV[F.camp]||'ok',x=F.editId?lById(F.editId):null,isNew=!x;
+  if(isNew)x={id:'u'+(++seq),vid:'me',posted:'just now',st:'live'};
+  x.t=K;x.c=camp;
+  if(K==='item'){x.i='bag';x.n=F.title.trim();x.p=fmt(price);x.cat=CATKEY[F.cat]||'';x.cond=F.cond;x.d=F.d.trim()||'No description.'}
+  if(K==='room'){
+    x.i='bed';x.n=F.title.trim();x.p=fmt(price);x.per='session';x.loc=CAMP[camp];x.d=F.d.trim()||'No description.';x.am=F.inc.slice();
+    x.facts=[['Type',F.rtype],['Rent covers','One session'],['Utilities',F.inc.indexOf('Water')>-1?'Water included':'Not included'],['Other fees',F.fees==='Yes'?(F.feesText.trim()||'Ask the agent'):'None']];
+  }
+  if(K==='svc'){
+    var s=SERVICES.filter(function(s){return s.n===F.svck})[0];
+    x.i=s.i;x.k=s.k;x.n=s.n+' by '+me.n;x.p='from '+fmt(price);x.av=F.avail.trim();
+    x.incl=F.incl.split('\n').map(function(t){return t.trim()}).filter(Boolean);
+  }
+  x.land=F.land.trim();x.geo=F.geo;x.map=F.geo?'':F.maplink.trim();
+  if(isNew)LIST.unshift(x);
+  syncMe();
+  go('v:done:'+x.id);
+}
+function vDone(id){
+  var x=lById(id),edit=F&&F.editId;
+  curBar='';
+  var where=x.c==='both'?'Students on both campuses':'Students at '+CAMP[x.c];
+  return '<section class="done"><span class="okc"><svg class="i"><use href="#i-check"/></svg></span><h2>'+(edit?'Saved':'Published')+'</h2><p>'+where+' can see it now.</p></section>'
+   +'<div class="list"><a class="mr" href="#" data-go="'+target(x)+'"><span class="mt '+CLS[x.t]+'"><svg class="i"><use href="#i-'+x.i+'"/></svg></span><span class="bd"><b>'+esc(x.n)+'</b><span class="ln">'+x.p+'. Tap to see it as a buyer</span></span><svg class="i cv"><use href="#i-chevr"/></svg></a></div>'
+   +'<button class="cta"><svg class="i"><use href="#i-chat"/></svg>Share on WhatsApp</button>'
+   +'<button class="cta ghost" data-go="v:new">Add another</button>'
+   +'<button class="rep" data-go="v:listings">View your listings</button><div class="sp"></div>';
+}
+
+/* ---------- store: the seller's own settings ---------- */
+function vStore(){
+  curBar='';
+  var rows=[['Shop name',me.n],['WhatsApp number',me.phone],['Campus',CAMP[me.c]],['About',me.d?'Added':'Add']];
+  return '<section class="sthead"><div class="av">'+me.a+'</div><h2>'+esc(me.n)+'</h2><p>'+CAMP[me.c]+'</p></section>'
+   +(me.v
+     ?'<div class="verif ok"><b>Verified</b><p>Your shop shows a tick and appears first in Stores.</p></div>'
+     :'<div class="verif"><b>Not verified yet</b><p>Verified shops get a tick and appear first in Stores. Send a photo of your student ID to the Jetty team on WhatsApp.</p><button class="cta sm"><svg class="i"><use href="#i-chat"/></svg>Message the Jetty team</button></div>')
+   +'<div class="list" style="margin-top:20px">'+rows.map(function(r){
+      return '<button class="lrow" style="width:100%;text-align:left"><b>'+r[0]+'</b><span>'+esc(r[1])+'</span><svg class="i cv"><use href="#i-chevr"/></svg></button>';
+    }).join('')+'<a class="lrow" href="#" data-go="vendor:me"><b>See your store as a buyer</b><svg class="i cv"><use href="#i-chevr"/></svg></a></div>'
+   +'<button class="rep" data-go="buy">Switch to buying</button><div class="sp"></div>';
+}
+
+/* ---------- router ---------- */
+var main=document.getElementById('main'),sweep=document.getElementById('sweep'),ind=document.getElementById('ind'),fab=document.getElementById('fab'),bar=document.getElementById('bar');
+var cur='home',tabCur='home',hist=[],homeHTML=null,busy=0,cached={home:true};
+var TOP=['home','market','services','lodge'];
+function isSub(n){return n.indexOf('listing:')===0||n.indexOf('service:')===0||n.indexOf('vendor:')===0||n.indexOf('svc:')===0}
+function isDetail(n){return n.indexOf('listing:')===0||n.indexOf('service:')===0||n.indexOf('v:form:')===0||n.indexOf('v:edit:')===0||n==='v:signup'}
+function render(name,loading){
+  if(name==='v:signup')return vSignup();
+  if(name==='v:listings')return vListings();
+  if(name==='v:new')return vNew();
+  if(name==='v:store')return vStore();
+  if(name.indexOf('v:form:')===0)return vForm(name.slice(7),'');
+  if(name.indexOf('v:edit:')===0)return vForm('',name.slice(7));
+  if(name.indexOf('v:done:')===0)return vDone(name.slice(7));
+  if(name==='home')return homeHTML||(homeHTML=home());
+  if(name==='market')return marketPage(loading);
+  if(name==='lodge')return lodgePage(loading);
+  if(name==='services')return servicesPage(loading);
+  if(name.indexOf('svc:')===0)return providersPage(name.slice(4),loading);
+  if(name.indexOf('vendor:')===0)return profilePage(name.slice(7),loading);
+  if(name.indexOf('listing:')===0)return listingPage(name.slice(8),loading);
+  if(name.indexOf('service:')===0){var p=name.split(':');return servicePage(p[1],p[2],loading)}
+  return '';
+}
+function setTab(name){
+  var sell=mode==='sell';
+  document.querySelectorAll(sell?'#vnav .tab':'#nav .tab').forEach(function(t,i){
+    var on=(sell?t.dataset.vtab:t.dataset.tab)===name;t.setAttribute('aria-selected',on);
+    if(on)(sell?document.getElementById('vind'):ind).style.transform='translateX('+(i*100)+'%)';
+  });
+}
+function show(html){
+  main.innerHTML='<div class="view">'+html+'</div>';
+  var d=isDetail(cur);
+  document.body.classList.toggle('detail',d);
+  bar.innerHTML=d?curBar:'';bar.classList.toggle('on',d&&!!curBar);
+  dataFilter();bind();bindPage();bindV();onScroll();
+}
+function go(name){
+  if(name==='sell'){setMode('sell');return}
+  if(name==='buy'){setMode('buy');return}
+  var back=false;
+  if(name==='back'){name=hist.pop()||(mode==='sell'?'v:listings':'home');back=true}
+  if(name.indexOf('v:')===0){goV(name);return}
+  if(name==='market:stores'){mview='stores';name='market'}
+  else if(name==='market:fresher'){mview='items';mcat='fresher';name='market'}
+  if(name===cur&&!back){if(name==='market'||name==='home')show(render(name,false));return}
+  if(!back){if(isSub(name))hist.push(cur);else hist=[]}
+  if(name.indexOf('svc:')===0)tabCur='services';
+  else if(!isSub(name))tabCur=name;
+  cur=name;setTab(tabCur);window.scrollTo(0,0);
+  fab.classList.toggle('off',TOP.indexOf(name)<1);
+  sweep.classList.remove('go');void sweep.offsetWidth;sweep.classList.add('go');
+  var token=++busy;
+  /* cached screens swap instantly; first loads wait. Real app: skeleton only after ~300ms, geometry must match the real layout. */
+  if(cached[name]||name==='home'){show(render(name,false));return}
+  var t=setTimeout(function(){if(token===busy)show(render(name,true))},300);
+  setTimeout(function(){clearTimeout(t);if(token===busy){cached[name]=true;show(render(name,false))}},900);
+}
+function bind(){
+  document.querySelectorAll('[data-go]').forEach(function(el){el.onclick=function(e){e.preventDefault();go(el.dataset.go)}});
+  document.querySelectorAll('[data-camp-set]').forEach(function(el){el.onclick=function(){setCampus(el.dataset.campSet)}});
+}
+function bindPage(){
+  var q=document.getElementById('vq');
+  if(q){q.oninput=function(){vq=q.value;refreshVendors()}}
+  document.querySelectorAll('.pill[data-f]').forEach(function(p){p.onclick=function(){vfilter=p.dataset.f;show(render('market',false))}});
+  document.querySelectorAll('.pill[data-cat]').forEach(function(p){p.onclick=function(){mcat=p.dataset.cat;show(render('market',false))}});
+  document.querySelectorAll('[data-seg]').forEach(function(b){b.onclick=function(){mview=b.dataset.seg;show(render('market',false))}});
+  document.querySelectorAll('.slides').forEach(function(s){s.onscroll=function(){
+    var i=Math.round(s.scrollLeft/s.clientWidth);
+    s.parentNode.querySelectorAll('.dots i').forEach(function(d,j){d.classList.toggle('on',j===i)});
+  }});
+}
+document.querySelectorAll('#nav .tab').forEach(function(t){t.onclick=function(){go(t.dataset.tab)}});
+document.querySelectorAll('#vnav .tab').forEach(function(t){t.onclick=function(){go(t.dataset.vtab)}});
+document.querySelectorAll('[data-mode-set]').forEach(function(b){b.onclick=function(){setMode(b.dataset.modeSet)}});
+
+/* ---------- sheets ---------- */
+var asheet=document.getElementById('asheet'),csheet=document.getElementById('csheet'),scrim=document.getElementById('scrim');
+function openSheet(s){s.classList.add('open');scrim.classList.add('open')}
+function closeSheets(){asheet.classList.remove('open');csheet.classList.remove('open');scrim.classList.remove('open')}
+scrim.onclick=closeSheets;
+document.querySelectorAll('[data-close]').forEach(function(b){b.onclick=closeSheets});
+document.addEventListener('keydown',function(e){if(e.key==='Escape')closeSheets()});
+
+/* ---------- campus ---------- */
+function setCampus(c){
+  campus=c;
+  document.body.setAttribute('data-campus',campus);
+  document.getElementById('clabel').textContent=campus==='all'?'Both campuses':CAMP[campus];
+  document.getElementById('cdot').className='dot'+(campus==='all'?' b':'');
+  document.querySelectorAll('#csheet .opt').forEach(function(o){o.setAttribute('aria-checked',o.dataset.camp===campus)});
+  if(cur==='home')dataFilter();else show(render(cur,false));
+}
+document.getElementById('campus').onclick=function(){openSheet(csheet)};
+document.querySelectorAll('#csheet .opt').forEach(function(o){o.onclick=function(){setCampus(o.dataset.camp);closeSheets()}});
+
+var hd=document.getElementById('hd');
+function onScroll(){
+  var y=window.scrollY||0;
+  hd.classList.toggle('scrolled',y>8);
+  var wv=document.getElementById('wv');
+  if(wv)wv.parentNode.style.setProperty('--amp',Math.max(0.15,1-y/140).toFixed(3));
+}
+window.addEventListener('scroll',onScroll,{passive:true});
+
+show(homeHTML=home());setTab('home');setCampus('all');
+setTimeout(function(){document.getElementById('boot').classList.add('out')},900);
+</script>
+</body>
+</html>
