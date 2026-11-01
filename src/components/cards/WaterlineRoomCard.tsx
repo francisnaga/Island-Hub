@@ -1,6 +1,7 @@
 import Link from 'next/link'
-import { Check, MapPin, Bed } from 'lucide-react'
+import { MapPin, Bed } from 'lucide-react'
 import { LodgeListing } from '@/lib/lodge-data'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 export function WaterlineRoomCard({
   lodge,
@@ -63,9 +64,9 @@ export function WaterlineRoomCard({
       {/* Meta Row: ✓ Verified (only if verified) + Campus */}
       <div className="mt-1 flex items-center gap-2 text-[12px] text-muted-foreground whitespace-nowrap overflow-hidden">
         {lodge.is_verified && (
-          <span className="inline-flex items-center gap-1 text-emerald-700 dark:text-emerald-400 font-medium">
-            <Check className="w-3.5 h-3.5 stroke-[2.5]" />
-            Verified
+          <span className="inline-flex items-center gap-1 text-foreground font-medium">
+            <VerifiedBadge size={14} />
+            <span>Verified</span>
           </span>
         )}
         <span className="inline-flex items-center gap-0.5 truncate">

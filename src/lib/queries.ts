@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import { INITIAL_CATEGORIES, sanitizePublicVendor } from './marketplace-data'
 import { LodgeListing, mapProductToLodgeListing } from './lodge-data'
 import {
@@ -207,16 +208,11 @@ export async function getPublicVendorBySlugOrId(slugOrId: string): Promise<{
         .order('is_featured', { ascending: false })
         .order('created_at', { ascending: false })
 
-      const products = ((prodData as Product[]) || [])
-        .filter(
-          (p) =>
-            p.listing_type === 'service' ||
-            (p.images && p.images.length > 0 && !p.needs_seller_photo)
-        )
-        .map((p) => ({
-          ...p,
-          vendor: sanitized,
-        }))
+      const products = ((prodData as Product[]) || []).map((p) => ({
+        ...p,
+        campus: getItemCampus(p),
+        vendor: sanitized,
+      }))
       return {
         vendor: { ...sanitized, products_count: products.length },
         products,
@@ -370,14 +366,12 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
 
     const { data, error } = await query
     if (!error && data) {
-      // Serve admin-approved items from any active (non-rejected, non-suspended, non-paused) vendor
+      // Serve all admin-approved items from any active (non-rejected, non-suspended, non-paused) vendor
       productsList = (data as Product[])
         .filter(
           (item) =>
             item.status === 'approved' &&
             !item.is_demo &&
-            (item.listing_type === 'service' ||
-              (item.images && item.images.length > 0 && !item.needs_seller_photo)) &&
             item.vendor &&
             item.vendor.verification_status !== 'rejected' &&
             item.vendor.verification_status !== 'suspended' &&
@@ -443,8 +437,8 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
 
 export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Product | null> {
   try {
-    const supabase = await createClient()
-    let pQuery = supabase
+    const adminDb = await createAdminClient()
+    let pQuery = adminDb
       .from('products')
       .select('*, category:categories(*), vendor:vendors(*)')
       .eq('is_demo', false)
@@ -457,16 +451,27 @@ export async function getPublicProductBySlugOrId(slugOrId: string): Promise<Prod
 
     if (!error && data) {
       const p = data as Product
-      // Require admin approval on the listing; vendor only needs to not be banned/rejected/paused
-      if (
-        p.status !== 'approved' ||
-        !p.vendor ||
+      if (!p.vendor) return null
+
+      if (p.status !== 'approved') {
+        // Allow admin or the vendor who owns this listing to preview it while pending
+        const supabase = await createClient()
+        const {
+          data: { user },
+        } = await supabase.auth.getUser()
+        const isOwner = Boolean(user && p.vendor.user_id === user.id)
+        const isAdmin = Boolean(user && isAdminEmail(user.email))
+        if (!isOwner && !isAdmin) {
+          return null
+        }
+      } else if (
         p.vendor.verification_status === 'rejected' ||
         p.vendor.verification_status === 'suspended' ||
         p.vendor.is_paused
       ) {
         return null
       }
+
       return {
         ...p,
         campus: getItemCampus(p),
@@ -503,13 +508,22 @@ export async function getPublicLodges(options?: {
         (item) =>
           item.status === 'approved' &&
           !item.is_demo &&
-          item.images &&
-          item.images.length > 0 &&
           item.vendor &&
           item.vendor.verification_status !== 'rejected' &&
           item.vendor.verification_status !== 'suspended' &&
           !item.vendor.is_paused
       )
+
+      // Push featured listings & verified/featured vendors to the top
+      approvedProducts.sort((a, b) => {
+        const aFeat = Boolean(a.is_featured || a.vendor?.is_featured)
+        const bFeat = Boolean(b.is_featured || b.vendor?.is_featured)
+        if (bFeat !== aFeat) return bFeat ? 1 : -1
+        const aVer = a.vendor?.verification_status === 'verified'
+        const bVer = b.vendor?.verification_status === 'verified'
+        if (bVer !== aVer) return bVer ? 1 : -1
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      })
 
       if (options?.q?.trim()) {
         approvedProducts = approvedProducts.filter((p) => matchesSearchQuery(p, options.q!))
@@ -551,7 +565,16 @@ export async function getPublicLodgeById(idOrSlug: string): Promise<{
   otherLodges: LodgeListing[]
 }> {
   const allLodges = await getPublicLodges()
-  const found = allLodges.find((l) => l.id === idOrSlug || l.slug === idOrSlug) || null
+  let found = allLodges.find((l) => l.id === idOrSlug || l.slug === idOrSlug) || null
+
+  // If not found in public approved lodges, check if admin/owner is previewing a pending room
+  if (!found) {
+    const pendingProduct = await getPublicProductBySlugOrId(idOrSlug)
+    if (pendingProduct && pendingProduct.listing_type === 'housing') {
+      found = mapProductToLodgeListing(pendingProduct)
+    }
+  }
+
   const otherLodges = found ? allLodges.filter((l) => l.id !== found.id).slice(0, 4) : []
   return { lodge: found, otherLodges }
 }
@@ -577,15 +600,25 @@ export async function getPublicServices(campus?: string): Promise<ServiceItem[]>
       .order('created_at', { ascending: false })
 
     if (!error && data) {
-      const approved = (data as Product[]).filter(
-        (item) =>
-          item.status === 'approved' &&
-          !item.is_demo &&
-          item.vendor &&
-          item.vendor.verification_status !== 'rejected' &&
-          item.vendor.verification_status !== 'suspended' &&
-          !item.vendor.is_paused
-      )
+      const approved = (data as Product[])
+        .filter(
+          (item) =>
+            item.status === 'approved' &&
+            !item.is_demo &&
+            item.vendor &&
+            item.vendor.verification_status !== 'rejected' &&
+            item.vendor.verification_status !== 'suspended' &&
+            !item.vendor.is_paused
+        )
+        .sort((a, b) => {
+          const aFeat = Boolean(a.is_featured || a.vendor?.is_featured)
+          const bFeat = Boolean(b.is_featured || b.vendor?.is_featured)
+          if (bFeat !== aFeat) return bFeat ? 1 : -1
+          const aVer = a.vendor?.verification_status === 'verified'
+          const bVer = b.vendor?.verification_status === 'verified'
+          if (bVer !== aVer) return bVer ? 1 : -1
+          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        })
 
       for (const item of approved) {
         const serviceSlug = inferServiceSlugFromProduct(item)

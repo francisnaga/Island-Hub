@@ -1,9 +1,10 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { cookies } from 'next/headers'
-import { ChevronLeft, ChevronRight, MapPin, BadgeCheck, Plus, ShieldCheck } from 'lucide-react'
+import { ChevronLeft, ChevronRight, MapPin, Plus } from 'lucide-react'
 import { getPublicServiceBySlug } from '@/lib/queries'
 import { getServiceBySlug } from '@/lib/services-data'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 export const dynamic = 'force-dynamic'
 
@@ -48,7 +49,7 @@ export default async function ServiceDetailPage({
 
   return (
     <div className="min-w-0 max-w-full pb-24">
-      <div className="container mx-auto max-w-lg px-0 pt-4 min-w-0">
+      <div className="container mx-auto max-w-lg md:max-w-4xl px-0 md:px-4 pt-4 md:pt-8 min-w-0">
         {/* Back link to Services */}
         <div className="px-4 pb-1">
           <Link
@@ -109,9 +110,7 @@ export default async function ServiceDetailPage({
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-1.5 font-semibold text-[15px] text-[#0E1B1B] dark:text-[#F1F5F9]">
                       <span className="truncate">{provider.name}</span>
-                      {provider.verified && (
-                        <BadgeCheck className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
-                      )}
+                      {provider.verified && <VerifiedBadge size={15} />}
                     </div>
 
                     <div className="text-[13px] text-[#5B6B6B] dark:text-[#94A3B8] mt-0.5">

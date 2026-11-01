@@ -31,11 +31,11 @@ export default async function ServicesPage({
 
   return (
     <div className="min-w-0 max-w-full pb-24">
-      <div className="container mx-auto max-w-lg px-4 pt-5 space-y-1 min-w-0">
+      <div className="container mx-auto max-w-lg md:max-w-6xl px-4 pt-5 md:pt-8 space-y-2 min-w-0">
         {/* Services Page Header (No search bar per user requirement) */}
         <div className="flex items-end justify-between gap-3 pb-2">
           <div>
-            <h1 className="text-[26px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
+            <h1 className="text-[26px] sm:text-[30px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
               Services
             </h1>
             <p className="text-[14px] text-muted-foreground mt-0.5">
@@ -51,8 +51,8 @@ export default async function ServicesPage({
           </Link>
         </div>
 
-        {/* 2-Column Clean Grid (Linear / Claude Precision UI) */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
+        {/* Clean Responsive Grid (2 cols mobile, 3 cols tablet, 4 cols desktop) */}
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
           {services.map((service) => {
             const Icon = service.icon
             const detailHref = `/services/${service.slug}`

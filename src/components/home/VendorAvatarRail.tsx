@@ -1,7 +1,8 @@
 import Link from 'next/link'
-import { BadgeCheck, MapPin, ArrowRight } from 'lucide-react'
+import { MapPin, ArrowRight } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
   return (
@@ -37,8 +38,11 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
               </div>
 
               <div className="min-w-0 flex-1">
-                <h3 className="font-bold text-[13px] text-foreground line-clamp-1 leading-snug group-hover:text-[#0F6E6E] dark:group-hover:text-[#E8B84A] transition-colors">
-                  {vendor.shop_name}
+                <h3 className="font-bold text-[13px] text-foreground line-clamp-1 leading-snug group-hover:text-[#0F6E6E] dark:group-hover:text-[#E8B84A] transition-colors inline-flex items-center gap-1">
+                  <span className="truncate">{vendor.shop_name}</span>
+                  {vendor.verification_status === 'verified' && (
+                    <VerifiedBadge size={13} variant={isGolden ? 'gold' : 'blue'} />
+                  )}
                 </h3>
                 <div className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5">
                   <MapPin className="h-3 w-3 shrink-0 text-muted-foreground/80" />
@@ -56,11 +60,7 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
             <div className="pt-2 border-t border-border/60 flex items-center justify-between text-[11px]">
               {vendor.verification_status === 'verified' ? (
                 <div className="inline-flex items-center gap-1 font-semibold text-foreground/85">
-                  <BadgeCheck
-                    className={`h-3.5 w-3.5 ${
-                      isGolden ? 'text-[#E8B84A]' : 'text-[#0099FF]'
-                    }`}
-                  />
+                  <VerifiedBadge size={14} variant={isGolden ? 'gold' : 'blue'} />
                   <span>Verified</span>
                 </div>
               ) : (

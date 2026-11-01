@@ -10,6 +10,8 @@ export interface LodgeListing {
   price: number
   period: string
   location_label: string
+  latitude?: number | null
+  longitude?: number | null
   distance_hint: string
   image: string
   images?: string[]
@@ -60,8 +62,17 @@ export function mapProductToLodgeListing(p: Product): LodgeListing {
     campus: p.campus || p.vendor?.campus || 'Okerenkoko',
     price: p.price,
     period: v.period || 'session',
-    location_label: v.location_label || p.vendor?.location_label || `Near ${p.campus || 'NMU'} campus`,
-    distance_hint: v.distance_hint || 'Walking distance to campus',
+    location_label:
+      v.location_label ||
+      (p.variants as any)?.room_meta?.location ||
+      p.vendor?.location_label ||
+      '',
+    latitude: p.vendor?.latitude ?? null,
+    longitude: p.vendor?.longitude ?? null,
+    distance_hint:
+      v.distance_hint ||
+      (p.variants as any)?.room_meta?.distance ||
+      'Near campus',
     image: p.images?.[0] || '',
     images: p.images || [],
     features:

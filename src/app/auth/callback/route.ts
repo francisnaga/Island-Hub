@@ -30,8 +30,14 @@ export async function GET(request: Request) {
       '933767752231-lqadfle5brnh3bcf05q8lhfdd6ulpvsn.apps.googleusercontent.com'
     const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
 
-    // 1. First-party Google OAuth exchange (eliminates *.supabase.co from Google screen)
-    if (googleClientId && googleClientSecret) {
+    // 1. Primary: standard Supabase PKCE code exchange
+    const { data: pkceData, error: pkceError } = await supabase.auth.exchangeCodeForSession(code)
+    if (!pkceError && pkceData.user) {
+      authenticatedUser = pkceData.user
+    }
+
+    // 2. Fallback: First-party Google OAuth exchange
+    if (!authenticatedUser && googleClientId && googleClientSecret) {
       try {
         const redirectUri = `${origin}/auth/callback`
         const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
@@ -60,15 +66,7 @@ export async function GET(request: Request) {
           }
         }
       } catch (err) {
-        console.error('First-party Google token exchange failed, trying PKCE fallback:', err)
-      }
-    }
-
-    // 2. Fallback: standard Supabase PKCE code exchange
-    if (!authenticatedUser) {
-      const { data, error } = await supabase.auth.exchangeCodeForSession(code)
-      if (!error && data.user) {
-        authenticatedUser = data.user
+        console.error('First-party Google token exchange failed:', err)
       }
     }
 

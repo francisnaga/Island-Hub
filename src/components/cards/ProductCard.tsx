@@ -1,8 +1,8 @@
 import Link from 'next/link'
-import { BadgeCheck } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { formatNaira } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 interface ProductCardProps {
   product: Product
@@ -119,10 +119,7 @@ export function ProductCard({ product }: ProductCardProps) {
                 {product.vendor.shop_name}
               </span>
               {product.vendor.verification_status === 'verified' && (
-                <BadgeCheck
-                  className="h-3.5 w-3.5 text-primary shrink-0"
-                  aria-label="Verified Vendor"
-                />
+                <VerifiedBadge size={14} />
               )}
             </div>
             <span className="shrink-0 text-[10px] text-muted-foreground">

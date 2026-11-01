@@ -167,9 +167,9 @@ export function HousingClient({
         </div>
       </div>
 
-      {/* 2-Column Room Grid */}
+      {/* Responsive Room Grid (2 cols mobile, 3 cols tablet, 4 cols desktop) */}
       {filteredLodges.length > 0 ? (
-        <div className="grid grid-cols-2 gap-3.5 sm:gap-4 pt-1">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 pt-1">
           {filteredLodges.map((lodge) => (
             <WaterlineRoomCard
               key={lodge.id}

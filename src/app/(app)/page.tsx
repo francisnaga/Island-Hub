@@ -48,7 +48,7 @@ export default async function HomePage({
       {/* 1. Deep Teal Hero & Waterline Wave */}
       <WaterlineHero />
 
-      <div className="space-y-6 pt-2">
+      <div className="mx-auto max-w-7xl space-y-6 md:space-y-8 pt-2 md:pt-4">
         {/* 2. Just landed */}
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">

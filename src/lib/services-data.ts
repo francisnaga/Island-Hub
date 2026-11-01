@@ -9,10 +9,10 @@ import {
   Printer,
   Camera,
   Truck,
-  ShieldCheck,
   Laptop,
   type LucideIcon,
 } from 'lucide-react'
+import { BootIcon } from '@/components/brand/BootIcon'
 import { Product } from './types'
 
 export interface ServiceProvider {
@@ -60,20 +60,6 @@ export const SERVICES_LIST: ServiceItem[] = [
       'Regulation cadet haircuts, clean fades, beard line-ups, and grooming near campus hostels. View barbers and message directly on WhatsApp.',
     startingPrice: 'From ₦1,000',
     turnaround: 'Walk-in / 20 mins',
-    popular: true,
-    providers: [],
-  },
-  {
-    id: 'hair-styling',
-    slug: 'hair-styling',
-    title: 'Braiding & Hair Styling',
-    shortTitle: 'Hair Styling',
-    icon: Sparkles,
-    tagline: 'Knotless braids, cornrows, wig installation, revamping & styling.',
-    description:
-      'Campus hair stylists for knotless braids, neat cornrows, frontal/closure installations, wig revamping, and natural hair care.',
-    startingPrice: 'From ₦3,000',
-    turnaround: 'By appointment',
     popular: true,
     providers: [],
   },
@@ -134,6 +120,20 @@ export const SERVICES_LIST: ServiceItem[] = [
     providers: [],
   },
   {
+    id: 'cobbler-boot-care',
+    slug: 'cobbler-boot-care',
+    title: 'Boot & Shoe Care',
+    shortTitle: 'Boot & Shoe Care',
+    icon: BootIcon as unknown as LucideIcon,
+    tagline: 'Parade boot mirror-polishing, sole stitching, buckle & leather repair.',
+    description:
+      'Inspection-grade mirror shining for cadet parade shoes and safety boots, sole gum/stitching, belt punching, and bag zip repairs.',
+    startingPrice: 'From ₦500',
+    turnaround: 'Same day',
+    popular: true,
+    providers: [],
+  },
+  {
     id: 'printing',
     slug: 'printing',
     title: 'Printing, Typing & Photocopy',
@@ -186,19 +186,6 @@ export const SERVICES_LIST: ServiceItem[] = [
     providers: [],
   },
   {
-    id: 'cobbler-boot-care',
-    slug: 'cobbler-boot-care',
-    title: 'Boot Shining & Cobbler',
-    shortTitle: 'Boot & Shoe Care',
-    icon: ShieldCheck,
-    tagline: 'Parade boot mirror-polishing, sole stitching, buckle & leather repair.',
-    description:
-      'Inspection-grade mirror shining for cadet parade shoes and safety boots, sole gum/stitching, belt punching, and bag zip repairs.',
-    startingPrice: 'From ₦500',
-    turnaround: 'Same day',
-    providers: [],
-  },
-  {
     id: 'tech-design',
     slug: 'tech-design',
     title: 'Tech Help & Graphic Design',
@@ -211,6 +198,20 @@ export const SERVICES_LIST: ServiceItem[] = [
     turnaround: 'Same day – 48 hrs',
     providers: [],
   },
+  {
+    id: 'happy-ending',
+    slug: 'happy-ending',
+    title: 'Happy Ending',
+    shortTitle: 'Happy Ending',
+    icon: Sparkles,
+    tagline: 'Relaxation, massage, wellness & personal care sessions near campus.',
+    description:
+      'Private relaxation, body massage, stress relief, and personal wellness sessions across Okerenkoko and Kurutie. Message directly on WhatsApp to book.',
+    startingPrice: 'By arrangement',
+    turnaround: 'By appointment',
+    popular: true,
+    providers: [],
+  },
 ]
 
 export function getAllServices(): ServiceItem[] {
@@ -221,9 +222,6 @@ export function normalizeServiceSlug(slug: string): string {
   const normalized = slug.toLowerCase().trim()
   if (normalized === 'barbing' || normalized === 'haircut' || normalized === 'barber') {
     return 'haircuts'
-  }
-  if (normalized === 'braiding' || normalized === 'salon' || normalized === 'hair') {
-    return 'hair-styling'
   }
   if (normalized === 'cooking' || normalized === 'food' || normalized === 'catering') {
     return 'meals'
@@ -238,8 +236,11 @@ export function normalizeServiceSlug(slug: string): string {
   if (normalized === 'delivery' || normalized === 'errands') {
     return 'errands-delivery'
   }
-  if (normalized === 'cobbler' || normalized === 'shoe-repair') {
+  if (normalized === 'cobbler' || normalized === 'shoe-repair' || normalized === 'boot-care') {
     return 'cobbler-boot-care'
+  }
+  if (normalized === 'happy' || normalized === 'massage' || normalized === 'wellness') {
+    return 'happy-ending'
   }
   return normalized
 }
@@ -253,8 +254,8 @@ export function inferServiceSlugFromProduct(p: Product): string {
     return normalizeServiceSlug(svcSlug)
   }
   const text = `${p.title} ${p.description} ${p.category?.slug || ''}`.toLowerCase()
-  if (text.includes('braid') || text.includes('wig') || text.includes('cornrow') || text.includes('salon')) {
-    return 'hair-styling'
+  if (text.includes('happy ending') || text.includes('massage') || text.includes('relaxation')) {
+    return 'happy-ending'
   }
   if (text.includes('barber') || text.includes('haircut') || text.includes('fade') || text.includes('groom')) {
     return 'haircuts'
@@ -274,7 +275,7 @@ export function inferServiceSlugFromProduct(p: Product): string {
   if (text.includes('errand') || text.includes('waybill') || text.includes('runner') || text.includes('jetty delivery')) {
     return 'errands-delivery'
   }
-  if (text.includes('cobbler') || text.includes('polish') || text.includes('shine') || text.includes('sole')) {
+  if (text.includes('cobbler') || text.includes('polish') || text.includes('shine') || text.includes('sole') || text.includes('boot')) {
     return 'cobbler-boot-care'
   }
   if (text.includes('graphic') || text.includes('flyer') || text.includes('autocad') || text.includes('software')) {

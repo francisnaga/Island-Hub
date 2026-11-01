@@ -3,6 +3,7 @@ import { Ban, PauseCircle, MapPin } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { cn } from '@/lib/utils'
 import { WavyAvatar } from '@/components/brand/WavyAvatar'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 interface VendorCardProps {
   vendor: Vendor
@@ -48,22 +49,14 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
           : 'border-border/80'
       )}
     >
-      {/* Top-Right Circular Verified Badge */}
+      {/* Top-Right Twitter/Facebook Style Verified Badge */}
       {isVerified && !isBanned && (
         <div
-          className="absolute top-4 right-4 sm:top-5 sm:right-5 w-6 h-6 rounded-full bg-[#0F6E6E] text-white flex items-center justify-center shrink-0 shadow-2xs"
+          className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center justify-center shrink-0"
           aria-label="Verified Vendor"
           title="Verified Vendor"
         >
-          <svg
-            className="w-3.5 h-3.5 fill-none stroke-current"
-            viewBox="0 0 24 24"
-            strokeWidth="2.5"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-          >
-            <path d="M20 6L9 17l-5-5" />
-          </svg>
+          <VerifiedBadge size={22} />
         </div>
       )}
 
@@ -104,8 +97,9 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
 
       {/* Name, Role & Campus */}
       <div className="mt-4 space-y-1">
-        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-lg sm:text-xl text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors">
-          {vendor.shop_name}
+        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-lg sm:text-xl text-foreground line-clamp-2 leading-tight group-hover:text-primary transition-colors inline-flex items-center justify-center gap-1.5">
+          <span>{vendor.shop_name}</span>
+          {isVerified && !isBanned && <VerifiedBadge size={17} />}
         </h3>
         <p className="text-xs text-muted-foreground font-medium">
           {roleLabel}

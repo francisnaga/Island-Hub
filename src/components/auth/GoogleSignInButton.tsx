@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
 interface GoogleSignInButtonProps {
@@ -14,11 +15,32 @@ export function GoogleSignInButton({
 }: GoogleSignInButtonProps) {
   const [loading, setLoading] = useState(false)
 
-  const handleGoogleSignIn = () => {
+  const handleGoogleSignIn = async () => {
     setLoading(true)
     try {
-      const target = `/api/auth/google?next=${encodeURIComponent(nextPath)}`
-      window.location.assign(target)
+      const supabase = createClient()
+      const redirectTo = `${window.location.origin}/auth/callback?next=${encodeURIComponent(
+        nextPath
+      )}`
+      const { data, error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo,
+          queryParams: {
+            prompt: 'select_account',
+          },
+        },
+      })
+
+      if (error) {
+        toast.error(error.message || 'Unable to start Google Sign-In.')
+        setLoading(false)
+        return
+      }
+
+      if (data?.url) {
+        window.location.assign(data.url)
+      }
     } catch {
       toast.error('Unable to start Google Sign-In. Please check your connection.')
       setLoading(false)

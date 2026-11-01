@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 
 function getPublicOrigin(request: Request): string {
   const url = new URL(request.url)
@@ -15,20 +16,22 @@ export async function GET(request: Request) {
   const next = searchParams.get('next') || '/vendor/apply'
   const origin = getPublicOrigin(request)
 
-  const clientId =
-    process.env.GOOGLE_CLIENT_ID ||
-    process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
-    '933767752231-lqadfle5brnh3bcf05q8lhfdd6ulpvsn.apps.googleusercontent.com'
+  const supabase = await createClient()
+  const redirectTo = `${origin}/auth/callback?next=${encodeURIComponent(next)}`
 
-  const redirectUri = `${origin}/auth/callback`
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: 'google',
+    options: {
+      redirectTo,
+      queryParams: {
+        prompt: 'select_account',
+      },
+    },
+  })
 
-  const googleAuthUrl = new URL('https://accounts.google.com/o/oauth2/v2/auth')
-  googleAuthUrl.searchParams.set('client_id', clientId)
-  googleAuthUrl.searchParams.set('redirect_uri', redirectUri)
-  googleAuthUrl.searchParams.set('response_type', 'code')
-  googleAuthUrl.searchParams.set('scope', 'openid email profile')
-  googleAuthUrl.searchParams.set('prompt', 'select_account')
-  googleAuthUrl.searchParams.set('state', next)
+  if (!error && data?.url) {
+    return NextResponse.redirect(data.url)
+  }
 
-  return NextResponse.redirect(googleAuthUrl.toString())
+  return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`)
 }

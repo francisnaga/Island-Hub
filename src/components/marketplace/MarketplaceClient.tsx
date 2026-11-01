@@ -20,6 +20,7 @@ import { ProductCard } from '@/components/cards/ProductCard'
 import { VendorCard } from '@/components/cards/VendorCard'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { NagaLogo } from '@/components/brand/NagaLogo'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { MarketplaceFilters } from '@/components/marketplace/MarketplaceFilters'
 import { Category, Product, Vendor } from '@/lib/types'
 import { LodgeListing } from '@/lib/lodge-data'
@@ -368,19 +369,17 @@ export function MarketplaceClient({
             </div>
           </div>
 
-          {/* 2-Column Stores Grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+          {/* Stores Grid (1 col mobile, 2 cols tablet, 3 cols desktop) */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {/* Naga's Founder Card */}
             <div className="relative rounded-2xl border border-border/80 bg-card p-6 sm:p-7 shadow-2xs hover:border-foreground/30 hover:shadow-xs transition-all">
-              {/* Golden Circular Verified Badge for Founder */}
+              {/* Golden Verified Badge for Founder */}
               <div
-                className="absolute top-4 right-4 sm:top-5 sm:right-5 w-6 h-6 rounded-full bg-[#E8B84A] text-slate-950 flex items-center justify-center shrink-0 shadow-2xs"
+                className="absolute top-4 right-4 sm:top-5 sm:right-5 flex items-center justify-center shrink-0"
                 aria-label="Verified Founder"
                 title="Verified Platform Founder"
               >
-                <svg className="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24">
-                  <path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z" />
-                </svg>
+                <VerifiedBadge size={22} variant="gold" />
               </div>
 
               {/* Avatar */}
@@ -392,8 +391,9 @@ export function MarketplaceClient({
 
               {/* Details */}
               <div className="mt-3.5 text-center space-y-1">
-                <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-                  Naga
+                <h3 className="text-base sm:text-lg font-bold text-foreground tracking-tight inline-flex items-center justify-center gap-1.5">
+                  <span>Naga</span>
+                  <VerifiedBadge size={17} variant="gold" />
                 </h3>
                 <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-widest">
                   FOUNDER

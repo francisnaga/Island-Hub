@@ -23,8 +23,11 @@ import {
   Image as ImageIcon,
   LogOut,
   ShieldAlert,
+  MapPin,
+  Navigation,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import {
   CampusArea,
   Category,
@@ -171,10 +174,11 @@ export function VendorDashboardClient({
 
   // Store Settings Edit Bottom Sheet state
   const [editingStoreField, setEditingStoreField] = useState<
-    null | 'name' | 'phone' | 'campus' | 'location' | 'about'
+    null | 'name' | 'phone' | 'campus' | 'location' | 'map_pin' | 'about'
   >(null)
   const [draftStoreValue, setDraftStoreValue] = useState('')
   const [savingStoreField, setSavingStoreField] = useState(false)
+  const [locatingGps, setLocatingGps] = useState(false)
   const [uploadingAvatar, setUploadingAvatar] = useState(false)
 
   // Load initial edit product if initialEditId was passed
@@ -528,7 +532,7 @@ export function VendorDashboardClient({
 
   // Store Settings Field Save
   const openStoreEdit = (
-    field: 'name' | 'phone' | 'campus' | 'location' | 'about'
+    field: 'name' | 'phone' | 'campus' | 'location' | 'map_pin' | 'about'
   ) => {
     setEditingStoreField(field)
     if (field === 'name') setDraftStoreValue(vendor.shop_name || '')
@@ -536,6 +540,88 @@ export function VendorDashboardClient({
     if (field === 'campus') setDraftStoreValue(vendor.campus || 'Okerenkoko')
     if (field === 'location') setDraftStoreValue(vendor.location_label || '')
     if (field === 'about') setDraftStoreValue(vendor.description || '')
+  }
+
+  const handlePinStoreGps = () => {
+    if (typeof window === 'undefined' || !('geolocation' in navigator)) {
+      toast.error('Geolocation is not supported on this device/browser.')
+      return
+    }
+    setLocatingGps(true)
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        try {
+          const lat = Number(pos.coords.latitude.toFixed(6))
+          const lng = Number(pos.coords.longitude.toFixed(6))
+          const res = await fetch('/api/vendor/store', {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              vendor_id: vendor.id,
+              latitude: lat,
+              longitude: lng,
+            }),
+          })
+          const json = await res.json()
+          if (!res.ok || json.error) {
+            toast.error(json.error || 'Could not save map location.')
+            return
+          }
+          setVendor((prev) => ({
+            ...prev,
+            ...(json.vendor || {}),
+            latitude: lat,
+            longitude: lng,
+          }))
+          setEditingStoreField(null)
+          toast.success('Current GPS location pinned to your store & listings')
+          router.refresh()
+        } finally {
+          setLocatingGps(false)
+        }
+      },
+      (err) => {
+        setLocatingGps(false)
+        if (err.code === err.PERMISSION_DENIED) {
+          toast.error('Location permission denied. Enable location access in your browser.')
+        } else {
+          toast.error('Could not detect GPS location. Try again.')
+        }
+      },
+      { enableHighAccuracy: true, timeout: 12000, maximumAge: 0 }
+    )
+  }
+
+  const handleClearStoreGps = async () => {
+    if (savingStoreField) return
+    setSavingStoreField(true)
+    try {
+      const res = await fetch('/api/vendor/store', {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          vendor_id: vendor.id,
+          latitude: null,
+          longitude: null,
+        }),
+      })
+      const json = await res.json()
+      if (!res.ok || json.error) {
+        toast.error(json.error || 'Could not remove map location.')
+        return
+      }
+      setVendor((prev) => ({
+        ...prev,
+        ...(json.vendor || {}),
+        latitude: null,
+        longitude: null,
+      }))
+      setEditingStoreField(null)
+      toast.success('Pinned map location removed')
+      router.refresh()
+    } finally {
+      setSavingStoreField(false)
+    }
   }
 
   const handleSaveStoreField = async () => {
@@ -636,7 +722,7 @@ export function VendorDashboardClient({
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-32">
-      <div className="mx-auto w-full max-w-[480px]">
+      <div className="mx-auto w-full max-w-[480px] md:max-w-3xl">
         {/* ================= SCREEN 1: YOUR LISTINGS (vListings) ================= */}
         {screen === 'v:listings' && (
           <div>
@@ -1283,13 +1369,13 @@ export function VendorDashboardClient({
                 </div>
               </div>
 
-              {/* Optional Location */}
+              {/* Optional Typed Location Description + Optional Pinned GPS Map Location */}
               <div className="px-4 mt-[22px]">
                 <label
                   htmlFor="f-loc"
                   className="block mb-2 text-[15px] font-semibold text-foreground"
                 >
-                  Location
+                  Location description (optional)
                 </label>
                 <input
                   id="f-loc"
@@ -1300,13 +1386,43 @@ export function VendorDashboardClient({
                   placeholder={
                     formKind === 'room'
                       ? 'e.g. 5 min walk from the main gate'
-                      : 'Optional pickup spot or hostel block'
+                      : 'Optional pickup spot, hostel block, or landmark'
                   }
                   className="w-full h-[52px] px-3.5 rounded-xl border border-border bg-card text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-[#0F6E6E]"
                 />
                 <small className="block mt-1.5 text-[13px] text-muted-foreground">
-                  Optional. Shown only if you add one.
+                  Written explanation for buyers (separate from your GPS map pin).
                 </small>
+
+                <div className="mt-3 flex items-center justify-between gap-3 rounded-xl border border-border bg-card px-3.5 py-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0" />
+                    <div className="min-w-0">
+                      <span className="block text-[13px] font-semibold text-foreground truncate">
+                        {vendor.latitude != null && vendor.longitude != null
+                          ? 'GPS map location pinned'
+                          : 'No GPS map pin added'}
+                      </span>
+                      <span className="block text-[11px] text-muted-foreground truncate">
+                        {vendor.latitude != null && vendor.longitude != null
+                          ? 'Google Maps directions enabled on your listings'
+                          : 'Listings will ignore Google Maps unless pinned'}
+                      </span>
+                    </div>
+                  </div>
+                  <button
+                    type="button"
+                    disabled={locatingGps}
+                    onClick={handlePinStoreGps}
+                    className="h-8 px-3 rounded-lg bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] dark:text-[#22D3EE] text-xs font-semibold shrink-0 hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    {locatingGps
+                      ? 'Pinning...'
+                      : vendor.latitude != null && vendor.longitude != null
+                      ? 'Update pin'
+                      : 'Pin GPS'}
+                  </button>
+                </div>
               </div>
 
               {/* Description */}
@@ -1339,7 +1455,7 @@ export function VendorDashboardClient({
 
             {/* Sticky Bottom Publish Bar (.bar.on) */}
             <div className="fixed bottom-0 inset-x-0 z-30 bg-card border-t border-border">
-              <div className="mx-auto w-full max-w-[480px] px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center gap-4">
+              <div className="mx-auto w-full max-w-[480px] md:max-w-3xl px-4 py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] flex items-center gap-4">
                 <div className="min-w-0">
                   <small className="block text-xs text-muted-foreground">
                     {missingReason ? 'Still needed' : 'Ready'}
@@ -1467,8 +1583,9 @@ export function VendorDashboardClient({
                   className="hidden"
                 />
               </label>
-              <h2 className="mt-3 font-[family-name:var(--font-bricolage)] font-semibold text-[22px] text-foreground">
-                {vendor.shop_name}
+              <h2 className="mt-3 font-[family-name:var(--font-bricolage)] font-semibold text-[22px] text-foreground inline-flex items-center justify-center gap-1.5">
+                <span>{vendor.shop_name}</span>
+                {vendor.verification_status === 'verified' && <VerifiedBadge size={18} />}
               </h2>
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {campusDisplay}
@@ -1528,8 +1645,16 @@ export function VendorDashboardClient({
                 },
                 {
                   key: 'location' as const,
-                  label: 'Location',
+                  label: 'Location description',
                   val: vendor.location_label ? vendor.location_label : 'Add',
+                },
+                {
+                  key: 'map_pin' as const,
+                  label: 'Map location (GPS)',
+                  val:
+                    vendor.latitude != null && vendor.longitude != null
+                      ? 'Pinned on map'
+                      : 'Add',
                 },
                 {
                   key: 'about' as const,
@@ -1872,11 +1997,64 @@ export function VendorDashboardClient({
                 : editingStoreField === 'campus'
                 ? 'Where do you sell?'
                 : editingStoreField === 'location'
-                ? 'Location (optional)'
+                ? 'Location description (optional)'
+                : editingStoreField === 'map_pin'
+                ? 'Map location (GPS)'
                 : 'About your shop'}
             </h3>
 
-            {editingStoreField === 'campus' ? (
+            {editingStoreField === 'map_pin' ? (
+              <div className="space-y-3">
+                <p className="text-sm text-muted-foreground leading-relaxed">
+                  Pin your current GPS location so buyers can open Google Maps directions on your store and listings. If you do not pin a GPS location, listings will ignore Google Maps and only show your written location description.
+                </p>
+
+                {vendor.latitude != null && vendor.longitude != null && (
+                  <div className="flex items-center gap-2 rounded-xl bg-[#E6F2F2] dark:bg-muted px-3.5 py-2.5 text-xs font-medium text-[#0A4F4F] dark:text-foreground">
+                    <MapPin className="w-4 h-4 shrink-0 text-[#0F6E6E] dark:text-[#22D3EE]" />
+                    <span>
+                      Pinned ({Number(vendor.latitude).toFixed(5)},{' '}
+                      {Number(vendor.longitude).toFixed(5)})
+                    </span>
+                  </div>
+                )}
+
+                <button
+                  type="button"
+                  disabled={locatingGps}
+                  onClick={handlePinStoreGps}
+                  className="w-full h-12 rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] text-white font-semibold text-[15px] flex items-center justify-center gap-2 transition-colors disabled:opacity-60 cursor-pointer"
+                >
+                  <Navigation className="w-4 h-4" />
+                  <span>
+                    {locatingGps
+                      ? 'Detecting GPS location...'
+                      : vendor.latitude != null && vendor.longitude != null
+                      ? 'Update with current GPS location'
+                      : 'Use my current GPS location'}
+                  </span>
+                </button>
+
+                {vendor.latitude != null && vendor.longitude != null && (
+                  <button
+                    type="button"
+                    disabled={savingStoreField}
+                    onClick={handleClearStoreGps}
+                    className="w-full h-11 rounded-xl border border-red-500/30 bg-red-500/10 text-red-600 dark:text-red-400 font-semibold text-sm flex items-center justify-center transition-colors cursor-pointer"
+                  >
+                    {savingStoreField ? 'Removing...' : 'Remove map pin'}
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  onClick={() => setEditingStoreField(null)}
+                  className="w-full h-11 rounded-xl bg-background font-medium text-sm cursor-pointer"
+                >
+                  Close
+                </button>
+              </div>
+            ) : editingStoreField === 'campus' ? (
               <div className="flex flex-wrap gap-2 py-1">
                 {(
                   [
@@ -1925,23 +2103,25 @@ export function VendorDashboardClient({
               />
             )}
 
-            <div className="flex gap-2 pt-1">
-              <button
-                type="button"
-                onClick={() => setEditingStoreField(null)}
-                className="flex-1 h-12 rounded-xl bg-background font-medium text-[15px] cursor-pointer"
-              >
-                Cancel
-              </button>
-              <button
-                type="button"
-                disabled={savingStoreField}
-                onClick={handleSaveStoreField}
-                className="flex-1 h-12 rounded-xl bg-[#0F6E6E] text-white font-semibold text-[15px] disabled:opacity-50 cursor-pointer"
-              >
-                {savingStoreField ? 'Saving...' : 'Save'}
-              </button>
-            </div>
+            {editingStoreField !== 'map_pin' && (
+              <div className="flex gap-2 pt-1">
+                <button
+                  type="button"
+                  onClick={() => setEditingStoreField(null)}
+                  className="flex-1 h-12 rounded-xl bg-background font-medium text-[15px] cursor-pointer"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  disabled={savingStoreField}
+                  onClick={handleSaveStoreField}
+                  className="flex-1 h-12 rounded-xl bg-[#0F6E6E] text-white font-semibold text-[15px] disabled:opacity-50 cursor-pointer"
+                >
+                  {savingStoreField ? 'Saving...' : 'Save'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

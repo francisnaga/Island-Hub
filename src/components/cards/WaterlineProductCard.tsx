@@ -1,8 +1,9 @@
 import Link from 'next/link'
 import Image from 'next/image'
-import { BadgeCheck, ShoppingBag } from 'lucide-react'
+import { ShoppingBag } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { getItemCampus } from '@/lib/queries'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 
 export function WaterlineProductCard({
   product,
@@ -62,7 +63,7 @@ export function WaterlineProductCard({
       <div className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground whitespace-nowrap overflow-hidden">
         {product.vendor?.verification_status === 'verified' ? (
           <>
-            <BadgeCheck className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0" />
+            <VerifiedBadge size={14} />
             <span>Verified</span>
             {!isSingleCampusSelected && (
               <span className="truncate">· {campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}</span>

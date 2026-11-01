@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { revalidatePath } from 'next/cache'
 import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
 import { isAdminEmail, CampusArea } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
-import { NMU_DEFAULT_COORDS } from '@/lib/marketplace-data'
 
 function slugifyShopName(name: string): string {
   const base = name
@@ -31,6 +31,15 @@ export async function POST(request: NextRequest) {
     const campus: CampusArea =
       body.campus === 'Kurutie' || body.campus === 'Both' ? body.campus : 'Okerenkoko'
     const trimmedLocation = String(body.location_label || '').trim()
+
+    const hasCoordinates =
+      typeof body.latitude === 'number' &&
+      !Number.isNaN(body.latitude) &&
+      typeof body.longitude === 'number' &&
+      !Number.isNaN(body.longitude)
+
+    const pinnedLat = hasCoordinates ? Number(body.latitude) : null
+    const pinnedLng = hasCoordinates ? Number(body.longitude) : null
 
     if (shopName.length < 2) {
       return NextResponse.json(
@@ -90,8 +99,25 @@ export async function POST(request: NextRequest) {
           shop_name: shopName,
           whatsapp_number: normalizedPhone,
           campus,
-          location_label: trimmedLocation || '',
-          location_visibility: trimmedLocation ? 'approximate' : 'hidden',
+          location_label: trimmedLocation,
+          ...(body.latitude !== undefined
+            ? {
+                latitude: pinnedLat,
+                longitude: pinnedLng,
+                location_visibility: hasCoordinates
+                  ? 'exact'
+                  : trimmedLocation
+                  ? 'approximate'
+                  : 'hidden',
+              }
+            : {
+                location_visibility:
+                  existingVendor.latitude != null && existingVendor.longitude != null
+                    ? 'exact'
+                    : trimmedLocation
+                    ? 'approximate'
+                    : 'hidden',
+              }),
           pickup_options: trimmedLocation || pickupDefault,
           updated_at: new Date().toISOString(),
         })
@@ -102,6 +128,7 @@ export async function POST(request: NextRequest) {
       if (updateErr) {
         return NextResponse.json({ error: updateErr.message }, { status: 400 })
       }
+      revalidatePath('/', 'layout')
       return NextResponse.json({ vendor: updated })
     }
 
@@ -122,10 +149,14 @@ export async function POST(request: NextRequest) {
         seller_type: 'student',
         is_student: true,
         location_type: 'pickup_point',
-        location_visibility: trimmedLocation ? 'approximate' : 'hidden',
-        location_label: trimmedLocation || '',
-        latitude: NMU_DEFAULT_COORDS.latitude,
-        longitude: NMU_DEFAULT_COORDS.longitude,
+        location_visibility: hasCoordinates
+          ? 'exact'
+          : trimmedLocation
+          ? 'approximate'
+          : 'hidden',
+        location_label: trimmedLocation,
+        latitude: pinnedLat,
+        longitude: pinnedLng,
         location_confirmed_at: new Date().toISOString(),
         verification_status: 'pending',
         is_demo: false,
@@ -137,6 +168,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: insertErr.message }, { status: 400 })
     }
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ vendor: created })
   } catch (err: any) {
     return NextResponse.json(
@@ -216,10 +248,32 @@ export async function PATCH(request: NextRequest) {
     if (typeof body.location_label === 'string') {
       const loc = body.location_label.trim()
       updates.location_label = loc
-      updates.location_visibility = loc ? 'approximate' : 'hidden'
+      const hasPinned =
+        existingVendor.latitude != null && existingVendor.longitude != null
+      updates.location_visibility = hasPinned
+        ? 'exact'
+        : loc
+        ? 'approximate'
+        : 'hidden'
       updates.pickup_options =
         loc ||
         `${existingVendor.campus === 'Both' ? 'Okerenkoko & Kurutie' : existingVendor.campus || 'Okerenkoko'} pickup`
+    }
+
+    if ('latitude' in body && 'longitude' in body) {
+      const hasCoords =
+        typeof body.latitude === 'number' &&
+        !Number.isNaN(body.latitude) &&
+        typeof body.longitude === 'number' &&
+        !Number.isNaN(body.longitude)
+      updates.latitude = hasCoords ? Number(body.latitude) : null
+      updates.longitude = hasCoords ? Number(body.longitude) : null
+      updates.location_visibility = hasCoords
+        ? 'exact'
+        : existingVendor.location_label
+        ? 'approximate'
+        : 'hidden'
+      updates.location_confirmed_at = new Date().toISOString()
     }
 
     if (typeof body.description === 'string') {
@@ -241,6 +295,7 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 })
     }
 
+    revalidatePath('/', 'layout')
     return NextResponse.json({ vendor: updated })
   } catch (err: any) {
     return NextResponse.json(

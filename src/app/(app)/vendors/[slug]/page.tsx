@@ -5,10 +5,10 @@ import { ProductCard } from '@/components/cards/ProductCard'
 import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ShareButton } from '@/components/shared/ShareButton'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 import {
-  buildGoogleMapsDirectionsUrl,
   buildVendorStoreWhatsAppUrl,
   formatNaira,
   getCanonicalUrl,
@@ -66,15 +66,16 @@ export default async function VendorStorefrontPage({
     storeUrl,
   })
 
-  const directionsUrl =
-    !isBanned && vendor.location_visibility === 'exact'
-      ? buildGoogleMapsDirectionsUrl({
-          latitude: vendor.latitude,
-          longitude: vendor.longitude,
-          locationVisibility: vendor.location_visibility,
-          locationType: vendor.location_type,
-        })
-      : null
+  const hasPinnedGps =
+    !isBanned &&
+    vendor.latitude != null &&
+    vendor.longitude != null &&
+    Number.isFinite(Number(vendor.latitude)) &&
+    Number.isFinite(Number(vendor.longitude))
+
+  const directionsUrl = hasPinnedGps
+    ? `https://www.google.com/maps/search/?api=1&query=${vendor.latitude},${vendor.longitude}`
+    : null
 
   const campusLabel = vendor.campus || 'Okerenkoko'
   const roleLabel = getSellerTypeLabel(vendor)
@@ -94,7 +95,7 @@ export default async function VendorStorefrontPage({
     <div className="min-w-0 max-w-full pb-24">
       {/* 1. Deep Teal Top Header (.pb) matching Prototype */}
       <section className="pb">
-        <div className="container mx-auto max-w-lg flex items-center justify-between">
+        <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between">
           <Link href="/marketplace?tab=stores" className="bk" aria-label="Back to stores">
             <ChevronLeft className="w-5 h-5 -ml-1 stroke-[2]" />
             <span>Back</span>
@@ -122,7 +123,10 @@ export default async function VendorStorefrontPage({
         </div>
 
         {/* Name, Role & Campus (+ Optional Location if added) */}
-        <h2>{vendor.shop_name}</h2>
+        <h2 className="inline-flex items-center justify-center gap-1.5">
+          <span>{vendor.shop_name}</span>
+          {isVerified && <VerifiedBadge size={18} />}
+        </h2>
         <div className="vk">{roleLabel}</div>
         <div className="vk2">
           <MapPin className="w-3.5 h-3.5" />
@@ -136,15 +140,7 @@ export default async function VendorStorefrontPage({
         {isVerified && (
           <div>
             <div className="vf">
-              <svg
-                className="w-3.5 h-3.5 fill-none stroke-current"
-                viewBox="0 0 24 24"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              >
-                <path d="M20 6L9 17l-5-5" />
-              </svg>
+              <VerifiedBadge size={14} />
               <span>Verified vendor</span>
             </div>
           </div>
@@ -183,38 +179,42 @@ export default async function VendorStorefrontPage({
       </svg>
 
       {/* 2. Main Content Container */}
-      <div className="container mx-auto max-w-lg px-4 pt-4">
+      <div className="container mx-auto max-w-lg md:max-w-5xl px-4 pt-4">
         {/* Primary CTA: Message on WhatsApp */}
         {whatsappStore.valid && !isBanned ? (
-          <a
-            href={whatsappStore.url}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="cta-btn cursor-pointer"
-          >
-            <WhatsAppIcon className="w-5 h-5 text-white" />
-            <span>Message on WhatsApp</span>
-          </a>
+          <div className="md:max-w-md md:mx-auto">
+            <a
+              href={whatsappStore.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="cta-btn cursor-pointer"
+            >
+              <WhatsAppIcon className="w-5 h-5 text-white" />
+              <span>Message on WhatsApp</span>
+            </a>
+          </div>
         ) : null}
 
-        {/* Location Section: ONLY SHOWN IF VENDOR ADDED ONE */}
-        {hasLocation && (
+        {/* Location Section: Typed Location Explanation + Optional Pinned GPS Map Link */}
+        {(hasLocation || directionsUrl) && (
           <div className="mt-4 p-3.5 rounded-[14px] bg-card border border-border/80 text-xs flex items-start gap-2.5 text-muted-foreground shadow-2xs">
             <MapPin className="w-4 h-4 text-[#0F6E6E] dark:text-[#E8B84A] shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <div>
-                <b className="text-foreground">Pickup Location: </b>
-                <span>{vendor.location_label}</span>
-              </div>
+              {hasLocation && (
+                <div>
+                  <b className="text-foreground">Pickup / Location: </b>
+                  <span>{vendor.location_label}</span>
+                </div>
+              )}
               {directionsUrl && (
                 <a
                   href={directionsUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex items-center gap-1 font-semibold text-[#0F6E6E] dark:text-[#E8B84A] hover:underline pt-0.5"
+                  className="inline-flex items-center gap-1 font-semibold text-[#0F6E6E] dark:text-[#22D3EE] hover:underline pt-0.5"
                 >
                   <Navigation className="w-3 h-3" />
-                  <span>Get directions on Google Maps &rarr;</span>
+                  <span>Open pinned location in Google Maps &rarr;</span>
                 </a>
               )}
             </div>
@@ -252,7 +252,7 @@ export default async function VendorStorefrontPage({
         {regularListings.length > 0 && (
           <div className="mt-4">
             <h3 className="h3-proto">Listings</h3>
-            <div className="grid grid-cols-2 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3.5">
               {regularListings.map((item) => (
                 <ProductCard key={item.id} product={item} />
               ))}

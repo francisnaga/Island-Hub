@@ -203,9 +203,14 @@ const LEGACY_DEFAULT_LOCATIONS = new Set([
   'Near NMU Main Campus Gate, Okerenkoko',
 ])
 
+const LEGACY_DEFAULT_COORDS = new Set([
+  '5.580668,5.34693',
+  '5.6278,5.3915',
+])
+
 /**
- * Strips exact latitude/longitude when vendor privacy is not 'exact' or when location_type is 'delivery_only'
- * so private residential/hostel coordinates are never leaked to the public client.
+ * Preserves typed-out `location_label` for explanation purposes, and only exposes
+ * `latitude` / `longitude` when the vendor explicitly pinned a GPS map location.
  */
 export function sanitizePublicVendor(vendor: Vendor): Vendor {
   const isBoth = vendor.campus === 'Both' || (vendor.campus as string) === 'both'
@@ -214,22 +219,23 @@ export function sanitizePublicVendor(vendor: Vendor): Vendor {
     : vendor.campus || 'Okerenkoko'
 
   const rawLoc = (vendor.location_label || '').trim()
-  const cleanLocationLabel =
-    vendor.location_visibility === 'hidden' || LEGACY_DEFAULT_LOCATIONS.has(rawLoc)
-      ? ''
-      : rawLoc
+  const cleanLocationLabel = LEGACY_DEFAULT_LOCATIONS.has(rawLoc) ? '' : rawLoc
+
+  const coordKey =
+    vendor.latitude != null && vendor.longitude != null
+      ? `${vendor.latitude},${vendor.longitude}`
+      : ''
+  const hasRealPinnedCoords =
+    typeof vendor.latitude === 'number' &&
+    typeof vendor.longitude === 'number' &&
+    !LEGACY_DEFAULT_COORDS.has(coordKey) &&
+    vendor.location_type !== 'delivery_only'
 
   return {
     ...vendor,
     campus: resolvedCampus,
     location_label: cleanLocationLabel,
-    latitude:
-      vendor.location_visibility !== 'exact' || vendor.location_type === 'delivery_only'
-        ? null
-        : vendor.latitude,
-    longitude:
-      vendor.location_visibility !== 'exact' || vendor.location_type === 'delivery_only'
-        ? null
-        : vendor.longitude,
+    latitude: hasRealPinnedCoords ? vendor.latitude : null,
+    longitude: hasRealPinnedCoords ? vendor.longitude : null,
   }
 }

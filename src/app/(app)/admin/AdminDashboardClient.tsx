@@ -17,9 +17,11 @@ import {
   Package,
   Bed,
   Briefcase,
-  BadgeCheck,
+  Eye,
+  MapPin,
 } from 'lucide-react'
 import { createClient } from '@/lib/supabase/client'
+import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import {
   Category,
   CategoryRequest,
@@ -67,6 +69,8 @@ export function AdminDashboardClient({
 
   const [activeTab, setActiveTab] = useState<AdminTab>('products')
   const [busyId, setBusyId] = useState<string | null>(null)
+  const [reviewingProduct, setReviewingProduct] = useState<Product | null>(null)
+  const [reviewImageIdx, setReviewImageIdx] = useState(0)
 
   // Filters & search
   const [productSearch, setProductSearch] = useState('')
@@ -283,6 +287,15 @@ export function AdminDashboardClient({
             : p
         )
       )
+      setReviewingProduct((prev) =>
+        prev && prev.id === product.id
+          ? {
+              ...prev,
+              status: nextStatus,
+              ...(nextStatus !== 'approved' ? { is_featured: false } : {}),
+            }
+          : prev
+      )
       await recordLog(`product_${nextStatus}`, 'product', product.id, product.title)
       toast.success(
         nextStatus === 'approved'
@@ -319,6 +332,9 @@ export function AdminDashboardClient({
       setProducts((prev) =>
         prev.map((p) => (p.id === product.id ? { ...p, is_featured: nextFeatured } : p))
       )
+      setReviewingProduct((prev) =>
+        prev && prev.id === product.id ? { ...prev, is_featured: nextFeatured } : prev
+      )
       await recordLog(
         nextFeatured ? 'product_featured' : 'product_unfeatured',
         'product',
@@ -349,6 +365,7 @@ export function AdminDashboardClient({
         return
       }
       setProducts((prev) => prev.filter((p) => p.id !== product.id))
+      setReviewingProduct((prev) => (prev && prev.id === product.id ? null : prev))
       await recordLog('product_deleted', 'product', product.id, product.title)
       toast.success('Listing deleted')
       router.refresh()
@@ -837,8 +854,16 @@ export function AdminDashboardClient({
                     )}
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      {/* Thumbnail */}
-                      <div className="w-11 h-11 rounded-lg bg-muted border border-border/70 overflow-hidden shrink-0 grid place-items-center text-muted-foreground">
+                      {/* Clickable Thumbnail to Open Review Modal */}
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReviewImageIdx(0)
+                          setReviewingProduct(product)
+                        }}
+                        title="Click to inspect photos and full details"
+                        className="relative w-12 h-12 rounded-lg bg-muted border border-border/70 overflow-hidden shrink-0 grid place-items-center text-muted-foreground hover:ring-2 hover:ring-foreground/30 transition-all cursor-pointer"
+                      >
                         {product.images?.[0] ? (
                           <img
                             src={product.images[0]}
@@ -848,7 +873,12 @@ export function AdminDashboardClient({
                         ) : (
                           <KindIcon className="w-4 h-4" />
                         )}
-                      </div>
+                        {product.images && product.images.length > 1 && (
+                          <span className="absolute bottom-0.5 right-0.5 px-1 rounded bg-black/75 text-[9px] font-semibold text-white">
+                            +{product.images.length - 1}
+                          </span>
+                        )}
+                      </button>
 
                       {/* Primary Meta */}
                       <div className="min-w-0 flex-1 space-y-0.5">
@@ -864,12 +894,16 @@ export function AdminDashboardClient({
                             )}
                             title={product.status.replace('_', ' ')}
                           />
-                          <Link
-                            href={detailHref}
-                            className="text-sm font-medium text-foreground hover:underline truncate max-w-[260px] sm:max-w-[360px]"
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setReviewImageIdx(0)
+                              setReviewingProduct(product)
+                            }}
+                            className="text-sm font-medium text-foreground hover:underline truncate max-w-[260px] sm:max-w-[360px] text-left cursor-pointer"
                           >
                             {product.title}
-                          </Link>
+                          </button>
 
                           <span className="inline-flex items-center h-4 px-1.5 rounded bg-muted text-[10px] font-medium text-muted-foreground">
                             {kind}
@@ -915,6 +949,18 @@ export function AdminDashboardClient({
 
                     {/* Right Action Controls */}
                     <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setReviewImageIdx(0)
+                          setReviewingProduct(product)
+                        }}
+                        className="inline-flex items-center gap-1 h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted transition-colors cursor-pointer"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Review</span>
+                      </button>
+
                       {!isApproved && (
                         <button
                           type="button"
@@ -1119,9 +1165,9 @@ export function AdminDashboardClient({
                           </Link>
 
                           {isVerified ? (
-                            <span className="inline-flex items-center gap-0.5 h-4 px-1.5 rounded bg-emerald-500/15 text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">
-                              <BadgeCheck className="w-2.5 h-2.5" />
-                              Verified
+                            <span className="inline-flex items-center gap-1 h-4 px-1.5 rounded bg-sky-500/10 text-[10px] font-semibold text-foreground">
+                              <VerifiedBadge size={12} />
+                              <span>Verified</span>
                             </span>
                           ) : isSuspended ? (
                             <span className="inline-flex items-center h-4 px-1.5 rounded bg-red-500/15 text-[10px] font-semibold text-red-600 dark:text-red-400">
@@ -1474,6 +1520,291 @@ export function AdminDashboardClient({
               No moderation activity recorded yet.
             </div>
           )}
+        </div>
+      )}
+
+      {/* ── FULL LISTING & IMAGE REVIEW MODAL ── */}
+      {reviewingProduct && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+          <div
+            className="fixed inset-0 bg-black/60 backdrop-blur-xs"
+            onClick={() => setReviewingProduct(null)}
+          />
+          <div
+            role="dialog"
+            aria-modal="true"
+            className="relative z-10 w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-2xl border border-border bg-card shadow-2xl flex flex-col"
+          >
+            {/* Modal Header */}
+            <div className="sticky top-0 z-20 flex items-center justify-between gap-3 px-5 py-3.5 border-b border-border bg-card/95 backdrop-blur-md">
+              <div className="flex items-center gap-2 min-w-0">
+                <span
+                  className={cn(
+                    'inline-flex items-center h-5 px-2 rounded text-[11px] font-semibold capitalize',
+                    reviewingProduct.status === 'pending_review'
+                      ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                      : reviewingProduct.status === 'approved'
+                      ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                      : 'bg-muted text-muted-foreground'
+                  )}
+                >
+                  {reviewingProduct.status.replace('_', ' ')}
+                </span>
+                <span className="text-xs text-muted-foreground truncate">
+                  Submitted {new Date(reviewingProduct.created_at).toLocaleString()}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={() => setReviewingProduct(null)}
+                aria-label="Close review modal"
+                className="w-8 h-8 rounded-lg border border-border grid place-items-center text-muted-foreground hover:text-foreground cursor-pointer"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            {/* Modal Content */}
+            <div className="p-5 space-y-5">
+              {/* Uploaded Images Gallery */}
+              {reviewingProduct.images && reviewingProduct.images.length > 0 ? (
+                <div className="space-y-2.5">
+                  <div className="relative aspect-[4/3] w-full rounded-xl bg-muted border border-border overflow-hidden flex items-center justify-center">
+                    <img
+                      src={
+                        reviewingProduct.images[reviewImageIdx] ||
+                        reviewingProduct.images[0]
+                      }
+                      alt={reviewingProduct.title}
+                      className="max-h-full max-w-full object-contain"
+                    />
+                    <span className="absolute bottom-2.5 right-2.5 px-2 py-0.5 rounded-md bg-black/75 text-[11px] font-medium text-white">
+                      Photo {reviewImageIdx + 1} of {reviewingProduct.images.length}
+                    </span>
+                  </div>
+
+                  {reviewingProduct.images.length > 1 && (
+                    <div className="flex gap-2 overflow-x-auto pb-1">
+                      {reviewingProduct.images.map((imgUrl, idx) => (
+                        <button
+                          key={idx}
+                          type="button"
+                          onClick={() => setReviewImageIdx(idx)}
+                          className={cn(
+                            'w-16 h-16 rounded-lg overflow-hidden border-2 shrink-0 cursor-pointer transition-all',
+                            reviewImageIdx === idx
+                              ? 'border-foreground scale-105'
+                              : 'border-border opacity-70 hover:opacity-100'
+                          )}
+                        >
+                          <img
+                            src={imgUrl}
+                            alt={`Thumbnail ${idx + 1}`}
+                            className="w-full h-full object-cover"
+                          />
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="rounded-xl border border-dashed border-border bg-muted/40 py-8 px-4 text-center text-xs text-muted-foreground">
+                  No photos uploaded for this listing.
+                </div>
+              )}
+
+              {/* Title & Price */}
+              <div className="space-y-1">
+                <div className="flex items-baseline justify-between gap-3">
+                  <h2 className="text-lg sm:text-xl font-bold text-foreground">
+                    {reviewingProduct.title}
+                  </h2>
+                  <span className="text-lg sm:text-xl font-bold text-foreground shrink-0">
+                    {formatNaira(reviewingProduct.price)}
+                  </span>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Type:{' '}
+                  <strong className="text-foreground capitalize">
+                    {reviewingProduct.listing_type || 'product'}
+                  </strong>{' '}
+                  · Category:{' '}
+                  <strong className="text-foreground">
+                    {reviewingProduct.category?.name || 'General'}
+                  </strong>{' '}
+                  · Condition:{' '}
+                  <strong className="text-foreground capitalize">
+                    {reviewingProduct.condition || 'good'}
+                  </strong>{' '}
+                  · Campus:{' '}
+                  <strong className="text-foreground">
+                    {reviewingProduct.campus ||
+                      reviewingProduct.vendor?.campus ||
+                      'Okerenkoko'}
+                  </strong>
+                </p>
+              </div>
+
+              {/* Full Description */}
+              <div className="rounded-xl border border-border bg-muted/30 p-3.5 space-y-1">
+                <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  Description &amp; Details
+                </span>
+                <p className="text-xs sm:text-sm text-foreground whitespace-pre-line leading-relaxed">
+                  {reviewingProduct.description || 'No description provided.'}
+                </p>
+                {reviewingProduct.variants?.features &&
+                  reviewingProduct.variants.features.length > 0 && (
+                    <div className="pt-2 flex flex-wrap gap-1.5">
+                      {reviewingProduct.variants.features.map((f) => (
+                        <span
+                          key={f}
+                          className="px-2 py-0.5 rounded-md bg-card border border-border text-[11px] font-medium text-foreground"
+                        >
+                          {f}
+                        </span>
+                      ))}
+                    </div>
+                  )}
+              </div>
+
+              {/* Seller & Location Metadata */}
+              <div className="rounded-xl border border-border bg-card p-3.5 space-y-2 text-xs">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-1.5 font-semibold text-foreground">
+                    <span>
+                      Seller: {reviewingProduct.vendor?.shop_name || 'Unknown Store'}
+                    </span>
+                    {reviewingProduct.vendor?.verification_status === 'verified' && (
+                      <VerifiedBadge size={14} />
+                    )}
+                  </div>
+                  {reviewingProduct.vendor?.whatsapp_number && (
+                    <a
+                      href={`https://wa.me/${normalizeWhatsAppNumber(
+                        reviewingProduct.vendor.whatsapp_number
+                      )}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1 text-muted-foreground hover:text-foreground hover:underline"
+                    >
+                      <MessageCircle className="w-3.5 h-3.5" />
+                      <span>+{reviewingProduct.vendor.whatsapp_number}</span>
+                    </a>
+                  )}
+                </div>
+
+                {(reviewingProduct.variants?.location_label ||
+                  reviewingProduct.service_area ||
+                  reviewingProduct.vendor?.location_label) && (
+                  <div className="flex items-start gap-1.5 text-muted-foreground">
+                    <MapPin className="w-3.5 h-3.5 shrink-0 mt-0.5 text-foreground" />
+                    <span>
+                      <strong className="text-foreground">Written location: </strong>
+                      {reviewingProduct.variants?.location_label ||
+                        reviewingProduct.service_area ||
+                        reviewingProduct.vendor?.location_label}
+                    </span>
+                  </div>
+                )}
+
+                {reviewingProduct.vendor?.latitude != null &&
+                  reviewingProduct.vendor?.longitude != null && (
+                    <div className="flex items-center justify-between gap-2 pt-1 border-t border-border/60 text-muted-foreground">
+                      <span>
+                        <strong className="text-foreground">Pinned GPS: </strong>
+                        {Number(reviewingProduct.vendor.latitude).toFixed(5)},{' '}
+                        {Number(reviewingProduct.vendor.longitude).toFixed(5)}
+                      </span>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${reviewingProduct.vendor.latitude},${reviewingProduct.vendor.longitude}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-semibold text-foreground hover:underline"
+                      >
+                        Verify on Google Maps &rarr;
+                      </a>
+                    </div>
+                  )}
+              </div>
+            </div>
+
+            {/* Modal Sticky Footer Actions */}
+            <div className="sticky bottom-0 z-20 flex flex-wrap items-center justify-between gap-2 px-5 py-3.5 border-t border-border bg-card/95 backdrop-blur-md">
+              <Link
+                href={
+                  reviewingProduct.listing_type === 'housing'
+                    ? `/housing/${reviewingProduct.slug || reviewingProduct.id}`
+                    : `/product/${reviewingProduct.slug || reviewingProduct.id}`
+                }
+                target="_blank"
+                className="inline-flex items-center gap-1 text-xs font-medium text-muted-foreground hover:text-foreground hover:underline"
+              >
+                <span>Open buyer page</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </Link>
+
+              <div className="flex flex-wrap items-center gap-2">
+                {reviewingProduct.status !== 'approved' && (
+                  <button
+                    type="button"
+                    disabled={busyId === reviewingProduct.id}
+                    onClick={() => handleProductStatus(reviewingProduct, 'approved')}
+                    className="inline-flex items-center gap-1.5 h-9 px-4 rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 transition-opacity cursor-pointer"
+                  >
+                    <Check className="w-4 h-4 stroke-[2.2]" />
+                    <span>Approve &amp; Publish</span>
+                  </button>
+                )}
+
+                {reviewingProduct.status === 'approved' && (
+                  <button
+                    type="button"
+                    disabled={busyId === reviewingProduct.id}
+                    onClick={() => handleToggleProductFeatured(reviewingProduct)}
+                    className={cn(
+                      'inline-flex items-center gap-1.5 h-9 px-3.5 rounded-lg border text-xs font-semibold transition-colors cursor-pointer',
+                      reviewingProduct.is_featured
+                        ? 'border-foreground bg-foreground text-background'
+                        : 'border-border bg-card text-foreground hover:bg-muted'
+                    )}
+                  >
+                    <Star
+                      className={cn(
+                        'w-3.5 h-3.5',
+                        reviewingProduct.is_featured && 'fill-current'
+                      )}
+                    />
+                    <span>
+                      {reviewingProduct.is_featured ? 'Featured' : 'Feature listing'}
+                    </span>
+                  </button>
+                )}
+
+                {reviewingProduct.status !== 'rejected' && (
+                  <button
+                    type="button"
+                    disabled={busyId === reviewingProduct.id}
+                    onClick={() => handleProductStatus(reviewingProduct, 'rejected')}
+                    className="inline-flex items-center gap-1 h-9 px-3.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-red-600 hover:border-red-500/30 transition-colors cursor-pointer"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Reject</span>
+                  </button>
+                )}
+
+                <button
+                  type="button"
+                  disabled={busyId === reviewingProduct.id}
+                  onClick={() => handleDeleteProduct(reviewingProduct)}
+                  className="inline-flex items-center gap-1 h-9 px-3 rounded-lg border border-red-500/30 bg-red-500/10 text-xs font-semibold text-red-600 dark:text-red-400 hover:bg-red-500/20 transition-colors cursor-pointer"
+                >
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Delete</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       )}
     </div>
