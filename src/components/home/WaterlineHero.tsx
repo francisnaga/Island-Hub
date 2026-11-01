@@ -110,24 +110,33 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
         </div>
       </section>
 
-      {/* The Waterline SVG Wave (Gold Crest) — gentle 8-hump wave matching prototype */}
+      {/* The Waterline SVG Wave (Gold Crest) — matching prototype exactly with zero stroke clipping */}
       <svg
         className="w-full h-7 block -mt-px pointer-events-none"
         viewBox="0 0 432 28"
-        preserveAspectRatio="xMidYMax slice"
+        preserveAspectRatio="none"
         aria-hidden="true"
+        style={{ display: 'block', width: '100%', height: '28px', marginTop: '-1px' }}
       >
         <rect width="432" height="28" fill="#0A4F4F" />
-        <g style={{ transformOrigin: '50% 100%', transform: `scaleY(${amplitude})` }}>
+        <g
+          id="wv"
+          style={{
+            transformBox: 'fill-box',
+            transformOrigin: '50% 100%',
+            transform: `scaleY(${amplitude})`,
+            willChange: 'transform',
+          }}
+        >
           <path
-            d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
+            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
             className="fill-background"
           />
           <path
-            d="M0 14q27-14 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
+            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
             fill="none"
             stroke="#E8B84A"
-            strokeWidth="2"
+            strokeWidth="2.5"
             strokeLinecap="round"
             vectorEffect="non-scaling-stroke"
           />
