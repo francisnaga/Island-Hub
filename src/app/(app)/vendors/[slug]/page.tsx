@@ -10,7 +10,7 @@ import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 import {
   buildVendorStoreWhatsAppUrl,
-  buildProductWhatsAppUrl,
+  buildServiceInquiryWhatsAppUrl,
   formatNaira,
   getCanonicalUrl,
 } from '@/lib/whatsapp'
@@ -260,11 +260,12 @@ export default async function VendorStorefrontPage({
                 const svcSlug = inferServiceSlugFromProduct(s)
                 const matchedSvc = getServiceBySlug(svcSlug)
                 const SvcIcon = (matchedSvc?.icon as any) || Briefcase
-                const serviceWa = buildProductWhatsAppUrl({
+                const serviceWa = buildServiceInquiryWhatsAppUrl({
                   whatsappNumber: vendor.whatsapp_number,
-                  productTitle: s.title,
-                  price: s.price,
-                  productUrl: storeUrl,
+                  serviceTitle: s.title,
+                  providerName: vendor.shop_name,
+                  startingPrice: s.price,
+                  serviceUrl: storeUrl,
                 })
 
                 return (

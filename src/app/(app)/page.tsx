@@ -39,7 +39,6 @@ export default async function HomePage({
         sort: 'newest',
         availability: 'available_only',
         campus: selectedCampus,
-        includeServices: true,
       }),
       getPublicVendors({
         verifiedOnly: false,
@@ -53,8 +52,10 @@ export default async function HomePage({
 
   const hasStore = Boolean(user && vendor && vendor.shop_name)
 
-  // In "Just landed", display all market items including services & goods (housing has its dedicated section below)
-  const justLandedItems = allProducts.filter((p) => p.listing_type !== 'housing')
+  // In "Just landed", display physical marketplace items only (housing has its dedicated section below; services belong to /services)
+  const justLandedItems = allProducts.filter(
+    (p) => p.listing_type !== 'housing' && p.listing_type !== 'service'
+  )
 
   return (
     <div className="min-w-0 max-w-full pb-16">

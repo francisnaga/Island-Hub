@@ -135,6 +135,61 @@ export function buildVendorStoreWhatsAppUrl(params: {
   }
 }
 
+export interface WhatsAppServiceInquiryParams {
+  whatsappNumber: string
+  serviceTitle: string
+  providerName?: string
+  startingPrice?: number | string
+  serviceUrl?: string
+}
+
+export function buildServiceInquiryWhatsAppUrl(params: WhatsAppServiceInquiryParams): {
+  valid: boolean
+  url: string
+  error?: string
+} {
+  const normalizedPhone = normalizeWhatsAppNumber(params.whatsappNumber)
+  if (!normalizedPhone) {
+    return {
+      valid: false,
+      url: '#',
+      error: 'This service provider has not provided a valid WhatsApp number yet.',
+    }
+  }
+
+  const priceText =
+    typeof params.startingPrice === 'number' && params.startingPrice > 0
+      ? `From ${formatNaira(params.startingPrice)}`
+      : typeof params.startingPrice === 'string' && params.startingPrice.trim().length > 0
+      ? params.startingPrice
+      : null
+
+  const greeting = params.providerName
+    ? `Hi ${params.providerName}! I saw your service on Jetty:`
+    : `Hi! I saw your service on Jetty:`
+
+  const lines: string[] = [
+    greeting,
+    `• Service: ${params.serviceTitle}`,
+  ]
+
+  if (priceText) {
+    lines.push(`• Rate: ${priceText}`)
+  }
+
+  if (params.serviceUrl) {
+    lines.push(`• Link: ${params.serviceUrl}`)
+  }
+
+  lines.push('\nI would like to enquire about your availability and discuss the details. Are you currently available?')
+
+  const message = lines.join('\n')
+  return {
+    valid: true,
+    url: `https://wa.me/${normalizedPhone}?text=${encodeURIComponent(message)}`,
+  }
+}
+
 /**
  * Generates a free standard Google Maps directions URL using saved coordinates.
  * Never exposes coordinates if visibility is not 'exact' or if vendor is 'delivery_only'.

@@ -5,7 +5,7 @@ import { ChevronLeft, ChevronRight, MapPin, Plus } from 'lucide-react'
 import { getPublicServiceBySlug } from '@/lib/queries'
 import { getServiceBySlug } from '@/lib/services-data'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
-import { getCanonicalUrl } from '@/lib/whatsapp'
+import { getCanonicalUrl, buildServiceInquiryWhatsAppUrl } from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'
 
@@ -115,10 +115,17 @@ export default async function ServiceDetailPage({
               const priceLabel = provider.priceFrom.startsWith('From')
                 ? provider.priceFrom
                 : `From ${provider.priceFrom}`
+              const serviceWa = buildServiceInquiryWhatsAppUrl({
+                whatsappNumber: provider.whatsapp,
+                serviceTitle: displayName,
+                providerName: provider.name,
+                startingPrice: provider.priceFrom,
+                serviceUrl: getCanonicalUrl(`/services/${slug}`),
+              })
               const targetHref = provider.vendorSlug
                 ? `/vendors/${provider.vendorSlug}`
-                : provider.whatsapp
-                ? `https://wa.me/${provider.whatsapp}`
+                : serviceWa.valid
+                ? serviceWa.url
                 : '#'
 
               return (
