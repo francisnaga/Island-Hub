@@ -152,7 +152,7 @@ export default async function ProductDetailPage({
   }
 
   return (
-    <div className="min-w-0 max-w-full pb-28">
+    <div className="min-w-0 max-w-full pb-36 sm:pb-44">
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
           {/* 1. Image Gallery */}

@@ -31,8 +31,10 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
     typeof product.stock_quantity === 'number' &&
     product.stock_quantity > 0
 
+  // Only restrict to stock_quantity if the vendor explicitly marked this item as low_stock!
+  // Normal available items allow purchasing multiple units (up to 99).
   const maxStock =
-    typeof product.stock_quantity === 'number' && product.stock_quantity > 0
+    hasValidLowStock && typeof product.stock_quantity === 'number' && product.stock_quantity > 0
       ? product.stock_quantity
       : 99
 
@@ -49,14 +51,15 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
     requestLivePhoto: !product.images || product.images.length === 0,
   })
 
+  // Decrement quantity strictly clamped to minimum of 1
   const handleDecreaseQuantity = () => {
-    if (quantity <= 1) return
-    setQuantity((q) => q - 1)
+    setQuantity((q) => Math.max(1, q - 1))
   }
 
+  // Increment quantity up to maxStock
   const handleIncreaseQuantity = () => {
     if (quantity >= maxStock) {
-      toast.info(`Only ${maxStock} available in stock`)
+      toast.info(`Maximum available quantity is ${maxStock}`)
       return
     }
     setQuantity((q) => q + 1)
@@ -146,24 +149,24 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
             </div>
 
             {/* Quantity Stepper */}
-            <div className="inline-flex items-center rounded-xl border border-border bg-muted/60 p-1">
+            <div className="inline-flex items-center rounded-xl border border-border bg-muted/70 p-1 shadow-2xs">
               <button
                 type="button"
                 onClick={handleDecreaseQuantity}
                 disabled={quantity <= 1 || isOutOfStock}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer active:scale-95"
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-foreground hover:bg-card disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer active:scale-95"
                 aria-label="Decrease quantity"
               >
                 <Minus className="h-3.5 w-3.5" />
               </button>
-              <span className="w-10 text-center font-bold text-base text-foreground font-[family-name:var(--font-bricolage)]">
+              <span className="w-10 text-center font-bold text-base text-foreground font-[family-name:var(--font-bricolage)] select-none">
                 {quantity}
               </span>
               <button
                 type="button"
                 onClick={handleIncreaseQuantity}
                 disabled={quantity >= maxStock || isOutOfStock}
-                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer active:scale-95"
+                className="h-8 w-8 rounded-lg flex items-center justify-center text-foreground hover:bg-card disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer active:scale-95"
                 aria-label="Increase quantity"
               >
                 <Plus className="h-3.5 w-3.5" />
@@ -195,17 +198,20 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
         </div>
       </div>
 
-      {/* 2. Sticky Bottom Action Bar (Fixed at the bottom of the viewport) */}
-      <div className="fixed bottom-0 inset-x-0 z-40 bg-card/95 backdrop-blur-md border-t border-border px-4 py-2.5 sm:py-3 pb-[calc(12px+env(safe-area-inset-bottom,0px))] shadow-lg">
-        <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between gap-3 sm:gap-4">
+      {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge with 0 gap / no opening) */}
+      <div
+        className="fixed bottom-0 left-0 right-0 z-[60] w-full bg-white dark:bg-[#111A2E] border-t border-border shadow-[0_-8px_24px_rgba(0,0,0,0.08)] dark:shadow-[0_-8px_24px_rgba(0,0,0,0.4)] transform-gpu will-change-transform touch-manipulation after:absolute after:top-full after:left-0 after:right-0 after:h-40 after:bg-white dark:after:bg-[#111A2E]"
+        style={{ transform: 'translate3d(0, 0, 0)' }}
+      >
+        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 pt-3.5 sm:pt-4 pb-[max(16px,calc(env(safe-area-inset-bottom,0px)+12px))] flex items-center justify-between gap-3 sm:gap-4 min-h-[84px] sm:min-h-[92px]">
           {/* Price & Quantity Summary */}
-          <div className="min-w-0 flex flex-col">
+          <div className="min-w-0 flex flex-col justify-center">
             <div className="flex items-baseline gap-1.5">
-              <b className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
+              <b className="text-2xl sm:text-[26px] font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
                 {formatNaira(totalPrice)}
               </b>
             </div>
-            <span className="text-[11px] text-muted-foreground truncate mt-1">
+            <span className="text-xs text-muted-foreground truncate mt-1 font-medium">
               {quantity > 1
                 ? `${quantity} items (${formatNaira(product.price)} ea)`
                 : 'Pay when you meet'}
@@ -213,30 +219,30 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
           </div>
 
           {/* Stepper + WhatsApp CTA Button */}
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          <div className="flex items-center gap-2.5 sm:gap-3.5 shrink-0">
             {/* Quick Quantity Stepper on the Bar */}
             {!isOutOfStock && (
-              <div className="inline-flex items-center rounded-xl border border-border bg-muted/60 p-0.5">
+              <div className="inline-flex items-center rounded-xl border border-border bg-muted/70 p-0.5 shadow-2xs">
                 <button
                   type="button"
                   onClick={handleDecreaseQuantity}
                   disabled={quantity <= 1}
-                  className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer active:scale-95"
+                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center text-foreground hover:bg-card disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer active:scale-95"
                   aria-label="Decrease quantity"
                 >
-                  <Minus className="h-3.5 w-3.5" />
+                  <Minus className="h-4 w-4" />
                 </button>
-                <span className="w-7 text-center text-xs font-bold text-foreground font-[family-name:var(--font-bricolage)]">
+                <span className="w-8 sm:w-9 text-center text-sm font-bold text-foreground font-[family-name:var(--font-bricolage)] select-none">
                   {quantity}
                 </span>
                 <button
                   type="button"
                   onClick={handleIncreaseQuantity}
                   disabled={quantity >= maxStock}
-                  className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:text-foreground disabled:opacity-30 transition-colors cursor-pointer active:scale-95"
+                  className="h-9 w-9 sm:h-10 sm:w-10 rounded-lg flex items-center justify-center text-foreground hover:bg-card disabled:opacity-30 disabled:hover:bg-transparent transition-colors cursor-pointer active:scale-95"
                   aria-label="Increase quantity"
                 >
-                  <Plus className="h-3.5 w-3.5" />
+                  <Plus className="h-4 w-4" />
                 </button>
               </div>
             )}
@@ -247,9 +253,9 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
                 href={whatsappResult.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-11 sm:h-12 px-4 sm:px-6 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-sm transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer shrink-0"
+                className="h-12 sm:h-13 px-4 sm:px-7 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer shrink-0"
               >
-                <WhatsAppIcon className="w-4.5 h-4.5 text-white shrink-0" />
+                <WhatsAppIcon className="w-5 h-5 text-white shrink-0" />
                 <span className="whitespace-nowrap">
                   {isOutOfStock ? 'Notify seller' : 'Message seller'}
                 </span>
