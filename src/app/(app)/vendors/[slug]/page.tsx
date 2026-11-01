@@ -27,7 +27,7 @@ export async function generateMetadata({
   const { vendor } = await getPublicVendorBySlugOrId(slug)
   if (!vendor) return { title: 'Vendor Not Found | Jetty' }
 
-  const canonicalPath = `/vendors/${vendor.slug || vendor.id}`
+  const canonicalPath = `/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`
   const canonicalUrl = getCanonicalUrl(canonicalPath)
   const title = `${vendor.shop_name} | Jetty NMU`
   const description =
@@ -82,7 +82,7 @@ export default async function VendorStorefrontPage({
   const isBanned = vendor.verification_status === 'suspended'
   const isVerified = vendor.verification_status === 'verified' && !isBanned
 
-  const vendorPath = `/vendors/${vendor.slug || vendor.id}`
+  const vendorPath = `/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`
   const storeUrl = getCanonicalUrl(vendorPath)
 
   const whatsappStore = buildVendorStoreWhatsAppUrl({
@@ -152,6 +152,11 @@ export default async function VendorStorefrontPage({
           <span>{vendor.shop_name}</span>
           {isVerified && <VerifiedBadge size={18} />}
         </h2>
+        {vendor.username && (
+          <p className="text-xs font-semibold text-white/80 -mt-1 mb-1 font-mono">
+            @{vendor.username}
+          </p>
+        )}
         <div className="vk">{roleLabel}</div>
         <div className="vk2">
           <MapPin className="w-3.5 h-3.5" />

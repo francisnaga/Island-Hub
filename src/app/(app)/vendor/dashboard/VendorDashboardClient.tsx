@@ -179,7 +179,7 @@ export function VendorDashboardClient({
 
   // Store Settings Edit Bottom Sheet state
   const [editingStoreField, setEditingStoreField] = useState<
-    null | 'name' | 'phone' | 'campus' | 'location' | 'map_pin' | 'about'
+    null | 'name' | 'username' | 'phone' | 'campus' | 'location' | 'map_pin' | 'about'
   >(null)
   const [draftStoreValue, setDraftStoreValue] = useState('')
   const [savingStoreField, setSavingStoreField] = useState(false)
@@ -600,10 +600,11 @@ export function VendorDashboardClient({
 
   // Store Settings Field Save
   const openStoreEdit = (
-    field: 'name' | 'phone' | 'campus' | 'location' | 'map_pin' | 'about'
+    field: 'name' | 'username' | 'phone' | 'campus' | 'location' | 'map_pin' | 'about'
   ) => {
     setEditingStoreField(field)
     if (field === 'name') setDraftStoreValue(vendor.shop_name || '')
+    if (field === 'username') setDraftStoreValue(vendor.username ? `@${vendor.username}` : (vendor.slug ? `@${vendor.slug}` : ''))
     if (field === 'phone') setDraftStoreValue(vendor.whatsapp_number || '')
     if (field === 'campus') setDraftStoreValue(vendor.campus || 'Okerenkoko')
     if (field === 'location') setDraftStoreValue(vendor.location_label || '')
@@ -704,6 +705,13 @@ export function VendorDashboardClient({
           return
         }
         updates.shop_name = draftStoreValue.trim()
+      } else if (editingStoreField === 'username') {
+        const raw = draftStoreValue.trim().replace(/^@/, '').toLowerCase()
+        if (raw.length < 3 || raw.length > 20 || !/^[a-z0-9_]{3,20}$/.test(raw)) {
+          toast.error('Username must be 3–20 characters using letters, numbers, or _ only.')
+          return
+        }
+        updates.username = raw
       } else if (editingStoreField === 'phone') {
         const clean = normalizeWhatsAppNumber(draftStoreValue)
         if (!clean) {
@@ -1766,7 +1774,7 @@ export function VendorDashboardClient({
               <a
                 href={`https://wa.me/?text=${encodeURIComponent(
                   `Check out my store "${vendor.shop_name}" on Jetty: ${getCanonicalUrl(
-                    `/vendors/${vendor.slug || vendor.id}`
+                    `/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`
                   )}`
                 )}`}
                 target="_blank"
@@ -1868,6 +1876,11 @@ export function VendorDashboardClient({
                 <span>{vendor.shop_name}</span>
                 {vendor.verification_status === 'verified' && <VerifiedBadge size={18} />}
               </h2>
+              {vendor.username && (
+                <p className="text-xs font-semibold text-[#0F6E6E] dark:text-[#22D3EE] mt-0.5">
+                  @{vendor.username}
+                </p>
+              )}
               <p className="mt-0.5 text-sm text-muted-foreground">
                 {campusDisplay}
                 {vendor.location_label ? ` · ${vendor.location_label}` : ''}
@@ -1893,7 +1906,7 @@ export function VendorDashboardClient({
                 <a
                   href={buildJettyTeamWhatsAppUrl(
                     `Hi Jetty Team! I'd like to get my store "${vendor.shop_name}" (${getCanonicalUrl(
-                      `/vendors/${vendor.slug || vendor.id}`
+                      `/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`
                     )}) verified and featured on Jetty.`
                   )}
                   target="_blank"
@@ -1913,6 +1926,15 @@ export function VendorDashboardClient({
                   key: 'name' as const,
                   label: 'Shop name',
                   val: vendor.shop_name,
+                },
+                {
+                  key: 'username' as const,
+                  label: 'Store handle (@username)',
+                  val: vendor.username
+                    ? `@${vendor.username}`
+                    : vendor.slug
+                    ? `@${vendor.slug}`
+                    : 'Set handle',
                 },
                 {
                   key: 'phone' as const,
@@ -1958,7 +1980,7 @@ export function VendorDashboardClient({
               ))}
 
               <Link
-                href={`/vendors/${vendor.slug || vendor.id}`}
+                href={`/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`}
                 className="flex items-center gap-3 w-full min-h-[56px] px-4 border-b border-border text-[15px] hover:bg-muted/40 transition-colors"
               >
                 <b className="font-semibold flex-1 text-foreground">
@@ -2419,6 +2441,8 @@ export function VendorDashboardClient({
             <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px]">
               {editingStoreField === 'name'
                 ? 'Shop name'
+                : editingStoreField === 'username'
+                ? 'Store handle (@username)'
                 : editingStoreField === 'phone'
                 ? 'WhatsApp number'
                 : editingStoreField === 'campus'
@@ -2508,6 +2532,57 @@ export function VendorDashboardClient({
                   )
                 })}
               </div>
+            ) : editingStoreField === 'username' ? (
+              (() => {
+                const daysSinceChange = vendor.username_changed_at
+                  ? (Date.now() - new Date(vendor.username_changed_at).getTime()) /
+                    (1000 * 60 * 60 * 24)
+                  : 999
+                const inCooldown = daysSinceChange < 14
+                const remaining = Math.ceil(14 - daysSinceChange)
+                const cleaned = draftStoreValue.trim().replace(/^@/, '').toLowerCase()
+
+                return (
+                  <div className="space-y-3">
+                    <p className="text-xs text-muted-foreground leading-relaxed">
+                      Your unique store handle for direct links and social media searches.
+                      Can only be edited once every 14 days.
+                    </p>
+
+                    {inCooldown && (
+                      <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs">
+                        ⚠️ You recently changed your username. You can edit it again in <b>{remaining} day{remaining === 1 ? '' : 's'}</b>.
+                      </div>
+                    )}
+
+                    <div className="relative flex items-center">
+                      <span className="absolute left-3.5 text-base font-semibold text-muted-foreground select-none">
+                        @
+                      </span>
+                      <input
+                        type="text"
+                        disabled={inCooldown}
+                        value={draftStoreValue.replace(/^@/, '')}
+                        onChange={(e) =>
+                          setDraftStoreValue(e.target.value.toLowerCase().replace(/[^a-z0-9_]/g, ''))
+                        }
+                        placeholder="swiftstitch"
+                        maxLength={20}
+                        className="w-full h-12 pl-8 pr-3.5 rounded-xl border border-border bg-background text-base font-mono outline-none focus:border-[#0F6E6E] disabled:opacity-50"
+                      />
+                    </div>
+
+                    {cleaned && (
+                      <p className="text-xs text-muted-foreground truncate">
+                        Store link:{' '}
+                        <span className="font-semibold text-[#0F6E6E] dark:text-[#22D3EE]">
+                          jetty.francisnaga.site/vendors/@{cleaned}
+                        </span>
+                      </p>
+                    )}
+                  </div>
+                )
+              })()
             ) : editingStoreField === 'about' ? (
               <textarea
                 rows={3}
@@ -2541,7 +2616,15 @@ export function VendorDashboardClient({
                 </button>
                 <button
                   type="button"
-                  disabled={savingStoreField}
+                  disabled={
+                    savingStoreField ||
+                    (editingStoreField === 'username' &&
+                      ((vendor.username_changed_at &&
+                        (Date.now() - new Date(vendor.username_changed_at).getTime()) /
+                          (1000 * 60 * 60 * 24) <
+                          14) ||
+                        draftStoreValue.trim().replace(/^@/, '').length < 3))
+                  }
                   onClick={handleSaveStoreField}
                   className="flex-1 h-12 rounded-xl bg-[#0F6E6E] text-white font-semibold text-[15px] disabled:opacity-50 cursor-pointer"
                 >
