@@ -90,7 +90,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white transition-[border-color,box-shadow] duration-200',
+        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white pt-[env(safe-area-inset-top,0px)] transition-[border-color,box-shadow] duration-200',
         isScrolledPastGreen
           ? 'border-b border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
           : 'border-b border-transparent shadow-none'
@@ -159,21 +159,21 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
         {/* Right Actions — Linear-grade Geometric Consistency (h-9 rounded-xl) */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
-          {/* Desktop: Buying | Selling Segmented Pill */}
+          {/* Desktop: Buying | Selling Segmented Control — Linear-grade */}
           {user && vendor && (
             <div
               role="group"
               aria-label="Mode"
-              className="hidden md:inline-flex items-center p-[2px] rounded-xl bg-white/[0.04] border border-white/[0.08]"
+              className="hidden md:inline-flex items-center h-9 p-[3px] rounded-xl bg-white/[0.05] border border-white/[0.08] shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
             >
               <Link
                 href="/"
                 aria-pressed={!isSellingMode}
                 className={cn(
-                  'h-8 px-3 rounded-lg text-xs font-medium inline-flex items-center justify-center transition-colors',
+                  'h-7 px-3 rounded-lg text-xs font-semibold inline-flex items-center justify-center transition-all',
                   !isSellingMode
-                    ? 'bg-white text-[#0A4F4F] shadow-xs font-semibold'
-                    : 'text-white/80 hover:text-white'
+                    ? 'bg-white/[0.16] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14)]'
+                    : 'text-white/70 hover:text-white'
                 )}
               >
                 Buying
@@ -182,10 +182,10 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 href="/vendor/dashboard"
                 aria-pressed={isSellingMode}
                 className={cn(
-                  'h-8 px-3 rounded-lg text-xs font-medium inline-flex items-center justify-center transition-colors',
+                  'h-7 px-3 rounded-lg text-xs font-semibold inline-flex items-center justify-center transition-all',
                   isSellingMode
-                    ? 'bg-white text-[#0A4F4F] shadow-xs font-semibold'
-                    : 'text-white/80 hover:text-white'
+                    ? 'bg-white/[0.16] text-white shadow-[inset_0_1px_0_0_rgba(255,255,255,0.14)]'
+                    : 'text-white/70 hover:text-white'
                 )}
               >
                 Selling
@@ -268,7 +268,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               type="button"
               onClick={handleSignOut}
               title="Sign out"
-              className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/25 bg-white/10 text-white/80 hover:text-white hover:bg-white/20 transition-colors cursor-pointer"
+              className="hidden md:inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] hover:bg-white/[0.10] hover:border-white/[0.16] text-white/80 hover:text-white transition-colors cursor-pointer shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
             >
               <LogOut className="h-3.5 w-3.5" />
             </button>

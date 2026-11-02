@@ -36,36 +36,36 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
   return (
     <div id="waterline-hero" data-teal-hero className="relative">
       {/* Deep Teal Hero Water Body */}
-      <section className="bg-[#0A4F4F] text-white pt-4 px-4 pb-1 sm:pt-6 sm:px-6 md:py-10 md:px-8">
+      <section className="bg-[#0A4F4F] text-white pt-5 px-4 pb-5 sm:pt-7 sm:px-6 sm:pb-7 md:py-10 md:px-8">
         <div className="mx-auto max-w-xl md:max-w-6xl md:flex md:items-center md:justify-between md:gap-10">
           <div className="md:flex-1 md:max-w-xl">
-            <h1 className="font-[family-name:var(--font-bricolage)] font-semibold text-[28px] sm:text-[34px] md:text-[40px] leading-[1.12] tracking-[-0.01em] text-white">
+            <h1 className="font-[family-name:var(--font-bricolage)] font-semibold text-[27px] sm:text-[34px] md:text-[40px] leading-[1.16] tracking-[-0.015em] text-white">
               Find what you need around <span className="text-[#E8B84A]">NMU</span>
             </h1>
-            <p className="mt-1.5 text-sm md:text-base text-white/85 font-normal leading-relaxed">
+            <p className="mt-1.5 text-[13.5px] sm:text-base text-white/80 font-normal leading-relaxed">
               Rooms, services and items from students and businesses
             </p>
 
             {/* Search Field */}
-            <form onSubmit={handleSearch} role="search" className="mt-4">
-              <div className="relative flex items-center h-12 w-full rounded-[14px] bg-white text-[#5B6B6B] px-3.5 shadow-sm">
-                <Search className="h-5 w-5 text-[#5B6B6B] shrink-0 mr-2.5" />
+            <form onSubmit={handleSearch} role="search" className="mt-4 sm:mt-5">
+              <div className="relative flex items-center h-11 sm:h-12 w-full rounded-2xl bg-white text-[#5B6B6B] px-3.5 sm:px-4 shadow-[0_2px_12px_rgba(0,0,0,0.10)] border border-white/20 transition-all focus-within:ring-2 focus-within:ring-[#E8B84A]/40">
+                <Search className="h-4.5 w-4.5 text-[#5B6B6B] shrink-0 mr-2.5" />
                 <input
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   placeholder="Search boots, fruit salad, rooms, services..."
-                  className="w-full bg-transparent text-sm text-[#0E1B1B] placeholder:text-[#5B6B6B] focus:outline-none"
+                  className="w-full bg-transparent text-[13.5px] sm:text-sm text-[#0E1B1B] placeholder:text-[#5B6B6B] focus:outline-none"
                 />
               </div>
             </form>
           </div>
 
           {/* The 4 Gateway Doors — Linear-grade Bento Action Cards */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-2.5 mt-4 sm:mt-5 md:mt-0 pb-1 md:pb-0 md:w-[350px] shrink-0">
+          <div className="grid grid-cols-4 gap-2 sm:gap-2.5 mt-4 sm:mt-5 md:mt-0 md:w-[350px] shrink-0">
             <Link
               href="/marketplace"
-              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
               <ShoppingBag className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
               <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
@@ -75,7 +75,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
 
             <Link
               href="/housing"
-              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
               <Bed className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
               <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
@@ -85,7 +85,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
 
             <Link
               href="/services"
-              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
               <Briefcase className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
               <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
@@ -95,7 +95,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
 
             <Link
               href={hasStore ? '/vendor/dashboard' : '/vendor/apply'}
-              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-gradient-to-b from-[#E8B84A] to-[#D4A338] hover:from-[#F0C35B] hover:to-[#DFAC43] text-[#0A2626] border border-[#F5D076] transition-all duration-200 shadow-sm active:scale-[0.97]"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-gradient-to-b from-[#E8B84A] to-[#D4A338] hover:from-[#F0C35B] hover:to-[#DFAC43] text-[#0A2626] border border-[#F5D076] transition-all duration-200 shadow-sm active:scale-[0.97]"
             >
               {hasStore ? (
                 <Store className="w-5 h-5 stroke-[2] text-[#0A2626] group-hover:scale-110 transition-transform duration-200" />
