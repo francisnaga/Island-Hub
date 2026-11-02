@@ -243,8 +243,16 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'approve_category_request') {
-      const { request_id, name, description, display_order } = body
-      const slug = String(name || '')
+      const { request_id, name, description, display_order, section: requestedSection } = body
+      const rawDesc = String(description || '').trim()
+      const section =
+        requestedSection ||
+        (rawDesc.startsWith('[Service]') ? 'services' : rawDesc.startsWith('[Housing]') ? 'housing' : 'products')
+
+      const cleanName = String(name || '').trim()
+      const cleanDesc = rawDesc.replace(/^\[(Service|Housing|Category)\]\s*/i, '').trim()
+
+      const slug = cleanName
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, '-')
         .replace(/^-+|-+$/g, '')
@@ -253,12 +261,13 @@ export async function POST(request: NextRequest) {
         .from('categories')
         .upsert(
           {
-            name: String(name || '').trim(),
-            short_name: String(name || '').trim(),
+            name: cleanName,
+            short_name: cleanName,
             slug,
-            description: String(description || `Browse ${name} on Jetty`).trim(),
+            description: cleanDesc || `Browse ${cleanName} on Jetty`,
             display_order: Number(display_order || 20),
             is_priority: false,
+            section,
             is_active: true,
           },
           { onConflict: 'slug' }
@@ -322,7 +331,29 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === 'resolve_report') {
-      const { report_id, status } = body
+      const { report_id, status, suspend_vendor_id, delete_product_id } = body
+
+      if (suspend_vendor_id) {
+        await adminDb
+          .from('vendors')
+          .update({
+            verification_status: 'suspended',
+            rejection_reason: 'Suspended following verified buyer report',
+            is_featured: false,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', suspend_vendor_id)
+
+        await adminDb
+          .from('products')
+          .update({ status: 'archived', is_featured: false })
+          .eq('vendor_id', suspend_vendor_id)
+      }
+
+      if (delete_product_id) {
+        await adminDb.from('products').delete().eq('id', delete_product_id)
+      }
+
       const { error } = await adminDb
         .from('reports')
         .update({

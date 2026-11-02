@@ -41,7 +41,7 @@ export default async function AdminDashboardPage() {
         .order('created_at', { ascending: false }),
       supabase
         .from('reports')
-        .select('*, product:products(id, title, slug), vendor:vendors(id, shop_name, slug)')
+        .select('*, product:products(id, title, slug, price, images), vendor:vendors(id, shop_name, slug, whatsapp_number, campus, verification_status)')
         .order('created_at', { ascending: false }),
       supabase
         .from('moderation_logs')

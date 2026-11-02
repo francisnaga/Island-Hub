@@ -102,25 +102,38 @@ export async function POST(request: NextRequest) {
     const body = await request.json()
     const adminDb = await createAdminClient()
 
-    // 1. Handle Category Request Submission
+    // 1. Handle Category or Service Request Submission
     if (body.action === 'request_category') {
       const vendorId = String(body.vendor_id || '').trim()
-      const name = String(body.name || '').trim()
-      const description = body.description ? String(body.description).trim() : null
+      const rawName = String(body.name || '').trim()
+      const rawDescription = body.description ? String(body.description).trim() : null
+      const requestType =
+        body.request_type === 'service'
+          ? 'service'
+          : body.request_type === 'room' || body.request_type === 'housing'
+          ? 'housing'
+          : 'category'
 
-      if (!name) {
+      if (!rawName) {
         return NextResponse.json(
-          { error: 'Please enter a category name.' },
+          { error: `Please enter a ${requestType === 'service' ? 'service' : requestType === 'housing' ? 'housing type' : 'category'} name.` },
           { status: 400 }
         )
       }
+
+      // Format description with structured tag so request kind is always detectable
+      const tagPrefix = requestType === 'service' ? '[Service]' : requestType === 'housing' ? '[Housing]' : '[Category]'
+      const taggedDescription = rawDescription
+        ? (rawDescription.startsWith('[') ? rawDescription : `${tagPrefix} ${rawDescription}`)
+        : `${tagPrefix} Requested by vendor`
 
       const { error: crErr } = await adminDb.from('category_requests').insert({
         vendor_id: vendorId || null,
         vendor_name: body.vendor_name || null,
         vendor_whatsapp: body.vendor_whatsapp || null,
-        name,
-        description,
+        name: rawName,
+        description: taggedDescription,
+        suggested_icon: requestType === 'service' ? 'Wrench' : requestType === 'housing' ? 'Home' : 'Tag',
         status: 'pending',
       })
 
@@ -131,16 +144,23 @@ export async function POST(request: NextRequest) {
           reporter_contact: `${body.vendor_name || 'Vendor'} (${body.vendor_whatsapp || ''})`,
           target_type: 'vendor',
           vendor_id: vendorId || null,
-          reason: `CATEGORY_REQUEST:${name}`,
-          details: description || `Vendor requested category: ${name}`,
+          reason: `${requestType.toUpperCase()}_REQUEST:${rawName}`,
+          details: taggedDescription,
           status: 'open',
         })
       }
 
-      // Notify admin: new category requested
+      // Notify admin: new request received
+      const alertTitle =
+        requestType === 'service'
+          ? '🛠️ Service Requested'
+          : requestType === 'housing'
+          ? '🏠 Housing Type Requested'
+          : '🏷️ Category Requested'
+
       await sendAdminPush({
-        title: '🏷️ Category Requested',
-        body: `"${name}" requested by ${body.vendor_name || 'Vendor'} (${body.vendor_whatsapp || 'WhatsApp'})`,
+        title: alertTitle,
+        body: `"${rawName}" requested by ${body.vendor_name || 'Vendor'} (${body.vendor_whatsapp || 'WhatsApp'})`,
         url: '/admin',
         tag: `category-request-${Date.now()}`,
       })

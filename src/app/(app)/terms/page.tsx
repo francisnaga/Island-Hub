@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { FileText, ShieldCheck, AlertTriangle, Scale, ArrowLeft, Mail, CheckCircle2 } from 'lucide-react'
+import { ArrowLeft } from 'lucide-react'
 import { JETTY_TEAM_PHONE_DISPLAY, buildJettyTeamWhatsAppUrl } from '@/lib/whatsapp'
 
 export const dynamic = 'force-dynamic'
@@ -17,238 +17,225 @@ export default function TermsPage() {
   const lastUpdated = 'November 1, 2026'
 
   return (
-    <div className="py-8 sm:py-12 min-w-0">
-      <div className="container mx-auto max-w-4xl px-4 sm:px-6 space-y-8 min-w-0">
-        {/* Navigation Breadcrumb */}
+    <article className="min-h-screen py-12 sm:py-20 px-4 sm:px-6">
+      <div className="max-w-2xl sm:max-w-3xl mx-auto space-y-12">
+        {/* Navigation */}
         <div>
           <Link
             href="/"
-            className="inline-flex items-center gap-1.5 text-xs font-semibold text-muted-foreground hover:text-foreground transition-colors"
+            className="inline-flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
           >
             <ArrowLeft className="h-3.5 w-3.5" />
-            <span>Back to Marketplace</span>
+            <span>Marketplace</span>
           </Link>
         </div>
 
-        {/* Header */}
-        <div className="space-y-3 border-b border-border pb-6">
-          <div className="inline-flex items-center gap-1.5 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] border border-[#0F6E6E]/20 px-3 py-1 text-xs font-bold text-[#0F6E6E] dark:text-[#22D3EE]">
-            <Scale className="h-3.5 w-3.5" />
-            <span>User Agreement &amp; Platform Rules</span>
-          </div>
-          <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+        {/* Document Header */}
+        <header className="space-y-3 pb-8 border-b border-border/60">
+          <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
+            Legal · Updated {lastUpdated}
+          </p>
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
             Terms of Service
           </h1>
-          <p className="text-xs sm:text-sm text-muted-foreground">
-            Effective Date: {lastUpdated} · Applicable to Jetty (jetty.francisnaga.site)
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            User agreement, peer trading standards, and platform rules for the Nigeria Maritime University community.
           </p>
-        </div>
+        </header>
 
-        {/* Content Body */}
-        <div className="prose prose-slate dark:prose-invert max-w-none space-y-8 text-sm sm:text-base leading-relaxed text-foreground/90">
-          {/* Section 1: Acceptance & Community Scope */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>1. Acceptance of Terms &amp; Scope</span>
+        {/* Document Content */}
+        <div className="space-y-10 text-[15px] sm:text-base leading-[1.75] text-muted-foreground">
+          {/* Section 1: Acceptance */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              1. Acceptance &amp; Community Scope
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              These Terms of Service (&quot;Terms&quot;) govern your access to and use of Jetty (&quot;we,&quot; &quot;our,&quot; or &quot;the platform&quot;) accessible at{' '}
-              <a href="https://jetty.francisnaga.site" className="text-[#0F6E6E] dark:text-[#22D3EE] font-semibold underline">
-                https://jetty.francisnaga.site
+            <p>
+              These Terms of Service (&quot;Terms&quot;) govern access to and use of Jetty (&quot;we,&quot; &quot;our,&quot; or &quot;the platform&quot;) at{' '}
+              <a
+                href="https://jetty.francisnaga.site"
+                className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground transition-colors font-medium"
+              >
+                jetty.francisnaga.site
               </a>
-              . Jetty is designed specifically for students, cadets, staff, and local vendors connected with Nigeria Maritime University (NMU) operating across the Okerenkoko permanent campus and Kurutie take-off campus in Delta State, Nigeria.
+              . Jetty serves students, cadets, faculty, and local vendors connected with Nigeria Maritime University (NMU) across the Okerenkoko permanent campus and Kurutie take-off campus in Delta State, Nigeria.
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              By accessing, browsing, registering for an account, or listing any product, service, or accommodation on Jetty, you confirm that you have read, understood, and agree to be legally bound by these Terms and our companion{' '}
-              <Link href="/privacy" className="text-[#0F6E6E] dark:text-[#22D3EE] font-semibold underline">
+            <p>
+              By accessing, browsing, registering a storefront, or listing items or services, you agree to these Terms and our{' '}
+              <Link
+                href="/privacy"
+                className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground transition-colors font-medium"
+              >
                 Privacy Policy
               </Link>
-              . If you do not agree to these terms, you must discontinue using Jetty immediately.
+              . If you do not agree, you must discontinue using Jetty immediately.
             </p>
           </section>
 
-          {/* Section 2: Platform Nature & Non-Custodial Architecture */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <FileText className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>2. Nature of Platform (Directory &amp; Discovery Only)</span>
+          {/* Section 2: Platform Nature */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              2. Platform Nature (Directory Only)
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Jetty operates strictly as an <strong className="text-foreground">online directory and peer discovery platform</strong>. Jetty is NOT an online retailer, broker, escrow agent, payment processor, or auction house.
+            <p>
+              Jetty operates exclusively as an online campus directory and discovery platform. We are not an escrow service, payment processor, bank, retailer, or transport broker.
             </p>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-              <div className="rounded-xl border border-border/60 bg-muted/40 p-4 space-y-1.5">
-                <p className="font-semibold text-xs text-foreground flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#0F6E6E] dark:text-[#22D3EE]" />
-                  Direct Peer Interaction
-                </p>
-                <p className="text-xs text-muted-foreground leading-normal">
-                  Buyers contact sellers and service providers directly via WhatsApp or phone. No intermediary takes a commission or intercepts messages.
-                </p>
-              </div>
-              <div className="rounded-xl border border-border/60 bg-muted/40 p-4 space-y-1.5">
-                <p className="font-semibold text-xs text-foreground flex items-center gap-1.5">
-                  <CheckCircle2 className="h-4 w-4 text-[#0F6E6E] dark:text-[#22D3EE]" />
-                  Physical Campus Handover
-                </p>
-                <p className="text-xs text-muted-foreground leading-normal">
-                  All transactions and payments take place in person after physical inspection of items at verified campus landmarks.
-                </p>
-              </div>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed pt-2">
-              Jetty is not a party to any contract, agreement, transaction, or dispute between buyers and sellers. We do not hold funds in custody, handle bank transfers, or guarantee delivery or product conditions.
-            </p>
-          </section>
-
-          {/* Section 3: Authentication & Accounts */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>3. User Accounts &amp; Google Sign-In</span>
-            </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Browsing items, rooms, services, and vendor storefronts on Jetty requires no account. Creating a vendor storefront or posting listings requires authentication through Google OAuth.
-            </p>
-            <ul className="list-disc pl-5 space-y-2 text-sm text-muted-foreground">
+            <ul className="space-y-2 pl-5 list-disc text-sm leading-relaxed">
               <li>
-                <strong className="text-foreground">Accurate Information:</strong> You agree to provide truthful, accurate, and current information when creating a vendor profile, including your authentic WhatsApp business phone number and campus location.
+                <strong className="text-foreground">Direct Peer Communication:</strong> Buyers contact vendors directly on WhatsApp or by phone. No messages or transactions pass through intermediary escrow accounts.
               </li>
               <li>
-                <strong className="text-foreground">Account Security:</strong> You are responsible for safeguarding your Google account credentials and for any listings or modifications made under your account.
+                <strong className="text-foreground">Physical In-Person Handover:</strong> All payments, inspections, and item handovers occur in person on campus between the buyer and seller.
               </li>
               <li>
-                <strong className="text-foreground">One Merchant, One Storefront:</strong> Vendors may not create multiple duplicate profiles to circumvent moderation policies or artificial rank inflation.
+                <strong className="text-foreground">No Custody of Funds:</strong> Jetty never holds, collects, or handles transaction monies. We cannot issue refunds or guarantee the condition of second-hand goods.
               </li>
             </ul>
           </section>
 
-          {/* Section 4: Prohibited Items & Code of Conduct */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <AlertTriangle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              <span>4. Prohibited Items &amp; Marketplace Safety Rules</span>
+          {/* Section 3: Accounts */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              3. Vendor Accounts &amp; Identification
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              To safeguard NMU cadets and campus residents, the following items and activities are strictly prohibited on Jetty:
+            <p>
+              Browsing items, rooms, and services requires no account. Vendors who list products or services must sign in using Google OAuth:
             </p>
-            <div className="rounded-xl border border-destructive/20 bg-destructive/5 p-4 space-y-2 text-xs sm:text-sm text-foreground">
-              <ul className="list-disc pl-5 space-y-1.5 text-muted-foreground">
-                <li>
-                  <strong className="text-foreground">Advance Payment Solicitations:</strong> Any listing or seller demanding “inspection fees,” “commitment deposits,” or “delivery fares” prior to in-person meeting.
-                </li>
-                <li>
-                  <strong className="text-foreground">Academic Dishonesty:</strong> Selling exam questions, leaked assessments, completed assignments, or unauthorized academic materials.
-                </li>
-                <li>
-                  <strong className="text-foreground">Controlled Substances &amp; Alcohol:</strong> Narcotics, unapproved pharmaceutical drugs, prescription medications, or illegal contraband.
-                </li>
-                <li>
-                  <strong className="text-foreground">Weapons &amp; Hazardous Goods:</strong> Firearms, ammunition, knives (except recognized maritime utility tools), explosives, or hazardous chemicals.
-                </li>
-                <li>
-                  <strong className="text-foreground">Counterfeit &amp; Stolen Property:</strong> Counterfeit maritime epaulettes, stolen gadgets, or unauthorized identity cards.
-                </li>
-              </ul>
-            </div>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Violations will result in immediate permanent account suspension, removal of all listings, and referral to NMU campus security and law enforcement where appropriate.
+            <ul className="space-y-1.5 pl-5 list-disc text-sm leading-relaxed">
+              <li>
+                <strong className="text-foreground">Accurate Details:</strong> You must supply truthful information, including your active Nigerian WhatsApp phone number and primary campus zone.
+              </li>
+              <li>
+                <strong className="text-foreground">Store Handles:</strong> Vendors select an identification handle (<code className="font-mono text-xs text-foreground">@username</code>) that must not impersonate other entities, brands, or university authorities.
+              </li>
+              <li>
+                <strong className="text-foreground">Account Responsibility:</strong> You are responsible for all activity conducted through your store profile.
+              </li>
+            </ul>
+          </section>
+
+          {/* Section 4: Prohibited Items */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              4. Prohibited Items &amp; Marketplace Standards
+            </h2>
+            <p>
+              To maintain campus trust and student safety, the following items and practices are strictly forbidden:
+            </p>
+            <ul className="space-y-2 pl-5 list-disc text-sm leading-relaxed">
+              <li>
+                <strong className="text-foreground">Advance Payment Demands:</strong> Requesting &quot;inspection fees,&quot; &quot;booking deposits,&quot; or &quot;delivery money&quot; before the buyer has physically inspected the item or accommodation in person.
+              </li>
+              <li>
+                <strong className="text-foreground">Academic Dishonesty:</strong> Listing exam papers, unauthorized test materials, or ghostwritten academic work.
+              </li>
+              <li>
+                <strong className="text-foreground">Contraband &amp; Controlled Goods:</strong> Illicit substances, unapproved pharmaceutical drugs, alcohol in violation of hostel regulations, or counterfeit credentials.
+              </li>
+              <li>
+                <strong className="text-foreground">Weapons &amp; Hazardous Material:</strong> Firearms, explosives, unapproved blades, or dangerous chemicals.
+              </li>
+              <li>
+                <strong className="text-foreground">Stolen or Counterfeit Property:</strong> Stolen electronic devices, fake cadet insignia, or counterfeit epaulettes.
+              </li>
+            </ul>
+            <p className="text-sm">
+              Listings in violation are permanently removed, and the associated vendor account is suspended immediately.
             </p>
           </section>
 
-          {/* Section 5: Safe Trading Guidelines */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <CheckCircle2 className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>5. Safe In-Person Trading Obligations</span>
+          {/* Section 5: Safe Trading Obligations */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              5. Safe Trading Guidelines
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              All buyers and sellers agree to follow our mandatory campus safety standards:
+            <p>
+              All community members must observe these baseline precautions:
             </p>
-            <ol className="list-decimal pl-5 space-y-2 text-sm text-muted-foreground">
+            <ol className="space-y-1.5 pl-5 list-decimal text-sm leading-relaxed">
               <li>
-                <strong className="text-foreground">Public Daylight Meetings:</strong> Meet only at well-populated public campus landmarks (e.g., NMU Gate, Administrative Quadrangle, Campus Cafeteria, or Designated Jetty Waiting Pavilion) during daylight hours.
+                <strong className="text-foreground">Public Daytime Handover:</strong> Meet in well-lit public campus locations (such as the NMU Gate, Administrative Quadrangle, or Jetty Pavilion) during daylight hours.
               </li>
               <li>
-                <strong className="text-foreground">Physical Inspection Before Payment:</strong> Thoroughly test and examine electrical gadgets, uniform fits, boot sizes, and room premises before transferring or handing over any money.
+                <strong className="text-foreground">Inspect Thoroughly Before Paying:</strong> Verify electronic gadgets, test charging ports, inspect uniform sizes, and inspect hostel rooms in person before releasing payment.
               </li>
               <li>
-                <strong className="text-foreground">Accompanied Viewings:</strong> For housing and lodge viewings, students are strongly advised to inspect properties in pairs or groups.
+                <strong className="text-foreground">Accompanied Accommodation Visits:</strong> Never inspect hostel rooms alone. Always bring a course mate or colleague when viewing off-campus lodgings.
               </li>
             </ol>
           </section>
 
           {/* Section 6: Limitation of Liability */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <Scale className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>6. Disclaimer of Warranties &amp; Limitation of Liability</span>
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              6. Disclaimer of Warranties &amp; Limitation of Liability
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              JETTY IS PROVIDED ON AN &quot;AS IS&quot; AND &quot;AS AVAILABLE&quot; BASIS WITHOUT WARRANTIES OF ANY KIND, WHETHER EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NON-INFRINGEMENT.
+            <p className="text-sm uppercase tracking-wide text-muted-foreground/90 font-mono text-xs">
+              Notice: Platform Provided &quot;As Is&quot;
             </p>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              IN NO EVENT SHALL JETTY, ITS DEVELOPERS, ADMINISTRATORS, OR VOLUNTEERS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR IN CONNECTION WITH YOUR USE OF THE PLATFORM, TRANSACTIONS CONDUCTED WITH OTHER USERS, LOSS OF DATA, OR INABILITY TO ACCESS THE SERVICE.
+            <p className="text-sm leading-relaxed">
+              Jetty is provided &quot;as is&quot; without warranties of any kind, whether express or implied. In no event shall Jetty, its developers, or its volunteers be held liable for any direct, indirect, incidental, or consequential damages resulting from peer transactions, disputes between students and vendors, or third-party interactions.
             </p>
           </section>
 
-          {/* Section 7: Account Deletion & Termination */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <ShieldCheck className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>7. Account Termination &amp; Data Deletion</span>
+          {/* Section 7: Account Deletion */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              7. Termination &amp; Self-Service Deletion
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              Users may terminate their account at any time. When logged in, navigate to{' '}
-              <Link href="/profile" className="text-[#0F6E6E] dark:text-[#22D3EE] font-semibold underline">
-                Profile &gt; Danger Zone
-              </Link>{' '}
-              and click <strong className="text-foreground">&quot;Delete Account&quot;</strong> to permanently wipe your profile, store listings, and uploaded images. You may also request administrative deletion at{' '}
-              <a href="mailto:efobifrancis53@gmail.com" className="text-[#0F6E6E] dark:text-[#22D3EE] font-semibold underline">
-                efobifrancis53@gmail.com
-              </a>
-              .
+            <p>
+              You may terminate your vendor account and remove all listings at any time by navigating to your profile settings and selecting &quot;Delete Account &amp; Listings.&quot; All associated records and media will be erased permanently from our databases.
             </p>
           </section>
 
-          {/* Section 8: Governing Law & Contact */}
-          <section className="space-y-3 rounded-2xl border border-border/80 bg-card p-5 sm:p-6 shadow-2xs">
-            <h2 className="text-lg sm:text-xl font-bold text-foreground flex items-center gap-2">
-              <Mail className="h-5 w-5 text-[#0F6E6E] dark:text-[#22D3EE]" />
-              <span>8. Contact Information &amp; Moderation Desk</span>
+          {/* Section 8: Contact */}
+          <section className="space-y-3">
+            <h2 className="text-base sm:text-lg font-semibold tracking-tight text-foreground">
+              8. Contact &amp; Moderation
             </h2>
-            <p className="text-sm text-muted-foreground leading-relaxed">
-              For legal inquiries, dispute reporting, copyright notices, or questions regarding these Terms, contact our platform administration:
+            <p>
+              For legal inquiries, dispute reporting, or policy questions:
             </p>
-            <div className="rounded-xl border border-border/60 bg-muted/30 p-4 text-xs sm:text-sm space-y-1.5">
+            <div className="text-sm space-y-1 pt-1 font-mono text-xs">
+              <p><span className="text-foreground font-semibold">Administrator:</span> Francis Naga</p>
               <p>
-                <strong className="text-foreground">Platform Administrator:</strong> Francis Naga
-              </p>
-              <p>
-                <strong className="text-foreground">Official Email:</strong>{' '}
-                <a href="mailto:efobifrancis53@gmail.com" className="text-[#0F6E6E] dark:text-[#22D3EE] font-semibold underline">
+                <span className="text-foreground font-semibold">Email:</span>{' '}
+                <a href="mailto:efobifrancis53@gmail.com" className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground">
                   efobifrancis53@gmail.com
                 </a>
               </p>
               <p>
-                <strong className="text-foreground">WhatsApp Moderation Desk:</strong>{' '}
+                <span className="text-foreground font-semibold">WhatsApp Desk:</span>{' '}
                 <a
                   href={buildJettyTeamWhatsAppUrl('Hello Jetty Administration, I have an inquiry regarding the Terms of Service.')}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-[#0F6E6E] dark:text-[#22D3EE] font-semibold underline"
+                  className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground"
                 >
                   +{JETTY_TEAM_PHONE_DISPLAY}
                 </a>
               </p>
-              <p>
-                <strong className="text-foreground">Community Location:</strong> Nigeria Maritime University (Okerenkoko / Kurutie), Delta State, Nigeria
-              </p>
+              <p><span className="text-foreground font-semibold">Campus Locality:</span> Nigeria Maritime University (Okerenkoko / Kurutie), Delta State, Nigeria</p>
             </div>
           </section>
         </div>
+
+        {/* Footer Navigation */}
+        <footer className="pt-8 border-t border-border/60 flex items-center justify-between text-xs text-muted-foreground">
+          <Link
+            href="/privacy"
+            className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground transition-colors"
+          >
+            Privacy Policy →
+          </Link>
+          <Link
+            href="/safety"
+            className="text-foreground underline underline-offset-4 decoration-border hover:decoration-foreground transition-colors"
+          >
+            Campus Safety Guidelines →
+          </Link>
+        </footer>
       </div>
-    </div>
+    </article>
   )
 }

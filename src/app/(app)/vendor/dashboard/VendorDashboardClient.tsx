@@ -178,11 +178,19 @@ export function VendorDashboardClient({
   const [doneProduct, setDoneProduct] = useState<Product | null>(null)
   const [wasEdited, setWasEdited] = useState(false)
 
-  // Category Request Bottom Sheet state
+  // Category & Service Request Bottom Sheet state
   const [catReqOpen, setCatReqOpen] = useState(false)
+  const [catReqKind, setCatReqKind] = useState<'category' | 'service' | 'room'>('category')
   const [catReqName, setCatReqName] = useState('')
   const [catReqDesc, setCatReqDesc] = useState('')
   const [submittingCatReq, setSubmittingCatReq] = useState(false)
+
+  const openCategoryRequest = (kind: 'category' | 'service' | 'room') => {
+    setCatReqKind(kind)
+    setCatReqName('')
+    setCatReqDesc('')
+    setCatReqOpen(true)
+  }
 
   // Store Settings Edit Bottom Sheet state
   const [editingStoreField, setEditingStoreField] = useState<
@@ -574,7 +582,7 @@ export function VendorDashboardClient({
     }
   }
 
-  // Category Request Submission
+  // Category & Service Request Submission
   const handleCategoryRequestSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!catReqName.trim() || submittingCatReq) return
@@ -590,14 +598,21 @@ export function VendorDashboardClient({
           vendor_whatsapp: vendor.whatsapp_number,
           name: catReqName.trim(),
           description: catReqDesc.trim() || null,
+          request_type: catReqKind,
         }),
       })
       const json = await res.json()
       if (!res.ok || json.error) {
-        toast.error(json.error || 'Could not submit category request.')
+        toast.error(json.error || `Could not submit ${catReqKind} request.`)
         return
       }
-      toast.success('Category request sent to admin for review.')
+      toast.success(
+        catReqKind === 'service'
+          ? 'Service request sent to admin for approval.'
+          : catReqKind === 'room'
+          ? 'Housing type request sent to admin for approval.'
+          : 'Category request sent to admin for approval.'
+      )
       setCatReqName('')
       setCatReqDesc('')
       setCatReqOpen(false)
@@ -1186,7 +1201,7 @@ export function VendorDashboardClient({
                     })}
                     <button
                       type="button"
-                      onClick={() => setCatReqOpen(true)}
+                      onClick={() => openCategoryRequest('service')}
                       className="h-11 px-4 rounded-full border border-dashed border-[#0F6E6E] text-[#0F6E6E] dark:text-[#22D3EE] text-sm font-medium inline-flex items-center gap-1.5 hover:bg-[#E6F2F2]/40 transition-colors cursor-pointer"
                     >
                       <Plus className="w-4 h-4" />
@@ -1331,7 +1346,7 @@ export function VendorDashboardClient({
                       })}
                       <button
                         type="button"
-                        onClick={() => setCatReqOpen(true)}
+                        onClick={() => openCategoryRequest('category')}
                         className="h-11 px-4 rounded-full border border-dashed border-[#0F6E6E] text-[#0F6E6E] dark:text-[#22D3EE] text-sm font-medium inline-flex items-center gap-1.5 hover:bg-[#E6F2F2]/40 transition-colors cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
@@ -1398,7 +1413,7 @@ export function VendorDashboardClient({
                       })}
                       <button
                         type="button"
-                        onClick={() => setCatReqOpen(true)}
+                        onClick={() => openCategoryRequest('room')}
                         className="h-11 px-4 rounded-full border border-dashed border-[#0F6E6E] text-[#0F6E6E] dark:text-[#22D3EE] text-sm font-medium inline-flex items-center gap-1.5 hover:bg-[#E6F2F2]/40 transition-colors cursor-pointer"
                       >
                         <Plus className="w-4 h-4" />
@@ -2537,7 +2552,7 @@ export function VendorDashboardClient({
         </div>
       )}
 
-      {/* ================= REQUEST CATEGORY SHEET ================= */}
+      {/* ================= REQUEST CATEGORY / SERVICE SHEET ================= */}
       {catReqOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center">
           <div
@@ -2549,14 +2564,26 @@ export function VendorDashboardClient({
             className="relative z-10 w-full max-w-[430px] rounded-t-[20px] bg-card px-4 pt-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-xl space-y-4"
           >
             <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px]">
-              Request a category
+              {catReqKind === 'service'
+                ? 'Request a service'
+                : catReqKind === 'room'
+                ? 'Request a housing type'
+                : 'Request an item category'}
             </h3>
             <p className="text-sm text-muted-foreground -mt-2">
-              Suggest a category for admin to approve and add to Jetty.
+              {catReqKind === 'service'
+                ? 'Suggest a service type for admin to approve and add to the campus services catalog.'
+                : catReqKind === 'room'
+                ? 'Suggest an accommodation type for admin to approve.'
+                : 'Suggest a category for admin to approve and add to Jetty.'}
             </p>
             <div>
               <label className="block mb-1.5 text-sm font-semibold">
-                Category name
+                {catReqKind === 'service'
+                  ? 'Service name'
+                  : catReqKind === 'room'
+                  ? 'Housing type'
+                  : 'Category name'}
               </label>
               <input
                 type="text"
@@ -2564,13 +2591,23 @@ export function VendorDashboardClient({
                 maxLength={48}
                 value={catReqName}
                 onChange={(e) => setCatReqName(e.target.value)}
-                placeholder="e.g. Lab Coats & Medical Kits"
+                placeholder={
+                  catReqKind === 'service'
+                    ? 'e.g. Electrical Installation & Repairs'
+                    : catReqKind === 'room'
+                    ? 'e.g. 2-Bedroom Flat, Self-Contain with Balcony'
+                    : 'e.g. Lab Coats & Medical Kits'
+                }
                 className="w-full h-12 px-3.5 rounded-xl border border-border bg-background text-base outline-none focus:border-[#0F6E6E]"
               />
             </div>
             <div>
               <label className="block mb-1.5 text-sm font-semibold">
-                What items belong here? (optional)
+                {catReqKind === 'service'
+                  ? 'What does this service include? (optional)'
+                  : catReqKind === 'room'
+                  ? 'Details or amenities (optional)'
+                  : 'What items belong here? (optional)'}
               </label>
               <input
                 type="text"

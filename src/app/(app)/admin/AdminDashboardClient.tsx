@@ -501,9 +501,23 @@ export function AdminDashboardClient({
     }
   }
 
-  const handleApproveCategoryRequest = async (req: CategoryRequest) => {
+  const handleApproveCategoryRequest = async (
+    req: CategoryRequest,
+    targetSection?: 'products' | 'services' | 'housing'
+  ) => {
     setBusyId(req.id)
     try {
+      const isService =
+        targetSection === 'services' ||
+        req.name.toLowerCase().includes('service') ||
+        req.description?.startsWith('[Service]')
+      const isHousing =
+        targetSection === 'housing' ||
+        req.name.toLowerCase().includes('room') ||
+        req.description?.startsWith('[Housing]')
+      const section =
+        targetSection || (isService ? 'services' : isHousing ? 'housing' : 'products')
+
       const res = await fetch('/api/admin/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -513,6 +527,7 @@ export function AdminDashboardClient({
           name: req.name.trim(),
           description: req.description || `Browse ${req.name} on Jetty`,
           display_order: categories.length + 1,
+          section,
         }),
       })
       const json = await res.json()
@@ -527,8 +542,8 @@ export function AdminDashboardClient({
       setCategoryRequests((prev) =>
         prev.map((r) => (r.id === req.id ? { ...r, status: 'approved' } : r))
       )
-      await recordLog('category_approved', 'category', req.id, req.name)
-      toast.success(`Category "${req.name}" approved`)
+      await recordLog('category_approved', 'category', req.id, `${req.name} (${section})`)
+      toast.success(`Category "${req.name}" approved in ${section}`)
       router.refresh()
     } finally {
       setBusyId(null)
@@ -561,10 +576,14 @@ export function AdminDashboardClient({
   // ── Report Actions ──
   const handleResolveReport = async (
     report: ReportRecord,
-    nextStatus: 'resolved' | 'dismissed'
+    nextStatus: 'resolved' | 'dismissed',
+    options?: { suspendVendor?: boolean; deleteProduct?: boolean }
   ) => {
     setBusyId(report.id)
     try {
+      const vendorTargetId = report.vendor_id || report.vendor?.id
+      const productTargetId = report.product_id || report.product?.id
+
       const res = await fetch('/api/admin/moderate', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -572,6 +591,8 @@ export function AdminDashboardClient({
           action: 'resolve_report',
           report_id: report.id,
           status: nextStatus,
+          suspend_vendor_id: options?.suspendVendor ? vendorTargetId : undefined,
+          delete_product_id: options?.deleteProduct ? productTargetId : undefined,
         }),
       })
       const json = await res.json()
@@ -580,11 +601,34 @@ export function AdminDashboardClient({
         return
       }
 
+      if (options?.suspendVendor && vendorTargetId) {
+        setVendors((prev) =>
+          prev.map((v) =>
+            v.id === vendorTargetId ? { ...v, verification_status: 'suspended' } : v
+          )
+        )
+      }
+      if (options?.deleteProduct && productTargetId) {
+        setProducts((prev) => prev.filter((p) => p.id !== productTargetId))
+      }
+
       setReports((prev) =>
         prev.map((r) => (r.id === report.id ? { ...r, status: nextStatus } : r))
       )
-      await recordLog(`report_${nextStatus}`, 'report', report.id, report.reason)
-      toast.success(`Report ${nextStatus}`)
+      await recordLog(
+        `report_${nextStatus}`,
+        'report',
+        report.id,
+        `${report.reason}${options?.suspendVendor ? ' (Vendor Suspended)' : ''}${options?.deleteProduct ? ' (Listing Deleted)' : ''}`
+      )
+      toast.success(
+        options?.suspendVendor
+          ? 'Vendor suspended & report resolved.'
+          : options?.deleteProduct
+          ? 'Listing deleted & report resolved.'
+          : `Report ${nextStatus}`
+      )
+      router.refresh()
     } finally {
       setBusyId(null)
     }
@@ -1388,65 +1432,118 @@ export function AdminDashboardClient({
       {/* ── TAB 3: CATEGORIES & REQUESTS ── */}
       {activeTab === 'categories' && (
         <div className="space-y-6">
-          {/* Pending Category Requests */}
+          {/* Pending Category & Service Requests */}
           {categoryRequests.length > 0 && (
             <div className="space-y-2">
               <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
-                Category Requests ({categoryRequests.length})
+                Category &amp; Service Requests ({categoryRequests.length})
               </h2>
               <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
-                {categoryRequests.map((req) => (
-                  <div
-                    key={req.id}
-                    className="p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                  >
-                    <div className="space-y-0.5 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <span className="text-sm font-medium text-foreground">
-                          {req.name}
-                        </span>
-                        <span
-                          className={cn(
-                            'inline-flex items-center h-4 px-1.5 rounded text-[10px] font-medium capitalize',
-                            req.status === 'pending'
-                              ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
-                              : req.status === 'approved'
-                              ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
-                              : 'bg-muted text-muted-foreground'
-                          )}
-                        >
-                          {req.status}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {req.description || 'Requested by vendor'}
-                        {req.vendor_name ? ` · ${req.vendor_name}` : ''}
-                      </p>
-                    </div>
+                {categoryRequests.map((req) => {
+                  const isService =
+                    req.description?.startsWith('[Service]') ||
+                    req.name.toLowerCase().includes('service')
+                  const isHousing =
+                    req.description?.startsWith('[Housing]') ||
+                    req.name.toLowerCase().includes('room')
+                  const kindLabel = isService ? 'Service' : isHousing ? 'Housing' : 'Category'
+                  const cleanDesc = (req.description || '').replace(
+                    /^\[(Service|Housing|Category)\]\s*/i,
+                    ''
+                  )
 
-                    {req.status === 'pending' && (
-                      <div className="flex items-center gap-1.5 shrink-0">
-                        <button
-                          type="button"
-                          disabled={busyId === req.id}
-                          onClick={() => handleApproveCategoryRequest(req)}
-                          className="inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 cursor-pointer"
-                        >
-                          <Check className="w-3.5 h-3.5" />
-                          <span>Approve</span>
-                        </button>
-                        <button
-                          type="button"
-                          disabled={busyId === req.id}
-                          onClick={() => handleRejectCategoryRequest(req)}
-                          className="inline-flex items-center h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-                        >
-                          Dismiss
-                        </button>
+                  return (
+                    <div
+                      key={req.id}
+                      className="p-3.5 sm:px-4 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
+                    >
+                      <div className="space-y-1 min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-semibold text-foreground">
+                            {req.name}
+                          </span>
+                          <span
+                            className={cn(
+                              'inline-flex items-center h-4 px-1.5 rounded text-[10px] font-semibold uppercase tracking-wider',
+                              isService
+                                ? 'bg-sky-500/15 text-sky-600 dark:text-sky-400'
+                                : isHousing
+                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                                : 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                            )}
+                          >
+                            {kindLabel}
+                          </span>
+                          <span
+                            className={cn(
+                              'inline-flex items-center h-4 px-1.5 rounded text-[10px] font-medium capitalize',
+                              req.status === 'pending'
+                                ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400'
+                                : req.status === 'approved'
+                                ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                                : 'bg-muted text-muted-foreground'
+                            )}
+                          >
+                            {req.status}
+                          </span>
+                        </div>
+                        {cleanDesc && (
+                          <p className="text-xs text-muted-foreground">{cleanDesc}</p>
+                        )}
+                        <div className="flex items-center gap-3 text-[11px] text-muted-foreground">
+                          <span>
+                            {req.vendor_name
+                              ? `Requested by ${req.vendor_name}`
+                              : 'Requested by vendor'}
+                          </span>
+                          {req.vendor_whatsapp && (
+                            <a
+                              href={`https://wa.me/${normalizeWhatsAppNumber(
+                                req.vendor_whatsapp
+                              )}?text=${encodeURIComponent(
+                                `Hi ${req.vendor_name || 'Vendor'}, regarding your Jetty request for "${req.name}":`
+                              )}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="inline-flex items-center gap-1 text-[#0F6E6E] dark:text-[#22D3EE] font-medium hover:underline"
+                            >
+                              <MessageCircle className="w-3 h-3" />
+                              <span>Chat on WhatsApp</span>
+                            </a>
+                          )}
+                          <span>· {new Date(req.created_at).toLocaleDateString()}</span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                ))}
+
+                      {req.status === 'pending' && (
+                        <div className="flex items-center gap-1.5 shrink-0">
+                          <button
+                            type="button"
+                            disabled={busyId === req.id}
+                            onClick={() =>
+                              handleApproveCategoryRequest(
+                                req,
+                                isService ? 'services' : isHousing ? 'housing' : 'products'
+                              )
+                            }
+                            className="inline-flex items-center gap-1 h-8 px-3 rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 cursor-pointer"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                            <span>Approve as {kindLabel}</span>
+                          </button>
+                          <button
+                            type="button"
+                            disabled={busyId === req.id}
+                            onClick={() => handleRejectCategoryRequest(req)}
+                            className="inline-flex items-center h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                          >
+                            Dismiss
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  )
+                })}
               </div>
             </div>
           )}
@@ -1602,60 +1699,271 @@ export function AdminDashboardClient({
 
       {/* ── TAB 4: BUYER REPORTS ── */}
       {activeTab === 'reports' && (
-        <div>
-          {reports.length > 0 ? (
-            <div className="rounded-xl border border-border bg-card divide-y divide-border overflow-hidden">
-              {reports.map((r) => (
-                <div
-                  key={r.id}
-                  className="p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3"
-                >
-                  <div className="space-y-0.5">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className={cn(
-                          'w-2 h-2 rounded-full',
-                          r.status === 'open' ? 'bg-red-500' : 'bg-muted-foreground/40'
-                        )}
-                      />
-                      <span className="text-sm font-medium text-foreground">
-                        {r.reason}
-                      </span>
-                      <span className="text-[11px] text-muted-foreground capitalize">
-                        · {r.target_type} · {r.status}
-                      </span>
-                    </div>
-                    {r.details && (
-                      <p className="text-xs text-muted-foreground">{r.details}</p>
-                    )}
-                    <p className="text-[11px] text-muted-foreground">
-                      {new Date(r.created_at).toLocaleDateString()}
-                      {r.reporter_contact ? ` · Contact: ${r.reporter_contact}` : ''}
-                    </p>
-                  </div>
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+              Campus Reports &amp; Flags ({reports.length})
+            </h2>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-red-500" />
+                <span>{reports.filter((r) => r.status === 'open').length} Open</span>
+              </span>
+              <span className="inline-flex items-center gap-1.5">
+                <span className="w-2 h-2 rounded-full bg-emerald-500" />
+                <span>{reports.filter((r) => r.status === 'resolved').length} Resolved</span>
+              </span>
+            </div>
+          </div>
 
-                  {r.status === 'open' && (
-                    <div className="flex items-center gap-1.5 shrink-0">
-                      <button
-                        type="button"
-                        disabled={busyId === r.id}
-                        onClick={() => handleResolveReport(r, 'resolved')}
-                        className="h-8 px-3 rounded-lg bg-foreground text-background text-xs font-medium hover:opacity-90 cursor-pointer"
-                      >
-                        Resolve
-                      </button>
-                      <button
-                        type="button"
-                        disabled={busyId === r.id}
-                        onClick={() => handleResolveReport(r, 'dismissed')}
-                        className="h-8 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
-                      >
-                        Dismiss
-                      </button>
+          {reports.length > 0 ? (
+            <div className="space-y-3">
+              {reports.map((r) => {
+                const targetProduct = r.product_id
+                  ? products.find((p) => p.id === r.product_id) || r.product
+                  : undefined
+                const targetVendor = r.vendor_id
+                  ? vendors.find((v) => v.id === r.vendor_id) || r.vendor
+                  : targetProduct?.vendor_id
+                  ? vendors.find((v) => v.id === targetProduct.vendor_id)
+                  : undefined
+
+                return (
+                  <div
+                    key={r.id}
+                    className="rounded-xl border border-border bg-card p-4 sm:p-5 space-y-4"
+                  >
+                    {/* Header Row: Status, Type, Timestamp */}
+                    <div className="flex flex-wrap items-center justify-between gap-2 border-b border-border/60 pb-3">
+                      <div className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            'inline-flex items-center gap-1.5 h-6 px-2.5 rounded-full text-xs font-semibold',
+                            r.status === 'open'
+                              ? 'bg-red-500/15 text-red-600 dark:text-red-400'
+                              : r.status === 'resolved'
+                              ? 'bg-emerald-500/15 text-emerald-600 dark:text-emerald-400'
+                              : 'bg-muted text-muted-foreground'
+                          )}
+                        >
+                          <span
+                            className={cn(
+                              'w-1.5 h-1.5 rounded-full',
+                              r.status === 'open'
+                                ? 'bg-red-500'
+                                : r.status === 'resolved'
+                                ? 'bg-emerald-500'
+                                : 'bg-muted-foreground'
+                            )}
+                          />
+                          <span className="capitalize">{r.status} Report</span>
+                        </span>
+
+                        <span className="inline-flex items-center h-6 px-2 rounded-md bg-muted text-[11px] font-medium text-foreground capitalize">
+                          Target: {r.target_type}
+                        </span>
+                      </div>
+
+                      <span className="text-xs text-muted-foreground">
+                        {new Date(r.created_at).toLocaleString()}
+                      </span>
                     </div>
-                  )}
-                </div>
-              ))}
+
+                    {/* Report Reason & Details */}
+                    <div className="space-y-1.5">
+                      <h3 className="text-sm sm:text-base font-semibold text-foreground">
+                        {r.reason}
+                      </h3>
+                      {r.details && (
+                        <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                          {r.details}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Reporter Information */}
+                    <div className="flex flex-wrap items-center gap-2.5 text-xs bg-muted/40 rounded-lg p-2.5 border border-border/60">
+                      <span className="text-muted-foreground font-medium">
+                        Reported by:
+                      </span>
+                      <span className="font-semibold text-foreground">
+                        {r.reporter_contact ||
+                          (r.reporter_id
+                            ? `User #${r.reporter_id.slice(0, 8)}`
+                            : 'Anonymous Campus Student')}
+                      </span>
+                      {r.reporter_contact && (
+                        <a
+                          href={`https://wa.me/${normalizeWhatsAppNumber(
+                            r.reporter_contact
+                          )}?text=${encodeURIComponent(
+                            `Hello, this is Jetty Campus Moderation following up on your report: "${r.reason}".`
+                          )}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center gap-1 text-[#0F6E6E] dark:text-[#22D3EE] font-medium hover:underline ml-auto"
+                        >
+                          <MessageCircle className="w-3.5 h-3.5" />
+                          <span>Contact Reporter</span>
+                        </a>
+                      )}
+                    </div>
+
+                    {/* What Was Reported: Target Preview */}
+                    {(targetProduct || targetVendor) && (
+                      <div className="rounded-xl border border-border bg-background p-3.5 space-y-2.5">
+                        <div className="text-[11px] font-mono uppercase tracking-wider text-muted-foreground">
+                          Reported Target Entity
+                        </div>
+
+                        {r.target_type === 'product' && targetProduct && (
+                          <div className="flex items-center justify-between gap-3">
+                            <div className="flex items-center gap-3 min-w-0">
+                              {targetProduct.images && targetProduct.images[0] && (
+                                <img
+                                  src={targetProduct.images[0]}
+                                  alt={targetProduct.title}
+                                  className="w-12 h-12 rounded-lg object-cover border border-border shrink-0"
+                                />
+                              )}
+                              <div className="min-w-0">
+                                <h4 className="text-xs sm:text-sm font-semibold text-foreground truncate">
+                                  {targetProduct.title}
+                                </h4>
+                                <p className="text-xs text-muted-foreground">
+                                  {typeof targetProduct.price === 'number'
+                                    ? formatNaira(targetProduct.price)
+                                    : ''}
+                                  {targetVendor?.shop_name
+                                    ? ` · by ${targetVendor.shop_name}`
+                                    : ''}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              <Link
+                                href={`/product/${targetProduct.slug || targetProduct.id}`}
+                                target="_blank"
+                                className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted"
+                              >
+                                <span>View listing</span>
+                                <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                              </Link>
+                            </div>
+                          </div>
+                        )}
+
+                        {targetVendor && (
+                          <div className="flex items-center justify-between gap-3 pt-2 border-t border-border/40">
+                            <div className="min-w-0">
+                              <span className="text-[11px] text-muted-foreground">
+                                Storefront:{' '}
+                              </span>
+                              <span className="text-xs font-semibold text-foreground">
+                                {targetVendor.shop_name}
+                              </span>
+                              <span className="text-xs text-muted-foreground ml-1.5">
+                                ({targetVendor.campus || 'Okerenkoko'})
+                              </span>
+                              {targetVendor.verification_status === 'suspended' && (
+                                <span className="ml-2 text-[10px] font-bold text-red-500 uppercase">
+                                  Currently Suspended
+                                </span>
+                              )}
+                            </div>
+
+                            <div className="flex items-center gap-2 shrink-0">
+                              {targetVendor.slug && (
+                                <Link
+                                  href={`/vendors/${targetVendor.slug}`}
+                                  target="_blank"
+                                  className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-foreground hover:bg-muted"
+                                >
+                                  <span>Store</span>
+                                  <ExternalLink className="w-3 h-3 text-muted-foreground" />
+                                </Link>
+                              )}
+                              {targetVendor.whatsapp_number && (
+                                <a
+                                  href={`https://wa.me/${normalizeWhatsAppNumber(
+                                    targetVendor.whatsapp_number
+                                  )}?text=${encodeURIComponent(
+                                    `Hello ${targetVendor.shop_name}, this is Jetty Admin regarding a report on your store.`
+                                  )}`}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1 h-7 px-2.5 rounded-lg border border-border bg-card text-xs font-medium text-[#0F6E6E] dark:text-[#22D3EE] hover:bg-muted"
+                                >
+                                  <MessageCircle className="w-3 h-3" />
+                                  <span>WhatsApp</span>
+                                </a>
+                              )}
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Actions Bar (for Open reports) */}
+                    {r.status === 'open' && (
+                      <div className="flex flex-wrap items-center justify-end gap-2 pt-2 border-t border-border/60">
+                        {/* Delete listing & resolve */}
+                        {(r.target_type === 'product' || targetProduct) && (
+                          <button
+                            type="button"
+                            disabled={busyId === r.id}
+                            onClick={() =>
+                              handleResolveReport(r, 'resolved', { deleteProduct: true })
+                            }
+                            className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-red-200 dark:border-red-900/60 bg-red-50/50 dark:bg-red-950/30 text-red-700 dark:text-red-400 text-xs font-semibold hover:bg-red-100 dark:hover:bg-red-900/50 cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete Listing &amp; Resolve</span>
+                          </button>
+                        )}
+
+                        {/* Suspend vendor & resolve */}
+                        {targetVendor &&
+                          targetVendor.verification_status !== 'suspended' && (
+                            <button
+                              type="button"
+                              disabled={busyId === r.id}
+                              onClick={() =>
+                                handleResolveReport(r, 'resolved', { suspendVendor: true })
+                              }
+                              className="inline-flex items-center gap-1 h-8 px-3 rounded-lg border border-red-300 dark:border-red-800 bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 text-xs font-semibold hover:bg-red-200 cursor-pointer"
+                            >
+                              <Ban className="w-3.5 h-3.5" />
+                              <span>Suspend Vendor &amp; Resolve</span>
+                            </button>
+                          )}
+
+                        {/* Standard Resolve */}
+                        <button
+                          type="button"
+                          disabled={busyId === r.id}
+                          onClick={() => handleResolveReport(r, 'resolved')}
+                          className="inline-flex items-center gap-1 h-8 px-3.5 rounded-lg bg-foreground text-background text-xs font-semibold hover:opacity-90 cursor-pointer"
+                        >
+                          <Check className="w-3.5 h-3.5" />
+                          <span>Mark Resolved</span>
+                        </button>
+
+                        {/* Dismiss */}
+                        <button
+                          type="button"
+                          disabled={busyId === r.id}
+                          onClick={() => handleResolveReport(r, 'dismissed')}
+                          className="h-8 px-3 rounded-lg border border-border bg-card text-xs font-medium text-muted-foreground hover:text-foreground cursor-pointer"
+                        >
+                          Dismiss
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
             </div>
           ) : (
             <div className="rounded-xl border border-border bg-card py-12 px-4 text-center text-xs text-muted-foreground">
