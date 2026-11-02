@@ -1,12 +1,22 @@
-# Jetty (Island Hub)
+<p align="center">
+  <a href="https://jetty.francisnaga.site">
+    <img src="public/jetty-logo-120.png" alt="Jetty Brand Logo" width="100" height="100" />
+  </a>
+</p>
 
-Campus marketplace, verified off-campus student accommodation directory, and student services platform built for Nigeria Maritime University (NMU).
+<h1 align="center">Jetty (Island Hub)</h1>
 
-[![Live Site](https://img.shields.io/badge/Live%20Site-jetty.francisnaga.site-0F6E6E?logo=safari&logoColor=white)](https://jetty.francisnaga.site)
-[![Next.js](https://img.shields.io/badge/Framework-Next.js-black?logo=next.js&logoColor=white)](https://nextjs.org/)
-[![TypeScript](https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
-[![Tailwind CSS](https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
-[![Supabase](https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase&logoColor=white)](https://supabase.com/)
+<p align="center">
+  <strong>Campus marketplace, verified off-campus student accommodation directory, and student services platform built for Nigeria Maritime University (NMU).</strong>
+</p>
+
+<p align="center">
+  <a href="https://jetty.francisnaga.site"><img src="https://img.shields.io/badge/Live%20Site-jetty.francisnaga.site-0F6E6E?logo=safari&logoColor=white" alt="Live Site" /></a>
+  <a href="https://nextjs.org/"><img src="https://img.shields.io/badge/Framework-Next.js-black?logo=next.js&logoColor=white" alt="Next.js" /></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/Language-TypeScript-3178C6?logo=typescript&logoColor=white" alt="TypeScript" /></a>
+  <a href="https://tailwindcss.com/"><img src="https://img.shields.io/badge/Styling-Tailwind%20CSS-38B2AC?logo=tailwind-css&logoColor=white" alt="Tailwind CSS" /></a>
+  <a href="https://supabase.com/"><img src="https://img.shields.io/badge/Backend-Supabase-3ECF8E?logo=supabase&logoColor=white" alt="Supabase" /></a>
+</p>
 
 ---
 
