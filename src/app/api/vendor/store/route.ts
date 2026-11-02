@@ -181,6 +181,9 @@ export async function POST(request: NextRequest) {
           whatsapp_number: normalizedPhone,
           campus,
           location_label: trimmedLocation,
+          ...(typeof body.description === 'string'
+            ? { description: body.description.trim().slice(0, 300) }
+            : {}),
           ...(chosenLogo !== undefined
             ? { logo_url: chosenLogo }
             : !existingVendor.logo_url && googleAvatar
@@ -221,13 +224,18 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ vendor: updated })
     }
 
+    const userDescription =
+      typeof body.description === 'string' && body.description.trim().length > 0
+        ? body.description.trim().slice(0, 300)
+        : `Student seller at ${campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}.`
+
     const { data: created, error: insertErr } = await adminDb
       .from('vendors')
       .insert({
         user_id: user.id,
         shop_name: shopName,
         slug: slugifyShopName(shopName),
-        description: `Student seller at ${campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}.`,
+        description: userDescription,
         logo_url: chosenLogo !== undefined ? chosenLogo : (googleAvatar || null),
         whatsapp_number: normalizedPhone,
         categories_offered: [],
@@ -375,7 +383,7 @@ export async function PATCH(request: NextRequest) {
     }
 
     if (typeof body.description === 'string') {
-      updates.description = body.description.trim()
+      updates.description = body.description.trim().slice(0, 300)
     }
 
     if (typeof body.logo_url === 'string') {

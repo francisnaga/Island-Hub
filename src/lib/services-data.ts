@@ -1,6 +1,7 @@
 import {
   Scissors,
   Wrench,
+  Zap,
   Utensils,
   Shirt,
   Droplets,
@@ -121,6 +122,20 @@ export const SERVICES_LIST: ServiceItem[] = [
     providers: [],
   },
   {
+    id: 'electrical-repairs',
+    slug: 'electrical-repairs',
+    title: 'Electrical Installation & Repairs',
+    shortTitle: 'Electrical & Wiring',
+    icon: Zap,
+    tagline: 'Hostel room wiring, socket & switch repairs, fan fixing, extension boards & power setups.',
+    description:
+      'Hostel room electrical wiring, socket and switch replacements, rechargeable fan repairs, extension cords, breaker fixes, and light fittings across Okerenkoko and Kurutie hostels.',
+    startingPrice: 'From ₦1,000',
+    turnaround: 'Same day / 1–2 hours',
+    popular: true,
+    providers: [],
+  },
+  {
     id: 'cobbler-boot-care',
     slug: 'cobbler-boot-care',
     title: 'Boot & Shoe Care',
@@ -230,6 +245,15 @@ export function normalizeServiceSlug(slug: string): string {
     return 'meals'
   }
   if (
+    normalized === 'electrical' ||
+    normalized === 'electrician' ||
+    normalized === 'electrical-repairs' ||
+    normalized === 'electrical-installation' ||
+    normalized === 'wiring'
+  ) {
+    return 'electrical-repairs'
+  }
+  if (
     normalized === 'tech-repairs' ||
     normalized === 'repair' ||
     normalized === 'electronics-repairs'
@@ -284,6 +308,16 @@ export function inferServiceSlugFromProduct(p: Product): string {
     return normalizeServiceSlug(svcSlug)
   }
   const text = `${p.title} ${p.description} ${p.category?.slug || ''}`.toLowerCase()
+  if (
+    text.includes('electric') ||
+    text.includes('wiring') ||
+    text.includes('socket') ||
+    text.includes('breaker') ||
+    text.includes('fan fix') ||
+    text.includes('inverter')
+  ) {
+    return 'electrical-repairs'
+  }
   if (text.includes('happy ending') || text.includes('massage') || text.includes('relaxation')) {
     return 'happy-ending'
   }

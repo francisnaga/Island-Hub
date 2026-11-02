@@ -144,10 +144,14 @@ export default async function VendorStorefrontPage({
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(storeJsonLd) }}
       />
-      {/* 1. Deep Teal Top Header (.pb) matching Prototype — Stays #0A4F4F in both Light and Dark mode */}
-      <section data-teal-hero className="pb bg-[#0A4F4F] text-white">
-        <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between">
-          <Link href="/marketplace?tab=stores" className="bk" aria-label="Back to stores">
+      {/* 1. Deep Teal Top Header — Airy, Minimal & Uncluttered (#0A4F4F in both Light and Dark mode) */}
+      <section data-teal-hero className="bg-[#0A4F4F] text-white pt-4 px-4 pb-6 text-center">
+        <div className="container mx-auto max-w-lg md:max-w-5xl flex items-center justify-between pb-1">
+          <Link
+            href="/marketplace?tab=stores"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-white/85 hover:text-white transition-colors"
+            aria-label="Back to stores"
+          >
             <ChevronLeft className="w-5 h-5 -ml-1 stroke-[2]" />
             <span>Back</span>
           </Link>
@@ -160,8 +164,8 @@ export default async function VendorStorefrontPage({
           />
         </div>
 
-        {/* 88px Circular Avatar with Ring (.av) */}
-        <div className="av">
+        {/* 88px Circular Avatar with Ring */}
+        <div className="w-[88px] h-[88px] mx-auto mt-2 rounded-full ring-3 ring-white/90 shadow-md overflow-hidden flex items-center justify-center">
           <UserAvatar
             src={vendor.logo_url}
             seed={vendor.id || vendor.slug}
@@ -172,44 +176,52 @@ export default async function VendorStorefrontPage({
           />
         </div>
 
-        {/* Name, Role & Campus (+ Optional Location if added) */}
-        <h2 className="inline-flex items-center justify-center gap-1.5">
-          <span>{vendor.shop_name}</span>
-          {isVerified && <VerifiedBadge size={18} />}
-        </h2>
-        {vendor.username && (
-          <p className="text-xs font-semibold text-white/80 -mt-1 mb-1 font-mono">
-            @{vendor.username}
-          </p>
-        )}
-        <div className="vk">{roleLabel}</div>
-        <div className="vk2">
-          <MapPin className="w-3.5 h-3.5" />
-          <span>
-            {campusLabel === 'Both' ? 'Both campuses' : campusLabel}
-            {hasLocation ? ` · ${vendor.location_label}` : ''}
-          </span>
+        {/* Shop Name & Verified Badge */}
+        <div className="mt-3.5 space-y-1">
+          <h1 className="font-[family-name:var(--font-bricolage)] text-2xl sm:text-[28px] font-semibold text-white tracking-tight inline-flex items-center justify-center gap-2">
+            <span>{vendor.shop_name}</span>
+            {isVerified && <VerifiedBadge size={19} />}
+          </h1>
+
+          {vendor.username && (
+            <p className="text-xs font-mono font-medium text-white/75 tracking-wide">
+              @{vendor.username}
+            </p>
+          )}
         </div>
 
-        {/* Verified Badge Pill (ONLY for verified vendors) */}
-        {isVerified && (
-          <div>
-            <div className="vf">
-              <VerifiedBadge size={14} />
+        {/* Clean Meta Chips Row (Campus, Seller/Dept, Verification) */}
+        <div className="flex flex-wrap items-center justify-center gap-2 mt-3">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs text-xs font-medium text-white/90 border border-white/15">
+            <MapPin className="w-3.5 h-3.5 text-[#E8B84A]" />
+            <span>{campusLabel === 'Both' ? 'Both campuses' : campusLabel}</span>
+          </span>
+
+          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs text-xs font-medium text-white/90 border border-white/15">
+            <span>{vendor.department_or_business_info || roleLabel}</span>
+          </span>
+
+          {isVerified && (
+            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-xs font-medium">
+              <VerifiedBadge size={13} />
               <span>Verified vendor</span>
-            </div>
-          </div>
+            </span>
+          )}
+        </div>
+
+        {/* Store Description / Bio (Up to 300 chars / ~50 words) */}
+        {vendor.description && (
+          <p className="mt-3.5 max-w-md mx-auto text-[14px] sm:text-[15px] text-white/90 leading-relaxed font-normal px-2">
+            {vendor.description}
+          </p>
         )}
 
-        <div className="flex justify-center gap-10 mt-4 pb-1.5">
-          <div>
-            <b className="block font-[family-name:var(--font-bricolage)] text-[22px] font-semibold leading-tight">
-              {products.length}
-            </b>
-            <small className="text-[13px] text-white/80">
-              {products.length === 1 ? 'Listing' : 'Listings'}
-            </small>
-          </div>
+        {/* Minimalist Active Listings Stat */}
+        <div className="mt-4 pt-3 border-t border-white/10 inline-flex items-center gap-2 text-xs text-white/80">
+          <span className="font-[family-name:var(--font-bricolage)] font-bold text-base text-white">
+            {products.length}
+          </span>
+          <span>{products.length === 1 ? 'active listing' : 'active listings'}</span>
         </div>
       </section>
 
@@ -284,11 +296,6 @@ export default async function VendorStorefrontPage({
               )}
             </div>
           </div>
-        )}
-
-        {/* About Vendor Description (.about-p) */}
-        {vendor.description && (
-          <p className="about-p">{vendor.description}</p>
         )}
 
         {/* Services Offered by Vendor (if any) */}

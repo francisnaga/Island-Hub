@@ -733,7 +733,7 @@ export function VendorDashboardClient({
         updates.location_label = draftStoreValue.trim()
         updates.pickup_options = draftStoreValue.trim()
       } else if (editingStoreField === 'about') {
-        updates.description = draftStoreValue.trim()
+        updates.description = draftStoreValue.trim().slice(0, 300)
       }
 
       const res = await fetch('/api/vendor/store', {
@@ -2755,13 +2755,23 @@ export function VendorDashboardClient({
                 )
               })()
             ) : editingStoreField === 'about' ? (
-              <textarea
-                rows={3}
-                value={draftStoreValue}
-                onChange={(e) => setDraftStoreValue(e.target.value)}
-                placeholder="What do you sell or offer?"
-                className="w-full min-h-[96px] p-3.5 rounded-xl border border-border bg-background text-base outline-none focus:border-[#0F6E6E]"
-              />
+              <div className="space-y-1.5">
+                <div className="flex justify-between items-center text-xs text-muted-foreground">
+                  <span>Store description (~50 words)</span>
+                  <span className="font-mono">{draftStoreValue.length}/300</span>
+                </div>
+                <textarea
+                  rows={4}
+                  maxLength={300}
+                  value={draftStoreValue}
+                  onChange={(e) => setDraftStoreValue(e.target.value)}
+                  placeholder="Tell students what you sell, your specialties, or hostel delivery terms..."
+                  className="w-full min-h-[110px] p-3.5 rounded-xl border border-border bg-background text-base outline-none focus:border-[#0F6E6E] resize-none leading-relaxed"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Displayed on your store profile header so buyers immediately understand what you offer.
+                </p>
+              </div>
             ) : (
               <input
                 type={editingStoreField === 'phone' ? 'tel' : 'text'}

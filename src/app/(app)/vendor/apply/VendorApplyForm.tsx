@@ -51,6 +51,7 @@ export function VendorApplyForm({
     !LEGACY_COORDS.has(existingCoordKey)
 
   const [shopName, setShopName] = useState(existingVendor?.shop_name || '')
+  const [description, setDescription] = useState(existingVendor?.description || '')
   const [logoUrl, setLogoUrl] = useState<string | null>(
     existingVendor?.logo_url || profile?.avatar_url || user?.avatar_url || null
   )
@@ -244,6 +245,7 @@ export function VendorApplyForm({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           shop_name: shopName.trim(),
+          description: description.trim().slice(0, 300),
           whatsapp_number: cleanPhone,
           campus,
           location_label: locationLabel.trim(),
@@ -457,7 +459,34 @@ export function VendorApplyForm({
           )}
         </div>
 
-        {/* Field 3: WhatsApp number */}
+        {/* Field 3: Store description (bio) */}
+        <div className="px-4 md:px-0 mt-[22px]">
+          <div className="flex items-center justify-between mb-2">
+            <label
+              htmlFor="s-desc"
+              className="text-[15px] font-semibold text-foreground"
+            >
+              Store description <span className="font-normal text-xs text-muted-foreground">(optional)</span>
+            </label>
+            <span className="text-xs text-muted-foreground font-mono">
+              {description.length}/300
+            </span>
+          </div>
+          <textarea
+            id="s-desc"
+            rows={3}
+            maxLength={300}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            placeholder="Tell students what you sell, your specialties, or hostel delivery terms..."
+            className="w-full p-3.5 rounded-xl border border-border bg-card md:bg-background text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-foreground/50 transition-all resize-none leading-relaxed"
+          />
+          <small className="block mt-1.5 text-[13px] text-muted-foreground">
+            Up to 300 characters (~50 words). Displayed on your store profile header.
+          </small>
+        </div>
+
+        {/* Field 4: WhatsApp number */}
         <div className="px-4 md:px-0 mt-[22px]">
           <label
             htmlFor="s-phone"
