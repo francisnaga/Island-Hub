@@ -143,15 +143,17 @@
   body {
     max-width: 100vw;
     width: 100%;
-    overflow-x: hidden;
     overscroll-behavior-x: none;
     touch-action: pan-x pan-y;
   }
-  body {
-    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground;
-  }
   html {
     @apply font-sans;
+    background-color: #0A4F4F;
+    background: linear-gradient(to bottom, #0A4F4F 0%, #0A4F4F 350px, var(--background) 350px, var(--background) 100%);
+    background-repeat: no-repeat;
+  }
+  body {
+    @apply bg-background text-foreground antialiased selection:bg-primary/20 selection:text-foreground;
   }
   @media (prefers-reduced-motion: no-preference) and (hover: hover) {
     html {
