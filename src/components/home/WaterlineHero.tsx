@@ -14,14 +14,25 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
     const isReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
     if (isReduced) return
 
+    let rafId: number | null = null
     const handleScroll = () => {
-      const y = window.scrollY || 0
-      const amp = Math.max(0.15, 1 - y / 140)
-      setAmplitude(Number(amp.toFixed(3)))
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        const y = window.scrollY || 0
+        const amp = Math.max(0.15, 1 - y / 140)
+        setAmplitude((prev) => {
+          const next = Number(amp.toFixed(2))
+          return Math.abs(prev - next) >= 0.03 ? next : prev
+        })
+      })
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-    return () => window.removeEventListener('scroll', handleScroll)
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', handleScroll)
+    }
   }, [])
 
   const handleSearch = (e: React.FormEvent) => {

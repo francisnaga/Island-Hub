@@ -31,22 +31,40 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   const [isScrolledPastGreen, setIsScrolledPastGreen] = useState(false)
 
   useEffect(() => {
-    const checkScroll = () => {
-      // Find any green header/hero element on the page (WaterlineHero or vendor profile banner)
+    let rafId: number | null = null
+
+    const computeThreshold = () => {
       const greenHero = document.querySelector('[data-teal-hero]')
-      if (greenHero) {
-        const rect = greenHero.getBoundingClientRect()
-        // When bottom of green hero passes under the navbar (approx 56px-64px), we've scrolled past the green region
-        setIsScrolledPastGreen(rect.bottom <= 58)
-      } else {
-        // On pages without a green hero, show subtle border when scrolled
-        setIsScrolledPastGreen(window.scrollY > 8)
+      if (greenHero instanceof HTMLElement) {
+        return Math.max(8, greenHero.offsetHeight - 58)
       }
+      return 8
     }
 
-    checkScroll()
-    window.addEventListener('scroll', checkScroll, { passive: true })
-    return () => window.removeEventListener('scroll', checkScroll)
+    let threshold = computeThreshold()
+
+    const onScroll = () => {
+      if (rafId !== null) return
+      rafId = requestAnimationFrame(() => {
+        rafId = null
+        const past = window.scrollY > threshold
+        setIsScrolledPastGreen((prev) => (prev !== past ? past : prev))
+      })
+    }
+
+    const onResize = () => {
+      threshold = computeThreshold()
+      onScroll()
+    }
+
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onResize, { passive: true })
+    return () => {
+      if (rafId !== null) cancelAnimationFrame(rafId)
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
+    }
   }, [pathname])
 
   // Hide main header on full-screen form flows (onboarding & listing forms have their own .ftop bar)
@@ -90,7 +108,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white pt-[env(safe-area-inset-top,0px)] transition-[border-color,box-shadow] duration-200',
+        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white pt-[env(safe-area-inset-top,0px)]',
         'before:content-[""] before:absolute before:bottom-full before:inset-x-0 before:h-[120vh] before:bg-[#0A4F4F] before:pointer-events-none',
         isScrolledPastGreen
           ? 'border-b border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'

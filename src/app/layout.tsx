@@ -214,7 +214,7 @@ export default function RootLayout({
         />
       </head>
       <body
-        className={`${inter.className} min-h-screen flex flex-col bg-background text-foreground antialiased`}
+        className={`${inter.className} min-h-screen flex flex-col bg-[#0A4F4F] text-foreground antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="dark" enableSystem={false}>
           {children}
