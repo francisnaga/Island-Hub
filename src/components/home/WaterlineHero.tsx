@@ -61,50 +61,50 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
             </form>
           </div>
 
-          {/* The 4 Gateway Doors */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-3 mt-4 sm:mt-5 md:mt-0 pb-2 md:pb-0 md:w-[340px] shrink-0">
+          {/* The 4 Gateway Doors — Linear-grade Bento Action Cards */}
+          <div className="grid grid-cols-4 gap-2 sm:gap-2.5 mt-4 sm:mt-5 md:mt-0 pb-1 md:pb-0 md:w-[350px] shrink-0">
             <Link
               href="/marketplace"
-              className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#0F6E6E]/60 border border-white/20 flex items-center justify-center transition-all active:scale-95 hover:bg-[#0F6E6E]/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-                <ShoppingBag className="w-6 h-6 stroke-[1.75] text-white" />
+              <ShoppingBag className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
+                Market
               </span>
-              <span>Market</span>
             </Link>
 
             <Link
               href="/housing"
-              className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#0F6E6E]/60 border border-white/20 flex items-center justify-center transition-all active:scale-95 hover:bg-[#0F6E6E]/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-                <Bed className="w-6 h-6 stroke-[1.75] text-white" />
+              <Bed className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
+                Lodge
               </span>
-              <span>Lodge</span>
             </Link>
 
             <Link
               href="/services"
-              className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#0F6E6E]/60 border border-white/20 flex items-center justify-center transition-all active:scale-95 hover:bg-[#0F6E6E]/80 shadow-[inset_0_1px_0_rgba(255,255,255,0.12)]">
-                <Briefcase className="w-6 h-6 stroke-[1.75] text-white" />
+              <Briefcase className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
+                Services
               </span>
-              <span>Services</span>
             </Link>
 
             <Link
               href={hasStore ? '/vendor/dashboard' : '/vendor/apply'}
-              className="flex flex-col items-center gap-2 text-[13px] font-medium text-white group"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[72px] sm:h-[76px] rounded-xl bg-gradient-to-b from-[#E8B84A] to-[#D4A338] hover:from-[#F0C35B] hover:to-[#DFAC43] text-[#0A2626] border border-[#F5D076] transition-all duration-200 shadow-sm active:scale-[0.97]"
             >
-              <span className="w-full max-w-[76px] aspect-square rounded-[18px] overflow-hidden bg-[#E8B84A] border border-[#E8B84A] text-[#0E1B1B] flex items-center justify-center transition-transform active:scale-95 shadow-sm">
-                {hasStore ? (
-                  <Store className="w-6 h-6 stroke-[2]" />
-                ) : (
-                  <Plus className="w-6.5 h-6.5 stroke-[2.2]" />
-                )}
+              {hasStore ? (
+                <Store className="w-5 h-5 stroke-[2] text-[#0A2626] group-hover:scale-110 transition-transform duration-200" />
+              ) : (
+                <Plus className="w-5 h-5 stroke-[2.4] text-[#0A2626] group-hover:scale-110 transition-transform duration-200" />
+              )}
+              <span className="text-[12px] font-bold text-[#0A2626] tracking-tight leading-none whitespace-nowrap">
+                {hasStore ? 'My Store' : 'Sell'}
               </span>
-              <span className="whitespace-nowrap">{hasStore ? 'Open store' : 'Sell'}</span>
             </Link>
           </div>
         </div>

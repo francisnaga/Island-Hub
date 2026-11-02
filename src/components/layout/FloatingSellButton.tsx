@@ -94,7 +94,7 @@ export function FloatingSellButton({ initialHasStore = false }: FloatingSellButt
     const DashIcon = isServicesTab ? Wrench : isHousingTab ? Home : Store
 
     return (
-      <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-6 right-4 z-40">
+      <div className="md:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] right-4 z-40">
         <Link
           href={dashHref}
           aria-label={dashLabel}
@@ -117,7 +117,7 @@ export function FloatingSellButton({ initialHasStore = false }: FloatingSellButt
   const ApplyIcon = isServicesTab ? Wrench : isHousingTab ? Home : Plus
 
   return (
-    <div className="fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] md:bottom-6 right-4 z-40">
+    <div className="md:hidden fixed bottom-[calc(64px+env(safe-area-inset-bottom,0px)+12px)] right-4 z-40">
       <Link
         href={applyHref}
         aria-label={applyLabel}

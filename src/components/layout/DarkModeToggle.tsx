@@ -19,7 +19,7 @@ export function DarkModeToggle({ className = '' }: { className?: string }) {
         type="button"
         aria-label="Switch colour theme"
         className={cn(
-          'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white/80 transition-colors',
+          'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-white/80 transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]',
           className
         )}
       >
@@ -87,7 +87,7 @@ export function DarkModeToggle({ className = '' }: { className?: string }) {
       title={isDark ? 'Switch to light theme' : 'Switch to dark theme'}
       onClick={toggleTheme}
       className={cn(
-        'inline-flex h-9 w-9 items-center justify-center rounded-lg border border-white/20 bg-white/10 text-white/80 hover:bg-white/15 hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer',
+        'inline-flex h-9 w-9 items-center justify-center rounded-xl border border-white/[0.08] bg-white/[0.05] text-white/80 hover:bg-white/[0.10] hover:text-white transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white cursor-pointer shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]',
         className
       )}
     >

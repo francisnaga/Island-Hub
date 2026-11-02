@@ -198,13 +198,13 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
 
   return (
     <>
-      {/* Top Navbar Trigger Pill */}
+      {/* Top Navbar Trigger Pill — Linear-grade micro-control */}
       <button
         type="button"
         onClick={() => setIsOpen(true)}
         aria-label="Change campus"
         className={cn(
-          'relative inline-flex items-center gap-1.5 h-9 px-3 rounded-full border border-white/20 bg-white/10 hover:bg-white/15 text-xs font-semibold text-white transition-all cursor-pointer shadow-2xs shrink-0',
+          'relative inline-flex items-center gap-1.5 h-9 px-3 rounded-xl border border-white/[0.08] bg-white/[0.05] hover:bg-white/[0.10] hover:border-white/[0.16] text-xs font-semibold text-white transition-all cursor-pointer shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)] shrink-0',
           className
         )}
       >
@@ -213,8 +213,8 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
         ) : (
           <span className="dot" />
         )}
-        <span className="font-semibold text-white">{campusLabel}</span>
-        <ChevronDown className="h-3.5 w-3.5 text-white/70 ml-0.5" />
+        <span className="font-semibold text-white/90">{campusLabel}</span>
+        <ChevronDown className="h-3.5 w-3.5 text-white/60 ml-0.5" />
       </button>
 
       {/* Render via Portal so it escapes sticky/backdrop-blur container clipping */}

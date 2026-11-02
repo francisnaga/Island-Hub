@@ -118,22 +118,22 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
               <label htmlFor="navbar-search-input" className="sr-only">
                 Search listings across NMU Okerenkoko and Kurutie
               </label>
-              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-white/60 pointer-events-none" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-white/50 pointer-events-none" />
               <input
                 id="navbar-search-input"
                 type="search"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search safety boots, action rigs, haircuts..."
-                className="w-full h-10 pl-10 pr-4 rounded-lg border border-white/20 bg-white/10 text-sm text-white placeholder:text-white/60 focus:bg-white focus:text-[#0E1B1B] focus:placeholder:text-[#5B6B6B] focus:outline-none focus:ring-2 focus:ring-white/20 transition-all"
+                placeholder="Search boots, rigs, lodge, haircuts..."
+                className="w-full h-9 pl-9 pr-4 rounded-xl border border-white/[0.08] bg-white/[0.05] hover:bg-white/[0.08] hover:border-white/[0.15] text-[13px] text-white placeholder:text-white/45 focus:bg-white/[0.10] focus:border-white/30 focus:outline-none focus:ring-1 focus:ring-white/25 transition-all shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]"
               />
             </div>
           </form>
         )}
 
-        {/* Desktop Links (Buyer Mode only) */}
+        {/* Desktop Links (Buyer Mode only) — Linear-grade Segmented Nav Bar */}
         {!isSellingMode && (
-          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5">
+          <nav aria-label="Primary navigation" className="hidden lg:flex items-center gap-0.5 p-1 rounded-xl bg-white/[0.04] border border-white/[0.08]">
             {navLinks.map((link) => {
               const isActive = link.exact
                 ? pathname === link.href
@@ -144,10 +144,10 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                   href={link.href}
                   aria-current={isActive ? 'page' : undefined}
                   className={cn(
-                    'px-2.5 py-2 rounded-lg text-sm font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white',
+                    'px-3 py-1.5 rounded-lg text-[13px] font-medium transition-all focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white leading-none',
                     isActive
-                      ? 'bg-white/20 text-white font-semibold'
-                      : 'text-white/80 hover:text-white hover:bg-white/10'
+                      ? 'bg-white/[0.12] text-white font-semibold shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)]'
+                      : 'text-white/70 hover:text-white hover:bg-white/[0.06]'
                   )}
                 >
                   {link.label}
@@ -157,20 +157,20 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           </nav>
         )}
 
-        {/* Right Actions */}
+        {/* Right Actions — Linear-grade Geometric Consistency (h-9 rounded-xl) */}
         <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
           {/* Desktop: Buying | Selling Segmented Pill */}
           {user && vendor && (
             <div
               role="group"
               aria-label="Mode"
-              className="hidden md:inline-flex items-center p-[3px] rounded-full bg-white/10 border border-white/20"
+              className="hidden md:inline-flex items-center p-[2px] rounded-xl bg-white/[0.04] border border-white/[0.08]"
             >
               <Link
                 href="/"
                 aria-pressed={!isSellingMode}
                 className={cn(
-                  'h-8 px-3 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors',
+                  'h-8 px-3 rounded-lg text-xs font-medium inline-flex items-center justify-center transition-colors',
                   !isSellingMode
                     ? 'bg-white text-[#0A4F4F] shadow-xs font-semibold'
                     : 'text-white/80 hover:text-white'
@@ -182,7 +182,7 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
                 href="/vendor/dashboard"
                 aria-pressed={isSellingMode}
                 className={cn(
-                  'h-8 px-3 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors',
+                  'h-8 px-3 rounded-lg text-xs font-medium inline-flex items-center justify-center transition-colors',
                   isSellingMode
                     ? 'bg-white text-[#0A4F4F] shadow-xs font-semibold'
                     : 'text-white/80 hover:text-white'
@@ -193,11 +193,11 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             </div>
           )}
 
-          {/* Mobile: Only show "Buying" switch when inside Vendor Dashboard; in Buyer Mode keep top nav clean and un-compacted */}
+          {/* Mobile: Only show "Buying" switch when inside Vendor Dashboard */}
           {user && vendor && isSellingMode && (
             <Link
               href="/"
-              className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-full border border-white/25 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
+              className="md:hidden inline-flex h-8 items-center gap-1.5 rounded-xl border border-white/20 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
             >
               <span>Buying</span>
             </Link>
@@ -207,10 +207,10 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
             <Link
               href="/admin"
               className={cn(
-                'inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full md:rounded-lg px-2.5 text-xs font-semibold transition-colors',
+                'inline-flex h-9 items-center gap-1.5 rounded-xl px-2.5 text-xs font-semibold transition-colors shadow-[inset_0_1px_0_0_rgba(255,255,255,0.06)]',
                 pathname.startsWith('/admin')
                   ? 'bg-white text-[#0A4F4F]'
-                  : 'border border-white/25 bg-white/10 text-white hover:bg-white/20'
+                  : 'border border-white/[0.08] bg-white/[0.05] hover:bg-white/[0.10] text-white'
               )}
             >
               <ShieldAlert className="h-3.5 w-3.5 text-amber-300" />
@@ -220,17 +220,17 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
 
           {/* Mobile: mode switch visible for admin in admin panel */}
           {user && isAdmin && pathname.startsWith('/admin') && (
-            <div className="md:hidden inline-flex items-center p-[3px] rounded-full bg-white/10 border border-white/20">
+            <div className="md:hidden inline-flex items-center p-[2px] rounded-xl bg-white/[0.04] border border-white/[0.08]">
               <Link
                 href="/"
-                className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-white/80 hover:text-white"
+                className="h-7 px-2.5 rounded-lg text-xs font-medium inline-flex items-center justify-center transition-colors text-white/80 hover:text-white"
               >
                 Buy
               </Link>
               {vendor && (
                 <Link
                   href="/vendor/dashboard"
-                  className="h-7 px-2.5 rounded-full text-xs font-medium inline-flex items-center justify-center transition-colors text-white/80 hover:text-white"
+                  className="h-7 px-2.5 rounded-lg text-xs font-medium inline-flex items-center justify-center transition-colors text-white/80 hover:text-white"
                 >
                   Sell
                 </Link>
@@ -241,9 +241,9 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {user && !vendor && !isSellingMode && (
             <Link
               href="/vendor/apply"
-              className="hidden sm:inline-flex h-8 md:h-9 items-center gap-1.5 rounded-full bg-white text-[#0A4F4F] px-3.5 text-xs font-semibold hover:bg-white/90 transition-opacity shadow-xs"
+              className="hidden sm:inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#E8B84A] hover:bg-[#F2C968] text-[#0A2626] px-3.5 text-xs font-bold transition-all shadow-xs active:scale-95"
             >
-              <Store className="h-3.5 w-3.5" />
+              <Store className="h-3.5 w-3.5 stroke-[2.2]" />
               <span>Start selling</span>
             </Link>
           )}
@@ -251,9 +251,9 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
           {!user && (
             <Link
               href="/login"
-              className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-lg border border-white/25 bg-white/10 px-3 text-xs font-semibold text-white hover:bg-white/20 transition-colors"
+              className="hidden md:inline-flex h-9 items-center gap-1.5 rounded-xl bg-[#E8B84A] hover:bg-[#F2C968] text-[#0A2626] px-3.5 text-xs font-bold transition-all shadow-xs active:scale-95"
             >
-              <LogIn className="h-3.5 w-3.5 text-white/80" />
+              <LogIn className="h-3.5 w-3.5 stroke-[2.2]" />
               <span>Sell</span>
             </Link>
           )}
