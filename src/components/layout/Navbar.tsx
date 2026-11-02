@@ -90,11 +90,13 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   return (
     <header
       className={cn(
-        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white pt-[env(safe-area-inset-top,0px)] transition-[border-color,box-shadow] duration-200',
+        'sticky top-0 z-50 w-full bg-[#0A4F4F] text-white pt-[env(safe-area-inset-top,0px)] transform-gpu will-change-transform transition-[border-color,box-shadow] duration-200',
+        'before:content-[""] before:absolute before:bottom-full before:inset-x-0 before:h-[120vh] before:bg-[#0A4F4F] before:pointer-events-none',
         isScrolledPastGreen
           ? 'border-b border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
           : 'border-b border-transparent shadow-none'
       )}
+      style={{ WebkitTransform: 'translate3d(0, 0, 0)', transform: 'translate3d(0, 0, 0)' }}
     >
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
         {/* Official Jetty Brand Lockup */}
