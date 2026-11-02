@@ -335,8 +335,7 @@ export default async function HousingDetailPage({
 
       {/* 3. Sticky Bottom Action Bar */}
       <div
-        className="fixed bottom-0 inset-x-0 z-50 bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] transform-gpu will-change-transform pb-[env(safe-area-inset-bottom,0px)]"
-        style={{ transform: 'translate3d(0, 0, 0)' }}
+        className="fixed bottom-0 inset-x-0 z-50 bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] pb-[env(safe-area-inset-bottom,0px)] after:absolute after:top-full after:left-0 after:right-0 after:h-40 after:bg-card"
       >
         <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
           <div className="min-w-0 flex flex-col justify-center">

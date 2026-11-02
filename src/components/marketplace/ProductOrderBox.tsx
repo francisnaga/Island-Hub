@@ -200,8 +200,7 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
 
       {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge) */}
       <div
-        className="fixed bottom-0 inset-x-0 z-50 w-full bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] transform-gpu will-change-transform pb-[env(safe-area-inset-bottom,0px)]"
-        style={{ transform: 'translate3d(0, 0, 0)' }}
+        className="fixed bottom-0 inset-x-0 z-50 w-full bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] pb-[env(safe-area-inset-bottom,0px)] after:absolute after:top-full after:left-0 after:right-0 after:h-40 after:bg-card"
       >
         <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
           {/* Price & Quantity Summary — perfectly centered */}

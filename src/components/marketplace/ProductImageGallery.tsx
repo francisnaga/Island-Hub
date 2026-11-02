@@ -115,12 +115,12 @@ export function ProductImageGallery({
     >
       {/* ── Main Photo Frame ── */}
       <div className="relative aspect-square w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] select-none group">
-        {/* Slides Scroll Container */}
+        {/* Slides Scroll Container — absolute inset-0 guarantees exact 1:1 filling without browser scrollbar reservation padding */}
         {validImages.length > 0 ? (
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="flex w-full h-full overflow-x-auto scrollbar-none snap-x snap-mandatory touch-pan-x"
+            className="slides absolute inset-0 flex overflow-x-auto scrollbar-none snap-x snap-mandatory touch-pan-x"
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
@@ -130,7 +130,7 @@ export function ProductImageGallery({
             {validImages.map((img, idx) => (
               <div
                 key={idx}
-                className="relative flex-none w-full h-full snap-center shrink-0 bg-[#DCEBEB] dark:bg-[#132A2A]"
+                className="relative flex-none w-full h-full snap-center shrink-0"
               >
                 <OptimizedImage
                   src={img}
@@ -153,7 +153,7 @@ export function ProductImageGallery({
           </div>
         ) : (
           /* Empty placeholder */
-          <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#E6F2F2] to-[#D5E7E7] dark:from-[#112323] dark:to-[#0D1818] p-6 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#E6F2F2] to-[#D5E7E7] dark:from-[#112323] dark:to-[#0D1818] p-6 text-center">
             <div className="w-20 h-20 rounded-3xl bg-[#0F6E6E]/15 dark:bg-[#14B8A6]/15 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center mb-3 shadow-2xs">
               {fallbackType === 'housing' ? (
                 <Building2 className="w-10 h-10 stroke-[1.8]" />

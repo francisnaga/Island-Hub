@@ -35,11 +35,16 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
   }
 
   return (
-    <nav
-      aria-label="Mobile bottom navigation"
-      className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden transform-gpu will-change-transform"
-      style={{ transform: 'translate3d(0, 0, 0)' }}
-    >
+    <>
+      {/* Spacer so page content & footer are never covered by the bottom nav */}
+      <div
+        className="h-[calc(64px+env(safe-area-inset-bottom,0px))] md:hidden shrink-0 pointer-events-none"
+        aria-hidden="true"
+      />
+      <nav
+        aria-label="Mobile bottom navigation"
+        className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden"
+      >
       <div className="grid h-full grid-cols-4">
           {tabs.map((tab) => {
             const Icon = tab.icon
@@ -82,5 +87,6 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
           })}
         </div>
       </nav>
+    </>
   )
 }

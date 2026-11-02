@@ -15,12 +15,12 @@ export default async function AppLayout({
   const hasStore = Boolean(user && vendor && vendor.shop_name)
 
   return (
-    <div className="flex min-h-screen w-full max-w-[100vw] flex-col bg-background text-foreground pb-[calc(68px+env(safe-area-inset-bottom,0px))] md:pb-0">
+    <div className="flex min-h-screen w-full max-w-[100vw] flex-col bg-background text-foreground">
       <Suspense fallback={null}>
         <NavigationFeedback />
       </Suspense>
       <Navbar user={user} profile={profile} vendor={vendor} />
-      <main className="flex-1 min-w-0 w-full overflow-x-clip">{children}</main>
+      <main className="flex-1 min-w-0 w-full">{children}</main>
       <Footer />
       <FloatingSellButton initialHasStore={hasStore} />
       <MobileBottomNav hasStore={hasStore} />
