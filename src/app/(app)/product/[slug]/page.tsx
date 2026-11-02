@@ -1,21 +1,18 @@
 import Link from 'next/link'
 import { notFound, redirect } from 'next/navigation'
 import {
-  ChevronLeft,
   ChevronRight,
   MapPin,
   Navigation,
   Clock,
   ShieldCheck,
-  ShoppingBag,
 } from 'lucide-react'
 import { WaterlineProductCard } from '@/components/cards/WaterlineProductCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { getVendorInitials } from '@/components/cards/VendorCard'
-import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { ProductOrderBox } from '@/components/marketplace/ProductOrderBox'
-import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { ProductImageGallery } from '@/components/marketplace/ProductImageGallery'
 import { UserAvatar } from '@/components/brand/UserAvatar'
 import {
   getPublicProductBySlugOrId,
@@ -104,10 +101,6 @@ export default async function ProductDetailPage({
   if (product.listing_type === 'service' && vendor) {
     redirect(`/vendors/${vendor.slug || vendor.id}`)
   }
-  const primaryMedia =
-    product.images?.[0] && !product.images[0].includes('cadet-uniform-tailoring.jpg')
-      ? product.images[0]
-      : null
 
   // Fetch more from this vendor
   const { products: vendorProducts } = await getPublicProducts({
@@ -185,64 +178,17 @@ export default async function ProductDetailPage({
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
           {/* 1. Image Gallery */}
-          <div className="dimg mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs md:col-span-6 md:sticky md:top-20">
-            <div className="slides">
-              <div className="slide relative">
-                {primaryMedia ? (
-                  <OptimizedImage
-                    src={primaryMedia}
-                    alt={product.title}
-                    priority
-                    sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 550px"
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <div className="w-full h-full flex flex-col items-center justify-center bg-gradient-to-br from-[#E6F2F2] to-[#D5E7E7] dark:from-[#112323] dark:to-[#0D1818] p-6 text-center">
-                    <div className="w-20 h-20 rounded-3xl bg-[#0F6E6E]/15 dark:bg-[#14B8A6]/15 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center mb-3 shadow-2xs">
-                      <ShoppingBag className="w-10 h-10 stroke-[1.8]" />
-                    </div>
-                    <b className="text-base font-semibold text-foreground">{product.title}</b>
-                    <span className="text-xs text-muted-foreground mt-1 capitalize">{product.listing_type} · {product.campus || 'NMU'}</span>
-                  </div>
-                )}
-              </div>
-              {product.images &&
-                product.images.slice(1).map((img, i) => (
-                  <div key={i} className="slide relative">
-                    <OptimizedImage
-                      src={img}
-                      alt={`${product.title} view ${i + 2}`}
-                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 550px"
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                ))}
-            </div>
-
-            {/* Floating Back Button (.ov.l) */}
-            <Link href="/marketplace" className="ov l" aria-label="Back to marketplace">
-              <ChevronLeft className="w-5 h-5 -ml-0.5 stroke-[2.2]" />
-            </Link>
-
-            {/* Direct Deep-Link Share Button (.ov.r) */}
-            <ShareButton
-              path={productPath}
-              title={product.title}
-              shareText={`Check out ${product.title} on Jetty (${formatNaira(product.price)} · ${product.campus || 'NMU'}):`}
-              className="ov r cursor-pointer"
-              iconClassName="w-4.5 h-4.5"
-            />
-
-            {/* Slide Indicator Dots (if multiple images) */}
-            {product.images && product.images.length > 1 && (
-              <div className="dots">
-                <i className="on" />
-                {product.images.slice(1).map((_, i) => (
-                  <i key={i} />
-                ))}
-              </div>
-            )}
-          </div>
+          <ProductImageGallery
+            images={product.images || []}
+            title={product.title}
+            backHref="/marketplace"
+            backLabel="Back to marketplace"
+            sharePath={productPath}
+            shareText={`Check out ${product.title} on Jetty (${formatNaira(product.price)} · ${product.campus || 'NMU'}):`}
+            fallbackType="product"
+            campus={product.campus || 'NMU'}
+            subtitle={product.listing_type}
+          />
 
           {/* 2. Detail Body */}
           <div className="db md:col-span-6 space-y-5">

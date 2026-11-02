@@ -1,22 +1,19 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import {
-  ChevronLeft,
   ChevronRight,
   MapPin,
   Clock,
   ShieldCheck,
-  Building2,
   MessageCircle,
 } from 'lucide-react'
 import { getPublicLodgeById } from '@/lib/queries'
 import { formatNaira, getCanonicalUrl } from '@/lib/whatsapp'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
-import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { UserAvatar } from '@/components/brand/UserAvatar'
-import { OptimizedImage } from '@/components/ui/OptimizedImage'
+import { ProductImageGallery } from '@/components/marketplace/ProductImageGallery'
 
 export const dynamic = 'force-dynamic'
 
@@ -124,6 +121,13 @@ export default async function HousingDetailPage({
     },
   }
 
+  const galleryImages =
+    lodge.images && lodge.images.length > 0
+      ? lodge.images
+      : lodge.image
+      ? [lodge.image]
+      : []
+
   return (
     <div className="min-w-0 max-w-full pb-28">
       <script
@@ -133,41 +137,17 @@ export default async function HousingDetailPage({
       <div className="container mx-auto max-w-lg md:max-w-5xl px-0 md:px-6 md:pt-6">
         <div className="md:grid md:grid-cols-12 md:gap-8 md:items-start">
           {/* 1. Image Gallery */}
-          <div className="dimg relative aspect-square w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] overflow-hidden flex items-center justify-center md:col-span-6 md:sticky md:top-20">
-            {lodge.image ? (
-              <OptimizedImage
-                src={lodge.image}
-                alt={lodge.title}
-                priority
-                sizes="(max-width: 640px) 100vw, 550px"
-                className="w-full h-full object-cover"
-                fallback={<Building2 className="w-16 h-16 opacity-35 text-[#0F6E6E]" />}
-              />
-            ) : (
-              <Building2 className="w-16 h-16 opacity-35 text-[#0F6E6E]" />
-            )}
-
-            {/* Floating Circular Back Button (.ov.l) */}
-            <Link href="/housing" className="ov l" aria-label="Back to lodges">
-              <ChevronLeft className="w-5 h-5 -ml-0.5 stroke-[2.2]" />
-            </Link>
-
-            {/* Floating Circular Share Button (.ov.r) */}
-            <ShareButton
-              path={`/housing/${lodge.slug || lodge.id}`}
-              title={lodge.title}
-              shareText={`Check out this student room on Jetty: ${lodge.title} (${formatNaira(lodge.price)} / ${lodge.period} at ${lodge.campus}):`}
-              className="ov r cursor-pointer"
-              iconClassName="w-4.5 h-4.5 stroke-[2]"
-            />
-
-            {/* Carousel Dots */}
-            <div className="dots absolute bottom-3 inset-x-0 flex items-center justify-center gap-1.5 pointer-events-none">
-              <span className="dot on" />
-              <span className="dot" />
-              <span className="dot" />
-            </div>
-          </div>
+          <ProductImageGallery
+            images={galleryImages}
+            title={lodge.title}
+            backHref="/housing"
+            backLabel="Back to lodges"
+            sharePath={`/housing/${lodge.slug || lodge.id}`}
+            shareText={`Check out this student room on Jetty: ${lodge.title} (${formatNaira(lodge.price)} / ${lodge.period} at ${lodge.campus}):`}
+            fallbackType="housing"
+            campus={lodge.campus}
+            subtitle={lodge.room_type_label}
+          />
 
           {/* 2. Detail Body */}
           <div className="db px-4 md:px-0 pt-4 md:pt-0 space-y-4 md:col-span-6">
