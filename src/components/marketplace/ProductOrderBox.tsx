@@ -200,18 +200,16 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
 
       {/* 2. Solid Bottom Action Bar (Pinned flush to viewport bottom edge) */}
       <div
-        className="fixed bottom-0 inset-x-0 z-50 w-full bg-card/95 backdrop-blur-md border-t border-border shadow-[0_-4px_24px_rgba(0,0,0,0.10)] dark:shadow-[0_-4px_24px_rgba(0,0,0,0.35)]"
-        style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
+        className="fixed bottom-0 inset-x-0 z-50 w-full bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] transform-gpu will-change-transform pb-[env(safe-area-inset-bottom,0px)]"
+        style={{ transform: 'translate3d(0, 0, 0)' }}
       >
-        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 py-3 flex items-center justify-between gap-4 min-h-[72px]">
-          {/* Price & Quantity Summary */}
+        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
+          {/* Price & Quantity Summary — perfectly centered */}
           <div className="min-w-0 flex flex-col justify-center">
-            <div className="flex items-baseline gap-1.5">
-              <b className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
-                {formatNaira(totalPrice)}
-              </b>
-            </div>
-            <span className="text-xs text-muted-foreground truncate mt-1 font-medium">
+            <b className="text-[21px] sm:text-[23px] font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
+              {formatNaira(totalPrice)}
+            </b>
+            <span className="text-[11.5px] text-muted-foreground truncate font-medium mt-1 leading-none">
               {quantity > 1
                 ? `${quantity} items (${formatNaira(product.price)} ea)`
                 : 'Pay when you meet'}
@@ -225,9 +223,9 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
                 href={whatsappResult.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="h-12 sm:h-13 px-5 sm:px-8 rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-bold text-sm sm:text-base flex items-center justify-center gap-2 shadow-md transition-all hover:scale-[1.01] active:scale-[0.98] cursor-pointer"
+                className="h-11 sm:h-12 px-5 sm:px-7 rounded-xl sm:rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] active:bg-[#083E3E] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
               >
-                <WhatsAppIcon className="w-5 h-5 text-white shrink-0" />
+                <WhatsAppIcon className="w-4.5 h-4.5 text-white shrink-0" />
                 <span className="whitespace-nowrap">
                   {isOutOfStock ? 'Notify seller' : 'Message seller'}
                 </span>
