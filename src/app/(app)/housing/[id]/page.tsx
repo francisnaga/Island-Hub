@@ -29,7 +29,7 @@ export async function generateMetadata({
   const canonicalPath = `/housing/${lodge.slug || lodge.id}`
   const canonicalUrl = getCanonicalUrl(canonicalPath)
   const title = `${lodge.title} — ${formatNaira(lodge.price)}/${lodge.period} | Jetty Lodges`
-  const description = `${lodge.room_type_label} near NMU ${lodge.campus}. ${lodge.distance_hint}`
+  const description = `${lodge.room_type_label} near NMU ${lodge.campus}${lodge.location_label ? ` · ${lodge.location_label}` : ''}`
   const previewImg = lodge.image && !lodge.image.startsWith('data:') ? lodge.image : '/og-image.png'
 
   return {
@@ -95,7 +95,7 @@ export default async function HousingDetailPage({
     '@context': 'https://schema.org',
     '@type': 'Accommodation',
     name: lodge.title,
-    description: `${lodge.room_type_label} near NMU ${lodge.campus}. ${lodge.distance_hint}`,
+    description: `${lodge.room_type_label} near NMU ${lodge.campus}${lodge.location_label ? ` · ${lodge.location_label}` : ''}`,
     image: lodge.image
       ? lodge.image.startsWith('http')
         ? lodge.image
@@ -182,48 +182,38 @@ export default async function HousingDetailPage({
               </span>
             </div>
 
-            {/* Light Divider */}
-            <div className="dv" />
+            {/* Key Room Attributes (Only genuine vendor details, NO fake fillers) */}
+            <div className="flex flex-wrap items-center gap-2 pt-1">
+              <span className="px-3 py-1 rounded-full bg-muted border border-border text-xs font-semibold text-foreground">
+                {lodge.room_type_label}
+              </span>
+              <span className="px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground flex items-center gap-1">
+                <MapPin className="w-3 h-3 stroke-[2]" />
+                {lodge.campus}
+              </span>
+              {lodge.bedspaces && (
+                <span className="px-3 py-1 rounded-full bg-muted border border-border text-xs font-medium text-muted-foreground">
+                  {lodge.bedspaces}
+                </span>
+              )}
+              {lodge.other_fees && (
+                <span className="px-3 py-1 rounded-full bg-amber-500/10 border border-amber-500/20 text-xs font-medium text-amber-700 dark:text-amber-400">
+                  Fee: {lodge.other_fees}
+                </span>
+              )}
+            </div>
 
-            {/* Facts 2-Column Grid */}
-            <dl className="facts">
-              <div>
-                <dt>Type</dt>
-                <dd>{lodge.room_type_label}</dd>
-              </div>
-              <div>
-                <dt>Bedspaces</dt>
-                <dd>{lodge.bedspaces || '1 to 2'}</dd>
-              </div>
-              <div>
-                <dt>Distance</dt>
-                <dd>{lodge.distance_hint}</dd>
-              </div>
-              <div>
-                <dt>Rent covers</dt>
-                <dd>{lodge.rent_covers || 'One session'}</dd>
-              </div>
-              <div>
-                <dt>Utilities</dt>
-                <dd>{lodge.utilities || 'Water included'}</dd>
-              </div>
-              <div>
-                <dt>Other fees</dt>
-                <dd>{lodge.other_fees || 'None'}</dd>
-              </div>
-            </dl>
-
-            {/* What is there */}
+            {/* What is there (Only if amenities were actually selected by the vendor) */}
             {lodge.features && lodge.features.length > 0 && (
               <>
                 <div className="dv" />
                 <div className="space-y-2.5">
-                  <h3 className="hh text-[17px] font-bold text-foreground">What is there</h3>
+                  <h3 className="hh text-[16px] font-bold text-foreground">What is there</h3>
                   <div className="flex flex-wrap gap-2">
                     {lodge.features.map((feat) => (
                       <span
                         key={feat}
-                        className="px-3.5 py-1.5 rounded-full bg-[#E6F2F2] dark:bg-[#132A2A] text-foreground text-xs font-medium"
+                        className="px-3.5 py-1.5 rounded-full bg-muted border border-border text-foreground text-xs font-medium shadow-2xs"
                       >
                         {feat}
                       </span>
@@ -239,7 +229,7 @@ export default async function HousingDetailPage({
               href={lodge.vendor_slug ? `/vendors/${lodge.vendor_slug}` : waUrl}
               target={lodge.vendor_slug ? undefined : '_blank'}
               rel={lodge.vendor_slug ? undefined : 'noopener noreferrer'}
-              className="flex items-center gap-3 py-2 group cursor-pointer"
+              className="flex items-center gap-3 py-1 group cursor-pointer"
               aria-label={`Contact ${lodge.contact_name}`}
             >
               <UserAvatar
@@ -247,7 +237,7 @@ export default async function HousingDetailPage({
                 seed={lodge.vendor_slug || lodge.contact_name}
                 name={lodge.contact_name}
                 size={48}
-                className="shrink-0 border border-border/60"
+                className="shrink-0 border border-border/80 shadow-2xs"
               />
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-1.5 font-semibold text-foreground text-sm">
@@ -255,31 +245,33 @@ export default async function HousingDetailPage({
                   {lodge.is_verified && <VerifiedBadge size={15} />}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {lodge.agent_listings_count || 1}{' '}
-                  {lodge.agent_listings_count === 1 ? 'listing' : 'listings'}
+                  {lodge.is_verified ? 'Verified Campus Caretaker' : 'Campus Caretaker'}
                 </p>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
             </Link>
 
-            {/* About this room */}
-            <div className="dv" />
-            <div className="space-y-1.5">
-              <h3 className="hh text-[17px] font-bold text-foreground">About this room</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                {lodge.description ||
-                  `Clean student room near ${lodge.campus} campus. Contact on WhatsApp to arrange an in-person viewing.`}
-              </p>
-            </div>
+            {/* About this room (Only if description was provided by vendor) */}
+            {lodge.description && lodge.description.trim().length > 0 && (
+              <>
+                <div className="dv" />
+                <div className="space-y-1.5">
+                  <h3 className="hh text-[16px] font-bold text-foreground">About this room</h3>
+                  <p className="text-sm text-muted-foreground leading-relaxed whitespace-pre-line">
+                    {lodge.description}
+                  </p>
+                </div>
+              </>
+            )}
 
-            {/* Location: Typed Location Explanation vs Optional Pinned GPS Google Maps Button */}
+            {/* Location (Only if vendor provided location explanation or map pin) */}
             {(hasLocationExplanation || googleMapsUrl) && (
               <>
                 <div className="dv" />
                 <div className="space-y-2.5">
-                  <h3 className="hh text-[17px] font-bold text-foreground">Location</h3>
+                  <h3 className="hh text-[16px] font-bold text-foreground">Location</h3>
                   {hasLocationExplanation && (
-                    <p className="text-sm text-foreground font-medium">
+                    <p className="text-sm text-muted-foreground font-medium">
                       {lodge.location_label}
                     </p>
                   )}
@@ -288,7 +280,7 @@ export default async function HousingDetailPage({
                       href={googleMapsUrl}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-[#0F6E6E]/40 text-[#0F6E6E] dark:text-[#22D3EE] font-semibold text-sm hover:bg-[#E6F2F2]/40 transition-colors"
+                      className="w-full flex items-center justify-center gap-2 py-3 rounded-xl border border-border bg-muted/40 hover:bg-muted text-foreground font-semibold text-sm transition-colors"
                     >
                       <MapPin className="w-4 h-4 stroke-[2]" />
                       <span>Open pinned location in Google Maps</span>
@@ -299,10 +291,10 @@ export default async function HousingDetailPage({
             )}
 
             {/* Safety Box */}
-            <div className="rounded-2xl border border-[#0F6E6E]/20 bg-[#E6F2F2]/60 dark:bg-[#132A2A]/60 p-4 flex items-start gap-3 text-xs text-foreground shadow-2xs">
-              <ShieldCheck className="w-5 h-5 text-[#0F6E6E] dark:text-[#22D3EE] shrink-0 mt-0.5" />
+            <div className="rounded-2xl border border-border bg-muted/40 p-4 flex items-start gap-3 text-xs text-muted-foreground shadow-2xs">
+              <ShieldCheck className="w-5 h-5 text-foreground shrink-0 mt-0.5" />
               <span className="leading-relaxed">
-                See the room before you pay anything. Never send rent to someone you have not met.
+                See the room before you pay anything. Never send rent or inspection fees to someone you have not met in person.
               </span>
             </div>
 

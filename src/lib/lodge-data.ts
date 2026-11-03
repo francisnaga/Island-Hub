@@ -73,7 +73,7 @@ export function mapProductToLodgeListing(p: Product): LodgeListing {
     distance_hint:
       v.distance_hint ||
       (p.variants as any)?.room_meta?.distance ||
-      'Near campus',
+      '',
     image: p.images?.[0] || '',
     images: p.images || [],
     features:
@@ -81,22 +81,14 @@ export function mapProductToLodgeListing(p: Product): LodgeListing {
         ? v.features
         : [],
     whatsapp_number: p.vendor?.whatsapp_number || '',
-    contact_name: p.vendor?.shop_name || 'Verified Campus Caretaker',
+    contact_name: p.vendor?.shop_name || 'Campus Caretaker',
     contact_avatar: p.vendor?.logo_url || null,
     vendor_slug: p.vendor?.slug || p.vendor?.id,
     is_verified: p.vendor?.verification_status === 'verified',
-    bedspaces:
-      v.bedspaces ||
-      (roomType === 'bedspace'
-        ? '1 bedspace'
-        : roomType === 'single_room'
-        ? 'Single room'
-        : roomType === 'self_contain'
-        ? 'Self-contained'
-        : 'Shared room'),
-    rent_covers: v.rent_covers || `One ${v.period || 'session'}`,
-    utilities: v.utilities || 'Standard utilities',
-    other_fees: v.other_fees || 'None',
+    bedspaces: v.bedspaces || '',
+    rent_covers: v.rent_covers || '',
+    utilities: v.utilities || '',
+    other_fees: v.other_fees && v.other_fees !== 'None' ? v.other_fees : '',
     posted_time: formatRelativePostedTime(p.created_at),
     description: p.description,
     agent_listings_count: 1,

@@ -72,7 +72,11 @@ export function WaterlineRoomCard({
         <MapPin className="w-3 h-3 stroke-[2] shrink-0 text-muted-foreground" />
         <span className="truncate">
           {lodge.campus}
-          {lodge.distance_hint ? ` · ${lodge.distance_hint}` : ''}
+          {lodge.location_label
+            ? ` · ${lodge.location_label}`
+            : lodge.distance_hint
+            ? ` · ${lodge.distance_hint}`
+            : ''}
         </span>
       </div>
 
