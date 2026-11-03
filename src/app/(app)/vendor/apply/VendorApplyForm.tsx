@@ -288,7 +288,7 @@ export function VendorApplyForm({
           >
             <ChevronLeft className="h-5 w-5" />
           </Link>
-          <b className="font-[family-name:var(--font-bricolage)] font-semibold text-lg tracking-tight">
+          <b className="font-sans font-semibold text-lg tracking-tight">
             {existingVendor ? 'Store settings' : 'Start selling'}
           </b>
         </div>

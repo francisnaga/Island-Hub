@@ -85,7 +85,7 @@ export function CampusSelectorModal({ className = '' }: { className?: string }) 
       <div className="relative w-full sm:max-w-md bg-card border border-border rounded-t-3xl sm:rounded-2xl p-5 sm:p-6 shadow-2xl space-y-4 animate-in slide-in-from-bottom duration-200 z-10 pb-[calc(20px+env(safe-area-inset-bottom,0px))]">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-lg font-bold text-foreground font-[family-name:var(--font-bricolage)]">
+            <h3 className="text-lg font-bold text-foreground font-sans">
               Which campus?
             </h3>
             <p className="text-xs text-muted-foreground">

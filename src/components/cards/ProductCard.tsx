@@ -145,7 +145,7 @@ export function ProductCard({ product }: ProductCardProps) {
       <div className="flex flex-1 min-w-0 flex-col justify-between p-3 sm:p-3.5 md:p-4 gap-1.5">
         <div className="space-y-1 min-w-0">
           <div className="flex items-baseline justify-between gap-2">
-            <div className="text-sm sm:text-base md:text-[15px] font-extrabold text-foreground tracking-tight">
+            <div className="text-sm sm:text-base md:text-[15px] font-bold text-foreground tracking-tight font-mono-num">
               {priceDisplay}
             </div>
             {hasValidLowStock && (

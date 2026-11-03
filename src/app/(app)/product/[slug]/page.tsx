@@ -194,7 +194,7 @@ export default async function ProductDetailPage({
           <div className="db md:col-span-6 space-y-5">
             {/* Price & Title */}
             <div>
-              <div className="font-[family-name:var(--font-bricolage)] font-bold text-2xl sm:text-3xl text-foreground tracking-tight">
+              <div className="font-bold text-2xl sm:text-3xl text-foreground tracking-tight font-mono-num">
                 {formatNaira(product.price)}
               </div>
               <h1 className="mt-1 font-semibold text-lg sm:text-xl text-foreground leading-snug">
@@ -299,7 +299,7 @@ export default async function ProductDetailPage({
 
             {/* About this item */}
             <div className="space-y-1.5 pt-1">
-              <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-lg text-foreground">About this item</h3>
+              <h3 className="font-semibold text-lg text-foreground tracking-[-0.02em]">About this item</h3>
               <p className="text-sm leading-relaxed text-muted-foreground whitespace-pre-line">{product.description}</p>
             </div>
 
@@ -312,7 +312,7 @@ export default async function ProductDetailPage({
             {/* More from this seller rail */}
             {moreFromVendor.length > 0 && (
               <div className="space-y-2.5 pt-2">
-                <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base text-foreground">More from {vendor?.shop_name || 'seller'}</h3>
+                <h3 className="font-semibold text-base text-foreground tracking-[-0.02em]">More from {vendor?.shop_name || 'seller'}</h3>
                 <div className="rail flex gap-3 overflow-x-auto pb-1 scrollbar-none snap-x">
                   {moreFromVendor.map((p) => (
                     <WaterlineProductCard key={p.id} product={p} />

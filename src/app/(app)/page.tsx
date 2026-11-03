@@ -80,7 +80,7 @@ export default async function HomePage({
         {/* 2. Just landed */}
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">
-            <h2 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px] tracking-[-0.005em] text-foreground">
+            <h2 className="font-semibold text-[20px] sm:text-[22px] tracking-[-0.025em] text-foreground font-sans">
               Just landed
             </h2>
             <Link
@@ -127,7 +127,7 @@ export default async function HomePage({
         {/* 3. Rooms near campus */}
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">
-            <h2 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px] tracking-[-0.005em] text-foreground">
+            <h2 className="font-semibold text-[20px] sm:text-[22px] tracking-[-0.025em] text-foreground font-sans">
               Rooms near campus
             </h2>
             <Link
@@ -172,7 +172,7 @@ export default async function HomePage({
         {/* 4. Services */}
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">
-            <h2 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px] tracking-[-0.005em] text-foreground">
+            <h2 className="font-semibold text-[20px] sm:text-[22px] tracking-[-0.025em] text-foreground font-sans">
               Services
             </h2>
             <Link
@@ -188,7 +188,7 @@ export default async function HomePage({
         {/* 5. Vendors */}
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">
-            <h2 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px] tracking-[-0.005em] text-foreground">
+            <h2 className="font-semibold text-[20px] sm:text-[22px] tracking-[-0.025em] text-foreground font-sans">
               Verified vendors
             </h2>
             <Link

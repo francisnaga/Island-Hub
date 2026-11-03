@@ -50,7 +50,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
       <section className="bg-[#0A4F4F] text-white pt-5 px-4 pb-5 sm:pt-7 sm:px-6 sm:pb-7 md:py-10 md:px-8">
         <div className="mx-auto max-w-xl md:max-w-6xl md:flex md:items-center md:justify-between md:gap-10">
           <div className="md:flex-1 md:max-w-xl">
-            <h1 className="font-[family-name:var(--font-bricolage)] font-semibold text-[27px] sm:text-[34px] md:text-[40px] leading-[1.16] tracking-[-0.015em] text-white">
+            <h1 className="font-semibold text-[27px] sm:text-[34px] md:text-[40px] leading-[1.16] tracking-[-0.035em] text-white font-sans">
               Find what you need around <span className="text-[#E8B84A]">NMU</span>
             </h1>
             <p className="mt-1.5 text-[13.5px] sm:text-base text-white/80 font-normal leading-relaxed">

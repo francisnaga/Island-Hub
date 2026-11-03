@@ -35,7 +35,7 @@ export default function TermsPage() {
           <p className="text-[11px] font-mono uppercase tracking-[0.18em] text-muted-foreground">
             Legal · Updated {lastUpdated}
           </p>
-          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+          <h1 className="text-3xl sm:text-4xl font-semibold tracking-tight text-foreground font-sans">
             Terms of Service
           </h1>
           <p className="text-sm text-muted-foreground leading-relaxed">

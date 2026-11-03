@@ -152,7 +152,7 @@ export default async function HousingDetailPage({
           {/* 2. Detail Body */}
           <div className="db px-4 md:px-0 pt-4 md:pt-0 space-y-4 md:col-span-6">
             {/* Price & Period (.dp) */}
-            <div className="dp flex items-baseline gap-1 text-[28px] sm:text-[32px] font-bold text-foreground tracking-tight font-[family-name:var(--font-bricolage)]">
+            <div className="dp flex items-baseline gap-1 text-[28px] sm:text-[32px] font-bold text-foreground tracking-tight font-mono-num">
               <span>{formatNaira(lodge.price)}</span>
               <small className="text-[15px] font-normal text-muted-foreground">
                 / {lodge.period}
@@ -339,7 +339,7 @@ export default async function HousingDetailPage({
       >
         <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
           <div className="min-w-0 flex flex-col justify-center">
-            <b className="block text-[21px] sm:text-[23px] font-bold text-foreground leading-none font-[family-name:var(--font-bricolage)] tracking-tight">
+            <b className="block text-[21px] sm:text-[23px] font-bold text-foreground leading-none font-mono-num tracking-tight">
               {formatNaira(lodge.price)}
             </b>
             <span className="text-[11.5px] text-muted-foreground font-medium leading-none mt-1">per {lodge.period}</span>

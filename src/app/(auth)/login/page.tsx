@@ -34,7 +34,7 @@ export default async function LoginPage({
             </Link>
 
             <div className="space-y-1">
-              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-sans">
                 Vendor Sign In
               </h1>
               <p className="text-xs text-muted-foreground leading-relaxed max-w-xs">

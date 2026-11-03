@@ -159,7 +159,7 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
               >
                 <Minus className="h-3.5 w-3.5" />
               </button>
-              <span className="w-10 text-center font-bold text-base text-foreground font-[family-name:var(--font-bricolage)] select-none">
+              <span className="w-10 text-center font-bold text-base text-foreground font-mono-num select-none">
                 {quantity}
               </span>
               <button
@@ -185,7 +185,7 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
                 'Price (1 unit):'
               )}
             </span>
-            <span className="font-extrabold text-base text-[#0F6E6E] dark:text-[#22D3EE] font-[family-name:var(--font-bricolage)] tracking-tight">
+            <span className="font-extrabold text-base text-[#0F6E6E] dark:text-[#22D3EE] font-mono-num tracking-tight">
               {formatNaira(totalPrice)}
             </span>
           </div>
@@ -205,7 +205,7 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
         <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
           {/* Price & Quantity Summary — perfectly centered */}
           <div className="min-w-0 flex flex-col justify-center">
-            <b className="text-[21px] sm:text-[23px] font-bold text-foreground font-[family-name:var(--font-bricolage)] tracking-tight leading-none">
+            <b className="text-[21px] sm:text-[23px] font-bold text-foreground font-mono-num tracking-tight leading-none">
               {formatNaira(totalPrice)}
             </b>
             <span className="text-[11.5px] text-muted-foreground truncate font-medium mt-1 leading-none">

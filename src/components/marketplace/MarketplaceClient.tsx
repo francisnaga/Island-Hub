@@ -142,7 +142,7 @@ export function MarketplaceClient({
       {/* Page Title & Instant 0ms Segmented Switch: [ Items | Stores ] */}
       <div className="space-y-3 border-b border-border/60 pb-4">
         <div className="flex items-center justify-between">
-          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+          <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground font-sans">
             Market
           </h1>
           <span className="text-xs text-muted-foreground font-medium">
@@ -388,7 +388,7 @@ export function MarketplaceClient({
 
               {/* Details */}
               <div className="mt-2.5 space-y-0.5">
-                <h3 className="font-[family-name:var(--font-bricolage)] text-base sm:text-lg font-bold text-foreground tracking-tight inline-flex items-center justify-center gap-1.5">
+                <h3 className="font-sans text-base sm:text-lg font-bold text-foreground tracking-tight inline-flex items-center justify-center gap-1.5">
                   <span>Naga</span>
                   <VerifiedBadge size={15} variant="gold" />
                 </h3>

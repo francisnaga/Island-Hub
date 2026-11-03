@@ -281,7 +281,7 @@ export function ImageCropperModal({
         {/* Modal Header */}
         <div className="flex items-center justify-between px-5 pt-4 pb-3 border-b border-border">
           <div>
-            <h3 className="font-[family-name:var(--font-bricolage)] font-bold text-lg text-foreground leading-tight">
+            <h3 className="font-sans font-bold text-lg text-foreground leading-tight">
               {title}
             </h3>
             <p className="text-[12px] text-muted-foreground mt-0.5">

@@ -47,7 +47,7 @@ export default async function ServicesPage({
       <div className="container mx-auto max-w-lg md:max-w-6xl px-4 pt-5 md:pt-8 space-y-2 min-w-0">
         {/* Services Page Header (No search bar per user requirement) */}
         <div className="pb-2">
-          <h1 className="text-[26px] sm:text-[30px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
+          <h1 className="text-[26px] sm:text-[30px] font-semibold tracking-tight text-foreground font-sans leading-tight">
             Services
           </h1>
           <p className="text-[14px] text-muted-foreground mt-0.5">
@@ -77,7 +77,7 @@ export default async function ServicesPage({
                     {service.title}
                   </b>
                   <div className="flex items-baseline gap-1.5 text-xs text-muted-foreground">
-                    <span className="font-[family-name:var(--font-bricolage)] font-bold text-[22px] leading-none text-foreground">
+                    <span className="font-sans font-bold text-[22px] leading-none text-foreground">
                       {count}
                     </span>
                     <span className="font-medium">{count === 1 ? 'provider' : 'providers'}</span>

@@ -12,7 +12,7 @@ export default function AppPageLoading() {
         height={56}
         className="h-14 w-14 drop-shadow-2xs"
       />
-      <span className="text-xs font-medium tracking-wide text-muted-foreground font-[family-name:var(--font-bricolage)]">
+      <span className="text-xs font-medium tracking-wide text-muted-foreground font-sans">
         Loading…
       </span>
     </div>

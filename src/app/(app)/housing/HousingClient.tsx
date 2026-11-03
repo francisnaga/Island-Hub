@@ -87,7 +87,7 @@ export function HousingClient({
     <div className="space-y-4 min-w-0 pb-16">
       {/* Page Header */}
       <div className="space-y-1">
-        <h1 className="text-[28px] sm:text-[32px] font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
+        <h1 className="text-[28px] sm:text-[32px] font-bold tracking-tight text-foreground font-sans leading-tight">
           Lodge
         </h1>
         <p className="text-[14px] text-muted-foreground">

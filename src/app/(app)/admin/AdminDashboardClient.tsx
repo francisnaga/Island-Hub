@@ -715,7 +715,7 @@ export function AdminDashboardClient({
       <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 border-b border-border pb-5">
         <div className="space-y-1">
           <div className="flex items-center gap-2">
-            <h1 className="text-2xl sm:text-[26px] font-semibold tracking-tight text-foreground font-[family-name:var(--font-bricolage)]">
+            <h1 className="text-2xl sm:text-[26px] font-semibold tracking-tight text-foreground font-sans">
               Admin
             </h1>
             <span className="inline-flex items-center h-5 px-2 rounded-md bg-muted border border-border text-[11px] font-medium text-muted-foreground">

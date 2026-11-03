@@ -178,7 +178,7 @@ export default async function VendorStorefrontPage({
 
         {/* Shop Name & Verified Badge */}
         <div className="mt-3.5 space-y-1">
-          <h1 className="font-[family-name:var(--font-bricolage)] text-2xl sm:text-[28px] font-semibold text-white tracking-tight inline-flex items-center justify-center gap-2">
+          <h1 className="font-sans text-2xl sm:text-[28px] font-semibold text-white tracking-tight inline-flex items-center justify-center gap-2">
             <span>{vendor.shop_name}</span>
             {isVerified && <VerifiedBadge size={19} />}
           </h1>
@@ -218,7 +218,7 @@ export default async function VendorStorefrontPage({
 
         {/* Minimalist Active Listings Stat */}
         <div className="mt-4 pt-3 border-t border-white/10 inline-flex items-center gap-2 text-xs text-white/80">
-          <span className="font-[family-name:var(--font-bricolage)] font-bold text-base text-white">
+          <span className="font-sans font-bold text-base text-white">
             {products.length}
           </span>
           <span>{products.length === 1 ? 'active listing' : 'active listings'}</span>

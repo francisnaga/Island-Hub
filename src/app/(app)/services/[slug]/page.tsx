@@ -127,7 +127,7 @@ export default async function ServiceDetailPage({
 
         {/* Large Heading & Provider Count matching prototype */}
         <div className="px-4 pb-4">
-          <h1 className="text-[32px] sm:text-4xl font-bold tracking-tight text-foreground font-[family-name:var(--font-bricolage)] leading-tight">
+          <h1 className="text-[32px] sm:text-4xl font-bold tracking-tight text-foreground font-sans leading-tight">
             {displayName}
           </h1>
           <p className="text-sm sm:text-[15px] text-muted-foreground mt-1">

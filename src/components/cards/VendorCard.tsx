@@ -93,7 +93,7 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
 
       {/* Name, Role & Campus */}
       <div className="mt-2.5 space-y-0.5 min-w-0 w-full overflow-hidden">
-        <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-base sm:text-lg text-foreground leading-snug group-hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-0 max-w-full">
+        <h3 className="font-semibold text-base sm:text-lg text-foreground leading-snug tracking-[-0.02em] group-hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-0 max-w-full font-sans">
           <span className="truncate min-w-0 max-w-full block">{vendor.shop_name}</span>
           {isVerified && !isBanned && <VerifiedBadge size={15} />}
         </h3>

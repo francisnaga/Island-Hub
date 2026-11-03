@@ -90,7 +90,7 @@ export function WaterlineProductCard({
       </div>
 
       {/* Price */}
-      <div className="mt-2.5 font-semibold text-[16px] text-foreground tracking-tight">
+      <div className="mt-2.5 font-semibold text-[16px] text-foreground tracking-tight font-mono-num">
         {priceDisplay}
       </div>
 

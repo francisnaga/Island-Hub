@@ -879,7 +879,7 @@ export function VendorDashboardClient({
         {/* ================= SCREEN 1: YOUR LISTINGS (vListings) ================= */}
         {screen === 'v:listings' && (
           <div>
-            <h2 className="px-4 pt-5 pb-1 font-[family-name:var(--font-bricolage)] font-semibold text-[26px] tracking-tight">
+            <h2 className="px-4 pt-5 pb-1 font-sans font-semibold text-[26px] tracking-tight">
               Your listings
             </h2>
 
@@ -1022,7 +1022,7 @@ export function VendorDashboardClient({
             ) : listingsView === 'active' ? (
               /* Minimalist Empty State (.vempty from prototype) */
               <div className="text-center pt-12 px-6">
-                <b className="block font-[family-name:var(--font-bricolage)] font-semibold text-xl text-foreground">
+                <b className="block font-sans font-semibold text-xl text-foreground">
                   Nothing listed yet
                 </b>
                 <p className="mt-1.5 text-sm text-muted-foreground">
@@ -1041,7 +1041,7 @@ export function VendorDashboardClient({
                 <div className="w-14 h-14 mx-auto rounded-2xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center mb-3.5">
                   <FileText className="w-7 h-7" />
                 </div>
-                <b className="block font-[family-name:var(--font-bricolage)] font-semibold text-xl text-foreground">
+                <b className="block font-sans font-semibold text-xl text-foreground">
                   No saved drafts
                 </b>
                 <p className="mt-1.5 text-sm text-muted-foreground leading-relaxed">
@@ -1067,7 +1067,7 @@ export function VendorDashboardClient({
         {/* ================= SCREEN 2: ADD A LISTING TYPE PICKER (vNew) ================= */}
         {screen === 'v:new' && (
           <div>
-            <h2 className="px-4 pt-5 pb-1 font-[family-name:var(--font-bricolage)] font-semibold text-[26px] tracking-tight">
+            <h2 className="px-4 pt-5 pb-1 font-sans font-semibold text-[26px] tracking-tight">
               Add a listing
             </h2>
             <div className="px-4 pb-2 text-sm text-muted-foreground">
@@ -1138,7 +1138,7 @@ export function VendorDashboardClient({
               >
                 <ChevronLeft className="w-5 h-5" />
               </button>
-              <b className="font-[family-name:var(--font-bricolage)] font-semibold text-lg">
+              <b className="font-sans font-semibold text-lg">
                 {editId
                   ? 'Edit listing'
                   : formKind === 'room'
@@ -1760,7 +1760,7 @@ export function VendorDashboardClient({
               <span className="w-16 h-16 rounded-full bg-[#0F6E6E] text-white inline-grid place-items-center">
                 <Check className="w-8 h-8 stroke-[2.4]" />
               </span>
-              <h2 className="mt-4 font-[family-name:var(--font-bricolage)] font-semibold text-[26px]">
+              <h2 className="mt-4 font-sans font-semibold text-[26px]">
                 {wasEdited ? 'Saved' : 'Submitted'}
               </h2>
               <p className="mt-1 text-sm text-muted-foreground">
@@ -1895,7 +1895,7 @@ export function VendorDashboardClient({
                 />
               </div>
 
-              <h2 className="mt-3.5 font-[family-name:var(--font-bricolage)] font-semibold text-[22px] text-foreground inline-flex items-center justify-center gap-1.5">
+              <h2 className="mt-3.5 font-sans font-semibold text-[22px] text-foreground inline-flex items-center justify-center gap-1.5">
                 <span>{vendor.shop_name}</span>
                 {vendor.verification_status === 'verified' && <VerifiedBadge size={18} />}
               </h2>
@@ -2343,7 +2343,7 @@ export function VendorDashboardClient({
             aria-modal="true"
             className="relative z-10 w-full max-w-[430px] rounded-t-[20px] bg-card px-4 pt-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-xl"
           >
-            <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px] mb-2 truncate">
+            <h3 className="font-sans font-semibold text-[21px] mb-2 truncate">
               {actionProduct.title}
             </h3>
 
@@ -2522,7 +2522,7 @@ export function VendorDashboardClient({
             aria-modal="true"
             className="relative z-10 w-full max-w-[430px] rounded-t-[20px] bg-card px-4 pt-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-xl"
           >
-            <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px] mb-2">
+            <h3 className="font-sans font-semibold text-[21px] mb-2">
               Delete this listing?
             </h3>
             <p className="mb-3 text-sm text-muted-foreground">
@@ -2563,7 +2563,7 @@ export function VendorDashboardClient({
             onSubmit={handleCategoryRequestSubmit}
             className="relative z-10 w-full max-w-[430px] rounded-t-[20px] bg-card px-4 pt-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-xl space-y-4"
           >
-            <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px]">
+            <h3 className="font-sans font-semibold text-[21px]">
               {catReqKind === 'service'
                 ? 'Request a service'
                 : catReqKind === 'room'
@@ -2646,7 +2646,7 @@ export function VendorDashboardClient({
             onClick={() => setEditingStoreField(null)}
           />
           <div className="relative z-10 w-full max-w-[430px] rounded-t-[20px] bg-card px-4 pt-5 pb-[calc(20px+env(safe-area-inset-bottom,0px))] shadow-xl space-y-4">
-            <h3 className="font-[family-name:var(--font-bricolage)] font-semibold text-[21px]">
+            <h3 className="font-sans font-semibold text-[21px]">
               {editingStoreField === 'name'
                 ? 'Shop name'
                 : editingStoreField === 'username'
