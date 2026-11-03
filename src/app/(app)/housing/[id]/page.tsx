@@ -311,7 +311,9 @@ export default async function HousingDetailPage({
               <div className="pt-4 space-y-3">
                 <div className="dv" />
                 <h3 className="hh text-[17px] font-bold text-foreground">
-                  More rooms near campus
+                  {otherLodges.some((o) => o.vendor_slug && o.vendor_slug === lodge.vendor_slug)
+                    ? `More from ${lodge.contact_name}`
+                    : 'More rooms near campus'}
                 </h3>
                 <div className="grid grid-cols-2 gap-3.5 sm:gap-4">
                   {otherLodges.map((other) => (

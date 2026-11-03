@@ -3,6 +3,7 @@ import { Briefcase, ShoppingBag } from 'lucide-react'
 import { Product } from '@/lib/types'
 import { getItemCampus } from '@/lib/queries'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { UserAvatar } from '@/components/brand/UserAvatar'
 import { getServiceBySlug, inferServiceSlugFromProduct } from '@/lib/services-data'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
 
@@ -99,27 +100,31 @@ export function WaterlineProductCard({
         {product.title}
       </div>
 
-      {/* Meta Row */}
-      <div className="mt-1 flex items-center gap-1 text-[12px] text-muted-foreground overflow-hidden min-w-0">
-        {product.vendor?.verification_status === 'verified' ? (
-          <>
-            <VerifiedBadge size={14} />
-            <span className="truncate font-medium text-foreground/80 min-w-0">
-              {product.vendor?.shop_name || 'Verified'}
+      {/* Meta Row: Avatar + Vendor Name + Verified Badge + Campus */}
+      {product.vendor && (
+        <div className="mt-1.5 flex items-center justify-between gap-1.5 text-[11px] text-muted-foreground min-w-0 overflow-hidden">
+          <div className="flex items-center gap-1.5 min-w-0 overflow-hidden">
+            <UserAvatar
+              src={product.vendor.logo_url}
+              seed={product.vendor.id || product.vendor.slug}
+              name={product.vendor.shop_name}
+              size={16}
+              className="w-4 h-4 shrink-0 border border-border/80 shadow-2xs"
+            />
+            <span className="truncate font-medium text-foreground/80 min-w-0 block">
+              {product.vendor.shop_name}
             </span>
-            {!isSingleCampusSelected && (
-              <span className="truncate shrink-0 text-[11px]">
-                · {campus === 'Both' ? 'Both campuses' : campus}
-              </span>
+            {product.vendor.verification_status === 'verified' && (
+              <VerifiedBadge size={13} />
             )}
-          </>
-        ) : (
-          <span className="truncate min-w-0">
-            {product.vendor?.shop_name ? `${product.vendor.shop_name} · ` : ''}
-            {campus === 'Both' ? 'Both campuses' : campus}
-          </span>
-        )}
-      </div>
+          </div>
+          {!isSingleCampusSelected && (
+            <span className="shrink-0 text-[10px] text-muted-foreground whitespace-nowrap">
+              {campus === 'Both' ? 'Both' : campus}
+            </span>
+          )}
+        </div>
+      )}
     </Link>
   )
 }

@@ -77,17 +77,25 @@ export function mapProductToLodgeListing(p: Product): LodgeListing {
     image: p.images?.[0] || '',
     images: p.images || [],
     features:
-      v.features && v.features.length > 0
+      Array.isArray(v.features) && v.features.length > 0
         ? v.features
-        : ['Water', 'Fenced compound', 'Tiled floor'],
+        : [],
     whatsapp_number: p.vendor?.whatsapp_number || '',
     contact_name: p.vendor?.shop_name || 'Verified Campus Caretaker',
     contact_avatar: p.vendor?.logo_url || null,
     vendor_slug: p.vendor?.slug || p.vendor?.id,
     is_verified: p.vendor?.verification_status === 'verified',
-    bedspaces: v.bedspaces || '1 to 2',
+    bedspaces:
+      v.bedspaces ||
+      (roomType === 'bedspace'
+        ? '1 bedspace'
+        : roomType === 'single_room'
+        ? 'Single room'
+        : roomType === 'self_contain'
+        ? 'Self-contained'
+        : 'Shared room'),
     rent_covers: v.rent_covers || `One ${v.period || 'session'}`,
-    utilities: v.utilities || 'Water included',
+    utilities: v.utilities || 'Standard utilities',
     other_fees: v.other_fees || 'None',
     posted_time: formatRelativePostedTime(p.created_at),
     description: p.description,
