@@ -29,8 +29,8 @@ export const dynamic = 'force-dynamic'
 const conditionLabels: Record<string, string> = {
   new: 'Brand New',
   like_new: 'Like New',
-  good: 'Good (Pre-owned)',
-  fair: 'Fair Condition',
+  good: 'Good',
+  fair: 'Fair',
 }
 
 export async function generateMetadata({
@@ -135,16 +135,9 @@ export default async function ProductDetailPage({
     : null
 
   const facts: Array<[string, string]> = [
-    ['Condition', conditionLabels[product.condition] || product.condition || 'Good'],
-    ['Category', product.category?.name || 'General'],
+    ['Condition', conditionLabels[product.condition] || product.condition || 'Brand New'],
+    ['Category', product.category?.short_name || product.category?.name || 'General'],
   ]
-
-  if (product.variants?.sizes && product.variants.sizes.length > 0) {
-    facts.push(['Available Sizes', product.variants.sizes.join(', ')])
-  }
-  if (product.variants?.colors && product.variants.colors.length > 0) {
-    facts.push(['Colors', product.variants.colors.join(', ')])
-  }
 
   const productJsonLd = {
     '@context': 'https://schema.org',
@@ -222,15 +215,15 @@ export default async function ProductDetailPage({
               </div>
             </div>
 
-            {/* Facts Badges (Condition, Category, Sizes) */}
-            <div className="grid grid-cols-2 gap-2.5">
+            {/* Condition & Category (Divided Rows matching Screenshot) */}
+            <div className="border-t border-b border-border/70 divide-y divide-border/60">
               {facts.map(([label, val]) => (
                 <div
                   key={label}
-                  className="p-3 rounded-2xl bg-card border border-border/80"
+                  className="flex items-center justify-between py-3.5 text-[15px]"
                 >
-                  <span className="text-[11px] font-medium text-muted-foreground block">{label}</span>
-                  <span className="text-sm font-semibold text-foreground block mt-0.5 truncate">{val}</span>
+                  <span className="text-muted-foreground font-normal">{label}</span>
+                  <span className="font-semibold text-foreground">{val}</span>
                 </div>
               ))}
             </div>

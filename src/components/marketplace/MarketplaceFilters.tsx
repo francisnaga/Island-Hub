@@ -288,17 +288,14 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
               </button>
             </div>
 
-            {/* Sheet Scrollable Body with Clean Row-Based Structure (Matching Image 1) */}
+            {/* Sheet Scrollable Body with Clean Row-Based Structure (Matching User Screenshot) */}
             <div className="px-5 py-2 overflow-y-auto overscroll-contain flex-1 divide-y divide-border/60">
-              {/* Row 1: Condition (Left: Condition label, Right: Current selection with native picker) */}
+              {/* Row 1: Condition */}
               <div className="relative flex items-center justify-between py-4 group">
                 <span className="text-[15px] text-muted-foreground font-normal">Condition</span>
-                <div className="flex items-center gap-1.5 cursor-pointer">
-                  <span className="text-[15px] font-semibold text-foreground">
-                    {selectedConditionLabel}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
+                <span className="text-[15px] font-semibold text-foreground cursor-pointer">
+                  {selectedConditionLabel}
+                </span>
                 {/* Native Accessible Select overlaying the row */}
                 <select
                   value={condition}
@@ -314,15 +311,12 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
                 </select>
               </div>
 
-              {/* Row 2: Category (Left: Category label, Right: Current category with native picker) */}
+              {/* Row 2: Category */}
               <div className="relative flex items-center justify-between py-4 group">
                 <span className="text-[15px] text-muted-foreground font-normal">Category</span>
-                <div className="flex items-center gap-1.5 cursor-pointer">
-                  <span className="text-[15px] font-semibold text-foreground">
-                    {selectedCategoryLabel}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
+                <span className="text-[15px] font-semibold text-foreground cursor-pointer">
+                  {selectedCategoryLabel}
+                </span>
                 {/* Native Accessible Select overlaying the row */}
                 <select
                   value={category}
@@ -330,24 +324,21 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
                   aria-label="Category"
                   className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
                 >
-                  <option value="all">All Categories</option>
+                  <option value="all">All</option>
                   {categories.map((c) => (
                     <option key={c.slug} value={c.slug}>
-                      {c.name}
+                      {c.short_name || c.name}
                     </option>
                   ))}
                 </select>
               </div>
 
-              {/* Row 3: Sort Order (Left: Sort order label, Right: Selected option) */}
+              {/* Row 3: Sort Order */}
               <div className="relative flex items-center justify-between py-4 group">
                 <span className="text-[15px] text-muted-foreground font-normal">Sort by</span>
-                <div className="flex items-center gap-1.5 cursor-pointer">
-                  <span className="text-[15px] font-semibold text-foreground">
-                    {selectedSortLabel}
-                  </span>
-                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
-                </div>
+                <span className="text-[15px] font-semibold text-foreground cursor-pointer">
+                  {selectedSortLabel}
+                </span>
                 {/* Native Accessible Select overlaying the row */}
                 <select
                   value={sort}
