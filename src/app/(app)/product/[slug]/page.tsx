@@ -46,24 +46,31 @@ export async function generateMetadata({
 
   const canonicalPath = `/product/${product.slug || product.id}`
   const canonicalUrl = getCanonicalUrl(canonicalPath)
-  const title = `${product.title} — ${formatNaira(product.price)} | Jetty NMU`
+  const title = `${product.title} · ${formatNaira(product.price)} | Jetty NMU`
 
+  const rawImg = product.images?.[0]
   const previewImg =
-    product.images?.[0] &&
-    !product.images[0].startsWith('data:') &&
-    !product.images[0].includes('cadet-uniform-tailoring.jpg')
-      ? product.images[0]
-      : '/og-image.png'
+    rawImg && !rawImg.startsWith('data:')
+      ? (rawImg.startsWith('http://') || rawImg.startsWith('https://')
+          ? rawImg
+          : getCanonicalUrl(rawImg))
+      : getCanonicalUrl('/og-image.png')
+
+  const rawDesc = product.description?.trim()
+  const metaDesc =
+    rawDesc && rawDesc.length > 5
+      ? rawDesc
+      : `${product.title} available on Jetty NMU for ${formatNaira(product.price)}. Contact seller directly on WhatsApp.`
 
   return {
     title,
-    description: product.description,
+    description: metaDesc,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       type: 'website',
       url: canonicalUrl,
       title,
-      description: product.description,
+      description: metaDesc,
       siteName: 'Jetty NMU',
       images: [
         {
@@ -77,7 +84,7 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title,
-      description: product.description,
+      description: metaDesc,
       images: [previewImg],
     },
   }

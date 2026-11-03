@@ -29,8 +29,19 @@ export async function generateMetadata({
   const canonicalPath = `/housing/${lodge.slug || lodge.id}`
   const canonicalUrl = getCanonicalUrl(canonicalPath)
   const title = `${lodge.title} — ${formatNaira(lodge.price)}/${lodge.period} | Jetty Lodges`
-  const description = `${lodge.room_type_label} near NMU ${lodge.campus}${lodge.location_label ? ` · ${lodge.location_label}` : ''}`
-  const previewImg = lodge.image && !lodge.image.startsWith('data:') ? lodge.image : '/og-image.png'
+  const rawDesc = lodge.description?.trim()
+  const description =
+    rawDesc && rawDesc.length > 5
+      ? rawDesc
+      : `${lodge.room_type_label} near NMU ${lodge.campus}${lodge.location_label ? ` · ${lodge.location_label}` : ''}. Inspect before paying.`
+
+  const rawImg = lodge.images?.[0] || lodge.image
+  const previewImg =
+    rawImg && !rawImg.startsWith('data:')
+      ? (rawImg.startsWith('http://') || rawImg.startsWith('https://')
+          ? rawImg
+          : getCanonicalUrl(rawImg))
+      : getCanonicalUrl('/og-image.png')
 
   return {
     title,

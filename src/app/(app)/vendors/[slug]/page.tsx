@@ -36,20 +36,29 @@ export async function generateMetadata({
     vendor.description ||
     `Browse verified listings, products, kits and services from ${vendor.shop_name} at Nigeria Maritime University (${vendor.campus || 'Okerenkoko'}).`
 
+  const cleanDesc = cleanVendorDescription(vendor.description)
+  const metaDesc =
+    cleanDesc ||
+    vendor.department_or_business_info ||
+    `Browse verified listings, products, kits and services from ${vendor.shop_name} at Nigeria Maritime University (${vendor.campus || 'Okerenkoko'}).`
+
+  const rawImg = vendor.logo_url
   const previewImg =
-    vendor.logo_url && !vendor.logo_url.startsWith('data:')
-      ? vendor.logo_url
-      : '/og-image.png'
+    rawImg && !rawImg.startsWith('data:')
+      ? (rawImg.startsWith('http://') || rawImg.startsWith('https://')
+          ? rawImg
+          : getCanonicalUrl(rawImg))
+      : getCanonicalUrl('/og-image.png')
 
   return {
     title,
-    description,
+    description: metaDesc,
     alternates: { canonical: canonicalUrl },
     openGraph: {
       type: 'website',
       url: canonicalUrl,
       title,
-      description,
+      description: metaDesc,
       siteName: 'Jetty NMU',
       images: [
         {
@@ -63,7 +72,7 @@ export async function generateMetadata({
     twitter: {
       card: 'summary_large_image',
       title,
-      description,
+      description: metaDesc,
       images: [previewImg],
     },
   }
@@ -208,10 +217,9 @@ export default async function VendorStorefrontPage({
             </span>
           )}
 
-          {isVerified && (
-            <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-xs font-medium">
-              <VerifiedBadge size={13} variant={badgeVariant} />
-              <span>{isFounder ? 'Platform founder' : 'Verified vendor'}</span>
+          {isFounder && (
+            <span className="inline-flex items-center px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs text-xs font-medium text-white/90 border border-white/15">
+              <span>Platform founder</span>
             </span>
           )}
         </div>
