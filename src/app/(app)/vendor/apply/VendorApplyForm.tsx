@@ -15,6 +15,7 @@ interface VendorApplyFormProps {
   user?: { id: string; email?: string; full_name?: string; avatar_url?: string } | null
   profile?: UserProfile | null
   existingVendor: Vendor | null
+  nextUrl?: string
 }
 
 function digitsOnly(val: string): string {
@@ -38,6 +39,7 @@ export function VendorApplyForm({
   user,
   profile,
   existingVendor,
+  nextUrl,
 }: VendorApplyFormProps) {
   const router = useRouter()
 
@@ -261,7 +263,7 @@ export function VendorApplyForm({
         return
       }
 
-      router.push('/vendor/dashboard')
+      router.push(nextUrl || '/vendor/dashboard')
       router.refresh()
     } finally {
       setSubmitting(false)

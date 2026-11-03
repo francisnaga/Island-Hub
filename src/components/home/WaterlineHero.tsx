@@ -73,7 +73,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
           </div>
 
           {/* The 4 Gateway Doors — Linear-grade Bento Action Cards */}
-          <div className="grid grid-cols-4 gap-2 sm:gap-2.5 mt-4 sm:mt-5 md:mt-0 md:w-[350px] shrink-0">
+          <div className="hidden md:grid md:grid-cols-4 gap-2.5 md:mt-0 md:w-[350px] shrink-0">
             <Link
               href="/marketplace"
               className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"

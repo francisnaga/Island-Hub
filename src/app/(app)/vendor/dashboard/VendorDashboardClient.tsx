@@ -250,16 +250,18 @@ export function VendorDashboardClient({
     }
   }
 
-  // Load initial edit product if initialEditId was passed
+  // Load initial edit product or new form if initialEditId/initialKind was passed
   useEffect(() => {
     if (initialEditId) {
       const target = products.find((p) => p.id === initialEditId)
       if (target) {
         populateFormForEdit(target)
       }
+    } else if (initialKind) {
+      startNewForm(initialKind)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [initialEditId])
+  }, [initialEditId, initialKind])
 
   const startNewForm = (kind: 'item' | 'room' | 'svc') => {
     setFormKind(kind)

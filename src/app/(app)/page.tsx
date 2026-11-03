@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { cookies } from 'next/headers'
+import { HomeFloatingSell } from '@/components/home/HomeFloatingSell'
 import { WaterlineHero } from '@/components/home/WaterlineHero'
 import { WaterlineProductCard } from '@/components/cards/WaterlineProductCard'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
@@ -186,7 +187,7 @@ export default async function HomePage({
           <ServicesChips />
         </section>
 
-        {/* 5. Vendors */}
+        {/* 5. Vendors (Matching screenshot - clean circular avatars) */}
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">
             <h2 className="font-semibold text-[20px] sm:text-[22px] tracking-[-0.025em] text-foreground font-sans">
@@ -201,9 +202,7 @@ export default async function HomePage({
           </div>
 
           {vendors.length > 0 ? (
-            <div className="md:hidden">
-              <VendorAvatarRail vendors={vendors} />
-            </div>
+            <VendorAvatarRail vendors={vendors} />
           ) : (
             <div className="mx-4 rounded-2xl border border-dashed border-border/70 bg-card/40 py-8 px-4 text-center">
               <p className="text-xs text-muted-foreground">
@@ -211,49 +210,14 @@ export default async function HomePage({
               </p>
             </div>
           )}
-          {vendors.length > 0 && (
-            <div className="hidden md:grid md:grid-cols-3 lg:grid-cols-4 gap-4 px-4">
-              {vendors.slice(0, 8).map((vendor) => {
-                const href = vendor.username
-                  ? `/vendors/${vendor.username}`
-                  : `/vendors/${vendor.slug || vendor.id}`
-                return (
-                  <Link
-                    key={vendor.id}
-                    href={href}
-                    className="flex-none rounded-2xl border border-border/80 bg-card p-3.5 flex flex-col justify-between gap-3 hover:border-[#0F6E6E] dark:hover:border-[#E8B84A] hover:shadow-xs transition-all group focus-visible:outline-2 focus-visible:outline-[#0F6E6E] overflow-hidden min-w-0"
-                  >
-                    <div className="flex items-center gap-3 min-w-0">
-                      <UserAvatar
-                        src={vendor.logo_url}
-                        seed={vendor.id || vendor.slug}
-                        name={vendor.shop_name}
-                        size={44}
-                        className="w-11 h-11 shrink-0 border border-border/80 shadow-2xs group-hover:scale-105 transition-transform"
-                      />
-                      <div className="min-w-0 flex-1 overflow-hidden">
-                        <h3 className="font-bold text-[13px] text-foreground leading-snug truncate max-w-full">{vendor.shop_name}</h3>
-                        {vendor.username ? (
-                          <p className="text-[11px] text-muted-foreground/70 font-medium truncate">@{vendor.username}</p>
-                        ) : (
-                          <p className="text-[11px] text-muted-foreground truncate">{vendor.campus || 'Okerenkoko'}</p>
-                        )}
-                      </div>
-                    </div>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">{cleanVendorDescription(vendor.department_or_business_info) || cleanVendorDescription(vendor.description) || `${vendor.campus || 'Okerenkoko'} merchant`}</p>
-                    <div className="pt-2 border-t border-border/60 flex items-center justify-end text-[11px] font-semibold text-[#0F6E6E] dark:text-[#E8B84A] gap-0.5">
-                      <span>View store</span>
-                    </div>
-                  </Link>
-                )
-              })}
-            </div>
-          )}
         </section>
 
         {/* 6. NMU Fresher Kit Banner */}
         <FresherBanner />
       </div>
+
+      {/* Floating Sell Action Button & Listing Sheet (Mobile Only) */}
+      <HomeFloatingSell isLoggedIn={Boolean(user)} hasStore={hasStore} />
     </div>
   )
 }
