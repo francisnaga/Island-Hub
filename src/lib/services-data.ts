@@ -4,6 +4,7 @@ import {
   Zap,
   Utensils,
   Shirt,
+  WashingMachine,
   Droplets,
   BookOpen,
   Camera,
@@ -70,7 +71,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     slug: 'laundry',
     title: 'Laundry & Dry Cleaning',
     shortTitle: 'Laundry',
-    icon: Droplets,
+    icon: WashingMachine,
     tagline: 'Heavy starching, white rig wash & parade inspection steam pressing.',
     description:
       'Heavy-duty washing, starching, and anti-wrinkle pressing for white action rigs and student everyday clothes.',
@@ -111,7 +112,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     id: 'repairs',
     slug: 'repairs',
     title: 'Phone & Gadget Repairs',
-    shortTitle: 'Repairs',
+    shortTitle: 'Phone repairs',
     icon: Wrench,
     tagline: 'Phone screens, charging ports, power bank cells & laptop repairs.',
     description:
@@ -125,7 +126,7 @@ export const SERVICES_LIST: ServiceItem[] = [
     id: 'electrical-repairs',
     slug: 'electrical-repairs',
     title: 'Electrical Installation & Repairs',
-    shortTitle: 'Electrical & Wiring',
+    shortTitle: 'Electrical',
     icon: Zap,
     tagline: 'Hostel room wiring, socket & switch repairs, fan fixing, extension boards & power setups.',
     description:
@@ -133,6 +134,19 @@ export const SERVICES_LIST: ServiceItem[] = [
     startingPrice: 'From ₦1,000',
     turnaround: 'Same day / 1–2 hours',
     popular: true,
+    providers: [],
+  },
+  {
+    id: 'tutoring',
+    slug: 'tutoring',
+    title: 'Tutoring',
+    shortTitle: 'Tutoring',
+    icon: BookOpen,
+    tagline: 'Maritime navigation, calculus, physics & engineering drawing tutorials.',
+    description:
+      'Peer tutoring for engineering, maritime, and science courses. Past question walkthroughs, calculus, navigation, and technical drawing.',
+    startingPrice: 'From ₦2,000',
+    turnaround: 'Evenings & weekends',
     providers: [],
   },
   {
@@ -160,19 +174,6 @@ export const SERVICES_LIST: ServiceItem[] = [
       'Professional student photographers for matriculation ceremonies, parade shoots, birthday portraits, ID passports, and content creation.',
     startingPrice: 'From ₦3,000',
     turnaround: '24–48 hours',
-    providers: [],
-  },
-  {
-    id: 'tutoring',
-    slug: 'tutoring',
-    title: 'Tutoring',
-    shortTitle: 'Tutoring',
-    icon: BookOpen,
-    tagline: 'Maritime navigation, calculus, physics & engineering drawing tutorials.',
-    description:
-      'Peer tutoring for engineering, maritime, and science courses. Past question walkthroughs, calculus, navigation, and technical drawing.',
-    startingPrice: 'From ₦2,000',
-    turnaround: 'Evenings & weekends',
     providers: [],
   },
   {

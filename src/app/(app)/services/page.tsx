@@ -1,14 +1,16 @@
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { cookies } from 'next/headers'
+import { ChevronRight } from 'lucide-react'
 import { getPublicServices } from '@/lib/queries'
+import { cn } from '@/lib/utils'
 
 export const dynamic = 'force-dynamic'
 
 export const metadata = {
-  title: 'Campus Services | Electrical, Tailoring, Barbers, Laundry & Meals',
+  title: 'Services | NMU Campus Services Directory',
   description:
-    'Discover trusted campus service providers around Nigeria Maritime University (Okerenkoko & Kurutie). Electrical repairs, uniform tailoring, haircuts, laundry, meals, gadget fixes, and errands.',
+    'Discover trusted campus service providers around Nigeria Maritime University (Okerenkoko & Kurutie). Haircuts, laundry, tailoring, meals, phone repairs, electrical, and tutoring.',
   keywords: [
     'NMU campus services',
     'Nigeria Maritime University electrician',
@@ -44,48 +46,74 @@ export default async function ServicesPage({
 
   return (
     <div className="min-w-0 max-w-full pb-24">
-      <div className="container mx-auto max-w-lg md:max-w-6xl px-4 pt-5 md:pt-8 space-y-2 min-w-0">
-        {/* Services Page Header (No search bar per user requirement) */}
-        <div className="pb-2">
-          <h1 className="text-[26px] sm:text-[30px] font-semibold tracking-tight text-foreground font-sans leading-tight">
+      <div className="container mx-auto max-w-lg md:max-w-2xl px-4 pt-6 md:pt-10 space-y-6 min-w-0">
+        {/* Services Page Header */}
+        <div className="space-y-1">
+          <h1 className="text-[28px] sm:text-[34px] font-bold tracking-[-0.035em] text-foreground font-sans leading-tight">
             Services
           </h1>
-          <p className="text-[14px] text-muted-foreground mt-0.5">
+          <p className="text-[14px] sm:text-[15px] text-muted-foreground">
             Pick a service to see who offers it.
           </p>
         </div>
 
-        {/* Clean Responsive Grid (2 cols mobile, 3 cols tablet, 4 cols desktop) */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 pt-1">
+        {/* Clean, Unified iOS / Claude-grade Card Container */}
+        <div className="rounded-3xl border border-border/80 bg-card shadow-xs overflow-hidden divide-y divide-border/60">
           {services.map((service) => {
             const Icon = service.icon
             const detailHref = `/services/${service.slug}`
             const count = service.providers.length
+            const countText =
+              count === 0 ? 'None yet' : count === 1 ? '1 provider' : `${count} providers`
 
             return (
               <Link
                 key={service.id}
                 href={detailHref}
-                className="flex flex-col justify-between gap-4 p-4 rounded-2xl border border-border/70 bg-card hover:border-foreground/30 hover:bg-muted/30 active:scale-[0.98] transition-all text-left min-h-[144px] group shadow-2xs"
+                className="flex items-center justify-between gap-4 px-5 py-4 hover:bg-muted/40 active:bg-muted/60 transition-colors group cursor-pointer"
               >
-                {/* Clean, Direct Icon (No nested bubble/box) */}
-                <Icon className="w-6 h-6 stroke-[1.75] text-foreground group-hover:scale-105 transition-transform" />
+                {/* Left side: Prominent Icon + Service Name */}
+                <div className="flex items-center gap-3.5 min-w-0">
+                  <Icon
+                    className="w-5 h-5 text-[#0F6E6E] dark:text-[#22D3EE] stroke-[2] shrink-0 group-hover:scale-110 transition-transform duration-150"
+                    aria-hidden="true"
+                  />
+                  <span className="text-[15px] sm:text-[16px] font-semibold text-foreground tracking-[-0.015em] truncate">
+                    {service.shortTitle || service.title}
+                  </span>
+                </div>
 
-                {/* Service Name & Provider Count */}
-                <div className="space-y-1">
-                  <b className="block text-[15px] font-semibold text-foreground leading-snug tracking-tight">
-                    {service.title}
-                  </b>
-                  <div className="flex items-baseline gap-1.5 text-xs text-muted-foreground">
-                    <span className="font-sans font-bold text-[22px] leading-none text-foreground">
-                      {count}
-                    </span>
-                    <span className="font-medium">{count === 1 ? 'provider' : 'providers'}</span>
-                  </div>
+                {/* Right side: Provider Count + Chevron */}
+                <div className="flex items-center gap-2 shrink-0">
+                  <span
+                    className={cn(
+                      'text-[13.5px] sm:text-[14px] font-medium',
+                      count === 0
+                        ? 'text-muted-foreground/60'
+                        : 'text-muted-foreground'
+                    )}
+                  >
+                    {countText}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground group-hover:translate-x-0.5 transition-all" />
                 </div>
               </Link>
             )
           })}
+        </div>
+
+        {/* Subtle Bottom CTA: Offer a service? List it on Jetty > */}
+        <div className="rounded-2xl bg-muted/60 dark:bg-card border border-border/80 p-4 text-center">
+          <p className="text-[13.5px] sm:text-sm text-muted-foreground">
+            Offer a service?{' '}
+            <Link
+              href="/vendor/apply"
+              className="font-semibold text-[#0F6E6E] dark:text-[#22D3EE] hover:underline inline-flex items-center gap-0.5 group"
+            >
+              <span>List it on Jetty</span>
+              <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+            </Link>
+          </p>
         </div>
       </div>
     </div>

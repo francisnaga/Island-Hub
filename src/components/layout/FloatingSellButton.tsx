@@ -68,7 +68,7 @@ export function FloatingSellButton({ initialHasStore = false }: FloatingSellButt
     pathname === '/' ||
     pathname.startsWith('/product/') ||
     (pathname.startsWith('/housing/') && pathname !== '/housing') ||
-    pathname.startsWith('/services/') ||
+    pathname.startsWith('/services') ||
     pathname.startsWith('/vendor') ||
     (pathname.startsWith('/vendors/') && pathname !== '/vendors') ||
     pathname.startsWith('/admin') ||

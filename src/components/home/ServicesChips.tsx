@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { ArrowRight } from 'lucide-react'
 import { SERVICES_LIST } from '@/lib/services-data'
 
-export function ServicesChips({ limit = 6 }: { limit?: number }) {
+export function ServicesChips({ limit = 7 }: { limit?: number }) {
   const displayedServices = SERVICES_LIST.slice(0, limit)
   const remainingCount = Math.max(0, SERVICES_LIST.length - limit)
 
@@ -16,7 +16,7 @@ export function ServicesChips({ limit = 6 }: { limit?: number }) {
             href={`/services/${service.slug}`}
             className="flex items-center gap-2 h-9 px-3 rounded-full bg-card border border-border/80 text-foreground text-xs font-medium hover:border-foreground/40 hover:bg-muted/40 transition-all group shadow-2xs"
           >
-            <Icon className="w-3.5 h-3.5 text-muted-foreground group-hover:text-foreground stroke-[1.75] transition-colors shrink-0" />
+            <Icon className="w-3.5 h-3.5 text-[#0F6E6E] dark:text-[#22D3EE] group-hover:scale-105 stroke-[2] transition-transform shrink-0" />
             <span className="group-hover:text-foreground transition-colors">
               {service.shortTitle || service.title}
             </span>
