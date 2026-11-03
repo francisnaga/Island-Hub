@@ -3,6 +3,7 @@ import { MapPin, ArrowRight } from 'lucide-react'
 import { Vendor } from '@/lib/types'
 import { UserAvatar } from '@/components/brand/UserAvatar'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { cleanVendorDescription } from '@/components/cards/VendorCard'
 
 export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
   return (
@@ -55,7 +56,7 @@ export function VendorAvatarRail({ vendors }: { vendors: Vendor[] }) {
 
             {/* Middle: Short seller category / info */}
             <p className="text-[11px] text-muted-foreground line-clamp-1 leading-relaxed">
-              {vendor.department_or_business_info || vendor.description || 'Verified Campus Merchant'}
+              {cleanVendorDescription(vendor.department_or_business_info) || cleanVendorDescription(vendor.description) || `${displayCampus} merchant`}
             </p>
 
             {/* Bottom Row: Verified Badge (only if verified) & Enter Arrow */}

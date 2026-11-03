@@ -8,6 +8,7 @@ import { VendorAvatarRail } from '@/components/home/VendorAvatarRail'
 import { FresherBanner } from '@/components/home/FresherBanner'
 import { OptimizedImage } from '@/components/ui/OptimizedImage'
 import { UserAvatar } from '@/components/brand/UserAvatar'
+import { cleanVendorDescription } from '@/components/cards/VendorCard'
 import {
   getCurrentUserContext,
   getPublicLodges,
@@ -239,7 +240,7 @@ export default async function HomePage({
                         )}
                       </div>
                     </div>
-                    <p className="text-[11px] text-muted-foreground line-clamp-1">{vendor.department_or_business_info || vendor.description || 'Verified Campus Merchant'}</p>
+                    <p className="text-[11px] text-muted-foreground line-clamp-1">{cleanVendorDescription(vendor.department_or_business_info) || cleanVendorDescription(vendor.description) || `${vendor.campus || 'Okerenkoko'} merchant`}</p>
                     <div className="pt-2 border-t border-border/60 flex items-center justify-end text-[11px] font-semibold text-[#0F6E6E] dark:text-[#E8B84A] gap-0.5">
                       <span>View store</span>
                     </div>

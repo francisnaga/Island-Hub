@@ -17,6 +17,13 @@ export function getVendorInitials(name: string): string {
   return (parts[0][0] + parts[1][0]).toUpperCase()
 }
 
+export function cleanVendorDescription(text?: string | null): string {
+  if (!text) return ''
+  const trimmed = text.trim()
+  if (/^student seller/i.test(trimmed)) return ''
+  return trimmed
+}
+
 export function getSellerTypeLabel(vendor: Vendor): string {
   if (vendor.seller_type === 'business') {
     return vendor.business_verified ? 'Verified business' : 'Business'
@@ -24,27 +31,39 @@ export function getSellerTypeLabel(vendor: Vendor): string {
   if (vendor.seller_type === 'independent') {
     return 'Independent'
   }
-  if (vendor.seller_type === 'student' || vendor.is_student) {
-    return 'Student seller'
-  }
-  return 'Seller'
+  return ''
 }
 
 export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
+  const isFounder =
+    vendor.shop_name?.toLowerCase() === 'naga' ||
+    vendor.slug === 'naga' ||
+    vendor.username === 'naga'
   const isBanned = vendor.verification_status === 'suspended'
   const isPaused = Boolean(vendor.is_paused) && !isBanned
-  const isVerified = vendor.verification_status === 'verified'
+  const isVerified = (vendor.verification_status === 'verified' || isFounder) && !isBanned
+  const badgeVariant = isFounder ? 'gold' : 'blue'
+
   const roleLabel = getSellerTypeLabel(vendor)
+  const displayBio =
+    cleanVendorDescription(vendor.department_or_business_info) ||
+    cleanVendorDescription(vendor.description) ||
+    roleLabel
+
   const campusLabel =
     vendor.campus === 'Both' ? 'Both campuses' : vendor.campus || 'Okerenkoko'
   const count = listingsCount ?? vendor.products_count ?? 0
-  const vendorHref = vendor.username
+  const vendorHref = isFounder
+    ? 'https://francisnaga.site'
+    : vendor.username
     ? `/vendors/${vendor.username}`
     : `/vendors/${vendor.slug || vendor.id}`
 
   return (
     <Link
       href={vendorHref}
+      target={isFounder ? '_blank' : undefined}
+      rel={isFounder ? 'noopener noreferrer' : undefined}
       className={cn(
         'group relative block rounded-2xl border p-4 sm:p-5 transition-all bg-card shadow-2xs hover:border-foreground/30 hover:shadow-xs text-center cursor-pointer overflow-hidden min-w-0',
         isBanned
@@ -52,14 +71,14 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
           : 'border-border/80'
       )}
     >
-      {/* Top-Right Twitter/Facebook Style Verified Badge */}
+      {/* Top-Right Verified Badge (Gold for Naga, Blue for others, None for unverified) */}
       {isVerified && !isBanned && (
         <div
           className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 flex items-center justify-center shrink-0"
-          aria-label="Verified Vendor"
-          title="Verified Vendor"
+          aria-label={isFounder ? 'Verified Founder' : 'Verified Vendor'}
+          title={isFounder ? 'Verified Founder' : 'Verified Vendor'}
         >
-          <VerifiedBadge size={19} />
+          <VerifiedBadge size={19} variant={badgeVariant} />
         </div>
       )}
 
@@ -91,20 +110,25 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
         </div>
       </div>
 
-      {/* Name, Role & Campus */}
+      {/* Name, Bio & Campus */}
       <div className="mt-2.5 space-y-0.5 min-w-0 w-full overflow-hidden">
         <h3 className="font-semibold text-base sm:text-lg text-foreground leading-snug tracking-[-0.02em] group-hover:text-primary transition-colors flex items-center justify-center gap-1.5 min-w-0 max-w-full font-sans">
           <span className="truncate min-w-0 max-w-full block">{vendor.shop_name}</span>
-          {isVerified && !isBanned && <VerifiedBadge size={15} />}
+          {isVerified && !isBanned && <VerifiedBadge size={15} variant={badgeVariant} />}
         </h3>
+
         {vendor.username && (
           <p className="text-[11px] text-muted-foreground/70 font-medium truncate max-w-full">
             @{vendor.username}
           </p>
         )}
-        <p className="text-[11px] text-muted-foreground font-medium truncate max-w-full">
-          {roleLabel}
-        </p>
+
+        {displayBio ? (
+          <p className="text-[11px] text-muted-foreground font-medium truncate max-w-full">
+            {displayBio}
+          </p>
+        ) : null}
+
         <div className="flex items-center justify-center gap-1 text-[11px] text-muted-foreground pt-0.5 min-w-0">
           <MapPin className="h-2.5 w-2.5 shrink-0" />
           <span className="truncate max-w-[140px]">{campusLabel}</span>
@@ -114,18 +138,24 @@ export function VendorCard({ vendor, listingsCount }: VendorCardProps) {
       {/* Horizontal Divider Line */}
       <div className="my-2.5 border-t border-border/60" />
 
-      {/* Bottom Center: Listings Count */}
+      {/* Bottom Center: Listings Count / Action */}
       <div className="text-center">
-        <span
-          className={cn(
-            'text-xs',
-            count > 0
-              ? 'font-semibold text-[#0F6E6E] dark:text-[#22D3EE]'
-              : 'font-medium text-muted-foreground'
-          )}
-        >
-          {count > 0 ? `${count} ${count === 1 ? 'listing' : 'listings'}` : 'No listings yet'}
-        </span>
+        {isFounder ? (
+          <span className="text-xs font-semibold text-[#0F6E6E] dark:text-[#22D3EE] inline-flex items-center gap-1">
+            View portfolio &rarr;
+          </span>
+        ) : (
+          <span
+            className={cn(
+              'text-xs',
+              count > 0
+                ? 'font-semibold text-[#0F6E6E] dark:text-[#22D3EE]'
+                : 'font-medium text-muted-foreground'
+            )}
+          >
+            {count > 0 ? `${count} ${count === 1 ? 'listing' : 'listings'} >` : 'None yet >'}
+          </span>
+        )}
       </div>
     </Link>
   )

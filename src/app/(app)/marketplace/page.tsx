@@ -13,13 +13,13 @@ export const dynamic = 'force-dynamic'
 export const metadata = {
   title: 'NMU Campus Marketplace | Cadet Gear, Books & Electronics',
   description:
-    'Search and browse products, action rigs, safety boots, electronics, and verified student stores across Nigeria Maritime University (Okerenkoko & Kurutie campuses).',
+    'Search and browse products, action rigs, safety boots, electronics, and verified campus stores across Nigeria Maritime University (Okerenkoko & Kurutie campuses).',
   keywords: [
     'NMU marketplace',
     'Nigeria Maritime University products',
     'NMU cadet gear',
     'NMU safety boots',
-    'student merchants Okerenkoko',
+    'campus merchants Okerenkoko',
     'Kurutie campus stores',
     'buy and sell NMU',
   ],

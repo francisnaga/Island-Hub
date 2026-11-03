@@ -227,7 +227,7 @@ export async function POST(request: NextRequest) {
     const userDescription =
       typeof body.description === 'string' && body.description.trim().length > 0
         ? body.description.trim().slice(0, 300)
-        : `Student seller at ${campus === 'Both' ? 'Okerenkoko & Kurutie' : campus}.`
+        : null
 
     const { data: created, error: insertErr } = await adminDb
       .from('vendors')

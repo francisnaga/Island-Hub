@@ -2,7 +2,7 @@ import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { Briefcase, ChevronLeft, ChevronRight, MapPin, Navigation, ShoppingBag } from 'lucide-react'
 import { ProductCard } from '@/components/cards/ProductCard'
-import { getSellerTypeLabel, getVendorInitials } from '@/components/cards/VendorCard'
+import { getSellerTypeLabel, getVendorInitials, cleanVendorDescription } from '@/components/cards/VendorCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
@@ -81,8 +81,13 @@ export default async function VendorStorefrontPage({
     notFound()
   }
 
+  const isFounder =
+    vendor.shop_name?.toLowerCase() === 'naga' ||
+    vendor.slug === 'naga' ||
+    vendor.username === 'naga'
   const isBanned = vendor.verification_status === 'suspended'
-  const isVerified = vendor.verification_status === 'verified' && !isBanned
+  const isVerified = (vendor.verification_status === 'verified' || isFounder) && !isBanned
+  const badgeVariant = isFounder ? 'gold' : 'blue'
 
   const vendorPath = `/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`
   const storeUrl = getCanonicalUrl(vendorPath)
@@ -180,7 +185,7 @@ export default async function VendorStorefrontPage({
         <div className="mt-3.5 space-y-1">
           <h1 className="font-sans text-2xl sm:text-[28px] font-semibold text-white tracking-tight inline-flex items-center justify-center gap-2">
             <span>{vendor.shop_name}</span>
-            {isVerified && <VerifiedBadge size={19} />}
+            {isVerified && <VerifiedBadge size={19} variant={badgeVariant} />}
           </h1>
 
           {vendor.username && (
@@ -197,24 +202,26 @@ export default async function VendorStorefrontPage({
             <span>{campusLabel === 'Both' ? 'Both campuses' : campusLabel}</span>
           </span>
 
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs text-xs font-medium text-white/90 border border-white/15">
-            <span>{vendor.department_or_business_info || roleLabel}</span>
-          </span>
+          {Boolean(vendor.department_or_business_info || roleLabel) && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/10 backdrop-blur-xs text-xs font-medium text-white/90 border border-white/15">
+              <span>{vendor.department_or_business_info || roleLabel}</span>
+            </span>
+          )}
 
           {isVerified && (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-400/30 text-xs font-medium">
-              <VerifiedBadge size={13} />
-              <span>Verified vendor</span>
+              <VerifiedBadge size={13} variant={badgeVariant} />
+              <span>{isFounder ? 'Platform founder' : 'Verified vendor'}</span>
             </span>
           )}
         </div>
 
         {/* Store Description / Bio (Up to 300 chars / ~50 words) */}
-        {vendor.description && (
+        {cleanVendorDescription(vendor.description) ? (
           <p className="mt-3.5 max-w-md mx-auto text-[14px] sm:text-[15px] text-white/90 leading-relaxed font-normal px-2">
-            {vendor.description}
+            {cleanVendorDescription(vendor.description)}
           </p>
-        )}
+        ) : null}
 
         {/* Minimalist Active Listings Stat */}
         <div className="mt-4 pt-3 border-t border-white/10 inline-flex items-center gap-2 text-xs text-white/80">
