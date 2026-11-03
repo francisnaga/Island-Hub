@@ -191,7 +191,7 @@ export default async function HomePage({
         <section className="sec">
           <div className="flex items-baseline justify-between px-4 pb-3">
             <h2 className="font-semibold text-[20px] sm:text-[22px] tracking-[-0.025em] text-foreground font-sans">
-              Verified vendors
+              Vendors
             </h2>
             <Link
               href="/marketplace?tab=stores"
