@@ -168,11 +168,11 @@ export function MarketplaceClient({
           <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-foreground font-sans">
             Market
           </h1>
-          <span className="text-xs text-muted-foreground font-medium">
-            {activeTab === 'items'
-              ? `${totalCount} ${totalCount === 1 ? 'listing' : 'listings'}`
-              : `${totalStoreCount} ${totalStoreCount === 1 ? 'vendor' : 'vendors'}`}
-          </span>
+          {activeTab === 'items' && (
+            <span className="text-xs text-muted-foreground font-medium">
+              {totalCount} {totalCount === 1 ? 'listing' : 'listings'}
+            </span>
+          )}
         </div>
 
         {/* Tab Switcher with Teal Indicator */}
