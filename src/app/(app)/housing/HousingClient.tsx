@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Building2 } from 'lucide-react'
+import Link from 'next/link'
+import { Building2, ChevronRight } from 'lucide-react'
 import { LodgeListing } from '@/lib/lodge-data'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { cn } from '@/lib/utils'
@@ -17,10 +18,9 @@ interface HousingClientProps {
 const ROOM_FILTERS = [
   { id: 'all', label: 'All rooms' },
   { id: 'Self-contain', label: 'Self-contain' },
-  { id: 'Single room', label: 'Single room' },
   { id: 'Shared room', label: 'Shared room' },
+  { id: 'Private room', label: 'Private room' },
   { id: 'Bedspace', label: 'Bedspace' },
-  { id: 'Flat / 2-Bed', label: 'Flat / 2-Bed' },
 ]
 
 export function HousingClient({
@@ -59,24 +59,20 @@ export function HousingClient({
 
   return (
     <div className="space-y-4 min-w-0 pb-16">
-      {/* Page Header matching Prototype */}
-      <div className="flex items-start justify-between gap-4 pt-1">
-        <div className="space-y-1">
-          <h1 className="text-[28px] sm:text-[34px] font-bold tracking-tight text-foreground font-sans leading-tight">
-            Lodge
-          </h1>
-          <p className="text-[14px] text-muted-foreground">
-            Rooms and hostels near campus.
-          </p>
-        </div>
-        <div className="shrink-0 pt-1 text-right">
-          <span className="inline-flex items-center px-3 py-1 rounded-full bg-muted border border-border text-xs font-semibold text-muted-foreground font-mono-num shadow-2xs">
-            {filteredLodges.length} {filteredLodges.length === 1 ? 'room' : 'rooms'}
-          </span>
-        </div>
+      {/* Page Header matching Image 1: Title + Right Counter */}
+      <div className="flex items-baseline justify-between gap-4 pt-1">
+        <h1 className="text-[30px] sm:text-[34px] font-bold tracking-tight text-foreground font-sans leading-none">
+          Lodge
+        </h1>
+        <span className="text-[14px] sm:text-[15px] font-normal text-muted-foreground font-mono-num">
+          {filteredLodges.length} {filteredLodges.length === 1 ? 'room' : 'rooms'}
+        </span>
       </div>
+      <p className="-mt-2 text-[14px] sm:text-[15px] text-muted-foreground">
+        Rooms and hostels near campus.
+      </p>
 
-      {/* Room Type Filter Pills */}
+      {/* Room Type Filter Pills matching Image 1 */}
       <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none pt-1">
         {ROOM_FILTERS.map((f) => {
           const active =
@@ -89,10 +85,10 @@ export function HousingClient({
               type="button"
               onClick={() => setRoomFilter(f.id)}
               className={cn(
-                'h-8 sm:h-9 px-4 rounded-full text-xs font-medium whitespace-nowrap border transition-all cursor-pointer shrink-0',
+                'h-9 px-4 rounded-full text-sm font-semibold whitespace-nowrap transition-all cursor-pointer shrink-0',
                 active
-                  ? 'bg-foreground text-background border-foreground font-semibold shadow-2xs'
-                  : 'bg-card border-border text-muted-foreground hover:text-foreground hover:border-foreground/30'
+                  ? 'bg-slate-900 dark:bg-white text-white dark:text-slate-900 shadow-2xs'
+                  : 'bg-[#EAEAEA] dark:bg-muted text-foreground/80 hover:bg-[#DFDFDF] dark:hover:bg-muted/80'
               )}
             >
               {f.label}
@@ -101,9 +97,9 @@ export function HousingClient({
         })}
       </div>
 
-      {/* Responsive Room Grid (2 cols mobile, 3 cols tablet, 4 cols desktop) */}
+      {/* Full-width Room Listings (1 col mobile, stretching through, 2-3 cols desktop) */}
       {filteredLodges.length > 0 ? (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3.5 sm:gap-5 pt-2">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-7 pt-2">
           {filteredLodges.map((lodge) => (
             <WaterlineRoomCard
               key={lodge.id}
@@ -140,6 +136,20 @@ export function HousingClient({
           </p>
         </div>
       )}
+
+      {/* Bottom CTA matching Image 4: Have a room to rent? Post it on Jetty > */}
+      <div className="rounded-2xl bg-[#EAEAEA] dark:bg-card border border-border/80 py-4 px-4 text-center mt-6">
+        <p className="text-[14px] text-muted-foreground">
+          Have a room to rent?{' '}
+          <Link
+            href="/vendor/apply"
+            className="font-semibold text-[#0F6E6E] dark:text-[#22D3EE] hover:underline inline-flex items-center gap-0.5"
+          >
+            <span>Post it on Jetty</span>
+            <ChevronRight className="w-4 h-4" />
+          </Link>
+        </p>
+      </div>
     </div>
   )
 }

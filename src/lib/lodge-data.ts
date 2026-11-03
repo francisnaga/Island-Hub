@@ -73,22 +73,23 @@ export function mapProductToLodgeListing(p: Product): LodgeListing {
     distance_hint:
       v.distance_hint ||
       (p.variants as any)?.room_meta?.distance ||
-      '',
+      v.location_label ||
+      'Near campus',
     image: p.images?.[0] || '',
     images: p.images || [],
     features:
       Array.isArray(v.features) && v.features.length > 0
         ? v.features
-        : [],
+        : ['Water', 'Tiled floor', 'Wardrobe', 'Ceiling fan'],
     whatsapp_number: p.vendor?.whatsapp_number || '',
     contact_name: p.vendor?.shop_name || 'Campus Caretaker',
     contact_avatar: p.vendor?.logo_url || null,
     vendor_slug: p.vendor?.slug || p.vendor?.id,
     is_verified: p.vendor?.verification_status === 'verified',
-    bedspaces: v.bedspaces || '',
-    rent_covers: v.rent_covers || '',
-    utilities: v.utilities || '',
-    other_fees: v.other_fees && v.other_fees !== 'None' ? v.other_fees : '',
+    bedspaces: v.bedspaces || (roomType === 'bedspace' ? '1 bedspace' : '1 to 2'),
+    rent_covers: v.rent_covers || `One ${v.period || 'session'}`,
+    utilities: v.utilities || 'Water included',
+    other_fees: v.other_fees && v.other_fees !== 'None' ? v.other_fees : 'None',
     posted_time: formatRelativePostedTime(p.created_at),
     description: p.description,
     agent_listings_count: 1,

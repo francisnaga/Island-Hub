@@ -114,17 +114,23 @@ export function ProductImageGallery({
       )}
     >
       {/* ── Main Photo Frame ── */}
-      <div className="relative aspect-square w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] select-none group">
+      <div className={cn('relative w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] select-none group', fallbackType === 'housing' ? 'aspect-[16/10]' : 'aspect-square md:aspect-[4/3]')}>
         {/* Slides Scroll Container — absolute inset-0 guarantees exact 1:1 filling without browser scrollbar reservation padding */}
         {validImages.length > 0 ? (
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
-            className="slides absolute inset-0 flex overflow-x-auto scrollbar-none snap-x snap-mandatory touch-pan-x"
+            className={cn(
+              'slides absolute inset-0 flex touch-manipulation',
+              hasMultipleImages
+                ? 'overflow-x-auto scrollbar-none snap-x snap-mandatory'
+                : 'overflow-hidden'
+            )}
             style={{
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               WebkitOverflowScrolling: 'touch',
+              touchAction: 'manipulation',
             }}
           >
             {validImages.map((img, idx) => (
@@ -223,10 +229,10 @@ export function ProductImageGallery({
           </>
         )}
 
-        {/* ── High-Contrast Frosted Indicator Capsule (Only when 2+ images) ── */}
+        {/* ── Slide Indicator Dots (Only when 2+ images) ── */}
         {hasMultipleImages && (
           <div className="absolute bottom-3 inset-x-0 z-20 flex items-center justify-center pointer-events-none px-4">
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/60 dark:bg-black/75 backdrop-blur-md border border-white/20 shadow-md pointer-events-auto">
+            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-black/40 backdrop-blur-xs border border-white/20 shadow-md pointer-events-auto">
               {validImages.map((_, idx) => (
                 <button
                   key={idx}
@@ -237,7 +243,7 @@ export function ProductImageGallery({
                     'h-1.5 rounded-full transition-all duration-300 cursor-pointer',
                     activeIndex === idx
                       ? 'w-4.5 bg-white shadow-2xs'
-                      : 'w-1.5 bg-white/45 hover:bg-white/80'
+                      : 'w-1.5 bg-white/60 hover:bg-white/80'
                   )}
                 />
               ))}
@@ -245,8 +251,8 @@ export function ProductImageGallery({
           </div>
         )}
 
-        {/* ── Photo Counter Badge (Airbnb / Grailed signature) ── */}
-        {hasMultipleImages && (
+        {/* ── Photo Counter Badge (Airbnb / Grailed signature - hidden on housing) ── */}
+        {hasMultipleImages && fallbackType !== 'housing' && (
           <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 dark:bg-black/75 backdrop-blur-md border border-white/20 text-[11px] font-mono font-medium text-white shadow-md tracking-wider pointer-events-none">
             <Images className="w-3 h-3 text-white/80" />
             <span>

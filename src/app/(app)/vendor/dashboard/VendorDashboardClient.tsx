@@ -89,6 +89,23 @@ const ROOM_TYPES = [
   'Flat / 2-Bed',
   'Lodge unit',
 ]
+const BEDSPACES_OPTIONS = ['1', '1 to 2', '2', '3 to 4', 'Shared']
+const DISTANCE_OPTIONS = [
+  'Near campus',
+  '2 min walk',
+  '3 min walk',
+  '5 min walk',
+  '5 min to gate',
+  '10 min walk',
+  'Inside campus',
+]
+const RENT_COVERS_OPTIONS = ['One session', 'One year', 'Per semester']
+const UTILITIES_OPTIONS = [
+  'Water included',
+  'Light & water included',
+  'Self-recharge NEPA',
+  'None included',
+]
 const ROOM_AMENITIES = [
   'Water',
   'Power backup',
@@ -161,6 +178,10 @@ export function VendorDashboardClient({
   const [categoryId, setCategoryId] = useState<string>(categories[0]?.id || '')
   const [condition, setCondition] = useState<'New' | 'Used'>('New')
   const [roomType, setRoomType] = useState<string>('')
+  const [bedspaces, setBedspaces] = useState<string>('1 to 2')
+  const [distanceHint, setDistanceHint] = useState<string>('Near campus')
+  const [rentCovers, setRentCovers] = useState<string>('One session')
+  const [utilities, setUtilities] = useState<string>('Water included')
   const [roomAmenities, setRoomAmenities] = useState<string[]>([])
   const [otherFeesChoice, setOtherFeesChoice] = useState<'None' | 'Yes'>('None')
   const [otherFeesText, setOtherFeesText] = useState('')
@@ -248,8 +269,12 @@ export function VendorDashboardClient({
     setPrice('')
     setCategoryId(categories[0]?.id || '')
     setCondition('New')
-    setRoomType('')
-    setRoomAmenities([])
+    setRoomType('Self-contain')
+    setBedspaces('1 to 2')
+    setDistanceHint('Near campus')
+    setRentCovers('One session')
+    setUtilities('Water included')
+    setRoomAmenities(['Water', 'Tiled floor', 'Wardrobe', 'Ceiling fan'])
     setOtherFeesChoice('None')
     setOtherFeesText('')
     const firstUnlisted = SERVICES_LIST.find((s) => {
@@ -284,7 +309,15 @@ export function VendorDashboardClient({
     setCategoryId(p.category_id || categories[0]?.id || '')
     setCondition(p.condition === 'new' ? 'New' : 'Used')
     setRoomType(p.variants?.room_type_label || 'Self-contain')
-    setRoomAmenities(p.variants?.features || [])
+    setBedspaces(p.variants?.bedspaces || '1 to 2')
+    setDistanceHint(p.variants?.distance_hint || 'Near campus')
+    setRentCovers(p.variants?.rent_covers || 'One session')
+    setUtilities(p.variants?.utilities || 'Water included')
+    setRoomAmenities(
+      Array.isArray(p.variants?.features) && p.variants.features.length > 0
+        ? p.variants.features
+        : ['Water', 'Tiled floor', 'Wardrobe', 'Ceiling fan']
+    )
     const existingFees = p.variants?.other_fees || 'None'
     setOtherFeesChoice(existingFees !== 'None' && existingFees ? 'Yes' : 'None')
     setOtherFeesText(existingFees !== 'None' ? existingFees : '')
@@ -409,21 +442,26 @@ export function VendorDashboardClient({
       const variants =
         formKind === 'room'
           ? {
-              room_type_label: roomType,
+              room_type_label: roomType || 'Self-contain',
               room_type:
                 roomType === 'Self-contain'
                   ? 'self_contain'
                   : roomType === 'Bedspace'
                   ? 'bedspace'
                   : 'single_room',
-              period: 'session',
-              location_label: trimmedLocation,
-              utilities: roomAmenities.includes('Water')
-                ? 'Water included'
-                : 'Not included',
+              period: rentCovers.toLowerCase().includes('year')
+                ? 'year'
+                : rentCovers.toLowerCase().includes('semester')
+                ? 'semester'
+                : 'session',
+              location_label: trimmedLocation || distanceHint,
+              distance_hint: distanceHint || trimmedLocation || 'Near campus',
+              bedspaces: bedspaces || '1 to 2',
+              rent_covers: rentCovers || 'One session',
+              utilities: utilities || 'Water included',
               other_fees:
                 otherFeesChoice === 'Yes'
-                  ? otherFeesText.trim() || 'Agent fee applies'
+                  ? otherFeesText.trim() || 'Caution fee applies'
                   : 'None',
               features: roomAmenities,
               campus: formCampus,
@@ -1384,7 +1422,7 @@ export function VendorDashboardClient({
                 </>
               )}
 
-              {/* Room Type, Amenities & Other Fees */}
+              {/* Room Type, Bedspaces, Distance, Rent covers, Utilities, Amenities & Other Fees */}
               {formKind === 'room' && (
                 <>
                   <div className="px-4 mt-[22px]">
@@ -1424,23 +1462,17 @@ export function VendorDashboardClient({
 
                   <div className="px-4 mt-[22px]">
                     <span className="block mb-2 text-[15px] font-semibold text-foreground">
-                      What is there
+                      Bedspaces
                     </span>
                     <div className="flex flex-wrap gap-2">
-                      {ROOM_AMENITIES.map((am) => {
-                        const active = roomAmenities.includes(am)
+                      {BEDSPACES_OPTIONS.map((bs) => {
+                        const active = bedspaces === bs
                         return (
                           <button
-                            key={am}
+                            key={bs}
                             type="button"
                             aria-pressed={active}
-                            onClick={() =>
-                              setRoomAmenities((prev) =>
-                                prev.includes(am)
-                                  ? prev.filter((x) => x !== am)
-                                  : [...prev, am]
-                              )
-                            }
+                            onClick={() => setBedspaces(bs)}
                             className={cn(
                               'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
                               active
@@ -1448,7 +1480,88 @@ export function VendorDashboardClient({
                                 : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
                             )}
                           >
-                            {am}
+                            {bs}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="px-4 mt-[22px]">
+                    <span className="block mb-2 text-[15px] font-semibold text-foreground">
+                      Distance to campus
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {DISTANCE_OPTIONS.map((dist) => {
+                        const active = distanceHint === dist
+                        return (
+                          <button
+                            key={dist}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => setDistanceHint(dist)}
+                            className={cn(
+                              'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
+                              active
+                                ? 'bg-[#0F6E6E] border-[#0F6E6E] text-white'
+                                : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
+                            )}
+                          >
+                            {dist}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="px-4 mt-[22px]">
+                    <span className="block mb-2 text-[15px] font-semibold text-foreground">
+                      Rent covers
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {RENT_COVERS_OPTIONS.map((rc) => {
+                        const active = rentCovers === rc
+                        return (
+                          <button
+                            key={rc}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => setRentCovers(rc)}
+                            className={cn(
+                              'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
+                              active
+                                ? 'bg-[#0F6E6E] border-[#0F6E6E] text-white'
+                                : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
+                            )}
+                          >
+                            {rc}
+                          </button>
+                        )
+                      })}
+                    </div>
+                  </div>
+
+                  <div className="px-4 mt-[22px]">
+                    <span className="block mb-2 text-[15px] font-semibold text-foreground">
+                      Utilities
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {UTILITIES_OPTIONS.map((ut) => {
+                        const active = utilities === ut
+                        return (
+                          <button
+                            key={ut}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() => setUtilities(ut)}
+                            className={cn(
+                              'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
+                              active
+                                ? 'bg-[#0F6E6E] border-[#0F6E6E] text-white'
+                                : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
+                            )}
+                          >
+                            {ut}
                           </button>
                         )
                       })}
@@ -1490,12 +1603,45 @@ export function VendorDashboardClient({
                           type="text"
                           value={otherFeesText}
                           onChange={(e) => setOtherFeesText(e.target.value)}
-                          placeholder="Agent fee ₦10,000"
+                          placeholder="e.g. Caution fee applies or Agent fee ₦10,000"
                           aria-label="Fee details"
                           className="w-full h-[52px] px-3.5 rounded-xl border border-border bg-card text-base text-foreground placeholder:text-muted-foreground outline-none focus:border-[#0F6E6E]"
                         />
                       </div>
                     )}
+                  </div>
+
+                  <div className="px-4 mt-[22px]">
+                    <span className="block mb-2 text-[15px] font-semibold text-foreground">
+                      What is there
+                    </span>
+                    <div className="flex flex-wrap gap-2">
+                      {ROOM_AMENITIES.map((am) => {
+                        const active = roomAmenities.includes(am)
+                        return (
+                          <button
+                            key={am}
+                            type="button"
+                            aria-pressed={active}
+                            onClick={() =>
+                              setRoomAmenities((prev) =>
+                                prev.includes(am)
+                                  ? prev.filter((x) => x !== am)
+                                  : [...prev, am]
+                              )
+                            }
+                            className={cn(
+                              'h-11 px-[18px] rounded-full border text-sm font-medium transition-colors cursor-pointer',
+                              active
+                                ? 'bg-[#0F6E6E] border-[#0F6E6E] text-white'
+                                : 'bg-card border-border text-foreground hover:border-[#0F6E6E]/40'
+                            )}
+                          >
+                            {am}
+                          </button>
+                        )
+                      })}
+                    </div>
                   </div>
                 </>
               )}
