@@ -85,22 +85,22 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
             </Link>
 
             <Link
-              href="/housing"
-              className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
-            >
-              <Bed className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
-              <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
-                Lodge
-              </span>
-            </Link>
-
-            <Link
               href="/services"
               className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
             >
               <Briefcase className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
               <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
                 Services
+              </span>
+            </Link>
+
+            <Link
+              href="/housing"
+              className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-white/[0.06] hover:bg-white/[0.12] active:bg-white/[0.16] border border-white/[0.10] hover:border-white/[0.22] transition-all duration-200 backdrop-blur-md shadow-[inset_0_1px_0_0_rgba(255,255,255,0.12)] active:scale-[0.97]"
+            >
+              <Bed className="w-5 h-5 stroke-[1.75] text-white/90 group-hover:text-white group-hover:scale-110 transition-transform duration-200" />
+              <span className="text-[12px] font-medium text-white/90 group-hover:text-white tracking-tight leading-none">
+                Lodge
               </span>
             </Link>
 

@@ -2,7 +2,6 @@ import { Suspense } from 'react'
 import { Navbar } from '@/components/layout/Navbar'
 import { Footer } from '@/components/layout/Footer'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
-import { FloatingSellButton } from '@/components/layout/FloatingSellButton'
 import { NavigationFeedback } from '@/components/layout/NavigationFeedback'
 import { getCurrentUserContext } from '@/lib/queries'
 
@@ -22,7 +21,6 @@ export default async function AppLayout({
       <Navbar user={user} profile={profile} vendor={vendor} />
       <main className="flex-1 min-w-0 w-full bg-background">{children}</main>
       <Footer />
-      <FloatingSellButton initialHasStore={hasStore} />
       <MobileBottomNav hasStore={hasStore} />
     </div>
   )

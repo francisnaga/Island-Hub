@@ -99,8 +99,8 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   const navLinks = [
     { href: '/', label: 'Home', exact: true },
     { href: '/marketplace', label: 'Market' },
-    { href: '/housing', label: 'Lodge' },
     { href: '/services', label: 'Services' },
+    { href: '/housing', label: 'Lodge' },
     { href: '/fresher-kit', label: 'Fresher Kit' },
     { href: '/safety', label: 'Safety' },
   ]

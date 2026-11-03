@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Search, SlidersHorizontal, X, MapPin, Check } from 'lucide-react'
+import { Search, SlidersHorizontal, X, ChevronRight } from 'lucide-react'
 import { Category } from '@/lib/types'
 import { cn } from '@/lib/utils'
 
@@ -10,18 +10,18 @@ interface MarketplaceFiltersProps {
   categories: Category[]
 }
 
-const CAMPUS_OPTIONS = [
-  { id: 'all', label: 'Both campuses' },
-  { id: 'Okerenkoko', label: 'Okerenkoko' },
-  { id: 'Kurutie', label: 'Kurutie' },
-]
-
 const CONDITION_OPTIONS = [
-  { id: 'all', label: 'Any Condition' },
-  { id: 'new', label: 'Brand New' },
+  { id: 'all', label: 'Any' },
+  { id: 'new', label: 'New' },
   { id: 'like_new', label: 'Like New' },
   { id: 'good', label: 'Good (Used)' },
   { id: 'fair', label: 'Fair' },
+]
+
+const SORT_OPTIONS = [
+  { id: 'newest', label: 'Newest first' },
+  { id: 'price_asc', label: 'Price: Low to High' },
+  { id: 'price_desc', label: 'Price: High to Low' },
 ]
 
 export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
@@ -30,7 +30,6 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
 
   const [q, setQ] = useState(searchParams.get('q') || '')
   const [category, setCategory] = useState(searchParams.get('category') || 'all')
-  const [campus, setCampus] = useState(searchParams.get('campus') || 'all')
   const [condition, setCondition] = useState(searchParams.get('condition') || 'all')
   const [availability, setAvailability] = useState(
     searchParams.get('availability') || 'available_only'
@@ -46,7 +45,6 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
   useEffect(() => {
     setQ(searchParams.get('q') || '')
     setCategory(searchParams.get('category') || 'all')
-    setCampus(searchParams.get('campus') || 'all')
     setCondition(searchParams.get('condition') || 'all')
     setAvailability(searchParams.get('availability') || 'available_only')
     setMinPrice(searchParams.get('minPrice') || '')
@@ -77,9 +75,8 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
     return () => window.removeEventListener('keydown', handleKeyDown)
   }, [sheetOpen])
 
-  // Count active non-default filters
+  // Count active non-default filters (campus is NOT part of this filter modal)
   const activeFilterCount = [
-    campus !== 'all',
     condition !== 'all',
     availability !== 'available_only',
     Boolean(minPrice.trim()),
@@ -89,9 +86,14 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
 
   const applyFilters = (overrides?: Partial<Record<string, string>>) => {
     const params = new URLSearchParams()
+    // Retain existing campus query param from header top nav
+    const existingCampus = searchParams.get('campus')
+    if (existingCampus && existingCampus !== 'all') {
+      params.set('campus', existingCampus)
+    }
+
     const nextQ = overrides?.q !== undefined ? overrides.q : q
     const nextCategory = overrides?.category !== undefined ? overrides.category : category
-    const nextCampus = overrides?.campus !== undefined ? overrides.campus : campus
     const nextCondition = overrides?.condition !== undefined ? overrides.condition : condition
     const nextAvailability =
       overrides?.availability !== undefined ? overrides.availability : availability
@@ -101,7 +103,6 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
 
     if (nextQ.trim()) params.set('q', nextQ.trim())
     if (nextCategory && nextCategory !== 'all') params.set('category', nextCategory)
-    if (nextCampus && nextCampus !== 'all') params.set('campus', nextCampus)
     if (nextCondition && nextCondition !== 'all') params.set('condition', nextCondition)
     if (nextAvailability && nextAvailability !== 'available_only') {
       params.set('availability', nextAvailability)
@@ -117,15 +118,34 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
   const clearAll = () => {
     setQ('')
     setCategory('all')
-    setCampus('all')
     setCondition('all')
     setAvailability('available_only')
     setMinPrice('')
     setMaxPrice('')
     setSort('newest')
-    router.push('/marketplace')
+
+    const params = new URLSearchParams()
+    const existingCampus = searchParams.get('campus')
+    if (existingCampus && existingCampus !== 'all') {
+      params.set('campus', existingCampus)
+    }
+    const queryStr = params.toString()
+    router.push(queryStr ? `/marketplace?${queryStr}` : '/marketplace')
     setSheetOpen(false)
   }
+
+  const selectedCategoryLabel =
+    category === 'all'
+      ? 'All'
+      : categories.find((c) => c.slug === category)?.short_name ||
+        categories.find((c) => c.slug === category)?.name ||
+        'All'
+
+  const selectedConditionLabel =
+    CONDITION_OPTIONS.find((c) => c.id === condition)?.label || 'Any'
+
+  const selectedSortLabel =
+    SORT_OPTIONS.find((s) => s.id === sort)?.label || 'Newest first'
 
   return (
     <div className="space-y-3 min-w-0 w-full">
@@ -227,21 +247,21 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
         </div>
       </div>
 
-      {/* 3. Bottom Sheet Filter Modal */}
+      {/* 3. Bottom Sheet Filter Modal (z-[70] so it completely sits above bottom nav z-50) */}
       {sheetOpen && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
+        <div className="fixed inset-0 z-[70] flex items-end md:items-center justify-center p-0 md:p-4">
           {/* Backdrop Scrim */}
           <div
             className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
             onClick={() => setSheetOpen(false)}
           />
 
-          {/* Modal / Bottom Sheet Box */}
+          {/* Modal / Bottom Sheet Box (Solid bg-card, clear safe padding) */}
           <div
             role="dialog"
             aria-modal="true"
             aria-label="Filter listings"
-            className="relative z-50 w-full max-w-lg bg-card rounded-t-[28px] md:rounded-[24px] border border-border shadow-2xl flex flex-col max-h-[85vh] overflow-hidden animate-in slide-in-from-bottom duration-300 md:zoom-in-95"
+            className="relative z-[71] w-full max-w-lg bg-card rounded-t-[28px] md:rounded-[24px] border border-border shadow-2xl flex flex-col max-h-[88vh] overflow-hidden animate-in slide-in-from-bottom duration-300 md:zoom-in-95 pb-[calc(env(safe-area-inset-bottom,0px)+16px)]"
           >
             {/* Mobile Drag Indicator */}
             <div className="pt-3 pb-1 flex justify-center md:hidden">
@@ -249,13 +269,13 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
             </div>
 
             {/* Sheet Header */}
-            <div className="flex items-center justify-between px-5 py-3 border-b border-border/70">
+            <div className="flex items-center justify-between px-5 py-3.5 border-b border-border/70">
               <div>
                 <h2 className="text-base sm:text-lg font-bold text-foreground font-sans">
                   Filter listings
                 </h2>
                 <p className="text-xs text-muted-foreground">
-                  Find exactly what you need near campus
+                  Refine items by category, condition, and price
                 </p>
               </div>
               <button
@@ -268,41 +288,47 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
               </button>
             </div>
 
-            {/* Sheet Scrollable Body */}
-            <div className="p-5 space-y-5 overflow-y-auto overscroll-contain flex-1">
-              {/* Campus Zone */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Campus Zone
-                </label>
-                <div className="grid grid-cols-3 gap-2">
-                  {CAMPUS_OPTIONS.map((c) => (
-                    <button
-                      key={c.id}
-                      type="button"
-                      onClick={() => setCampus(c.id)}
-                      className={cn(
-                        'h-10 px-2 rounded-xl border text-xs font-semibold transition-all cursor-pointer text-center truncate',
-                        campus === c.id
-                          ? 'bg-[#0F6E6E] text-white border-[#0F6E6E] dark:bg-[#14B8A6] dark:border-[#14B8A6] shadow-2xs'
-                          : 'bg-background text-foreground border-border hover:bg-muted'
-                      )}
-                    >
-                      {c.label}
-                    </button>
-                  ))}
+            {/* Sheet Scrollable Body with Clean Row-Based Structure (Matching Image 1) */}
+            <div className="px-5 py-2 overflow-y-auto overscroll-contain flex-1 divide-y divide-border/60">
+              {/* Row 1: Condition (Left: Condition label, Right: Current selection with native picker) */}
+              <div className="relative flex items-center justify-between py-4 group">
+                <span className="text-[15px] text-muted-foreground font-normal">Condition</span>
+                <div className="flex items-center gap-1.5 cursor-pointer">
+                  <span className="text-[15px] font-semibold text-foreground">
+                    {selectedConditionLabel}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
+                {/* Native Accessible Select overlaying the row */}
+                <select
+                  value={condition}
+                  onChange={(e) => setCondition(e.target.value)}
+                  aria-label="Condition"
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                >
+                  {CONDITION_OPTIONS.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Category */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Category
-                </label>
+              {/* Row 2: Category (Left: Category label, Right: Current category with native picker) */}
+              <div className="relative flex items-center justify-between py-4 group">
+                <span className="text-[15px] text-muted-foreground font-normal">Category</span>
+                <div className="flex items-center gap-1.5 cursor-pointer">
+                  <span className="text-[15px] font-semibold text-foreground">
+                    {selectedCategoryLabel}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                </div>
+                {/* Native Accessible Select overlaying the row */}
                 <select
                   value={category}
                   onChange={(e) => setCategory(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-input bg-background text-xs sm:text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                  aria-label="Category"
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
                 >
                   <option value="all">All Categories</option>
                   {categories.map((c) => (
@@ -313,79 +339,72 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
                 </select>
               </div>
 
-              {/* Condition */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Condition
-                </label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  {CONDITION_OPTIONS.map((cond) => (
-                    <button
-                      key={cond.id}
-                      type="button"
-                      onClick={() => setCondition(cond.id)}
-                      className={cn(
-                        'h-9 px-2 rounded-xl border text-xs font-medium transition-all cursor-pointer text-center truncate',
-                        condition === cond.id
-                          ? 'bg-[#0E1B1B] text-white dark:bg-white dark:text-[#0E1B1B] border-transparent font-semibold shadow-2xs'
-                          : 'bg-background text-foreground border-border hover:bg-muted'
-                      )}
-                    >
-                      {cond.label}
-                    </button>
-                  ))}
+              {/* Row 3: Sort Order (Left: Sort order label, Right: Selected option) */}
+              <div className="relative flex items-center justify-between py-4 group">
+                <span className="text-[15px] text-muted-foreground font-normal">Sort by</span>
+                <div className="flex items-center gap-1.5 cursor-pointer">
+                  <span className="text-[15px] font-semibold text-foreground">
+                    {selectedSortLabel}
+                  </span>
+                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
                 </div>
+                {/* Native Accessible Select overlaying the row */}
+                <select
+                  value={sort}
+                  onChange={(e) => setSort(e.target.value)}
+                  aria-label="Sort by"
+                  className="absolute inset-0 opacity-0 w-full h-full cursor-pointer"
+                >
+                  {SORT_OPTIONS.map((s) => (
+                    <option key={s.id} value={s.id}>
+                      {s.label}
+                    </option>
+                  ))}
+                </select>
               </div>
 
-              {/* Price Range */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Price Range (₦)
-                </label>
-                <div className="grid grid-cols-2 gap-3">
+              {/* Row 4: Price Range Inputs */}
+              <div className="py-4 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="text-[15px] text-muted-foreground font-normal">Price Range</span>
+                  <span className="text-xs font-mono font-medium text-muted-foreground">
+                    {minPrice || maxPrice
+                      ? `₦${minPrice || '0'} – ₦${maxPrice || 'Any'}`
+                      : 'Any price'}
+                  </span>
+                </div>
+                <div className="grid grid-cols-2 gap-3 pt-1">
                   <div>
-                    <span className="text-[11px] text-muted-foreground block mb-1">Minimum (₦)</span>
+                    <label className="text-[11px] text-muted-foreground block mb-1">
+                      Min Price (₦)
+                    </label>
                     <input
                       type="number"
                       min={0}
                       value={minPrice}
                       onChange={(e) => setMinPrice(e.target.value)}
                       placeholder="e.g. 1,000"
-                      className="w-full h-10 px-3 rounded-xl border border-input bg-background text-xs sm:text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-muted/40 text-xs sm:text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
                     />
                   </div>
                   <div>
-                    <span className="text-[11px] text-muted-foreground block mb-1">Maximum (₦)</span>
+                    <label className="text-[11px] text-muted-foreground block mb-1">
+                      Max Price (₦)
+                    </label>
                     <input
                       type="number"
                       min={0}
                       value={maxPrice}
                       onChange={(e) => setMaxPrice(e.target.value)}
                       placeholder="e.g. 25,000"
-                      className="w-full h-10 px-3 rounded-xl border border-input bg-background text-xs sm:text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
+                      className="w-full h-10 px-3 rounded-xl border border-input bg-muted/40 text-xs sm:text-sm text-foreground focus:bg-card focus:border-[#0F6E6E] focus:outline-none"
                     />
                   </div>
                 </div>
               </div>
-
-              {/* Sort Order */}
-              <div className="space-y-2">
-                <label className="text-xs font-bold uppercase tracking-wider text-muted-foreground">
-                  Sort Order
-                </label>
-                <select
-                  value={sort}
-                  onChange={(e) => setSort(e.target.value)}
-                  className="w-full h-11 px-3.5 rounded-xl border border-input bg-background text-xs sm:text-sm text-foreground focus:border-[#0F6E6E] focus:outline-none"
-                >
-                  <option value="newest">Newest first</option>
-                  <option value="price_asc">Price: Low to High</option>
-                  <option value="price_desc">Price: High to Low</option>
-                </select>
-              </div>
             </div>
 
-            {/* Sheet Sticky Footer Actions */}
+            {/* Sheet Sticky Footer Actions (Generous spacing above bottom nav) */}
             <div className="p-4 border-t border-border bg-card flex items-center gap-3">
               <button
                 type="button"

@@ -6,12 +6,12 @@ import { usePathname } from 'next/navigation'
 import { Home, ShoppingBag, Bed, Briefcase, Store } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
-// Exactly 4 clean, balanced bottom nav tabs with less generic Services icon
+// Exactly 4 clean, balanced bottom nav tabs with Services before Lodge (Lodge at the end)
 const tabs = [
   { href: '/', label: 'Home', icon: Home, exact: true },
   { href: '/marketplace', label: 'Market', icon: ShoppingBag },
-  { href: '/housing', label: 'Lodge', icon: Bed },
   { href: '/services', label: 'Services', icon: Briefcase },
+  { href: '/housing', label: 'Lodge', icon: Bed },
 ]
 
 export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
@@ -45,7 +45,7 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
         aria-label="Mobile bottom navigation"
         className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden"
       >
-      <div className="grid h-full grid-cols-4">
+        <div className="grid h-full grid-cols-4">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const active = tab.exact
