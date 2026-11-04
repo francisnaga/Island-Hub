@@ -490,7 +490,7 @@
 .slide.svc { background: var(--gold-tint); color: #6B4E0E; aspect-ratio: 16/9; }
 .ov {
   position: absolute;
-  top: 12px;
+  top: max(14px, calc(env(safe-area-inset-top, 0px) + 12px));
   width: 44px;
   height: 44px;
   border-radius: 50%;
@@ -498,17 +498,26 @@
   display: grid;
   place-items: center;
   color: #0E1B1B;
-  z-index: 2;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  z-index: 20;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
   transition: transform 0.15s;
+}
+@media (min-width: 768px) {
+  .ov {
+    top: 14px;
+  }
 }
 .dark .ov {
   background: rgba(15, 23, 42, 0.85);
   color: #F1F5F9;
 }
 .ov:active { transform: scale(0.95); }
-.ov.l { left: 12px; }
-.ov.r { right: 12px; }
+.ov.l { left: max(14px, calc(env(safe-area-inset-left, 0px) + 12px)); }
+.ov.r { right: max(14px, calc(env(safe-area-inset-right, 0px) + 12px)); }
+@media (min-width: 768px) {
+  .ov.l { left: 14px; }
+  .ov.r { right: 14px; }
+}
 .dots {
   position: absolute;
   bottom: 12px;

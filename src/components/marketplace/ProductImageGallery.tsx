@@ -113,15 +113,22 @@ export function ProductImageGallery({
         className
       )}
     >
-      {/* ── Main Photo Frame ── */}
-      <div className={cn('relative w-auto mx-4 mt-2 md:mx-0 md:mt-0 rounded-3xl overflow-hidden border border-border/80 shadow-xs bg-[#DCEBEB] dark:bg-[#132A2A] select-none group', fallbackType === 'housing' ? 'aspect-[16/10]' : 'aspect-square md:aspect-[4/3]')}>
-        {/* Slides Scroll Container — absolute inset-0 guarantees exact 1:1 filling without browser scrollbar reservation padding */}
+      {/* ── Main Photo Frame: Full-bleed on mobile reaching top, left, and right edges with rounded bottom curve ── */}
+      <div
+        className={cn(
+          'relative w-full mx-0 mt-0 rounded-none rounded-b-[28px] sm:rounded-b-3xl border-0 border-b border-border/70 overflow-hidden select-none group',
+          'md:rounded-3xl md:border md:border-border/80 md:shadow-xs md:mx-0 md:mt-0',
+          'bg-[#DCEBEB] dark:bg-[#132A2A]',
+          fallbackType === 'housing' ? 'aspect-[16/11] md:aspect-[16/10]' : 'aspect-square md:aspect-[4/3]'
+        )}
+      >
+        {/* Slides Scroll Container — touch-action enables effortless vertical page scrolling while preserving horizontal swipe */}
         {validImages.length > 0 ? (
           <div
             ref={scrollContainerRef}
             onScroll={handleScroll}
             className={cn(
-              'slides absolute inset-0 flex touch-manipulation',
+              'slides absolute inset-0 flex',
               hasMultipleImages
                 ? 'overflow-x-auto scrollbar-none snap-x snap-mandatory'
                 : 'overflow-hidden'
@@ -130,7 +137,7 @@ export function ProductImageGallery({
               scrollbarWidth: 'none',
               msOverflowStyle: 'none',
               WebkitOverflowScrolling: 'touch',
-              touchAction: 'manipulation',
+              touchAction: hasMultipleImages ? 'pan-x pan-y pinch-zoom' : 'pan-y',
             }}
           >
             {validImages.map((img, idx) => (
@@ -159,7 +166,7 @@ export function ProductImageGallery({
           </div>
         ) : (
           /* Empty placeholder */
-          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#E6F2F2] to-[#D5E7E7] dark:from-[#112323] dark:to-[#0D1818] p-6 text-center">
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-gradient-to-br from-[#E6F2F2] to-[#D5E7E7] dark:from-[#112323] dark:to-[#0D1818] p-6 text-center pointer-events-none">
             <div className="w-20 h-20 rounded-3xl bg-[#0F6E6E]/15 dark:bg-[#14B8A6]/15 text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center mb-3 shadow-2xs">
               {fallbackType === 'housing' ? (
                 <Building2 className="w-10 h-10 stroke-[1.8]" />
@@ -262,11 +269,11 @@ export function ProductImageGallery({
         )}
       </div>
 
-      {/* ── Thumbnail Rail Below Main Image (Only when 2+ images) ── */}
+      {/* ── Thumbnail Rail Below Main Image (Visible on desktop; mobile uses swipe carousel + dots) ── */}
       {hasMultipleImages && (
         <div
           ref={thumbnailRailRef}
-          className="mx-4 md:mx-0 flex items-center gap-2 overflow-x-auto scrollbar-none py-1 px-0.5 touch-pan-x"
+          className="hidden md:flex items-center gap-2 overflow-x-auto scrollbar-none py-1 px-0.5 touch-pan-x"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           {validImages.map((img, idx) => (

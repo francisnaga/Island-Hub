@@ -30,6 +30,10 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
   const [searchQuery, setSearchQuery] = useState('')
   const [isScrolledPastGreen, setIsScrolledPastGreen] = useState(false)
 
+  const isDetailPage =
+    pathname.startsWith('/product/') ||
+    (pathname.startsWith('/housing/') && pathname !== '/housing')
+
   useEffect(() => {
     let rafId: number | null = null
 
@@ -112,7 +116,8 @@ export function Navbar({ user, profile, vendor }: NavbarProps) {
         'before:content-[""] before:absolute before:bottom-full before:inset-x-0 before:h-[120vh] before:bg-[#0A4F4F] before:pointer-events-none',
         isScrolledPastGreen
           ? 'border-b border-white/15 shadow-[0_4px_20px_rgba(0,0,0,0.25)]'
-          : 'border-b border-transparent shadow-none'
+          : 'border-b border-transparent shadow-none',
+        isDetailPage && 'hidden md:block'
       )}
     >
       <div className="container mx-auto max-w-7xl px-3.5 sm:px-4 h-14 md:h-16 flex items-center justify-between gap-2 sm:gap-4">
