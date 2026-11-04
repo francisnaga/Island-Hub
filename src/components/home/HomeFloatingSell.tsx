@@ -74,7 +74,7 @@ export function HomeFloatingSell({ isLoggedIn, hasStore }: HomeFloatingSellProps
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close listing sheet' : 'Sell or list on Jetty'}
         className={cn(
-          'fixed right-4 bottom-[calc(env(safe-area-inset-bottom,0px)+76px)] z-[80] md:hidden',
+          'fixed right-4 bottom-[calc(env(safe-area-inset-bottom,0px)+64px)] z-[80] md:hidden',
           'h-12 px-4 rounded-full font-bold text-[14px] flex items-center gap-2 transition-all duration-300 shadow-[0_8px_24px_rgba(0,0,0,0.18)] active:scale-95 cursor-pointer select-none',
           isOpen
             ? 'bg-foreground text-background shadow-xl scale-105'

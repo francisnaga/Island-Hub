@@ -110,14 +110,14 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
       )}
 
       {/* 2. Solid Bottom Action Bar (Fixed flush to viewport bottom edge) */}
-      <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] pb-[env(safe-area-inset-bottom,0px)] after:absolute after:top-full after:left-0 after:right-0 after:h-40 after:bg-card">
-        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
+      <div className="fixed bottom-0 inset-x-0 z-50 w-full bg-card border-t border-border shadow-[0_-2px_10px_rgba(0,0,0,0.05)] dark:shadow-[0_-2px_12px_rgba(0,0,0,0.3)] pt-2.5 pb-[max(10px,env(safe-area-inset-bottom,0px))] after:absolute after:top-full after:left-0 after:right-0 after:h-40 after:bg-card">
+        <div className="container mx-auto max-w-lg md:max-w-5xl px-4 flex items-center justify-between gap-4">
           {/* Price & Meetup Info */}
           <div className="min-w-0 flex flex-col justify-center">
-            <b className="text-[21px] sm:text-[23px] font-bold text-foreground tabular-nums tracking-tight leading-none">
+            <b className="text-[20px] sm:text-[22px] font-bold text-foreground tabular-nums tracking-tight leading-tight">
               {formatNaira(product.price)}
             </b>
-            <span className="text-[11.5px] text-muted-foreground truncate font-medium mt-1 leading-none">
+            <span className="text-[11.5px] text-muted-foreground truncate font-medium leading-tight mt-0.5">
               {isOutOfStock ? 'Sold out' : 'Pay when you meet'}
             </span>
           </div>

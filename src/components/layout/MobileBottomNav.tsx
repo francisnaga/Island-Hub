@@ -38,14 +38,14 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
     <>
       {/* Spacer so page content & footer are never covered by the bottom nav */}
       <div
-        className="h-[calc(64px+env(safe-area-inset-bottom,0px))] md:hidden shrink-0 pointer-events-none"
+        className="h-[calc(52px+env(safe-area-inset-bottom,0px))] md:hidden shrink-0 pointer-events-none"
         aria-hidden="true"
       />
       <nav
         aria-label="Mobile bottom navigation"
-        className="fixed bottom-0 inset-x-0 z-50 h-[calc(64px+env(safe-area-inset-bottom,0px))] pb-[env(safe-area-inset-bottom,0px)] border-t border-border bg-card/95 backdrop-blur-md md:hidden"
+        className="fixed bottom-0 inset-x-0 z-50 border-t border-border bg-card/95 backdrop-blur-md md:hidden pt-1 pb-[env(safe-area-inset-bottom,0px)]"
       >
-        <div className="grid h-full grid-cols-4">
+        <div className="grid h-[50px] grid-cols-4">
           {tabs.map((tab) => {
             const Icon = tab.icon
             const active = tab.exact
@@ -64,7 +64,7 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
                 }}
                 aria-current={active ? 'page' : undefined}
                 className={cn(
-                  'relative flex flex-col items-center justify-center gap-1 text-[11px] font-medium transition-colors cursor-pointer select-none',
+                  'relative flex flex-col items-center justify-center gap-0.5 text-[10.5px] font-medium transition-colors cursor-pointer select-none',
                   active
                     ? 'text-foreground font-semibold'
                     : 'text-muted-foreground hover:text-foreground'
@@ -74,7 +74,7 @@ export function MobileBottomNav({ hasStore = false }: { hasStore?: boolean }) {
                 <Icon
                   strokeWidth={active ? 2.4 : 1.75}
                   className={cn(
-                    'h-[22px] w-[22px] shrink-0 transition-all',
+                    'h-5 w-5 shrink-0 transition-all',
                     active && 'scale-105',
                     isPending && 'animate-pulse opacity-80'
                   )}

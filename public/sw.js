@@ -1,7 +1,7 @@
 // Jetty PWA Service Worker — Offline Cache + Push Notifications
-// Version: 5.0 — updated official PWA maskable icons and unified brand assets
+// Version: 6.0 — purge plantain chips image cache bug, fix exact image URL matching
 
-const CACHE_NAME = 'jetty-v5'
+const CACHE_NAME = 'jetty-v6'
 const STATIC_ASSETS = [
   '/',
   '/manifest.json',
@@ -22,7 +22,7 @@ self.addEventListener('install', (event) => {
   )
 })
 
-// Activate: delete old caches
+// Activate: delete old caches (purges jetty-v5 and clears the plantain chips image bug!)
 self.addEventListener('activate', (event) => {
   event.waitUntil(
     Promise.all([
@@ -62,6 +62,8 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Cache-first for images (Next.js image optimizer, Supabase storage, local /products/ assets) and fonts
+  // CRITICAL: NEVER use { ignoreSearch: true } for images or _next/image because query params (?url=...)
+  // define the image source. Using ignoreSearch caused all images to resolve to the first cached image!
   const isImageOrFont =
     url.pathname.startsWith('/_next/static/') ||
     url.pathname.startsWith('/_next/image') ||
@@ -71,7 +73,7 @@ self.addEventListener('fetch', (event) => {
   if (isImageOrFont) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) =>
-        cache.match(request, { ignoreSearch: true }).then((cached) => {
+        cache.match(request).then((cached) => {
           if (cached) return cached
           return fetch(request)
             .then((res) => {
@@ -88,6 +90,7 @@ self.addEventListener('fetch', (event) => {
   }
 
   // Pages → network-first, fallback to cache
+  // Only for HTML page navigation fallback do we use ignoreSearch to match '/?s=xx' to cached '/'
   if (request.mode === 'navigate') {
     event.respondWith(
       fetch(request)
