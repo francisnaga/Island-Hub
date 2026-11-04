@@ -113,7 +113,7 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
         <div className="container mx-auto max-w-lg md:max-w-5xl px-4 h-[68px] flex items-center justify-between gap-4">
           {/* Price & Meetup Info */}
           <div className="min-w-0 flex flex-col justify-center">
-            <b className="text-[21px] sm:text-[23px] font-bold text-foreground font-mono-num tracking-tight leading-none">
+            <b className="text-[21px] sm:text-[23px] font-bold text-foreground tabular-nums tracking-tight leading-none">
               {formatNaira(product.price)}
             </b>
             <span className="text-[11.5px] text-muted-foreground truncate font-medium mt-1 leading-none">

@@ -55,7 +55,7 @@ export function WaterlineRoomCard({
       </div>
 
       {/* Price + Period line */}
-      <div className="mt-2.5 font-bold text-[18px] sm:text-[20px] text-foreground tracking-tight flex items-baseline gap-1 font-mono-num">
+      <div className="mt-2.5 font-bold text-[18px] sm:text-[20px] text-foreground tracking-tight flex items-baseline gap-1 tabular-nums">
         <span>{priceNaira}</span>
         <span className="text-[13px] text-muted-foreground font-normal">
           / {lodge.period}

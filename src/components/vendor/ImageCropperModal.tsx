@@ -373,7 +373,7 @@ export function ImageCropperModal({
           <div className="w-[300px] mt-3.5 space-y-1.5">
             <div className="flex items-center justify-between text-xs text-muted-foreground">
               <span className="font-medium">Zoom</span>
-              <span className="font-mono text-[11px] font-semibold">{Math.round(zoom * 100)}%</span>
+              <span className="tabular-nums text-[11px] font-semibold">{Math.round(zoom * 100)}%</span>
             </div>
             <div className="flex items-center gap-2.5">
               <button

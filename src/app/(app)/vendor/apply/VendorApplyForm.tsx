@@ -470,7 +470,7 @@ export function VendorApplyForm({
             >
               Store description <span className="font-normal text-xs text-muted-foreground">(optional)</span>
             </label>
-            <span className="text-xs text-muted-foreground font-mono">
+            <span className="text-xs text-muted-foreground tabular-nums">
               {description.length}/300
             </span>
           </div>

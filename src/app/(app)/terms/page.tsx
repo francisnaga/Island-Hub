@@ -106,7 +106,7 @@ export default function TermsPage() {
                 <strong className="text-foreground">Accurate Details:</strong> You must supply truthful information, including your active Nigerian WhatsApp phone number and primary campus zone.
               </li>
               <li>
-                <strong className="text-foreground">Store Handles:</strong> Vendors select an identification handle (<code className="font-mono text-xs text-foreground">@username</code>) that must not impersonate other entities, brands, or university authorities.
+                <strong className="text-foreground">Store Handles:</strong> Vendors select an identification handle (<span className="text-xs text-foreground font-semibold">@username</span>) that must not impersonate other entities, brands, or university authorities.
               </li>
               <li>
                 <strong className="text-foreground">Account Responsibility:</strong> You are responsible for all activity conducted through your store profile.

@@ -138,10 +138,10 @@
 
 /* ── Linear-Grade Typography Utilities ── */
 .font-mono-num {
-  font-family: var(--font-mono);
-  font-feature-settings: "tnum" 1, "zero" 1;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.01em;
 }
 
 .tnum {
@@ -412,7 +412,9 @@
 }
 .pb .stat b {
   display: block;
-  font-family: var(--font-mono); font-feature-settings: "tnum" 1;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
   font-size: 22px;
   font-weight: 600;
 }
@@ -548,7 +550,9 @@
 }
 .db { padding: 20px 16px 0; }
 .dp {
-  font-family: var(--font-mono); font-feature-settings: "tnum" 1;
+  font-family: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "tnum" 1;
+  font-variant-numeric: tabular-nums;
   font-weight: 600;
   font-size: 30px;
   letter-spacing: -0.01em;
@@ -718,6 +722,8 @@
   display: block;
   font-size: 18px;
   font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum" 1;
   color: var(--foreground);
 }
 .bar .pp small {

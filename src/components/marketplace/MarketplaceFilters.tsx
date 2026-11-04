@@ -358,7 +358,7 @@ export function MarketplaceFilters({ categories }: MarketplaceFiltersProps) {
               <div className="py-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <span className="text-[15px] text-muted-foreground font-normal">Price Range</span>
-                  <span className="text-xs font-mono font-medium text-muted-foreground">
+                  <span className="text-xs tabular-nums font-medium text-muted-foreground">
                     {minPrice || maxPrice
                       ? `₦${minPrice || '0'} – ₦${maxPrice || 'Any'}`
                       : 'Any price'}

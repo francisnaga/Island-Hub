@@ -198,7 +198,7 @@ export default async function VendorStorefrontPage({
           </h1>
 
           {vendor.username && (
-            <p className="text-xs font-mono font-medium text-white/75 tracking-wide">
+            <p className="text-xs font-medium text-white/75">
               @{vendor.username}
             </p>
           )}
@@ -345,7 +345,7 @@ export default async function VendorStorefrontPage({
                       <b className="text-[15px] font-semibold text-foreground truncate">{s.title}</b>
                     </div>
                     <div className="flex items-center gap-2 text-xs text-muted-foreground shrink-0">
-                      <span>From {formatNaira(s.price)}</span>
+                      <span className="tabular-nums">From {formatNaira(s.price)}</span>
                       <ChevronRight className="w-4 h-4 text-muted-foreground group-hover:translate-x-0.5 transition-transform" />
                     </div>
                   </a>

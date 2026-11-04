@@ -111,7 +111,7 @@ export default function PrivacyPage() {
                   When you set up a vendor storefront or publish an item, room, or service listing, you provide:
                 </p>
                 <ul className="mt-2 space-y-1.5 pl-5 list-disc text-sm">
-                  <li>Store name, description, and handle (<code className="font-mono text-xs text-foreground">@username</code>)</li>
+                  <li>Store name, description, and handle (<span className="text-xs text-foreground font-semibold">@username</span>)</li>
                   <li>WhatsApp phone number (displayed publicly so buyers can reach you)</li>
                   <li>Campus zone (Okerenkoko, Kurutie, or Both)</li>
                   <li>Photographs of products, services, or accommodations</li>

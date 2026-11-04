@@ -194,7 +194,7 @@ export default async function ProductDetailPage({
           <div className="db md:col-span-6 space-y-5">
             {/* Price & Title */}
             <div>
-              <div className="font-bold text-2xl sm:text-3xl text-foreground tracking-tight font-mono-num">
+              <div className="font-bold text-2xl sm:text-3xl text-foreground tracking-tight tabular-nums">
                 {formatNaira(product.price)}
               </div>
               <h1 className="mt-1 font-semibold text-lg sm:text-xl text-foreground leading-snug">

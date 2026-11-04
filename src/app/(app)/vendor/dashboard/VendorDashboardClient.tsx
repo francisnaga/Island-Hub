@@ -1030,7 +1030,7 @@ export function VendorDashboardClient({
                         <b className="block text-[15px] font-semibold text-foreground truncate">
                           {x.title}
                         </b>
-                        <span className="block mt-0.5 text-[13px] text-muted-foreground">
+                        <span className="block mt-0.5 text-[13px] text-muted-foreground tabular-nums">
                           {kind === 'svc' ? 'from ' : ''}
                           {formatNaira(x.price)}
                           {kind === 'room' ? ' / session' : ''}
@@ -1935,7 +1935,7 @@ export function VendorDashboardClient({
                   <b className="block text-[15px] font-semibold truncate">
                     {doneProduct.title}
                   </b>
-                  <span className="block mt-0.5 text-[13px] text-muted-foreground">
+                  <span className="block mt-0.5 text-[13px] text-muted-foreground tabular-nums">
                     {formatNaira(doneProduct.price)} · Pending admin review
                   </span>
                 </span>
@@ -2136,7 +2136,7 @@ export function VendorDashboardClient({
                     <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
                       Store handle
                     </span>
-                    <span className="text-sm font-mono text-[#0F6E6E] dark:text-[#22D3EE] truncate max-w-[150px] text-right font-normal">
+                    <span className="text-sm text-[#0F6E6E] dark:text-[#22D3EE] truncate max-w-[150px] text-right font-normal">
                       {vendor.username
                         ? `@${vendor.username}`
                         : vendor.slug
@@ -2201,7 +2201,7 @@ export function VendorDashboardClient({
                     <span className="flex-1 font-medium text-[15px] text-foreground leading-snug">
                       WhatsApp number
                     </span>
-                    <span className="text-sm font-mono text-muted-foreground truncate max-w-[150px] text-right font-normal">
+                    <span className="text-sm tabular-nums text-muted-foreground truncate max-w-[150px] text-right font-normal">
                       {vendor.whatsapp_number}
                     </span>
                     <ChevronRight className="w-4 h-4 text-muted-foreground/40 group-hover:text-muted-foreground/70 shrink-0 transition-colors ml-0.5" />
@@ -2924,7 +2924,7 @@ export function VendorDashboardClient({
                         }
                         placeholder="swiftstitch"
                         maxLength={20}
-                        className="w-full h-12 pl-8 pr-3.5 rounded-xl border border-border bg-background text-base font-mono outline-none focus:border-[#0F6E6E] disabled:opacity-50"
+                        className="w-full h-12 pl-8 pr-3.5 rounded-xl border border-border bg-background text-base outline-none focus:border-[#0F6E6E] disabled:opacity-50"
                       />
                     </div>
 
@@ -2943,7 +2943,7 @@ export function VendorDashboardClient({
               <div className="space-y-1.5">
                 <div className="flex justify-between items-center text-xs text-muted-foreground">
                   <span>Store description (~50 words)</span>
-                  <span className="font-mono">{draftStoreValue.length}/300</span>
+                  <span className="tabular-nums">{draftStoreValue.length}/300</span>
                 </div>
                 <textarea
                   rows={4}

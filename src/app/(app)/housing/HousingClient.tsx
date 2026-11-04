@@ -64,7 +64,7 @@ export function HousingClient({
         <h1 className="text-[30px] sm:text-[34px] font-bold tracking-tight text-foreground font-sans leading-none">
           Lodge
         </h1>
-        <span className="text-[14px] sm:text-[15px] font-normal text-muted-foreground font-mono-num">
+        <span className="text-[14px] sm:text-[15px] font-normal text-muted-foreground tabular-nums">
           {filteredLodges.length} {filteredLodges.length === 1 ? 'room' : 'rooms'}
         </span>
       </div>

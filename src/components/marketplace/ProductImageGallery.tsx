@@ -260,7 +260,7 @@ export function ProductImageGallery({
 
         {/* ── Photo Counter Badge (Airbnb / Grailed signature - hidden on housing) ── */}
         {hasMultipleImages && fallbackType !== 'housing' && (
-          <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 dark:bg-black/75 backdrop-blur-md border border-white/20 text-[11px] font-mono font-medium text-white shadow-md tracking-wider pointer-events-none">
+          <div className="absolute bottom-3 right-3 z-20 flex items-center gap-1 px-2.5 py-1 rounded-full bg-black/60 dark:bg-black/75 backdrop-blur-md border border-white/20 text-[11px] tabular-nums font-medium text-white shadow-md tracking-wider pointer-events-none">
             <Images className="w-3 h-3 text-white/80" />
             <span>
               {activeIndex + 1}/{validImages.length}

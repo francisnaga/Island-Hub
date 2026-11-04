@@ -161,7 +161,7 @@ export default function SafetyAndHelpPage() {
                 key={step.num}
                 className="rounded-xl border border-border/80 bg-card p-4 space-y-2 shadow-2xs"
               >
-                <span className="font-mono text-xs font-bold text-primary">
+                <span className="tabular-nums text-xs font-bold text-primary">
                   {step.num}
                 </span>
                 <h3 className="text-sm font-bold text-foreground">{step.title}</h3>
