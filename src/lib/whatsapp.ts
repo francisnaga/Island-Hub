@@ -235,9 +235,9 @@ export function isListingStale(lastConfirmedAt: string | undefined | null, stale
   return diffDays > staleDays
 }
 
-export function daysSinceConfirmed(lastConfirmedAt: string | undefined | null): number {
-  if (!lastConfirmedAt) return 0
+export function daysSinceConfirmed(lastConfirmedAt: string | undefined | null): number | null {
+  if (!lastConfirmedAt) return null
   const confirmedTime = new Date(lastConfirmedAt).getTime()
-  if (Number.isNaN(confirmedTime)) return 0
+  if (Number.isNaN(confirmedTime)) return null
   return Math.max(0, Math.floor((Date.now() - confirmedTime) / (1000 * 60 * 60 * 24)))
 }

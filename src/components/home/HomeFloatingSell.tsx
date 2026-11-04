@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { Plus, X, ShoppingBag, Briefcase, Bed, Store, ChevronRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { trackFlyerEvent } from '@/lib/analytics'
 
 interface HomeFloatingSellProps {
   isLoggedIn: boolean
@@ -66,7 +67,10 @@ export function HomeFloatingSell({ isLoggedIn, hasStore }: HomeFloatingSellProps
       {/* Floating Sell Action Button (Home Page Mobile) */}
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() => {
+          if (!isOpen) trackFlyerEvent('sell_flow_start')
+          setIsOpen((prev) => !prev)
+        }}
         aria-expanded={isOpen}
         aria-label={isOpen ? 'Close listing sheet' : 'Sell or list on Jetty'}
         className={cn(
@@ -108,11 +112,16 @@ export function HomeFloatingSell({ isLoggedIn, hasStore }: HomeFloatingSellProps
           {/* Header */}
           <div className="flex items-start justify-between mb-4">
             <div>
-              <h3 className="text-base sm:text-lg font-bold text-foreground font-sans tracking-tight">
-                What would you like to list?
-              </h3>
+              <div className="flex items-center gap-2">
+                <h3 className="text-base sm:text-lg font-bold text-foreground font-sans tracking-tight">
+                  What would you like to list?
+                </h3>
+                <span className="px-2 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-[10px] font-bold text-emerald-600 dark:text-emerald-400 uppercase tracking-wider">
+                  Free
+                </span>
+              </div>
               <p className="text-xs text-muted-foreground mt-0.5">
-                List instantly and reach NMU students directly on WhatsApp
+                List instantly · Reach students directly on WhatsApp
               </p>
             </div>
             <button

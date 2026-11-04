@@ -6,6 +6,7 @@ import { getSellerTypeLabel, getVendorInitials, cleanVendorDescription } from '@
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { ShareButton } from '@/components/shared/ShareButton'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { WhatsAppTrackLink } from '@/components/brand/WhatsAppTrackLink'
 import { getPublicVendorBySlugOrId } from '@/lib/queries'
 import { WhatsAppIcon } from '@/components/brand/WhatsAppIcon'
 import {

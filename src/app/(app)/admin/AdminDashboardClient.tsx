@@ -24,6 +24,8 @@ import { createClient } from '@/lib/supabase/client'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
 import { UserAvatar } from '@/components/brand/UserAvatar'
 import { AdminPushToggle } from '@/components/admin/AdminPushToggle'
+import { AdminFlyerAnalytics } from '@/components/admin/AdminFlyerAnalytics'
+import { useSearchParams } from 'next/navigation'
 import {
   Category,
   CategoryRequest,
@@ -49,7 +51,7 @@ interface AdminDashboardClientProps {
   initialLogs: ModerationLog[]
 }
 
-type AdminTab = 'products' | 'vendors' | 'categories' | 'reports' | 'logs'
+type AdminTab = 'products' | 'vendors' | 'categories' | 'reports' | 'logs' | 'flyers'
 
 export function AdminDashboardClient({
   adminId,
@@ -61,6 +63,7 @@ export function AdminDashboardClient({
   initialLogs,
 }: AdminDashboardClientProps) {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [vendors, setVendors] = useState<Vendor[]>(initialVendors)
   const [products, setProducts] = useState<Product[]>(initialProducts)
   const [reports, setReports] = useState<ReportRecord[]>(initialReports)
@@ -69,7 +72,7 @@ export function AdminDashboardClient({
     useState<CategoryRequest[]>(initialCategoryRequests)
   const [logs, setLogs] = useState<ModerationLog[]>(initialLogs)
 
-  const [activeTab, setActiveTab] = useState<AdminTab>('products')
+  const [activeTab, setActiveTab] = useState<AdminTab>((searchParams?.get('tab') as AdminTab) || 'products')
   const [busyId, setBusyId] = useState<string | null>(null)
   const [reviewingProduct, setReviewingProduct] = useState<Product | null>(null)
   const [reviewImageIdx, setReviewImageIdx] = useState(0)
@@ -823,6 +826,12 @@ export function AdminDashboardClient({
               label: 'Reports',
               count: openReportsCount,
               alert: openReportsCount > 0,
+            },
+            {
+              id: 'flyers' as const,
+              label: 'Flyers & QR',
+              count: undefined,
+              alert: false,
             },
             {
               id: 'logs' as const,

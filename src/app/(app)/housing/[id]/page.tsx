@@ -12,6 +12,7 @@ import { formatNaira, getCanonicalUrl } from '@/lib/whatsapp'
 import { WaterlineRoomCard } from '@/components/cards/WaterlineRoomCard'
 import { ReportListingModal } from '@/components/marketplace/ReportListingModal'
 import { VerifiedBadge } from '@/components/brand/VerifiedBadge'
+import { WhatsAppTrackLink } from '@/components/brand/WhatsAppTrackLink'
 import { UserAvatar } from '@/components/brand/UserAvatar'
 import { ProductImageGallery } from '@/components/marketplace/ProductImageGallery'
 

@@ -72,6 +72,7 @@ interface VendorDashboardClientProps {
   initialTab?: 'listings' | 'new' | 'store'
   initialKind?: 'item' | 'room' | 'svc'
   initialEditId?: string
+  initialNewStore?: boolean
 }
 
 type VendorScreen =
@@ -149,7 +150,9 @@ export function VendorDashboardClient({
   initialTab = 'listings',
   initialKind,
   initialEditId,
+  initialNewStore,
 }: VendorDashboardClientProps) {
+  const [showNewStoreModal, setShowNewStoreModal] = useState(Boolean(initialNewStore))
   const router = useRouter()
   const [vendor, setVendor] = useState<Vendor>(initialVendor)
   const [products, setProducts] = useState<Product[]>(initialProducts)
@@ -3014,6 +3017,66 @@ export function VendorDashboardClient({
         isSaving={savingCroppedAvatar}
         title="Crop store photo"
       />
+      {/* New Store Celebration Modal */}
+      {showNewStoreModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs animate-in fade-in duration-200">
+          <div className="w-full max-w-md rounded-3xl bg-card border border-border p-6 sm:p-7 shadow-2xl space-y-5 text-center relative">
+            <button
+              type="button"
+              onClick={() => setShowNewStoreModal(false)}
+              className="absolute top-4 right-4 w-9 h-9 rounded-full bg-muted/60 text-muted-foreground hover:text-foreground flex items-center justify-center transition-colors cursor-pointer"
+              aria-label="Close"
+            >
+              <X className="w-5 h-5" />
+            </button>
+
+            <div className="mx-auto w-16 h-16 rounded-2xl bg-[#E6F2F2] dark:bg-[#132A2A] text-[#0F6E6E] dark:text-[#22D3EE] flex items-center justify-center shadow-xs">
+              <Store className="w-8 h-8" />
+            </div>
+
+            <div className="space-y-1.5">
+              <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#E6F2F2] text-[#0F6E6E] dark:bg-[#132A2A] dark:text-[#22D3EE]">
+                🎉 Your store is ready!
+              </span>
+              <h2 className="text-xl sm:text-2xl font-bold text-foreground font-[family-name:var(--font-bricolage)]">
+                {vendor.shop_name}
+              </h2>
+              {vendor.username && (
+                <p className="text-xs font-medium text-muted-foreground">
+                  @{vendor.username}
+                </p>
+              )}
+              <p className="text-xs sm:text-sm text-muted-foreground leading-relaxed pt-1">
+                Your vendor store is now live on Jetty NMU. Students and campus residents can discover your items, services, and lodges.
+              </p>
+            </div>
+
+            <div className="space-y-2.5 pt-2">
+              <Link
+                href={`/vendors/${vendor.username ? `@${vendor.username}` : (vendor.slug || vendor.id)}`}
+                onClick={() => setShowNewStoreModal(false)}
+                className="w-full h-12 rounded-xl bg-[#0F6E6E] hover:bg-[#0A4F4F] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-sm flex items-center justify-center gap-2 transition-colors shadow-sm"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>View my store</span>
+              </Link>
+
+              <button
+                type="button"
+                onClick={() => {
+                  setShowNewStoreModal(false)
+                  setScreen('v:new')
+                }}
+                className="w-full h-12 rounded-xl border border-border bg-card hover:bg-muted font-semibold text-sm text-foreground flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4 text-[#0F6E6E] dark:text-[#22D3EE]" />
+                <span>Add your first listing</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
     </div>
   )
 }

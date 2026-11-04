@@ -8,6 +8,7 @@ import { CampusArea, UserProfile, Vendor } from '@/lib/types'
 import { normalizeWhatsAppNumber } from '@/lib/whatsapp'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+import { trackFlyerEvent } from '@/lib/analytics'
 import { UserAvatar } from '@/components/brand/UserAvatar'
 import { compressAvatarFile } from '@/lib/image-compression'
 

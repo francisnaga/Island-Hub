@@ -135,7 +135,8 @@ export default async function ProductDetailPage({
     vendor?.latitude != null &&
     vendor?.longitude != null &&
     Number.isFinite(Number(vendor.latitude)) &&
-    Number.isFinite(Number(vendor.longitude))
+    Number.isFinite(Number(vendor.longitude)) &&
+    (vendor.location_type === 'shop' || vendor.location_visibility === 'exact')
 
   const googleMapsPinUrl = hasPinnedGps
     ? `https://www.google.com/maps/search/?api=1&query=${vendor!.latitude},${vendor!.longitude}`
@@ -216,7 +217,7 @@ export default async function ProductDetailPage({
                 <span className="inline-flex items-center gap-1">
                   <Clock className="w-3.5 h-3.5 stroke-[2]" />
                   <span>
-                    {daysConfirmed === 0 ? 'Confirmed today' : `Confirmed ${daysConfirmed}d ago`}
+                    {daysConfirmed === null ? 'Active listing' : daysConfirmed === 0 ? 'Confirmed today' : `Confirmed ${daysConfirmed}d ago`}
                   </span>
                 </span>
               </div>

@@ -71,7 +71,7 @@ self.addEventListener('fetch', (event) => {
   if (isImageOrFont) {
     event.respondWith(
       caches.open(CACHE_NAME).then((cache) =>
-        cache.match(request).then((cached) => {
+        cache.match(request, { ignoreSearch: true }).then((cached) => {
           if (cached) return cached
           return fetch(request)
             .then((res) => {
@@ -98,7 +98,7 @@ self.addEventListener('fetch', (event) => {
           }
           return res
         })
-        .catch(() => caches.match(request).then((c) => c || caches.match('/')))
+        .catch(() => caches.match(request, { ignoreSearch: true }).then((c) => c || caches.match('/', { ignoreSearch: true })))
     )
     return
   }

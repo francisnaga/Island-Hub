@@ -2,6 +2,7 @@
 
 import { useState } from 'react'
 import { Product, Vendor } from '@/lib/types'
+import { trackFlyerEvent } from '@/lib/analytics'
 import {
   buildProductWhatsAppUrl,
   formatNaira,
@@ -128,6 +129,7 @@ export function ProductOrderBox({ product, vendor, productUrl }: ProductOrderBox
                 href={whatsappResult.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => trackFlyerEvent('whatsapp_tap')}
                 className="h-11 sm:h-12 px-5 sm:px-7 rounded-xl sm:rounded-2xl bg-[#0F6E6E] hover:bg-[#0A4F4F] active:bg-[#083E3E] dark:bg-[#14B8A6] dark:hover:bg-[#0F9E8E] text-white font-semibold text-[14px] sm:text-[15px] flex items-center justify-center gap-2 shadow-xs transition-all active:scale-[0.98] cursor-pointer"
               >
                 <WhatsAppIcon className="w-4.5 h-4.5 text-white shrink-0" />

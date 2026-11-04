@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { Search, ShoppingBag, Bed, Briefcase, Plus, Store } from 'lucide-react'
+import { trackFlyerEvent } from '@/lib/analytics'
 
 export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
   const router = useRouter()
@@ -65,7 +66,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
                   type="search"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  placeholder="Search boots, fruit salad, rooms, services..."
+                  placeholder="Search boots, rooms, haircuts..."
                   className="w-full bg-transparent text-[13.5px] sm:text-sm text-[#0E1B1B] placeholder:text-[#5B6B6B] focus:outline-none"
                 />
               </div>
@@ -106,6 +107,9 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
 
             <Link
               href={hasStore ? '/vendor/dashboard' : '/vendor/apply'}
+              onClick={() => {
+                if (!hasStore) trackFlyerEvent('sell_flow_start')
+              }}
               className="group relative flex flex-col items-center justify-center gap-1.5 h-[70px] sm:h-[76px] rounded-xl bg-gradient-to-b from-[#E8B84A] to-[#D4A338] hover:from-[#F0C35B] hover:to-[#DFAC43] text-[#0A2626] border border-[#F5D076] transition-all duration-200 shadow-sm active:scale-[0.97]"
             >
               {hasStore ? (

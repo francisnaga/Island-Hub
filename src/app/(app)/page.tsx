@@ -35,6 +35,21 @@ export const metadata = {
   alternates: {
     canonical: 'https://jetty.francisnaga.site',
   },
+  openGraph: {
+    type: 'website',
+    locale: 'en_NG',
+    url: 'https://jetty.francisnaga.site',
+    siteName: 'Jetty NMU',
+    title: 'Find What You Need Around NMU (Okerenkoko & Kurutie) | Jetty',
+    description: 'Rooms, services and items from students and businesses across Okerenkoko and Kurutie. Compare cadet uniforms, lodges, haircuts, and campus trades freely on Jetty.',
+    images: [{ url: 'https://jetty.francisnaga.site/og-image.png', width: 1200, height: 630, alt: 'Jetty — NMU Campus Marketplace' }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'Find What You Need Around NMU (Okerenkoko & Kurutie) | Jetty',
+    description: 'Rooms, services and items from students and businesses across Okerenkoko and Kurutie. Compare cadet uniforms, lodges, haircuts, and campus trades freely on Jetty.',
+    images: ['https://jetty.francisnaga.site/og-image.png'],
+  },
 }
 
 export default async function HomePage({

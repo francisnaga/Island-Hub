@@ -9,7 +9,7 @@ export const dynamic = 'force-dynamic'
 export default async function VendorDashboardPage({
   searchParams,
 }: {
-  searchParams: Promise<{ tab?: string; kind?: string; edit?: string }>
+  searchParams: Promise<{ tab?: string; kind?: string; edit?: string; new_store?: string }>
 }) {
   const [sp, { user, profile, vendor }, categories] = await Promise.all([
     searchParams,
@@ -55,6 +55,7 @@ export default async function VendorDashboardPage({
           : undefined
       }
       initialEditId={sp.edit || undefined}
+      initialNewStore={sp.new_store === '1'}
     />
   )
 }
