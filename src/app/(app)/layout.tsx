@@ -5,6 +5,7 @@ import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { NavigationFeedback } from '@/components/layout/NavigationFeedback'
 import { SourceTracker } from '@/components/analytics/SourceTracker'
 import { PwaInstallBanner } from '@/components/layout/PwaInstallBanner'
+import { FeedSeedSetter } from '@/components/feed/FeedSeedSetter'
 import { getCurrentUserContext } from '@/lib/queries'
 
 export default async function AppLayout({
@@ -23,6 +24,8 @@ export default async function AppLayout({
       <Suspense fallback={null}>
         <SourceTracker />
       </Suspense>
+      {/* Stamps a random feed seed cookie on first visit — gives each browser a unique feed ordering */}
+      <FeedSeedSetter />
       <Navbar user={user} profile={profile} vendor={vendor} />
       <main className="flex-1 min-w-0 w-full bg-background">{children}</main>
       <Footer />

@@ -17,6 +17,24 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'Please sign in to upload photos.' }, { status: 401 })
     }
 
+    // ── Vendor-only guard ───────────────────────────────────────────────────
+    // Only users with an active vendor account may upload product images.
+    // This prevents any Google-authenticated buyer from abusing storage.
+    const adminDb = await createAdminClient()
+    const { data: vendorRow } = await adminDb
+      .from('vendors')
+      .select('id')
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    if (!vendorRow) {
+      return NextResponse.json(
+        { error: 'Only verified vendor accounts can upload images. Please apply to become a vendor first.' },
+        { status: 403 }
+      )
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     const formData = await request.formData()
     const file = formData.get('file') as File | null
     const requestedFolder = String(formData.get('folder') || user.id).trim()
@@ -56,7 +74,6 @@ export async function POST(request: NextRequest) {
       .toString(36)
       .substring(2, 7)}.${ext}`
 
-    const adminDb = await createAdminClient()
     const arrayBuffer = await file.arrayBuffer()
     const buffer = Buffer.from(arrayBuffer)
 

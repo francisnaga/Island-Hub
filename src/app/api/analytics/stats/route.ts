@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { isAdminEmail } from '@/lib/types'
 
 export const dynamic = 'force-dynamic'
 
@@ -15,6 +17,17 @@ export const FLYER_TAGS_META: Record<string, { label: string; channel: string; t
 
 export async function GET(request: NextRequest) {
   try {
+    // ── Admin-only guard ────────────────────────────────────────────────────
+    const supabase = await createClient()
+    const {
+      data: { user },
+    } = await supabase.auth.getUser()
+
+    if (!user || !isAdminEmail(user.email)) {
+      return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
+    }
+    // ────────────────────────────────────────────────────────────────────────
+
     const adminDb = await createAdminClient()
     const { searchParams } = new URL(request.url)
     const timeframe = searchParams.get('timeframe') || 'all' // 'today' | '7d' | 'all'
