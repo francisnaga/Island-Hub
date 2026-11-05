@@ -11,6 +11,7 @@ import {
   normalizeServiceSlug,
 } from './services-data'
 import { Category, CategoryRequest, isAdminEmail, Product, UserProfile, Vendor } from './types'
+import { rankFeed, hashString } from './feed-algorithm'
 
 const SYSTEM_SECTION_SLUGS = new Set(['campus-services', 'student-housing'])
 
@@ -248,6 +249,8 @@ export interface ProductQueryFilters {
   page?: number
   includeHousing?: boolean
   includeServices?: boolean
+  /** Hashed user ID for per-user feed variation. Pass hashString(userId). */
+  userSeed?: number
 }
 
 function matchesSearchQuery(p: Product, rawQuery: string): boolean {
@@ -335,6 +338,7 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     page = 1,
     includeHousing = false,
     includeServices = false,
+    userSeed,
   } = filters
 
   let productsList: Product[] = []
@@ -421,25 +425,25 @@ export async function getPublicProducts(filters: ProductQueryFilters = {}): Prom
     })
   }
 
+  // ── Feed ranking ───────────────────────────────────────────────────────────
+  // For explicit price sorts, skip the algorithm and sort numerically.
+  // For all other modes (default "newest" / "relevance"), apply the full
+  // ranking algorithm: featured boosting, freshness, verification tier,
+  // vendor diversity cap, and daily-rotating jitter so the feed looks
+  // different each day and varies by category.
   if (sort === 'price_asc') {
     productsList.sort((a, b) => a.price - b.price)
   } else if (sort === 'price_desc') {
     productsList.sort((a, b) => b.price - a.price)
   } else {
-    productsList.sort((a, b) => {
-      const aFeatured = Boolean(a.is_featured || a.vendor?.is_featured)
-      const bFeatured = Boolean(b.is_featured || b.vendor?.is_featured)
-      if (bFeatured !== aFeatured) {
-        return bFeatured ? 1 : -1
-      }
-      const aVerified = a.vendor?.verification_status === 'verified'
-      const bVerified = b.vendor?.verification_status === 'verified'
-      if (bVerified !== aVerified) {
-        return bVerified ? 1 : -1
-      }
-      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+    productsList = rankFeed(productsList, {
+      category: category || undefined,
+      userSeed: filters.userSeed,
+      vendorDiversityCap: 2,
+      topSlots: 12,
     })
   }
+  // ──────────────────────────────────────────────────────────────────────────
 
   const totalCount = productsList.length
   const start = (Math.max(1, page) - 1) * limit
@@ -528,15 +532,11 @@ export async function getPublicLodges(options?: {
           item.vendor.verification_status !== 'suspended'
       )
 
-      // Push featured listings & verified/featured vendors to the top
-      approvedProducts.sort((a, b) => {
-        const aFeat = Boolean(a.is_featured || a.vendor?.is_featured)
-        const bFeat = Boolean(b.is_featured || b.vendor?.is_featured)
-        if (bFeat !== aFeat) return bFeat ? 1 : -1
-        const aVer = a.vendor?.verification_status === 'verified'
-        const bVer = b.vendor?.verification_status === 'verified'
-        if (bVer !== aVer) return bVer ? 1 : -1
-        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+      // Apply feed algorithm for housing listings (vendor diversity + daily rotation)
+      approvedProducts = rankFeed(approvedProducts, {
+        category: 'student-housing',
+        vendorDiversityCap: 3, // allow up to 3 lodges per agent in the top slots
+        topSlots: 9,
       })
 
       if (options?.q?.trim()) {
@@ -614,24 +614,17 @@ export async function getPublicServices(campus?: string): Promise<ServiceItem[]>
       .order('created_at', { ascending: false })
 
     if (!error && data) {
-      const approved = (data as Product[])
-        .filter(
+      const approved = rankFeed(
+        (data as Product[]).filter(
           (item) =>
             item.status === 'approved' &&
             !item.is_demo &&
             item.vendor &&
             item.vendor.verification_status !== 'rejected' &&
             item.vendor.verification_status !== 'suspended'
-        )
-        .sort((a, b) => {
-          const aFeat = Boolean(a.is_featured || a.vendor?.is_featured)
-          const bFeat = Boolean(b.is_featured || b.vendor?.is_featured)
-          if (bFeat !== aFeat) return bFeat ? 1 : -1
-          const aVer = a.vendor?.verification_status === 'verified'
-          const bVer = b.vendor?.verification_status === 'verified'
-          if (bVer !== aVer) return bVer ? 1 : -1
-          return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        })
+        ),
+        { category: 'campus-services', vendorDiversityCap: 1, topSlots: 10 }
+      )
 
       for (const item of approved) {
         const serviceSlug = inferServiceSlugFromProduct(item)

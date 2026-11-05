@@ -7,6 +7,7 @@ import {
   getPublicVendors,
 } from '@/lib/queries'
 import { MarketplaceClient } from '@/components/marketplace/MarketplaceClient'
+import { hashString } from '@/lib/feed-algorithm'
 
 export const dynamic = 'force-dynamic'
 
@@ -50,6 +51,10 @@ export default async function MarketplacePage({
   const params = await searchParams
   const cookieStore = await cookies()
   const cookieCampus = cookieStore.get('jetty_campus')?.value
+  // Per-visitor feed seed — set by the client on first load, gives each browser
+  // a slightly different ordering without needing a login
+  const rawFeedSeed = cookieStore.get('jetty_feed_seed')?.value
+  const userSeed = rawFeedSeed ? hashString(rawFeedSeed) : undefined
   const activeCampus =
     params.campus || (cookieCampus && cookieCampus !== 'all' ? cookieCampus : 'all')
 
@@ -81,6 +86,7 @@ export default async function MarketplacePage({
       sort: (params.sort as 'newest' | 'price_asc' | 'price_desc' | 'relevance') || 'newest',
       limit: ITEMS_PER_PAGE,
       page,
+      userSeed,
     }),
     getPublicVendors({
       verifiedOnly: false,
