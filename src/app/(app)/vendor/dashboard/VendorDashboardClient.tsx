@@ -164,7 +164,7 @@ export function VendorDashboardClient({
     if (initialTab === 'store') return 'v:store'
     return 'v:listings'
   })
-  const [listingsView, setListingsView] = useState<'active' | 'drafts' | 'sold'>('active')
+  const [listingsView, setListingsView] = useState<'active' | 'drafts' | 'sold' | 'rejected'>('active')
 
   // Listing Action Sheet state (openAct / confirmDel from prototype)
   const [actionProduct, setActionProduct] = useState<Product | null>(null)
@@ -215,6 +215,11 @@ export function VendorDashboardClient({
     setCatReqDesc('')
     setCatReqOpen(true)
   }
+
+  // Push notification subscription state
+  const [pushSupported, setPushSupported] = useState(false)
+  const [pushSubscribed, setPushSubscribed] = useState(false)
+  const [pushLoading, setPushLoading] = useState(false)
 
   // Store Settings Edit Bottom Sheet state
   const [editingStoreField, setEditingStoreField] = useState<
@@ -897,13 +902,17 @@ export function VendorDashboardClient({
   const soldProducts = products.filter(
     (p) =>
       (p.stock_status === 'out_of_stock' || p.status === 'archived') &&
-      p.status !== 'draft'
+      p.status !== 'draft' &&
+      p.status !== 'rejected'
   )
+  const rejectedProducts = products.filter((p) => p.status === 'rejected')
   const visibleProducts =
     listingsView === 'active'
       ? activeProducts
       : listingsView === 'drafts'
       ? draftProducts
+      : listingsView === 'rejected'
+      ? rejectedProducts
       : soldProducts
 
   const activeNavTab: 'v:listings' | 'v:new' | 'v:store' =
@@ -913,8 +922,75 @@ export function VendorDashboardClient({
       ? 'v:store'
       : 'v:listings'
 
+  // Check push notification support and subscription status
+  useEffect(() => {
+    if (!('serviceWorker' in navigator) || !('PushManager' in window)) return
+    setPushSupported(true)
+    navigator.serviceWorker.ready
+      .then(async (reg) => {
+        const sub = await reg.pushManager.getSubscription()
+        setPushSubscribed(!!sub)
+      })
+      .catch(() => {})
+  }, [])
+
   const campusDisplay =
     vendor.campus === 'Both' ? 'Both campuses' : vendor.campus || 'Okerenkoko'
+
+  const handlePushToggle = async () => {
+    if (!pushSupported || pushLoading) return
+    setPushLoading(true)
+    try {
+      const reg = await navigator.serviceWorker.ready
+      if (pushSubscribed) {
+        // Unsubscribe
+        const sub = await reg.pushManager.getSubscription()
+        if (sub) {
+          await fetch('/api/push/subscribe', {
+            method: 'DELETE',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ endpoint: sub.endpoint }),
+          })
+          await sub.unsubscribe()
+        }
+        setPushSubscribed(false)
+        toast.success('Notifications turned off')
+      } else {
+        // Subscribe
+        const vapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
+        if (!vapidKey) { toast.error('Push notifications not configured'); return }
+        const sub = await reg.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: vapidKey,
+        })
+        const subJson = sub.toJSON()
+        const res = await fetch('/api/push/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            endpoint: sub.endpoint,
+            keys: subJson.keys,
+            vendor_id: vendor.id,
+          }),
+        })
+        if (!res.ok) {
+          toast.error('Could not enable notifications')
+          await sub.unsubscribe()
+          return
+        }
+        setPushSubscribed(true)
+        toast.success("Notifications enabled! You'll be notified when listings are approved or rejected.")
+      }
+    } catch (err: any) {
+      if (err?.name === 'NotAllowedError') {
+        toast.error('Notifications blocked. Enable them in your browser settings.')
+      } else {
+        toast.error('Could not update notification settings')
+      }
+    } finally {
+      setPushLoading(false)
+    }
+  }
 
   return (
     <div className="min-h-screen bg-background text-foreground pb-32">
@@ -967,6 +1043,21 @@ export function VendorDashboardClient({
               >
                 Sold {soldProducts.length}
               </button>
+              {rejectedProducts.length > 0 && (
+                <button
+                  type="button"
+                  aria-pressed={listingsView === 'rejected'}
+                  onClick={() => setListingsView('rejected')}
+                  className={cn(
+                    'flex-1 h-10 rounded-[9px] text-[13px] sm:text-[14px] font-medium transition-all cursor-pointer',
+                    listingsView === 'rejected'
+                      ? 'bg-red-500/10 text-red-600 shadow-2xs font-semibold dark:bg-red-950/40 dark:text-red-400'
+                      : 'text-red-500/70 hover:text-red-600 dark:text-red-400/70'
+                  )}
+                >
+                  Rejected {rejectedProducts.length}
+                </button>
+              )}
             </div>
 
             {/* Listing Rows (.list > .mr) */}
@@ -2338,6 +2429,31 @@ export function VendorDashboardClient({
                     </Link>
                   )}
 
+                  {/* Push notifications toggle */}
+                  {pushSupported && (
+                    <div className="flex items-center gap-3.5 w-full min-h-[52px] px-4 py-3.5">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-[15px] text-foreground leading-snug">Listing notifications</p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          {pushSubscribed ? 'You\'ll be notified on approval / rejection' : 'Get notified when listings are reviewed'}
+                        </p>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={handlePushToggle}
+                        disabled={pushLoading}
+                        className={cn(
+                          'shrink-0 h-8 px-3 rounded-lg text-xs font-semibold transition-colors',
+                          pushSubscribed
+                            ? 'bg-muted text-muted-foreground hover:bg-red-500/10 hover:text-red-600'
+                            : 'bg-[#0F6E6E] text-white hover:bg-[#0A4F4F]'
+                        )}
+                      >
+                        {pushLoading ? '...' : pushSubscribed ? 'Turn off' : 'Enable'}
+                      </button>
+                    </div>
+                  )}
+
                   {/* Log out */}
                   <button
                     type="button"
@@ -2498,6 +2614,18 @@ export function VendorDashboardClient({
               {actionProduct.title}
             </h3>
 
+            {actionProduct.status === 'rejected' && actionProduct.rejection_reason && (
+              <div className="mb-3 rounded-xl border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30 px-4 py-3">
+                <p className="text-xs font-semibold text-red-700 dark:text-red-400 mb-1">Why it was rejected:</p>
+                <p className="text-sm text-red-800 dark:text-red-300 leading-relaxed">{actionProduct.rejection_reason}</p>
+              </div>
+            )}
+            {actionProduct.status === 'rejected' && !actionProduct.rejection_reason && (
+              <div className="mb-3 rounded-xl border border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950/30 px-4 py-3">
+                <p className="text-sm text-red-700 dark:text-red-400">This listing was rejected by our team. Edit it and resubmit for review.</p>
+              </div>
+            )}
+
             {actionProduct.status === 'draft' ? (
               <>
                 <button
@@ -2588,12 +2716,19 @@ export function VendorDashboardClient({
                     setActionProduct(null)
                     populateFormForEdit(target)
                   }}
-                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer"
+                  className="flex items-center gap-3 w-full min-h-[64px] py-2 border-t border-border text-left cursor-pointer hover:bg-muted/30 transition-colors"
                 >
                   <span className="w-11 h-11 rounded-xl bg-[#E6F2F2] dark:bg-muted text-[#0F6E6E] grid place-items-center shrink-0">
                     <Edit3 className="w-5 h-5" />
                   </span>
-                  <b className="text-base font-semibold">Edit</b>
+                  <div>
+                    <b className="text-base font-semibold block">
+                      {actionProduct.status === 'rejected' ? 'Edit & resubmit' : 'Edit'}
+                    </b>
+                    {actionProduct.status === 'rejected' && (
+                      <span className="text-xs text-muted-foreground block">Fix the issue and send for review again</span>
+                    )}
+                  </div>
                 </button>
 
                 <button

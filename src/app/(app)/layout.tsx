@@ -4,6 +4,7 @@ import { Footer } from '@/components/layout/Footer'
 import { MobileBottomNav } from '@/components/layout/MobileBottomNav'
 import { NavigationFeedback } from '@/components/layout/NavigationFeedback'
 import { SourceTracker } from '@/components/analytics/SourceTracker'
+import { PwaInstallBanner } from '@/components/layout/PwaInstallBanner'
 import { getCurrentUserContext } from '@/lib/queries'
 
 export default async function AppLayout({
@@ -26,6 +27,7 @@ export default async function AppLayout({
       <main className="flex-1 min-w-0 w-full bg-background">{children}</main>
       <Footer />
       <MobileBottomNav hasStore={hasStore} />
+      <PwaInstallBanner />
     </div>
   )
 }

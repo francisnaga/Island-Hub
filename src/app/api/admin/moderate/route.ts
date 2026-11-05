@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { sendAdminPush, sendVendorPush } from '@/lib/push'
 import { revalidatePath } from 'next/cache'
 import { createClient as createSupabaseJsClient } from '@supabase/supabase-js'
 import { createClient } from '@/lib/supabase/server'
@@ -124,6 +125,23 @@ export async function POST(request: NextRequest) {
       }
 
       revalidatePath('/', 'layout')
+
+      // Notify vendor via push on verification/suspension
+      if (data?.id) {
+        const isVerified = status === 'verified'
+        const isSuspended = status === 'suspended'
+        if (isVerified || isSuspended) {
+          await sendVendorPush(data.id, {
+            title: isVerified ? '✅ Store verified!' : '⚠️ Store suspended',
+            body: isVerified
+              ? 'Your Jetty store has been verified. Keep listing great products!'
+              : 'Your store has been suspended. Contact support via WhatsApp for details.',
+            url: '/vendor/dashboard',
+            tag: `vendor-${status}-${data.id}`,
+          })
+        }
+      }
+
       return NextResponse.json({ vendor: data })
     }
 
@@ -200,6 +218,23 @@ export async function POST(request: NextRequest) {
       }
 
       revalidatePath('/', 'layout')
+
+      // Notify vendor via push if they have a subscription registered
+      if (data?.vendor_id) {
+        const isApproved = status === 'approved'
+        const isRejected = status === 'rejected'
+        if (isApproved || isRejected) {
+          await sendVendorPush(data.vendor_id, {
+            title: isApproved ? '✅ Listing approved!' : '❌ Listing needs changes',
+            body: isApproved
+              ? `"${data.title}" is now live on Jetty.`
+              : `"${data.title}" was rejected${reason ? ': ' + String(reason).slice(0, 80) : ''}. Tap to edit and resubmit.`,
+            url: '/vendor/dashboard',
+            tag: `listing-${status}-${data.id}`,
+          })
+        }
+      }
+
       return NextResponse.json({ product: data })
     }
 
