@@ -249,16 +249,15 @@ export default async function VendorStorefrontPage({
         className="block w-full h-7 -mt-[1px] pointer-events-none"
         style={{ display: 'block', width: '100%', height: '28px', marginTop: '-1px' }}
       >
-        <rect width="432" height="28" fill="#0A4F4F" />
         <g
           style={{
             transformBox: 'fill-box',
-            transformOrigin: '50% 100%',
+            transformOrigin: '50% 0%',
           }}
         >
           <path
-            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
-            className="fill-background"
+            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V0H0Z"
+            fill="#0A4F4F"
           />
           <path
             d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
