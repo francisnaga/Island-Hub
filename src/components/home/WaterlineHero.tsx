@@ -125,7 +125,7 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
         </div>
       </section>
 
-      {/* The Waterline SVG Wave (Gold Crest) — matching prototype exactly with zero stroke clipping */}
+      {/* The Waterline SVG Wave (Gold Crest) — Clean Top-Fill with Zero Seam Artifacts */}
       <svg
         className="w-full h-7 block -mt-px pointer-events-none"
         viewBox="0 0 432 28"
@@ -133,20 +133,21 @@ export function WaterlineHero({ hasStore = false }: { hasStore?: boolean }) {
         aria-hidden="true"
         style={{ display: 'block', width: '100%', height: '28px', marginTop: '-1px' }}
       >
-        <rect width="432" height="28" fill="#0A4F4F" />
         <g
           id="wv"
           style={{
             transformBox: 'fill-box',
-            transformOrigin: '50% 100%',
+            transformOrigin: '50% 0%',
             transform: `scaleY(${amplitude})`,
             willChange: 'transform',
           }}
         >
+          {/* Deep teal water body above the wave crest — inline fill for 0ms instant render on slow network */}
           <path
-            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V28H0z"
-            className="fill-background"
+            d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0V0H0Z"
+            fill="#0A4F4F"
           />
+          {/* Gold wave crest — zero bottom edge or rect underneath to leak seams */}
           <path
             d="M0 14q27-11.5 54 0t54 0t54 0t54 0t54 0t54 0t54 0t54 0"
             fill="none"
